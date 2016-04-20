@@ -19,7 +19,11 @@ module.exports = function (app, model, Implementation, opts) {
     var params = _.extend(req.query, req.params);
     var models = Implementation.getModels();
     var associationField = getAssociationField(req.params.associationName);
-    var associationModel = models[associationField];
+    var associationModel = _.find(models, function (model) {
+      return Implementation.getModelName(model) === associationField;
+    });
+
+    if (!associationModel) { return res.status(404).send(); }
 
     return new Implementation.HasManyGetter(model, associationModel, opts,
       params)
