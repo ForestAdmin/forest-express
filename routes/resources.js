@@ -38,8 +38,9 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.create = function (req, res, next) {
-    new ResourceDeserializer(Implementation, model, req.body)
-      .perform()
+    new ResourceDeserializer(Implementation, model, req.body, {
+      omitNullAttributes: true
+    }).perform()
       .then(function (params) {
         return new Implementation.ResourceCreator(model, params).perform();
       })
