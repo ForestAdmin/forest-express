@@ -4,6 +4,7 @@ var P = require('bluebird');
 var Schemas = require('../generators/schemas');
 
 function ResourceDeserializer(Implementation, model, params, opts) {
+  if (!opts) { opts = {}; }
   var schema = Schemas.schemas[Implementation.getModelName(model)];
 
   function extractAttributes() {
