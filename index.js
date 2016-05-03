@@ -251,7 +251,7 @@ exports.init = function (Implementation) {
           },
           actions: {
             ref: 'name',
-            attributes: ['name', 'endpoint', 'httpMethod']
+            attributes: ['name', 'endpoint', 'httpMethod', 'fields']
           },
           meta: {
             'liana': 'forest-express-mongoose',
