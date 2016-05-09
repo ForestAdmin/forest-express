@@ -3,14 +3,15 @@ var P = require('bluebird');
 var request = require('superagent');
 var allowedUsers = require('./auth').allowedUsers;
 
-function AllowedUsersFinder(opts) {
+function AllowedUsersFinder(renderingId, opts) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       var forestUrl = process.env.FOREST_URL ||
         'https://forestadmin-server.herokuapp.com';
 
       request
-        .get(forestUrl + '/forest/allowed-users')
+        .get(forestUrl + '/forest/renderings/ ' + renderingId +
+          '/allowed-users')
         .set('forest-secret-key', opts.secretKey)
         .end(function (err, res) {
           if (err) { return reject(err); }
@@ -22,8 +23,6 @@ function AllowedUsersFinder(opts) {
           res.body.data.forEach(function (d) {
             var user = d.attributes;
             user.id = d.id;
-            user.outlines = d.relationships.outlines.data.map(
-              function (x) { return x.id; });
 
             allowedUsers.push(user);
           });
