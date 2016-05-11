@@ -254,8 +254,8 @@ exports.init = function (Implementation) {
             attributes: ['name', 'endpoint', 'httpMethod']
           },
           meta: {
-            'liana': 'forest-express-mongoose',
-            'liana_version': require('./package.json').version
+            'liana': Implementation.getLianaName(),
+            'liana_version': Implementation.getLianaVersion()
           }
         });
 
