@@ -7,12 +7,11 @@ var AllowedUsersFinder = require('../services/allowed-users-finder');
 module.exports = function (app, opts) {
 
   function login(req, res) {
-    new AllowedUsersFinder(opts)
+    new AllowedUsersFinder(req.body.renderingId, opts)
       .perform()
       .then(function (allowedUsers) {
         var user = _.find(allowedUsers, function (allowedUser) {
           return allowedUser.email === req.body.email &&
-            allowedUser.outlines.indexOf(req.body.outlineId) > -1 &&
             bcrypt.compareSync(req.body.password, allowedUser.password);
         });
 
