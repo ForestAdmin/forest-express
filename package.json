@@ -18,7 +18,7 @@
     "express": "^4.13.4",
     "express-cors": "0.0.3",
     "express-jwt": "^3.3.0",
-    "jsonapi-serializer": "^3.2.0",
+    "jsonapi-serializer": "^3.2.1",
     "lodash": "^4.10.0",
     "logger": "0.0.1",
     "node-uuid": "^1.4.7",
