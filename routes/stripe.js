@@ -16,7 +16,10 @@ module.exports = function (app, model, Implementation, opts) {
     new StripePaymentsGetter(Implementation, _.extend(req.query, req.params),
       opts)
       .perform()
-      .spread(function (count, payments) {
+      .then(function (results) {
+        var count = results[0];
+        var payments = results[1];
+
         return new StripePaymentsSerializer(payments, modelName, {
           count: count
         });
@@ -46,7 +49,10 @@ module.exports = function (app, model, Implementation, opts) {
     new StripeInvoicesGetter(Implementation, _.extend(req.query, req.params),
       opts)
       .perform()
-      .spread(function (count, invoices) {
+      .then(function (results) {
+        var count = results[0];
+        var invoices = results[1];
+
         return new StripeInvoicesSerializer(invoices, modelName, {
           count: count
         });
@@ -61,7 +67,10 @@ module.exports = function (app, model, Implementation, opts) {
     new StripeCardsGetter(Implementation, _.extend(req.query, req.params),
       opts)
       .perform()
-      .spread(function (count, cards) {
+      .then(function (results) {
+        var count = results[0];
+        var cards = results[1];
+
         return new StripeCardsSerializer(cards, modelName, { count: count });
       })
       .then(function (cards) {
