@@ -10,7 +10,8 @@ function ResourceDeserializer(Implementation, model, params, opts) {
   function extractAttributes() {
     return new P(function (resolve) {
       var attributes = params.data.attributes;
-      attributes[schema.idField] = params.data.attributes[schema.idField];
+      attributes[schema.idField] = params.data.attributes[schema.idField] ||
+        params.data.id;
 
       if (opts.omitNullAttributes) {
         attributes = _.pickBy(attributes, function (value) {
