@@ -23,7 +23,8 @@ module.exports = function (app, opts) {
               email: user.email,
               // jshint sub: true
               'first_name': user['first_name'],
-              'last_name': user['last_name']
+              'last_name': user['last_name'],
+              teams: user.teams
             },
             relationships: {
               outlines: {
