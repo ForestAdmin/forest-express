@@ -9,9 +9,35 @@ module.exports = {
       .each(models, function (model) {
         return new implementation.SchemaAdapter(model, opts)
           .then(function (schema) {
+            function hasIntercomIntegration() {
+              return opts.integrations && opts.integrations.intercom &&
+                opts.integrations.intercom.apiKey &&
+                opts.integrations.intercom.appId;
+            }
+
             function hasStripeIntegration() {
               return opts.integrations && opts.integrations.stripe &&
                 opts.integrations.stripe.apiKey;
+            }
+
+            function setupIntercomIntegration() {
+              schema.fields.push({
+                field: 'intercom_conversations',
+                type: ['String'],
+                reference: 'intercom_conversations.id',
+                column: null,
+                isSearchable: false,
+                integration: 'intercom'
+              });
+
+              schema.fields.push({
+                field: 'intercom_attributes',
+                type: ['String'],
+                reference: 'intercom_attributes.id',
+                column: null,
+                isSearchable: false,
+                integration: 'intercom'
+              });
             }
 
             function setupStripeIntegration() {
@@ -41,6 +67,12 @@ module.exports = {
                 isSearchable: false,
                 integration: 'stripe'
               });
+            }
+
+            if (hasIntercomIntegration() &&
+              opts.integrations.intercom.userCollection ===
+              implementation.getModelName(model)) {
+              setupIntercomIntegration();
             }
 
             if (hasStripeIntegration() &&
