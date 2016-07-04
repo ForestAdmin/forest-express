@@ -20,6 +20,15 @@ module.exports = {
                 opts.integrations.stripe.apiKey;
             }
 
+            function integrationCollectionMatch(integration) {
+              var userCollection = integration.userCollection;
+              var models = implementation.getModels();
+              var userModel = models[userCollection];
+
+              return implementation.getModelName(userModel) ===
+                implementation.getModelName(model);
+            }
+
             function setupIntercomIntegration() {
               schema.fields.push({
                 field: 'intercom_conversations',
@@ -70,14 +79,12 @@ module.exports = {
             }
 
             if (hasIntercomIntegration() &&
-              opts.integrations.intercom.userCollection ===
-              implementation.getModelName(model)) {
+              integrationCollectionMatch(opts.integrations.intercom)) {
               setupIntercomIntegration();
             }
 
             if (hasStripeIntegration() &&
-              opts.integrations.stripe.userCollection ===
-              implementation.getModelName(model)) {
+              integrationCollectionMatch(opts.integrations.stripe)) {
               setupStripeIntegration();
             }
 
