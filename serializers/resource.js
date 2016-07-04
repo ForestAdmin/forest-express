@@ -71,9 +71,10 @@ function ResourceSerializer(Implementation, model, records, opts, meta) {
             ignoreRelationshipData: true,
             relationshipLinks: {
               related: function (dataSet) {
+                console.log(schema);
                 var ret = {
                   href: '/forest/' + Implementation.getModelName(model) +
-                    '/' + dataSet.id + '/' + field.field,
+                    '/' + dataSet[schema.idField] + '/' + field.field,
                 };
                 return ret;
               }
@@ -89,7 +90,7 @@ function ResourceSerializer(Implementation, model, records, opts, meta) {
               related: function (dataSet) {
                 var ret = {
                   href: '/forest/' + Implementation.getModelName(model) +
-                    '/' + dataSet.id + '/' + field.field,
+                    '/' + dataSet[schema.idField] + '/' + field.field,
                 };
                 return ret;
               }
