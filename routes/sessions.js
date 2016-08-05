@@ -49,5 +49,3 @@ module.exports = function (app, opts) {
     app.post('/forest/sessions', login);
   };
 };
-
-

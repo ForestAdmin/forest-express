@@ -12,6 +12,7 @@ var AssociationsRoutes = require('./routes/associations');
 var StripeRoutes = require('./routes/stripe');
 var IntercomRoutes = require('./routes/intercom');
 var StatRoutes = require('./routes/stats');
+var ActionRoute = require('./routes/actions');
 var SessionRoute = require('./routes/sessions');
 var ForestRoutes = require('./routes/forest');
 var Schemas = require('./generators/schemas');
@@ -205,6 +206,7 @@ exports.init = function (Implementation) {
   }).unless({ path: /^(?!\/forest).*/ }));
 
   new SessionRoute(app, opts).perform();
+  new ActionRoute(app, opts).perform();
 
   //// Init
   var absModelDirs = path.resolve('.', opts.modelsDir);
