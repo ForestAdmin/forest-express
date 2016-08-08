@@ -71,7 +71,6 @@ function ResourceSerializer(Implementation, model, records, opts, meta) {
             ignoreRelationshipData: true,
             relationshipLinks: {
               related: function (dataSet) {
-                console.log(schema);
                 var ret = {
                   href: '/forest/' + Implementation.getModelName(model) +
                     '/' + dataSet[schema.idField] + '/' + field.field,

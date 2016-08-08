@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var ActivityLogLogger = require('../services/activity-log-logger');
@@ -17,12 +18,16 @@ module.exports = function (app, model, Implementation, opts) {
         var records = results[1];
 
         // Inject smart fields.
-        schema.fields.forEach(function (field) {
-          if (field.value) {
-            records.map(function (record) {
-              record[field.field] = field.value(record);
-            });
-          }
+        records.map(function (record) {
+          schema.fields.forEach(function (field) {
+            if (!record[field.field]) {
+              if (field.value) {
+                record[field.field] = field.value(record);
+              } else if (_.isArray(field.type)) {
+                record[field.field] = [];
+              }
+            }
+          });
         });
 
         return new ResourceSerializer(Implementation, model, records, opts, {
