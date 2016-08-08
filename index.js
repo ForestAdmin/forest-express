@@ -212,7 +212,7 @@ exports.init = function (Implementation) {
     .then(function (models) {
       return Schemas.perform(Implementation, models, opts)
         .then(function () {
-          return requireAllModels(Implementation, absModelDirs + '/forest')
+          return requireAllModels(Implementation, path.resolve('.') + '/forest')
             .catch(function () {
               // The forest/ directory does not exist. It's not a problem.
             });
@@ -287,10 +287,11 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name] = opts;
   } else {
     Schemas.schemas[name].actions = opts.actions;
+    Schemas.schemas[name].fields = _.concat(opts.fields,
+      Schemas.schemas[name].fields);
   }
 };
 
 exports.ensureAuthenticated = require('./services/auth').ensureAuthenticated;
 exports.StatSerializer = require('./serializers/stat') ;
 exports.ResourceSerializer = require('./serializers/resource') ;
-

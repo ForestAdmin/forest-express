@@ -3,9 +3,11 @@ var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var ActivityLogLogger = require('../services/activity-log-logger');
 var auth = require('../services/auth');
+var Schemas = require('../generators/schemas');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
+  var schema = Schemas.schemas[Implementation.getModelName(model)];
 
   this.list = function (req, res, next) {
     return new Implementation.ResourcesGetter(model, opts, req.query)
@@ -13,6 +15,15 @@ module.exports = function (app, model, Implementation, opts) {
       .then(function (results) {
         var count = results[0];
         var records = results[1];
+
+        // Inject smart fields.
+        schema.fields.forEach(function (field) {
+          if (field.value) {
+            records.map(function (record) {
+              record[field.field] = field.value(record);
+            });
+          }
+        });
 
         return new ResourceSerializer(Implementation, model, records, opts, {
           count: count
