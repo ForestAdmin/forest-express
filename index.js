@@ -246,8 +246,8 @@ exports.init = function (Implementation) {
           attributes: ['name', 'fields', 'actions', 'onlyForRelationships',
             'isVirtual', 'isReadOnly'],
           fields: {
-            attributes: ['field', 'type', 'collection_name', 'reference',
-              'column', 'isSearchable', 'widget', 'integration']
+            attributes: ['field', 'type', 'enums', 'collection_name',
+              'reference', 'column', 'isSearchable', 'widget', 'integration']
           },
           actions: {
             ref: 'name',
