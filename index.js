@@ -287,6 +287,16 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name] = opts;
   } else {
     Schemas.schemas[name].actions = opts.actions;
+
+    opts.fields = _.map(opts.fields, function (field) {
+      // Smart field
+      field.isVirtual = true;
+      field.isSearchable = false;
+      field.isReadOnly = true;
+
+      return field;
+    });
+
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
   }
