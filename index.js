@@ -169,7 +169,8 @@ exports.collection = function (name, opts) {
   var collection = _.find(Schemas.schemas, { name: name });
 
   if (collection) {
-    Schemas.schemas[name].actions = opts.actions;
+    if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
+    Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
 
     opts.fields = _.map(opts.fields, function (field) {
       // Smart field

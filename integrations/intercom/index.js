@@ -91,8 +91,7 @@ function IntercomChecker(opts) {
 
   this.defineSerializationOption = function (Implementation, model, schema,
     dest, field) {
-
-    if (hasIntercomIntegration() && field.integration === 'intercom') {
+    if (integrationValid && field.integration === 'intercom') {
       dest[field.field] = {
         ref: 'id',
         attributes: [],

@@ -7,31 +7,14 @@ var Setup = require('./setup');
 function Checker(opts) {
   var integrationValid = false;
 
-  function hasStripeIntegration() {
-    return opts.integrations && opts.integrations.stripe &&
-      opts.integrations.stripe.apiKey;
+  function hasIntegration() {
+    return opts.integrations && opts.integrations.closeio &&
+      opts.integrations.closeio.apiKey;
   }
 
-  function isStripeProperlyIntegrated() {
-    return opts.integrations.stripe.apiKey &&
-      opts.integrations.stripe.stripe && opts.integrations.stripe.mapping;
-  }
-
-  function isStripeIntegrationDeprecated() {
-    var integrationValid = opts.integrations.stripe.apiKey &&
-      opts.integrations.stripe.stripe &&
-        (opts.integrations.stripe.userCollection ||
-          opts.integrations.stripe.userCollection);
-
-    if (integrationValid) {
-      logger.warn('Stripe integration attributes "userCollection" and ' +
-        '"userField" are now deprecated, please use "mapping" attribute.');
-      opts.integrations.stripe.mapping =
-        opts.integrations.stripe.userCollection + '.' +
-          opts.integrations.stripe.userField;
-    }
-
-    return integrationValid;
+  function isProperlyIntegrated() {
+    return opts.integrations.closeio.apiKey &&
+      opts.integrations.closeio.closeio && opts.integrations.closeio.mapping;
   }
 
   function castToArray(value) {
@@ -55,13 +38,13 @@ function Checker(opts) {
       Implementation.getModelName(model)) > -1;
   }
 
-  if (hasStripeIntegration()) {
-    if (isStripeProperlyIntegrated() || isStripeIntegrationDeprecated()) {
-      opts.integrations.stripe.mapping =
-        castToArray(opts.integrations.stripe.mapping);
+  if (hasIntegration()) {
+    if (isProperlyIntegrated()) {
+      opts.integrations.closeio.mapping =
+        castToArray(opts.integrations.closeio.mapping);
       integrationValid = true;
     } else {
-      logger.error('Cannot setup properly your Stripe integration.');
+      logger.error('Cannot setup properly your Close.io integration.');
     }
   }
 
@@ -74,30 +57,33 @@ function Checker(opts) {
   this.defineCollections = function (Implementation, collections) {
     if (!integrationValid) { return; }
 
-    _.each(opts.integrations.stripe.mapping,
-      function (collectionAndFieldName) {
-        Setup.createCollections(Implementation, collections,
-        collectionAndFieldName);
+    _.each(opts.integrations.closeio.mapping,
+      function (collectionName) {
+        Setup.createCollections(Implementation, collections, collectionName);
       });
   };
 
   this.defineFields = function (Implementation, model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.stripe,
+    if (integrationCollectionMatch(Implementation, opts.integrations.closeio,
       model)) {
-        Setup.createFields(Implementation, model, schema.fields);
+      _.each(opts.integrations.closeio.mapping, function (collectionName) {
+        Setup.createFields(Implementation, model, schema,
+          collectionName);
+      });
     }
   };
 
   this.defineSerializationOption = function (Implementation, model, schema,
     dest, field) {
-    if (integrationValid && field.integration === 'stripe') {
+
+    if (integrationValid && field.integration === 'close.io') {
       dest[field.field] = {
         ref: 'id',
-        attributes: [],
         included: false,
         ignoreRelationshipData: true,
+        nullIfMissing: true,
         relationshipLinks: {
           related: function (dataSet) {
             var ret = {
