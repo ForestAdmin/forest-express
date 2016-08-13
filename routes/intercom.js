@@ -44,4 +44,3 @@ module.exports = function (app, model, Implementation, opts) {
       auth.ensureAuthenticated, this.intercomConversations);
   };
 };
-
