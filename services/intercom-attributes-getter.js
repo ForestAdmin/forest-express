@@ -10,7 +10,7 @@ function IntercomAttributesGetter(Implementation, params, opts) {
 
   this.perform = function () {
     var userCollectionName = opts.integrations.intercom.userCollection;
-    userModel = opts.mongoose.model(userCollectionName);
+    userModel = Implementation.getModels()[userCollectionName];
 
     return Implementation.Intercom.getCustomer(userModel, params.recordId)
       .then(function (customer) {
