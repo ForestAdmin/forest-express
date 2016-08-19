@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
-var ActivityLogLogger = require('../services/activity-log-logger');
 var auth = require('../services/auth');
 var Schemas = require('../generators/schemas');
 
@@ -61,11 +60,6 @@ module.exports = function (app, model, Implementation, opts) {
         return new Implementation.ResourceCreator(model, params).perform();
       })
       .then(function (record) {
-        new ActivityLogLogger(opts).perform(req.user, 'created', modelName,
-          record.id);
-        return record;
-      })
-      .then(function (record) {
         return new ResourceSerializer(Implementation, model, record, opts)
           .perform();
       })
@@ -82,11 +76,6 @@ module.exports = function (app, model, Implementation, opts) {
         new Implementation.ResourceUpdater(model, params)
           .perform()
           .then(function (record) {
-            new ActivityLogLogger(opts).perform(req.user, 'updated', modelName,
-              record.id);
-            return record;
-          })
-          .then(function (record) {
             return new ResourceSerializer(Implementation, model, record, opts)
               .perform();
           })
@@ -101,11 +90,6 @@ module.exports = function (app, model, Implementation, opts) {
   this.remove = function (req, res, next) {
     new Implementation.ResourceRemover(model, req.params)
       .perform()
-      .then(function () {
-        new ActivityLogLogger(opts).perform(req.user, 'deleted', modelName,
-          req.params.recordId);
-        return;
-      })
       .then(function () {
         res.status(204).send();
       })
