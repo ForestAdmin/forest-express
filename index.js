@@ -269,7 +269,7 @@ exports.init = function (Implementation) {
             .set('forest-secret-key', opts.secretKey)
             .end(function(err, res) {
               if (res.status !== 204) {
-                logger.debug('Forest cannot find your project secret key. ' +
+                logger.error('Cannot find your project secret key. ' +
                   'Please, ensure you have installed the Forest Liana ' +
                   'correctly.');
               }
@@ -281,12 +281,16 @@ exports.init = function (Implementation) {
 };
 
 exports.collection = function (name, opts) {
+  if (_.isEmpty(Schemas.schemas)) {
+    logger.error('Cannot customize your collection named "' + name +
+      '" properly. Did you call the "collection" method in the /forest ' +
+      'directory?');
+    return;
+  }
+
   var collection = _.find(Schemas.schemas, { name: name });
 
-  if (!collection) {
-    opts.name = name;
-    Schemas.schemas[name] = opts;
-  } else {
+  if (collection) {
     Schemas.schemas[name].actions = opts.actions;
 
     opts.fields = _.map(opts.fields, function (field) {
@@ -300,6 +304,10 @@ exports.collection = function (name, opts) {
 
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
+  } else {
+    // NOTICE: Custom collection definition case
+    opts.name = name;
+    Schemas.schemas[name] = opts;
   }
 };
 

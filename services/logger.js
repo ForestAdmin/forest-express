@@ -1,14 +1,38 @@
 'use strict';
 var winston = require('winston');
 
-winston.addColors({ debug: 'green' });
-winston.level = 'debug';
-winston.loggers.add('forest', {
-  console: {
-    level: 'debug',
-    colorize: true,
-    label: 'Forest'
+var CONFIG = {
+  levels: {
+    error: 0,
+    debug: 1,
+    warn: 2,
+    data: 3,
+    info: 4,
+    verbose: 5,
+    silly: 6
+  },
+  colors: {
+    error: 'red',
+    debug: 'blue',
+    warn: 'yellow',
+    data: 'grey',
+    info: 'green',
+    verbose: 'cyan',
+    silly: 'magenta'
   }
-});
+};
 
-module.exports = winston.loggers.get('forest');
+var TITLE = '[forest] 🌳🌳🌳  ';
+
+var logger = module.exports = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)({
+      formatter: function (options) {
+        var message = TITLE + options.message;
+        return winston.config.colorize(options.level, message);
+      }
+    })
+  ],
+  levels: CONFIG.levels,
+  colors: CONFIG.colors
+});
