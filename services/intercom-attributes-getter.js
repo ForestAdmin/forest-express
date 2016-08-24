@@ -2,17 +2,16 @@
 var P = require('bluebird');
 var useragent = require('useragent');
 
-function IntercomAttributesGetter(Implementation, params, opts) {
-  var userModel = null;
+function IntercomAttributesGetter(Implementation, params, opts, collectionName) {
+  var model = null;
   var Intercom = opts.integrations.intercom.intercom;
   var intercom = new Intercom.Client(opts.integrations.intercom.appId,
     opts.integrations.intercom.apiKey).usePromises();
 
   this.perform = function () {
-    var userCollectionName = opts.integrations.intercom.userCollection;
-    userModel = Implementation.getModels()[userCollectionName];
+    model = Implementation.getModels()[collectionName];
 
-    return Implementation.Intercom.getCustomer(userModel, params.recordId)
+    return Implementation.Intercom.getCustomer(model, params.recordId)
       .then(function (customer) {
         return intercom.users.find({ email: customer.email });
       })

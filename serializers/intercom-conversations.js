@@ -1,7 +1,8 @@
 'use strict';
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+var StringsUtil = require('../utils/strings');
 
-function IntercomConversationsSerializer(conversations, customerCollectionName, meta) {
+function IntercomConversationsSerializer(conversations, collectionName, meta) {
   conversations = conversations.map(function (conversation) {
     // jshint camelcase: false
     conversation.subject =  conversation.conversation_message.subject;
@@ -15,7 +16,10 @@ function IntercomConversationsSerializer(conversations, customerCollectionName, 
     return conversation;
   });
 
-  return new JSONAPISerializer('intercom-conversations', conversations, {
+  var type = StringsUtil.camelCaseToDashed(collectionName) +
+                                           '-intercom-conversations';
+
+  return new JSONAPISerializer(type, conversations, {
     attributes: ['created_at', 'updated_at', 'open', 'read', 'subject',
       'body', 'assignee'],
     keyForAttribute: function (key) { return key; },

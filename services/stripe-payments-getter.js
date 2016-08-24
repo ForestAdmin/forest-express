@@ -1,9 +1,9 @@
 'use strict';
 var P = require('bluebird');
 
-function StripePaymentsGetter(Implementation, params, opts) {
+function StripePaymentsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  var customerModel = null;
+  var collectionModel = null;
 
   function hasPagination() {
     return params.page && params.page.number;
@@ -36,12 +36,11 @@ function StripePaymentsGetter(Implementation, params, opts) {
   }
 
   this.perform = function () {
-    var userCollectionName = opts.integrations.stripe.userCollection;
-    var userField = opts.integrations.stripe.userField;
-    customerModel = Implementation.getModels()[userCollectionName];
+    var collectionFieldName = integrationInfo.field;
+    collectionModel = integrationInfo.collection;
 
-    return Implementation.Stripe.getCustomer(customerModel, params.recordId,
-      userField)
+    return Implementation.Stripe.getCustomer(collectionModel,
+      collectionFieldName, params.recordId)
       .then(function (customer) {
         var query = {
           limit: getLimit(),
@@ -50,7 +49,7 @@ function StripePaymentsGetter(Implementation, params, opts) {
           'include[]': 'total_count'
         };
 
-        if (customer) { query.customer = customer[userField]; }
+        if (customer) { query.customer = customer[collectionFieldName]; }
 
         return getCharges(query)
           .spread(function (count, payments) {
@@ -60,7 +59,7 @@ function StripePaymentsGetter(Implementation, params, opts) {
                   payment.customer = customer;
                 } else {
                   return Implementation.Stripe.getCustomerByUserField(
-                    customerModel, payment.customer)
+                    collectionModel, collectionFieldName, payment.customer)
                     .then(function (customer) {
                       payment.customer = customer;
                       return payment;

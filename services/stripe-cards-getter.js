@@ -1,9 +1,9 @@
 'use strict';
 var P = require('bluebird');
 
-function StripeCardsGetter(Implementation, params, opts) {
+function StripeCardsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  var customerModel = null;
+  var collectionModel = null;
 
   function hasPagination() {
     return params.page && params.page.number;
@@ -38,12 +38,11 @@ function StripeCardsGetter(Implementation, params, opts) {
   }
 
   this.perform = function () {
-    var userCollectionName = opts.integrations.stripe.userCollection;
-    var userField = opts.integrations.stripe.userField;
-    customerModel = Implementation.getModels()[userCollectionName];
+    var collectionFieldName = integrationInfo.field;
+    collectionModel = integrationInfo.collection;
 
-    return Implementation.Stripe.getCustomer(customerModel, params.recordId,
-      userField)
+    return Implementation.Stripe.getCustomer(collectionModel,
+      collectionFieldName, params.recordId)
       .then(function (customer) {
         var query = {
           limit: getLimit(),
@@ -51,12 +50,12 @@ function StripeCardsGetter(Implementation, params, opts) {
           'include[]': 'total_count'
         };
 
-        return getCards(customer[userField], query)
+        return getCards(customer[collectionFieldName], query)
           .spread(function (count, cards) {
             return P
               .map(cards, function (card) {
                 return Implementation.Stripe.getCustomerByUserField(
-                  customerModel, card.customer)
+                  collectionModel, collectionFieldName, card.customer)
                   .then(function (customer) {
                     card.customer = customer;
                     return card;

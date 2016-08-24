@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('lodash');
+var IntegrationInformationsGetter = require('../services/integration-informations-getter');
 var StripePaymentsGetter = require('../services/stripe-payments-getter');
 var StripePaymentsSerializer = require('../serializers/stripe-payments');
 var StripePaymentRefunder = require('../services/stripe-payment-refunder');
@@ -11,10 +12,20 @@ var auth = require('../services/auth');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
+  var integrationInfo = new IntegrationInformationsGetter(modelName,
+        Implementation, opts.integrations.stripe).perform();
+
+  if (integrationInfo) {
+    var integrationValues = integrationInfo.split('.');
+    integrationInfo = {
+      collection: Implementation.getModels()[integrationValues[0]],
+      field: integrationValues[1]
+    };
+  }
 
   this.stripePayments = function (req, res, next) {
     new StripePaymentsGetter(Implementation, _.extend(req.query, req.params),
-      opts)
+      opts, integrationInfo)
       .perform()
       .then(function (results) {
         var count = results[0];
@@ -47,7 +58,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.stripeInvoices = function (req, res, next) {
     new StripeInvoicesGetter(Implementation, _.extend(req.query, req.params),
-      opts)
+      opts, integrationInfo)
       .perform()
       .then(function (results) {
         var count = results[0];
@@ -65,7 +76,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.stripeCards = function (req, res, next) {
     new StripeCardsGetter(Implementation, _.extend(req.query, req.params),
-      opts)
+      opts, integrationInfo)
       .perform()
       .then(function (results) {
         var count = results[0];
@@ -80,23 +91,25 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.get('/forest/stripe_payments', auth.ensureAuthenticated,
-      this.stripePayments);
+    if (integrationInfo) {
+      app.get('/forest/' + modelName + '_stripe_payments',
+        auth.ensureAuthenticated, this.stripePayments);
 
-    app.get('/forest/' + modelName + '/:recordId/stripe_payments',
-      auth.ensureAuthenticated, this.stripePayments);
+      app.get('/forest/' + modelName + '/:recordId/stripe_payments',
+        auth.ensureAuthenticated, this.stripePayments);
 
-    app.post('/forest/stripe_payments/refunds', auth.ensureAuthenticated,
-      this.stripeRefund);
+      app.post('/forest/' + modelName + '_stripe_payments/refunds',
+        auth.ensureAuthenticated, this.stripeRefund);
 
-    app.get('/forest/stripe_invoices', auth.ensureAuthenticated,
-      this.stripeInvoices);
+      app.get('/forest/' + modelName + '_stripe_invoices',
+        auth.ensureAuthenticated, this.stripeInvoices);
 
-    app.get('/forest/' + modelName + '/:recordId/stripe_invoices',
-      auth.ensureAuthenticated, this.stripeInvoices);
+      app.get('/forest/' + modelName + '/:recordId/stripe_invoices',
+        auth.ensureAuthenticated, this.stripeInvoices);
 
-    app.get('/forest/' + modelName + '/:recordId/stripe_cards',
-      auth.ensureAuthenticated, this.stripeCards);
+      app.get('/forest/' + modelName + '/:recordId/stripe_cards',
+        auth.ensureAuthenticated, this.stripeCards);
+    }
   };
 };
 

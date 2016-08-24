@@ -2,8 +2,8 @@
 var _ = require('lodash');
 var P = require('bluebird');
 
-function IntercomConversationsGetter(Implementation, params, opts) {
-  var userModel = null;
+function IntercomConversationsGetter(Implementation, params, opts, collectionName) {
+  var model = null;
   var Intercom = opts.integrations.intercom.intercom;
   var intercom = new Intercom.Client(opts.integrations.intercom.appId,
     opts.integrations.intercom.apiKey).usePromises();
@@ -46,10 +46,9 @@ function IntercomConversationsGetter(Implementation, params, opts) {
   }
 
   this.perform = function () {
-    var userCollectionName = opts.integrations.intercom.userCollection;
-    userModel = Implementation.getModels()[userCollectionName];
+    model = Implementation.getModels()[collectionName];
 
-    return Implementation.Intercom.getCustomer(userModel, params.recordId)
+    return Implementation.Intercom.getCustomer(model, params.recordId)
       .then(function (customer) {
         return intercom.conversations
           .list({

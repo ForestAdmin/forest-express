@@ -2,12 +2,13 @@
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../generators/schemas');
+var StringsUtil = require('../utils/strings');
 
-function StripePaymentsSerializer(payments, customerCollectionName, meta) {
+function StripePaymentsSerializer(payments, collectionName, meta) {
   function getCustomerAttributes() {
     if (!payments.length) { return []; }
 
-    var schema = Schemas.schemas[customerCollectionName];
+    var schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
     return _.map(schema.fields, 'field');
   }
@@ -24,16 +25,18 @@ function StripePaymentsSerializer(payments, customerCollectionName, meta) {
     return payment;
   });
 
-  return new JSONAPISerializer('stripe-payments', payments, {
+  var type = StringsUtil.camelCaseToDashed(collectionName) + '-stripe-payments';
+
+  return new JSONAPISerializer(type, payments, {
     attributes: ['created', 'status', 'amount', 'currency', 'refunded',
       'customer', 'description'],
     customer: {
-      ref: Schemas.schemas[customerCollectionName].idField,
+      ref: Schemas.schemas[collectionName].idField,
       attributes: customerAttributes
     },
     keyForAttribute: function (key) { return key; },
     typeForAttribute: function (attr) {
-      if (attr === 'customer') { return customerCollectionName; }
+      if (attr === 'customer') { return collectionName; }
       return attr;
     },
     meta: meta
