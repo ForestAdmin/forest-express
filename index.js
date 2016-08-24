@@ -40,13 +40,40 @@ exports.init = function (Implementation) {
       opts.integrations.stripe.apiKey;
   }
 
-  function setupStripeIntegration(apimap) {
+  function castToArray(value) {
+    return _.isString(value) ? [value] : value;
+  }
+
+  function isStripeProperlyIntegrated() {
+    return opts.integrations.stripe.apiKey &&
+      opts.integrations.stripe.stripe && opts.integrations.stripe.mapping;
+  }
+
+  function isStripeIntegrationDeprecated() {
+    var integrationValid = opts.integrations.stripe.apiKey &&
+      opts.integrations.stripe.stripe &&
+        (opts.integrations.stripe.userCollection ||
+          opts.integrations.stripe.userCollection);
+
+    if (integrationValid) {
+      logger.warn('Stripe integration attributes "userCollection" and ' +
+        '"userField" are now deprecated, please use "mapping" attribute.');
+      opts.integrations.stripe.mapping =
+        opts.integrations.stripe.userCollection + '.' +
+          opts.integrations.stripe.userField;
+    }
+
+    return integrationValid;
+  }
+
+  function setupStripeIntegration(apimap, collectionAndFieldName) {
     // jshint camelcase: false
-    var Model = Implementation.getModels()[opts.integrations.stripe.userCollection];
-    var referenceName = Implementation.getModelName(Model) + '.id';
+    var collectionName = collectionAndFieldName.split('.')[0];
+    var model = Implementation.getModels()[collectionName];
+    var referenceName = Implementation.getModelName(model) + '.id';
 
     apimap.push({
-      name: 'stripe_payments',
+      name: collectionName + '_stripe_payments',
       isVirtual: true,
       isReadOnly: true,
       fields: [
@@ -71,7 +98,7 @@ exports.init = function (Implementation) {
     });
 
     apimap.push({
-      name: 'stripe_invoices',
+      name: collectionName + '_stripe_invoices',
       isVirtual: true,
       isReadOnly: true,
       fields: [
@@ -100,7 +127,7 @@ exports.init = function (Implementation) {
     });
 
     apimap.push({
-      name: 'stripe_cards',
+      name: collectionName + '_stripe_cards',
       isVirtual: true,
       isReadOnly: true,
       onlyForRelationships: true,
@@ -131,14 +158,34 @@ exports.init = function (Implementation) {
   }
 
   function hasIntercomIntegration() {
-    return opts.integrations && opts.integrations.intercom &&
-      opts.integrations.intercom.apiKey && opts.integrations.intercom.appId;
+    return opts.integrations && opts.integrations.intercom;
   }
 
-  function setupIntercomIntegration(apimap) {
+  function isIntercomProperlyIntegrated() {
+    return opts.integrations.intercom.apiKey &&
+      opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
+      opts.integrations.intercom.mapping;
+  }
+
+  function isIntercomIntegrationDeprecated() {
+    var integrationValid = opts.integrations.intercom.apiKey &&
+      opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
+      opts.integrations.intercom.userCollection;
+
+    if (integrationValid) {
+      logger.warn('Intercom integration attribute "userCollection" is now ' +
+        'deprecated, please use "mapping" attribute.');
+      opts.integrations.intercom.mapping =
+        opts.integrations.intercom.userCollection;
+    }
+
+    return integrationValid;
+  }
+
+  function setupIntercomIntegration(apimap, collectionName) {
     // jshint camelcase: false
     apimap.push({
-      name: 'intercom_conversations',
+      name: collectionName + '_intercom_conversations',
       onlyForRelationships: true,
       isVirtual: true,
       isReadOnly: true,
@@ -152,7 +199,7 @@ exports.init = function (Implementation) {
     });
 
     apimap.push({
-      name: 'intercom_attributes',
+      name: collectionName + '_intercom_attributes',
       onlyForRelationships: true,
       isVirtual: true,
       isReadOnly: true,
@@ -181,6 +228,34 @@ exports.init = function (Implementation) {
 
   var app = express();
   var opts = Implementation.opts;
+
+  var integrationStripeValid = false;
+  var integrationIntercomValid = false;
+
+  function checkIntegrationsSetup () {
+    if (hasStripeIntegration()) {
+      if (isStripeProperlyIntegrated() || isStripeIntegrationDeprecated()) {
+        opts.integrations.stripe.mapping =
+          castToArray(opts.integrations.stripe.mapping);
+        integrationStripeValid = true;
+      } else {
+        logger.error('Cannot setup properly your Stripe integration.');
+      }
+    }
+
+    if (hasIntercomIntegration()) {
+      if (isIntercomProperlyIntegrated() ||
+            isIntercomIntegrationDeprecated()) {
+        opts.integrations.intercom.mapping =
+          castToArray(opts.integrations.intercom.mapping);
+        integrationIntercomValid = true;
+      } else {
+        logger.error('Cannot setup properly your Intercom integration.');
+      }
+    }
+  }
+
+  checkIntegrationsSetup();
 
   if (opts.jwtSigningKey) {
     console.warn('DEPRECATION WARNING: the use of jwtSigningKey option is ' +
@@ -234,12 +309,18 @@ exports.init = function (Implementation) {
       if (opts.authKey) {
         var collections = _.values(Schemas.schemas);
 
-        if (hasStripeIntegration()) {
-          setupStripeIntegration(collections);
+        if (integrationStripeValid) {
+          _.each(opts.integrations.stripe.mapping,
+            function (collectionAndFieldName) {
+              setupStripeIntegration(collections, collectionAndFieldName);
+            });
         }
 
-        if (hasIntercomIntegration()) {
-          setupIntercomIntegration(collections);
+        if (integrationIntercomValid) {
+          _.each(opts.integrations.intercom.mapping,
+            function (collectionName) {
+              setupIntercomIntegration(collections, collectionName);
+            });
         }
 
         var json = new JSONAPISerializer('collections', collections, {

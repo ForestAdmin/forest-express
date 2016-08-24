@@ -2,12 +2,13 @@
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../generators/schemas');
+var StringsUtil = require('../utils/strings');
 
-function StripeInvoicesSerializer(invoices, customerCollectionName, meta) {
+function StripeInvoicesSerializer(invoices, collectionName, meta) {
   function getCustomerAttributes() {
     if (!invoices.length) { return []; }
 
-    var schema = Schemas.schemas[customerCollectionName];
+    var schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
     return _.map(schema.fields, 'field');
   }
@@ -32,18 +33,20 @@ function StripeInvoicesSerializer(invoices, customerCollectionName, meta) {
     return invoice;
   });
 
-  return new JSONAPISerializer('stripe-invoices', invoices, {
+  var type = StringsUtil.camelCaseToDashed(collectionName) + '-stripe-invoices';
+
+  return new JSONAPISerializer(type, invoices, {
     attributes: ['amount_due', 'attempt_count', 'attempted', 'closed',
       'currency', 'date', 'forgiven', 'paid', 'period_start', 'period_end',
       'subtotal', 'total', 'application_fee', 'tax', 'tax_percent',
       'customer'],
     customer: {
-      ref: Schemas.schemas[customerCollectionName].idField,
+      ref: Schemas.schemas[collectionName].idField,
       attributes: customerAttributes
     },
     keyForAttribute: function (key) { return key; },
     typeForAttribute: function (attr) {
-      if (attr === 'customer') { return customerCollectionName; }
+      if (attr === 'customer') { return collectionName; }
       return attr;
     },
     meta: meta

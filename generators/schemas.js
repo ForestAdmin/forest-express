@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var P = require('bluebird');
 
 module.exports = {
@@ -21,19 +22,26 @@ module.exports = {
             }
 
             function integrationCollectionMatch(integration) {
-              var userCollection = integration.userCollection;
               var models = implementation.getModels();
-              var userModel = models[userCollection];
 
-              return implementation.getModelName(userModel) ===
-                implementation.getModelName(model);
+              var collectionModelNames = _.map(integration.mapping,
+                function (mappingValue) {
+                  var collectionName = mappingValue.split('.')[0];
+                  if (models[collectionName]) {
+                    return implementation.getModelName(models[collectionName]);
+                  }
+                });
+
+              return collectionModelNames.indexOf(
+                implementation.getModelName(model)) > -1;
             }
 
             function setupIntercomIntegration() {
               schema.fields.push({
                 field: 'intercom_conversations',
                 type: ['String'],
-                reference: 'intercom_conversations.id',
+                reference: implementation.getModelName(model) +
+                  '_intercom_conversations.id',
                 column: null,
                 isSearchable: false,
                 integration: 'intercom'
@@ -41,8 +49,9 @@ module.exports = {
 
               schema.fields.push({
                 field: 'intercom_attributes',
-                type: ['String'],
-                reference: 'intercom_attributes.id',
+                type: 'String',
+                reference: implementation.getModelName(model) +
+                  '_intercom_attributes.id',
                 column: null,
                 isSearchable: false,
                 integration: 'intercom'
@@ -53,7 +62,8 @@ module.exports = {
               schema.fields.push({
                 field: 'stripe_payments',
                 type: ['String'],
-                reference: 'stripe_payments.id',
+                reference: implementation.getModelName(model) +
+                  '_stripe_payments.id',
                 column: null,
                 isSearchable: false,
                 integration: 'stripe'
@@ -62,7 +72,8 @@ module.exports = {
               schema.fields.push({
                 field: 'stripe_invoices',
                 type: ['String'],
-                reference: 'stripe_invoices.id',
+                reference: implementation.getModelName(model) +
+                  '_stripe_invoices.id',
                 column: null,
                 isSearchable: false,
                 integration: 'stripe'
@@ -71,7 +82,8 @@ module.exports = {
               schema.fields.push({
                 field: 'stripe_cards',
                 type: ['String'],
-                reference: 'stripe_cards.id',
+                reference: implementation.getModelName(model) +
+                  '_stripe_cards.id',
                 column: null,
                 isSearchable: false,
                 integration: 'stripe'
