@@ -32,6 +32,7 @@ function requireAllModels(Implementation, modelsDir) {
 }
 
 exports.Schemas = Schemas;
+exports.logger = logger;
 
 exports.init = function (Implementation) {
   function hasStripeIntegration() {
