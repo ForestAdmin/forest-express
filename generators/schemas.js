@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var P = require('bluebird');
+var StripeSetup = require('../integrations/stripe/setup');
 
 module.exports = {
   schemas: {},
@@ -58,38 +59,6 @@ module.exports = {
               });
             }
 
-            function setupStripeIntegration() {
-              schema.fields.push({
-                field: 'stripe_payments',
-                type: ['String'],
-                reference: implementation.getModelName(model) +
-                  '_stripe_payments.id',
-                column: null,
-                isSearchable: false,
-                integration: 'stripe'
-              });
-
-              schema.fields.push({
-                field: 'stripe_invoices',
-                type: ['String'],
-                reference: implementation.getModelName(model) +
-                  '_stripe_invoices.id',
-                column: null,
-                isSearchable: false,
-                integration: 'stripe'
-              });
-
-              schema.fields.push({
-                field: 'stripe_cards',
-                type: ['String'],
-                reference: implementation.getModelName(model) +
-                  '_stripe_cards.id',
-                column: null,
-                isSearchable: false,
-                integration: 'stripe'
-              });
-            }
-
             if (hasIntercomIntegration() &&
               integrationCollectionMatch(opts.integrations.intercom)) {
               setupIntercomIntegration();
@@ -97,7 +66,7 @@ module.exports = {
 
             if (hasStripeIntegration() &&
               integrationCollectionMatch(opts.integrations.stripe)) {
-              setupStripeIntegration();
+              StripeSetup.createFields(implementation, model, schema.fields);
             }
 
             return schema;

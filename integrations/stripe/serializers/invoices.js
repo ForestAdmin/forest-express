@@ -1,10 +1,10 @@
 'use strict';
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var Schemas = require('../generators/schemas');
-var StringsUtil = require('../utils/strings');
+var Schemas = require('../../../generators/schemas');
+var StringsUtil = require('../../../utils/strings');
 
-function StripeInvoicesSerializer(invoices, collectionName, meta) {
+function InvoicesSerializer(invoices, collectionName, meta) {
   function getCustomerAttributes() {
     if (!invoices.length) { return []; }
 
@@ -53,5 +53,5 @@ function StripeInvoicesSerializer(invoices, collectionName, meta) {
   });
 }
 
-module.exports = StripeInvoicesSerializer;
+module.exports = InvoicesSerializer;
 

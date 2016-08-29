@@ -1,10 +1,10 @@
 'use strict';
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var Schemas = require('../generators/schemas');
-var StringsUtil = require('../utils/strings');
+var Schemas = require('../../../generators/schemas');
+var StringsUtil = require('../../../utils/strings');
 
-function StripeCardsSerializer(cards, collectionName, meta) {
+function CardsSerializer(cards, collectionName, meta) {
 
   function getCustomerAttributes() {
     if (!cards.length) { return []; }
@@ -36,5 +36,5 @@ function StripeCardsSerializer(cards, collectionName, meta) {
   });
 }
 
-module.exports = StripeCardsSerializer;
+module.exports = CardsSerializer;
 
