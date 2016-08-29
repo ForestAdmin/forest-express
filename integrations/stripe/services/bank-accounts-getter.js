@@ -1,12 +1,12 @@
 'use strict';
 var P = require('bluebird');
 
-function StripePaymentsGetter(Implementation, params, opts, integrationInfo) {
+function BankAccountsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
   var collectionModel = null;
 
   function hasPagination() {
-    return params.page && params.page.number;
+    return params.page;
   }
 
   function getLimit() {
@@ -17,17 +17,21 @@ function StripePaymentsGetter(Implementation, params, opts, integrationInfo) {
     }
   }
 
-  function getOffset() {
-    if (hasPagination()) {
-      return (parseInt(params.page.number) - 1) * getLimit();
-    } else {
-      return 0;
+  function getStartingAfter() {
+    if (hasPagination() && params.starting_after) {
+      return params.starting_after;
     }
   }
 
-  function getCharges(query) {
+  function getEndingBefore() {
+    if (hasPagination() && params.ending_before) {
+      return params.ending_before;
+    }
+  }
+
+  function getBankAccounts(customerId, query) {
     return new P(function (resolve, reject) {
-      stripe.charges.list(query, function (err, charges) {
+      stripe.customers.listSources(customerId, query, function (err, charges) {
         if (err) { return reject(err); }
         // jshint camelcase: false
         resolve([charges.total_count, charges.data]);
@@ -44,14 +48,12 @@ function StripePaymentsGetter(Implementation, params, opts, integrationInfo) {
       .then(function (customer) {
         var query = {
           limit: getLimit(),
-          offset: getOffset(),
-          source: { object: 'card' },
+          starting_after: getStartingAfter(),
+          ending_before: getEndingBefore(),
           'include[]': 'total_count'
         };
 
-        if (customer) { query.customer = customer[collectionFieldName]; }
-
-        return getCharges(query)
+        return getBankAccounts(customer[collectionFieldName], query)
           .spread(function (count, payments) {
             return P
               .map(payments, function (payment) {
@@ -77,4 +79,4 @@ function StripePaymentsGetter(Implementation, params, opts, integrationInfo) {
   };
 }
 
-module.exports = StripePaymentsGetter;
+module.exports = BankAccountsGetter;

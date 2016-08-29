@@ -1,12 +1,12 @@
 'use strict';
 var P = require('bluebird');
 
-function StripeCardsGetter(Implementation, params, opts, integrationInfo) {
+function CardsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
   var collectionModel = null;
 
   function hasPagination() {
-    return params.page && params.page.number;
+    return params.page;
   }
 
   function getLimit() {
@@ -17,11 +17,15 @@ function StripeCardsGetter(Implementation, params, opts, integrationInfo) {
     }
   }
 
-  function getOffset() {
-    if (hasPagination()) {
-      return (parseInt(params.page.number) - 1) * getLimit();
-    } else {
-      return 0;
+  function getStartingAfter() {
+    if (hasPagination() && params.starting_after) {
+      return params.starting_after;
+    }
+  }
+
+  function getEndingBefore() {
+    if (hasPagination() && params.ending_before) {
+      return params.ending_before;
     }
   }
 
@@ -46,7 +50,8 @@ function StripeCardsGetter(Implementation, params, opts, integrationInfo) {
       .then(function (customer) {
         var query = {
           limit: getLimit(),
-          offset: getOffset(),
+          starting_after: getStartingAfter(),
+          ending_before: getEndingBefore(),
           'include[]': 'total_count'
         };
 
@@ -69,4 +74,4 @@ function StripeCardsGetter(Implementation, params, opts, integrationInfo) {
   };
 }
 
-module.exports = StripeCardsGetter;
+module.exports = CardsGetter;

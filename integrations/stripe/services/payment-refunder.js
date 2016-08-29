@@ -1,7 +1,7 @@
 'use strict';
 var P = require('bluebird');
 
-function StripePaymentRefunder(params, opts) {
+function PaymentRefunder(params, opts) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
 
   function refund(chargeId) {
@@ -22,4 +22,4 @@ function StripePaymentRefunder(params, opts) {
   };
 }
 
-module.exports = StripePaymentRefunder;
+module.exports = PaymentRefunder;
