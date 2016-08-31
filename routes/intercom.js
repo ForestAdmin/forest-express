@@ -9,8 +9,12 @@ var auth = require('../services/auth');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
-  var integrationInfo = new IntegrationInformationsGetter(modelName,
+  var integrationInfo;
+
+  if (opts.integrations) {
+    integrationInfo = new IntegrationInformationsGetter(modelName,
         Implementation, opts.integrations.intercom).perform();
+  }
 
   this.intercomAttributes = function (req, res, next) {
     new IntercomAttributesGetter(Implementation, _.extend(req.query,

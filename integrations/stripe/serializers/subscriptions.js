@@ -4,9 +4,9 @@ var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../../../generators/schemas');
 var StringsUtil = require('../../../utils/strings');
 
-function SubscriptionsSerializer(payments, collectionName, meta) {
+function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   function getCustomerAttributes() {
-    if (!payments.length) { return []; }
+    if (!subscriptions.length) { return []; }
 
     var schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
@@ -15,20 +15,49 @@ function SubscriptionsSerializer(payments, collectionName, meta) {
 
   var customerAttributes = getCustomerAttributes();
 
-  payments = payments.map(function (payment) {
-    if (payment.created) {
-      payment.created =  new Date(payment.created * 1000);
+  subscriptions = subscriptions.map(function (subscription) {
+    if (subscription.canceled_at) {
+      subscription.canceled_at = new Date(subscription.canceled_at * 1000);
     }
 
-    if (payment.amount) { payment.amount /= 100; }
+    if (subscription.created) {
+      subscription.created = new Date(subscription.created * 1000);
+    }
 
-    return payment;
+    if (subscription.current_period_end) {
+      subscription.current_period_end =
+        new Date(subscription.current_period_end * 1000);
+    }
+
+    if (subscription.current_period_start) {
+      subscription.current_period_start =
+        new Date(subscription.current_period_start * 1000);
+    }
+
+    if (subscription.ended_at) {
+      subscription.ended_at =
+        new Date(subscription.ended_at * 1000);
+    }
+
+    if (subscription.start) {
+      subscription.start = new Date(subscription.start * 1000);
+    }
+
+    if (subscription.trial_end) {
+      subscription.trial_end = new Date(subscription.trial_end * 1000);
+    }
+
+    if (subscription.trial_start) {
+      subscription.trial_start = new Date(subscription.trial_start * 1000);
+    }
+
+    return subscription;
   });
 
   var type = StringsUtil.camelCaseToDashed(collectionName) +
     '-stripe-subscriptions';
 
-  return new JSONAPISerializer(type, payments, {
+  return new JSONAPISerializer(type, subscriptions, {
     attributes: ['cancel_at_period_end', 'canceled_at', 'created',
       'current_period_end', 'current_period_start', 'ended_at', 'livemode',
       'quantity', 'start', 'status', 'tax_percent', 'trial_end', 'trial_start',

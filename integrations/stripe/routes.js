@@ -16,8 +16,12 @@ var auth = require('../../services/auth');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
-  var integrationInfo = new IntegrationInformationsGetter(modelName,
-        Implementation, opts.integrations.stripe).perform();
+  var integrationInfo;
+
+  if (opts.integrations) {
+    integrationInfo = new IntegrationInformationsGetter(modelName,
+         Implementation, opts.integrations.stripe).perform();
+  }
 
   if (integrationInfo) {
     var integrationValues = integrationInfo.split('.');
