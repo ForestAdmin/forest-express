@@ -18,7 +18,7 @@ module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
   var integrationInfo;
 
-  if (opts.integrations) {
+  if (opts.integrations && opts.integrations.stripe) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
          Implementation, opts.integrations.stripe).perform();
   }
