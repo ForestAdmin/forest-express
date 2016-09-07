@@ -1,4 +1,5 @@
 'use strict';
+var P = require('bluebird');
 var _ = require('lodash');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
@@ -17,21 +18,29 @@ module.exports = function (app, model, Implementation, opts) {
         var records = results[1];
 
         // Inject smart fields.
-        records.map(function (record) {
-          schema.fields.forEach(function (field) {
-            if (!record[field.field]) {
-              if (field.value) {
-                record[field.field] = field.value(record);
-              } else if (_.isArray(field.type)) {
-                record[field.field] = [];
+        return P
+          .map(records, function (record) {
+            return P.each(schema.fields, function (field) {
+              if (!record[field.field]) {
+                if (field.value) {
+                  var value = field.value(record);
+                  if (_.isFunction(value.then)) {
+                    return value.then(function (value) {
+                      record[field.field] = value;
+                    });
+                  } else {
+                    record[field.field] = value;
+                  }
+                } else if (_.isArray(field.type)) {
+                  record[field.field] = [];
+                }
               }
-            }
+            }).thenReturn(record);
+          })
+          .then(function (records) {
+            return new ResourceSerializer(Implementation, model, records,
+              opts, { count: count }).perform();
           });
-        });
-
-        return new ResourceSerializer(Implementation, model, records, opts, {
-          count: count
-        }).perform();
       })
       .then(function (records) {
         res.send(records);
