@@ -248,7 +248,7 @@ exports.init = function (Implementation) {
           fields: {
             attributes: ['field', 'displayName', 'type', 'enums',
               'collection_name', 'reference', 'column', 'isSearchable',
-              'widget', 'integration']
+              'widget', 'integration', 'isReadOnly']
           },
           actions: {
             ref: 'name',
