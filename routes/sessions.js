@@ -46,7 +46,7 @@ module.exports = function (app, opts) {
   }
 
   this.perform = function () {
-    app.post('/forest/sessions', login);
+    app.post(opts.expressMountParent ? '/sessions' : '/forest/sessions', login);
   };
 };
 

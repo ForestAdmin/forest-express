@@ -197,10 +197,20 @@ exports.init = function (Implementation) {
   app.use(bodyParser.json());
 
   // Authentication
-  app.use(jwt({
-    secret: opts.authKey,
-    credentialsRequired: false
-  }).unless({ path: /^(?!\/forest).*/ }));
+  if (!opts.expressMountParent) {
+    //Normal case, app is mounted at root level inside parent expressApp : we use JWT only in /forest paths
+    app.use(jwt({
+        secret: opts.authKey,
+        credentialsRequired: false
+      }).unless({ path: /^(?!\/forest).*/ }));
+  } else {
+    //Subapp case, we'll mount app at /forest level inside parent so we protect every paths
+    app.use(jwt({
+        secret: opts.authKey,
+        credentialsRequired: false
+      })); 
+  }
+  
 
   new SessionRoute(app, opts).perform();
 
@@ -289,6 +299,10 @@ exports.init = function (Implementation) {
       }
     });
 
+  if (opts.expressMountParent) {
+    var parentApp = opts.expressMountParent.parent;
+    opts.expressMountParent.use('/forest', app);
+  }
   return app;
 };
 

@@ -128,31 +128,31 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get('/forest/' + modelName + '_stripe_payments',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '_stripe_payments',
         auth.ensureAuthenticated, this.payments);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_payments',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/stripe_payments',
         auth.ensureAuthenticated, this.payments);
 
-      app.post('/forest/' + modelName + '_stripe_payments/refunds',
+      app.post((opts.expressMountParent ? '/' : '/forest/') + modelName + '_stripe_payments/refunds',
         auth.ensureAuthenticated, this.refund);
 
-      app.get('/forest/' + modelName + '_stripe_invoices',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '_stripe_invoices',
         auth.ensureAuthenticated, this.invoices);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_invoices',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/stripe_invoices',
         auth.ensureAuthenticated, this.invoices);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_cards',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/stripe_cards',
         auth.ensureAuthenticated, this.cards);
 
-      app.get('/forest/' + modelName + '_stripe_subscriptions',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '_stripe_subscriptions',
         auth.ensureAuthenticated, this.subscriptions);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_subscriptions',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/stripe_subscriptions',
         auth.ensureAuthenticated, this.subscriptions);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_bank_accounts',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/stripe_bank_accounts',
         auth.ensureAuthenticated, this.bankAccounts);
     }
   };

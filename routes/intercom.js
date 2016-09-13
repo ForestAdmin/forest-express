@@ -45,10 +45,10 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get('/forest/' + modelName + '/:recordId/intercom_attributes',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/intercom_attributes',
         auth.ensureAuthenticated, this.intercomAttributes);
 
-      app.get('/forest/' + modelName + '/:recordId/intercom_conversations',
+      app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/intercom_conversations',
         auth.ensureAuthenticated, this.intercomConversations);
     }
   };
