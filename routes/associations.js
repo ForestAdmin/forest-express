@@ -42,7 +42,7 @@ module.exports = function (app, model, Implementation, opts) {
   }
 
   this.perform = function () {
-    app.get('/forest/' + modelName + '/:recordId/:associationName',
+    app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId/:associationName',
       auth.ensureAuthenticated, index);
   };
 };

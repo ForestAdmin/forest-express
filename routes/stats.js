@@ -38,7 +38,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.post('/forest/stats/' + modelName, auth.ensureAuthenticated,
+    app.post((opts.expressMountParent ? '/stats/' : '/forest/stats/') + modelName, auth.ensureAuthenticated,
       this.create);
   };
 };

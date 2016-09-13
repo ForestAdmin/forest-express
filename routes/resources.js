@@ -106,18 +106,18 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.get('/forest/' + modelName, auth.ensureAuthenticated, this.list);
+    app.get((opts.expressMountParent ? '/' : '/forest/') + modelName, auth.ensureAuthenticated, this.list);
 
-    app.get('/forest/' + modelName + '/:recordId', auth.ensureAuthenticated,
+    app.get((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId', auth.ensureAuthenticated,
       this.get);
 
-    app.post('/forest/' + modelName, auth.ensureAuthenticated,
+    app.post((opts.expressMountParent ? '/' : '/forest/') + modelName, auth.ensureAuthenticated,
       this.create);
 
-    app.put('/forest/' + modelName + '/:recordId', auth.ensureAuthenticated,
+    app.put((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId', auth.ensureAuthenticated,
       this.update);
 
-    app.delete('/forest/' + modelName + '/:recordId', auth.ensureAuthenticated,
+    app.delete((opts.expressMountParent ? '/' : '/forest/') + modelName + '/:recordId', auth.ensureAuthenticated,
       this.remove);
   };
 };
