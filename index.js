@@ -21,15 +21,21 @@ var request = require('superagent');
 var logger = require('./services/logger');
 
 function requireAllModels(Implementation, modelsDir) {
-  return fs.readdirAsync(modelsDir)
-    .each(function (file) {
-      try {
-        require(path.join(modelsDir, file));
-      } catch (e) { }
-    })
-    .then(function () {
-      return _.values(Implementation.getModels());
-    });
+  if (modelsDir) {
+    return fs.readdirAsync(modelsDir)
+      .each(function (file) {
+        try {
+          require(path.join(modelsDir, file));
+        } catch (e) { }
+      })
+      .then(function () {
+        return _.values(Implementation.getModels());
+      });
+  } else {
+    // NOTICE: User didn't provide a modelsDir but may already have required
+    // them manually so they might be available.
+    return P.resolve(_.values(Implementation.getModels()));
+  }
 }
 
 exports.Schemas = Schemas;
@@ -199,7 +205,7 @@ exports.init = function (Implementation) {
   new SessionRoute(app, opts).perform();
 
   //// Init
-  var absModelDirs = path.resolve('.', opts.modelsDir);
+  var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
   requireAllModels(Implementation, absModelDirs)
     .then(function (models) {
       return Schemas.perform(Implementation, models, opts)
