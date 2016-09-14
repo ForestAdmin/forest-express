@@ -258,7 +258,7 @@ exports.init = function (Implementation) {
           },
           actions: {
             ref: 'name',
-            attributes: ['name', 'endpoint', 'httpMethod', 'fields']
+            attributes: ['name', 'endpoint', 'httpMethod', 'fields', 'teams']
           },
           meta: {
             'liana': Implementation.getLianaName(),
