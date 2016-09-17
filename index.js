@@ -9,9 +9,6 @@ var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
 var ResourcesRoutes = require('./routes/resources');
 var AssociationsRoutes = require('./routes/associations');
-var StripeSetup = require('./integrations/stripe/setup');
-var StripeRoutes = require('./integrations/stripe/routes');
-var IntercomRoutes = require('./routes/intercom');
 var StatRoutes = require('./routes/stats');
 var SessionRoute = require('./routes/sessions');
 var ForestRoutes = require('./routes/forest');
@@ -19,6 +16,7 @@ var Schemas = require('./generators/schemas');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var request = require('superagent');
 var logger = require('./services/logger');
+var Integrator = require('./integrations');
 
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
@@ -42,142 +40,9 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 
 exports.init = function (Implementation) {
-  function hasStripeIntegration() {
-    return opts.integrations && opts.integrations.stripe &&
-      opts.integrations.stripe.apiKey;
-  }
-
-  function castToArray(value) {
-    return _.isString(value) ? [value] : value;
-  }
-
-  function isStripeProperlyIntegrated() {
-    return opts.integrations.stripe.apiKey &&
-      opts.integrations.stripe.stripe && opts.integrations.stripe.mapping;
-  }
-
-  function isStripeIntegrationDeprecated() {
-    var integrationValid = opts.integrations.stripe.apiKey &&
-      opts.integrations.stripe.stripe &&
-        (opts.integrations.stripe.userCollection ||
-          opts.integrations.stripe.userCollection);
-
-    if (integrationValid) {
-      logger.warn('Stripe integration attributes "userCollection" and ' +
-        '"userField" are now deprecated, please use "mapping" attribute.');
-      opts.integrations.stripe.mapping =
-        opts.integrations.stripe.userCollection + '.' +
-          opts.integrations.stripe.userField;
-    }
-
-    return integrationValid;
-  }
-
-  function hasIntercomIntegration() {
-    return opts.integrations && opts.integrations.intercom;
-  }
-
-  function isIntercomProperlyIntegrated() {
-    return opts.integrations.intercom.apiKey &&
-      opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
-      opts.integrations.intercom.mapping;
-  }
-
-  function isIntercomIntegrationDeprecated() {
-    var integrationValid = opts.integrations.intercom.apiKey &&
-      opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
-      opts.integrations.intercom.userCollection;
-
-    if (integrationValid) {
-      logger.warn('Intercom integration attribute "userCollection" is now ' +
-        'deprecated, please use "mapping" attribute.');
-      opts.integrations.intercom.mapping =
-        opts.integrations.intercom.userCollection;
-    }
-
-    return integrationValid;
-  }
-
-  function setupIntercomIntegration(apimap, collectionName) {
-    var collectionDisplayName = _.capitalize(collectionName);
-
-    // jshint camelcase: false
-    apimap.push({
-      name: collectionName + '_intercom_conversations',
-      displayName: collectionDisplayName + ' Conversations',
-      icon: 'intercom',
-      onlyForRelationships: true,
-      isVirtual: true,
-      isReadOnly: true,
-      fields: [
-        { field: 'subject', type: 'String' },
-        { field: 'body', type: ['String'], widget: 'link' },
-        { field: 'open', type: 'Boolean'},
-        { field: 'read', type: 'Boolean'},
-        { field: 'assignee', type: 'String' }
-      ]
-    });
-
-    apimap.push({
-      name: collectionName + '_intercom_attributes',
-      displayName: collectionDisplayName + ' Attributes',
-      icon: 'intercom',
-      onlyForRelationships: true,
-      isVirtual: true,
-      isReadOnly: true,
-      fields: [
-        { field: 'created_at', type: 'Date', isSearchable: false },
-        { field: 'updated_at', type: 'Date', isSearchable: false  },
-        { field: 'session_count', type: 'Number', isSearchable: false  },
-        { field: 'last_seen_ip', type: 'String', isSearchable: false  },
-        { field: 'signed_up_at', type: 'Date', isSearchable: false  },
-        { field: 'country', type: 'String', isSearchable: false  },
-        { field: 'city', type: 'String', isSearchable: false  },
-        { field: 'browser', type: 'String', isSearchable: false  },
-        { field: 'platform', type: 'String', isSearchable: false  },
-        { field: 'companies', type: 'String', isSearchable: false  },
-        { field: 'segments', type: 'String', isSearchable: false  },
-        { field: 'tags', type: 'String', isSearchable: false  },
-        {
-          field: 'geoloc',
-          type: 'String',
-          widget: 'google map',
-          isSearchable: false
-        }
-      ]
-    });
-  }
-
-  var app = express();
   var opts = Implementation.opts;
-
-  var integrationStripeValid = false;
-  var integrationIntercomValid = false;
-
-  function checkIntegrationsSetup () {
-    if (hasStripeIntegration()) {
-      if (isStripeProperlyIntegrated() || isStripeIntegrationDeprecated()) {
-        opts.integrations.stripe.mapping =
-          castToArray(opts.integrations.stripe.mapping);
-        integrationStripeValid = true;
-      } else {
-        logger.error('Cannot setup properly your Stripe integration.');
-      }
-    }
-
-    if (hasIntercomIntegration()) {
-      if (isIntercomProperlyIntegrated() ||
-            isIntercomIntegrationDeprecated()) {
-        opts.integrations.intercom.mapping =
-          castToArray(opts.integrations.intercom.mapping);
-        integrationIntercomValid = true;
-      } else {
-        logger.error('Cannot setup properly your Intercom integration.');
-      }
-    }
-  }
-
-  checkIntegrationsSetup();
+  var app = express();
+  var integrator = new Integrator(opts);
 
   if (opts.jwtSigningKey) {
     console.warn('DEPRECATION WARNING: the use of jwtSigningKey option is ' +
@@ -218,7 +83,7 @@ exports.init = function (Implementation) {
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
   requireAllModels(Implementation, absModelDirs)
     .then(function (models) {
-      return Schemas.perform(Implementation, models, opts)
+      return Schemas.perform(Implementation, integrator, models, opts)
         .then(function () {
           return requireAllModels(Implementation, path.resolve('.') + '/forest')
             .catch(function () {
@@ -228,10 +93,13 @@ exports.init = function (Implementation) {
         .thenReturn(models);
     })
     .each(function (model) {
-      new StripeRoutes(app, model, Implementation, opts).perform();
-      new IntercomRoutes(app, model, Implementation, opts).perform();
-      new ResourcesRoutes(app, model, Implementation, opts).perform();
+      integrator.defineRoutes(app, model, Implementation);
+
+      new ResourcesRoutes(app, model, Implementation, integrator, opts)
+        .perform();
+
       new AssociationsRoutes(app, model, Implementation, opts).perform();
+
       new StatRoutes(app, model, Implementation, opts).perform();
     })
     .then(function () {
@@ -240,21 +108,7 @@ exports.init = function (Implementation) {
     .then(function () {
       if (opts.authKey) {
         var collections = _.values(Schemas.schemas);
-
-        if (integrationStripeValid) {
-          _.each(opts.integrations.stripe.mapping,
-            function (collectionAndFieldName) {
-              StripeSetup.createCollections(Implementation, collections,
-                collectionAndFieldName);
-            });
-        }
-
-        if (integrationIntercomValid) {
-          _.each(opts.integrations.intercom.mapping,
-            function (collectionName) {
-              setupIntercomIntegration(collections, collectionName);
-            });
-        }
+        integrator.defineCollections(Implementation, collections);
 
         var json = new JSONAPISerializer('collections', collections, {
           id: 'name',
