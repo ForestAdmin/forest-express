@@ -6,6 +6,7 @@ var IntercomAttributesSerializer = require('../serializers/intercom-attributes')
 var IntercomConversationsGetter = require('../services/intercom-conversations-getter');
 var IntercomConversationsSerializer = require('../serializers/intercom-conversations');
 var auth = require('../services/auth');
+var path = require('../services/path');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
@@ -45,10 +46,11 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get('/forest/' + modelName + '/:recordId/intercom_attributes',
+      app.get(path.generate('/' + modelName +
+        '/:recordId/intercom_attributes', opts),
         auth.ensureAuthenticated, this.intercomAttributes);
-
-      app.get('/forest/' + modelName + '/:recordId/intercom_conversations',
+      app.get(path.generate('/' + modelName +
+        '/:recordId/intercom_conversations', opts),
         auth.ensureAuthenticated, this.intercomConversations);
     }
   };

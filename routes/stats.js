@@ -1,5 +1,6 @@
 'use strict';
 var auth = require('../services/auth');
+var path = require('../services/path');
 var StatSerializer = require('../serializers/stat');
 
 module.exports = function (app, model, Implementation, opts) {
@@ -38,7 +39,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.post('/forest/stats/' + modelName, auth.ensureAuthenticated,
+    app.post(path.generate('/stats/' + modelName, opts), auth.ensureAuthenticated,
       this.create);
   };
 };

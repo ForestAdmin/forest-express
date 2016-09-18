@@ -13,6 +13,7 @@ var CardsSerializer = require('./serializers/cards');
 var SubscriptionsSerializer = require('./serializers/subscriptions');
 var BankAccountsSerializer = require('./serializers/bank-accounts');
 var auth = require('../../services/auth');
+var path = require('../../services/path');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
@@ -128,31 +129,31 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get('/forest/' + modelName + '_stripe_payments',
+      app.get(path.generate('/' + modelName + '_stripe_payments', opts),
         auth.ensureAuthenticated, this.payments);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_payments',
+      app.get(path.generate('/' + modelName + '/:recordId/stripe_payments', opts),
         auth.ensureAuthenticated, this.payments);
 
-      app.post('/forest/' + modelName + '_stripe_payments/refunds',
+      app.post(path.generate('/' + modelName + '_stripe_payments/refunds', opts),
         auth.ensureAuthenticated, this.refund);
 
-      app.get('/forest/' + modelName + '_stripe_invoices',
+      app.get(path.generate('/' + modelName + '_stripe_invoices', opts),
         auth.ensureAuthenticated, this.invoices);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_invoices',
+      app.get(path.generate('/' + modelName + '/:recordId/stripe_invoices', opts),
         auth.ensureAuthenticated, this.invoices);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_cards',
+      app.get(path.generate('/' + modelName + '/:recordId/stripe_cards', opts),
         auth.ensureAuthenticated, this.cards);
 
-      app.get('/forest/' + modelName + '_stripe_subscriptions',
+      app.get(path.generate('/' + modelName + '_stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_subscriptions',
+      app.get(path.generate('/' + modelName + '/:recordId/stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
 
-      app.get('/forest/' + modelName + '/:recordId/stripe_bank_accounts',
+      app.get(path.generate('/' + modelName + '/:recordId/stripe_bank_accounts', opts),
         auth.ensureAuthenticated, this.bankAccounts);
     }
   };

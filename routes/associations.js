@@ -3,6 +3,7 @@ var _ = require('lodash');
 var ResourceSerializer = require('../serializers/resource');
 var Schemas = require('../generators/schemas');
 var auth = require('../services/auth');
+var path = require('../services/path');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
@@ -42,7 +43,7 @@ module.exports = function (app, model, Implementation, opts) {
   }
 
   this.perform = function () {
-    app.get('/forest/' + modelName + '/:recordId/:associationName',
+    app.get(path.generate('/' + modelName + '/:recordId/:associationName', opts),
       auth.ensureAuthenticated, index);
   };
 };

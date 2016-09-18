@@ -4,6 +4,7 @@ var _ = require('lodash');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var auth = require('../services/auth');
+var path = require('../services/path');
 var Schemas = require('../generators/schemas');
 
 module.exports = function (app, model, Implementation, opts) {
@@ -106,19 +107,16 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.get('/forest/' + modelName, auth.ensureAuthenticated, this.list);
-
-    app.get('/forest/' + modelName + '/:recordId', auth.ensureAuthenticated,
-      this.get);
-
-    app.post('/forest/' + modelName, auth.ensureAuthenticated,
+    app.get(path.generate('/' + modelName, opts), auth.ensureAuthenticated,
+      this.list);
+    app.get(path.generate('/' + modelName + '/:recordId', opts),
+      auth.ensureAuthenticated, this.get);
+    app.post(path.generate('/' + modelName, opts), auth.ensureAuthenticated,
       this.create);
-
-    app.put('/forest/' + modelName + '/:recordId', auth.ensureAuthenticated,
-      this.update);
-
-    app.delete('/forest/' + modelName + '/:recordId', auth.ensureAuthenticated,
-      this.remove);
+    app.put(path.generate('/' + modelName + '/:recordId', opts),
+      auth.ensureAuthenticated, this.update);
+    app.delete(path.generate('/' + modelName + '/:recordId', opts),
+      auth.ensureAuthenticated, this.remove);
   };
 };
 

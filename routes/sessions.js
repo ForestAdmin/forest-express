@@ -2,6 +2,7 @@
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 
 module.exports = function (app, opts) {
@@ -46,7 +47,7 @@ module.exports = function (app, opts) {
   }
 
   this.perform = function () {
-    app.post('/forest/sessions', login);
+    app.post(path.generate('/sessions', opts), login);
   };
 };
 

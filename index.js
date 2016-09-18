@@ -197,10 +197,20 @@ exports.init = function (Implementation) {
   app.use(bodyParser.json());
 
   // Authentication
-  app.use(jwt({
+  var jwtAuthenticator = jwt({
     secret: opts.authKey,
     credentialsRequired: false
-  }).unless({ path: /^(?!\/forest).*/ }));
+  });
+
+  if (opts.expressParentApp) {
+    // NOTICE: Forest is a sub-app of the client application; so all routes are
+    //         protected with JWT.
+    app.use(jwtAuthenticator);
+  } else {
+    // NOTICE: Forest routes are part of the client app; only Forest routes are
+    //         protected with JWT.
+    app.use(jwtAuthenticator.unless({ path: /^(?!\/forest).*/ }));
+  }
 
   new SessionRoute(app, opts).perform();
 
@@ -288,6 +298,10 @@ exports.init = function (Implementation) {
             });
       }
     });
+
+  if (opts.expressParentApp) {
+    opts.expressParentApp.use('/forest', app);
+  }
 
   return app;
 };
