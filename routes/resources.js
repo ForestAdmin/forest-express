@@ -107,15 +107,15 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.get(path.generate('/' + modelName, opts), auth.ensureAuthenticated,
+    app.get(path.generate(modelName, opts), auth.ensureAuthenticated,
       this.list);
-    app.get(path.generate('/' + modelName + '/:recordId', opts),
+    app.get(path.generate(modelName + '/:recordId', opts),
       auth.ensureAuthenticated, this.get);
-    app.post(path.generate('/' + modelName, opts), auth.ensureAuthenticated,
+    app.post(path.generate(modelName, opts), auth.ensureAuthenticated,
       this.create);
-    app.put(path.generate('/' + modelName + '/:recordId', opts),
+    app.put(path.generate(modelName + '/:recordId', opts),
       auth.ensureAuthenticated, this.update);
-    app.delete(path.generate('/' + modelName + '/:recordId', opts),
+    app.delete(path.generate(modelName + '/:recordId', opts),
       auth.ensureAuthenticated, this.remove);
   };
 };

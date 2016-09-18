@@ -47,7 +47,7 @@ module.exports = function (app, opts) {
   }
 
   this.perform = function () {
-    app.post(path.generate('/sessions', opts), login);
+    app.post(path.generate('sessions', opts), login);
   };
 };
 

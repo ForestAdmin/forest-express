@@ -39,7 +39,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.post(path.generate('/stats/' + modelName, opts), auth.ensureAuthenticated,
+    app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated,
       this.create);
   };
 };

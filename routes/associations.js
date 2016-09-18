@@ -43,7 +43,7 @@ module.exports = function (app, model, Implementation, opts) {
   }
 
   this.perform = function () {
-    app.get(path.generate('/' + modelName + '/:recordId/:associationName', opts),
+    app.get(path.generate(modelName + '/:recordId/:associationName', opts),
       auth.ensureAuthenticated, index);
   };
 };

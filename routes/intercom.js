@@ -46,12 +46,10 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get(path.generate('/' + modelName +
-        '/:recordId/intercom_attributes', opts),
+      app.get(path.generate(modelName +'/:recordId/intercom_attributes', opts),
         auth.ensureAuthenticated, this.intercomAttributes);
-      app.get(path.generate('/' + modelName +
-        '/:recordId/intercom_conversations', opts),
-        auth.ensureAuthenticated, this.intercomConversations);
+      app.get(path.generate(modelName + '/:recordId/intercom_conversations',
+        opts), auth.ensureAuthenticated, this.intercomConversations);
     }
   };
 };

@@ -129,31 +129,31 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get(path.generate('/' + modelName + '_stripe_payments', opts),
+      app.get(path.generate(modelName + '_stripe_payments', opts),
         auth.ensureAuthenticated, this.payments);
 
-      app.get(path.generate('/' + modelName + '/:recordId/stripe_payments', opts),
+      app.get(path.generate(modelName + '/:recordId/stripe_payments', opts),
         auth.ensureAuthenticated, this.payments);
 
-      app.post(path.generate('/' + modelName + '_stripe_payments/refunds', opts),
+      app.post(path.generate(modelName + '_stripe_payments/refunds', opts),
         auth.ensureAuthenticated, this.refund);
 
-      app.get(path.generate('/' + modelName + '_stripe_invoices', opts),
+      app.get(path.generate(modelName + '_stripe_invoices', opts),
         auth.ensureAuthenticated, this.invoices);
 
-      app.get(path.generate('/' + modelName + '/:recordId/stripe_invoices', opts),
+      app.get(path.generate(modelName + '/:recordId/stripe_invoices', opts),
         auth.ensureAuthenticated, this.invoices);
 
-      app.get(path.generate('/' + modelName + '/:recordId/stripe_cards', opts),
+      app.get(path.generate(modelName + '/:recordId/stripe_cards', opts),
         auth.ensureAuthenticated, this.cards);
 
-      app.get(path.generate('/' + modelName + '_stripe_subscriptions', opts),
+      app.get(path.generate(modelName + '_stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
 
-      app.get(path.generate('/' + modelName + '/:recordId/stripe_subscriptions', opts),
+      app.get(path.generate(modelName + '/:recordId/stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
 
-      app.get(path.generate('/' + modelName + '/:recordId/stripe_bank_accounts', opts),
+      app.get(path.generate(modelName + '/:recordId/stripe_bank_accounts', opts),
         auth.ensureAuthenticated, this.bankAccounts);
     }
   };
