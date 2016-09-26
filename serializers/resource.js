@@ -3,7 +3,8 @@ var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../generators/schemas');
 
-function ResourceSerializer(Implementation, model, records, opts, meta) {
+function ResourceSerializer(Implementation, model, records, integrator,
+  opts, meta) {
   var schema = Schemas.schemas[Implementation.getModelName(model)];
 
   var reservedWords = ['meta'];
@@ -18,83 +19,14 @@ function ResourceSerializer(Implementation, model, records, opts, meta) {
     });
   }
 
-  function hasStripeIntegration() {
-    return opts.integrations && opts.integrations.stripe &&
-      opts.integrations.stripe.apiKey;
-  }
-
-  if (hasStripeIntegration()) {
-    // jshint camelcase: false
-    if (_.isArray(records)) {
-      records = records.map(function (record) {
-        record.stripe_payments = [];
-        record.stripe_invoices = [];
-        record.stripe_cards = [];
-        return record;
-      });
-    } else {
-      records.stripe_payments = [];
-      records.stripe_invoices = [];
-      records.stripe_cards = [];
-    }
-  }
-
-  function hasIntercomIntegration() {
-    return opts.integrations && opts.integrations.intercom &&
-      opts.integrations.intercom.apiKey && opts.integrations.intercom.appId;
-  }
-
-  if (hasIntercomIntegration()) {
-    // jshint camelcase: false
-    if (_.isArray(records)) {
-      records = records.map(function (record) {
-        record.intercom_conversations = [];
-        record.intercom_attributes = [];
-        return record;
-      });
-    } else {
-      records.intercom_conversations = [];
-      records.intercom_attributes = [];
-    }
-  }
-
   this.perform = function () {
     var typeForAttributes = {};
 
     function getAttributesFor(dest, fields) {
       _.map(fields, function (field) {
-        if (hasIntercomIntegration() && field.integration === 'intercom') {
-          dest[field.field] = {
-            ref: 'id',
-            attributes: [],
-            included: false,
-            ignoreRelationshipData: true,
-            relationshipLinks: {
-              related: function (dataSet) {
-                var ret = {
-                  href: '/forest/' + Implementation.getModelName(model) +
-                    '/' + dataSet[schema.idField] + '/' + field.field,
-                };
-                return ret;
-              }
-            }
-          };
-        } else if (hasStripeIntegration() && field.integration === 'stripe') {
-          dest[field.field] = {
-            ref: 'id',
-            attributes: [],
-            included: false,
-            ignoreRelationshipData: true,
-            relationshipLinks: {
-              related: function (dataSet) {
-                var ret = {
-                  href: '/forest/' + Implementation.getModelName(model) +
-                    '/' + dataSet[schema.idField] + '/' + field.field,
-                };
-                return ret;
-              }
-            }
-          };
+        if (field.integration) {
+          integrator.defineSerializationOption(Implementation, model, schema,
+            dest, field);
         } else {
           var fieldName = field.field;
           if (reservedWords.indexOf(fieldName) > -1) {

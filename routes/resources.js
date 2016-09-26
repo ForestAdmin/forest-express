@@ -7,7 +7,7 @@ var auth = require('../services/auth');
 var path = require('../services/path');
 var Schemas = require('../generators/schemas');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[Implementation.getModelName(model)];
 
@@ -40,7 +40,7 @@ module.exports = function (app, model, Implementation, opts) {
           })
           .then(function (records) {
             return new ResourceSerializer(Implementation, model, records,
-              opts, { count: count }).perform();
+              integrator, opts, { count: count }).perform();
           });
       })
       .then(function (records) {
@@ -53,8 +53,8 @@ module.exports = function (app, model, Implementation, opts) {
     return new Implementation.ResourceGetter(model, req.params)
       .perform()
       .then(function (record) {
-        return new ResourceSerializer(Implementation, model, record, opts)
-          .perform();
+        return new ResourceSerializer(Implementation, model, record,
+          integrator, opts).perform();
       })
       .then(function (record) {
         res.send(record);
@@ -70,8 +70,8 @@ module.exports = function (app, model, Implementation, opts) {
         return new Implementation.ResourceCreator(model, params).perform();
       })
       .then(function (record) {
-        return new ResourceSerializer(Implementation, model, record, opts)
-          .perform();
+        return new ResourceSerializer(Implementation, model, record,
+          integrator, opts).perform();
       })
       .then(function (record) {
         res.send(record);
@@ -86,8 +86,8 @@ module.exports = function (app, model, Implementation, opts) {
         new Implementation.ResourceUpdater(model, params)
           .perform()
           .then(function (record) {
-            return new ResourceSerializer(Implementation, model, record, opts)
-              .perform();
+            return new ResourceSerializer(Implementation, model, record,
+              integrator, opts).perform();
           })
           .then(function (record) {
             res.send(record);
