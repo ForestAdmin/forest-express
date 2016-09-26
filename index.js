@@ -284,16 +284,14 @@ exports.init = function (Implementation) {
             .send(json)
             .set('forest-secret-key', opts.secretKey)
             .end(function(error, result) {
-              if (error) {
-                logger.warn('Cannot send the apimap to Forest. Are you ' +
-                  'online?');
-                return;
-              }
-
-              if (result.status !== 204) {
+              if (result && result.status !== 204) {
                 logger.error('Cannot find your project secret key. ' +
                   'Please, ensure you have installed the Forest Liana ' +
                   'correctly.');
+              } else if (error) {
+                logger.warn('Cannot send the apimap to Forest. Are you ' +
+                  'online?');
+                return;
               }
             });
       }
