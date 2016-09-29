@@ -16,15 +16,15 @@ module.exports = function (app, model, Implementation, opts) {
     }
   }
 
-  function index(req, res, next) {
-    var params = _.extend(req.query, req.params);
+  function index(request, response, next) {
+    var params = _.extend(request.query, request.params);
     var models = Implementation.getModels();
-    var associationField = getAssociationField(req.params.associationName);
+    var associationField = getAssociationField(request.params.associationName);
     var associationModel = _.find(models, function (model) {
       return Implementation.getModelName(model) === associationField;
     });
 
-    if (!associationModel) { return res.status(404).send(); }
+    if (!associationModel) { return response.status(404).send(); }
 
     return new Implementation.HasManyGetter(model, associationModel, opts,
       params)
@@ -36,14 +36,63 @@ module.exports = function (app, model, Implementation, opts) {
         return new ResourceSerializer(Implementation, associationModel,
           records, opts, null, { count: count }).perform();
       })
-      .then(function (records) {
-        res.send(records);
-      })
+      .then(function (records) { response.send(records); })
+      .catch(next);
+  }
+
+  function add(request, response, next) {
+    var data = request.body;
+    var models = Implementation.getModels();
+    var associationField = getAssociationField(request.params.associationName);
+    var associationModel = _.find(models, function (model) {
+      return Implementation.getModelName(model) === associationField;
+    });
+
+    return new Implementation.HasManyAssociator(model, associationModel, opts,
+      request.params, data)
+      .perform()
+      .then(function () { response.status(204).send(); })
+      .catch(next);
+  }
+
+  function remove(request, response, next) {
+    var data = request.body;
+    var models = Implementation.getModels();
+    var associationField = getAssociationField(request.params.associationName);
+    var associationModel = _.find(models, function (model) {
+      return Implementation.getModelName(model) === associationField;
+    });
+
+    return new Implementation.HasManyDissociator(model, associationModel, opts,
+      request.params, data)
+      .perform()
+      .then(function () { response.status(204).send(); })
+      .catch(next);
+  }
+
+  function update(request, response, next) {
+    var data = request.body;
+    var models = Implementation.getModels();
+    var associationField = getAssociationField(request.params.associationName);
+    var associationModel = _.find(models, function (model) {
+      return Implementation.getModelName(model) === associationField;
+    });
+
+    return new Implementation.BelongsToUpdater(model, associationModel, opts,
+      request.params, data)
+      .perform()
+      .then(function () { response.status(204).send(); })
       .catch(next);
   }
 
   this.perform = function () {
-    app.get(path.generate(modelName + '/:recordId/:associationName', opts),
-      auth.ensureAuthenticated, index);
+    app.get(path.generate(modelName + '/:recordId/relationships/:associationName',
+      opts), auth.ensureAuthenticated, index);
+    app.put(path.generate(modelName + '/:recordId/relationships/:associationName',
+      opts), auth.ensureAuthenticated, update);
+    app.post(path.generate(modelName + '/:recordId/relationships/:associationName',
+      opts), auth.ensureAuthenticated, add);
+    app.delete(path.generate(modelName + '/:recordId/relationships/:associationName',
+      opts), auth.ensureAuthenticated, remove);
   };
 };
