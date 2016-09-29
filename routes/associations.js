@@ -34,7 +34,7 @@ module.exports = function (app, model, Implementation, opts) {
         var records = results[1];
 
         return new ResourceSerializer(Implementation, associationModel,
-          records, opts, { count: count }).perform();
+          records, opts, null, { count: count }).perform();
       })
       .then(function (records) {
         res.send(records);
