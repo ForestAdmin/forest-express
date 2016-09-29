@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var auth = require('../../services/auth');
+var path = require('../../services/path');
 var IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 var CloseioLeadsGetter = require('./services/closeio-leads-getter');
 var CloseioLeadGetter = require('./services/closeio-lead-getter');
@@ -75,7 +76,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   function customerLead(req, res, next) {
     new CloseioCustomerLeadGetter(Implementation, _.extend(req.query,
-      req.params), opts)
+      req.params), opts, integrationInfo)
       .perform()
       .then(function (lead) {
         if (!lead) { throw { status: 404, message: 'not_found' }; }
@@ -107,22 +108,24 @@ module.exports = function (app, model, Implementation, opts) {
   }
 
   this.perform = function () {
-    app.get('/forest/' + modelName + '_closeio_leads',
-      auth.ensureAuthenticated, closeioLeads);
+    if (integrationInfo) {
+      app.get(path.generate(modelName + '_closeio_leads', opts),
+        auth.ensureAuthenticated, closeioLeads);
 
-    app.get('/forest/' + modelName + '_closeio_leads/:leadId',
-      auth.ensureAuthenticated, closeioLead);
+      app.get(path.generate(modelName + '_closeio_leads/:leadId', opts),
+        auth.ensureAuthenticated, closeioLead);
 
-    app.get('/forest/' + modelName + '_closeio_leads/:leadId/emails',
-      auth.ensureAuthenticated, closeioLeadEmails);
+      app.get(path.generate(modelName + '_closeio_leads/:leadId/emails', opts),
+        auth.ensureAuthenticated, closeioLeadEmails);
 
-    app.get('/forest/' + modelName + '_closeio_emails/:emailId',
-      auth.ensureAuthenticated, closeioLeadEmail);
+      app.get(path.generate(modelName + '_closeio_emails/:emailId', opts),
+        auth.ensureAuthenticated, closeioLeadEmail);
 
-    app.get('/forest/' + modelName + '/:recordId/closeio_lead',
-      auth.ensureAuthenticated, customerLead);
+      app.get(path.generate(modelName + '/:recordId/closeio_lead', opts),
+        auth.ensureAuthenticated, customerLead);
 
-    app.post('/forest/' + modelName + '_closeio_leads',
-      auth.ensureAuthenticated, createCloseioLead);
+      app.get(path.generate(modelName + '_closeio_leads', opts),
+        auth.ensureAuthenticated, createCloseioLead);
+    }
   };
 };

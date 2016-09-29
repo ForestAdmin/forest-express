@@ -58,8 +58,9 @@ function Checker(opts) {
     if (!integrationValid) { return; }
 
     _.each(opts.integrations.closeio.mapping,
-      function (collectionName) {
-        Setup.createCollections(Implementation, collections, collectionName);
+      function (collectionAndFieldName) {
+        Setup.createCollections(Implementation, collections,
+          collectionAndFieldName);
       });
   };
 
@@ -68,10 +69,7 @@ function Checker(opts) {
 
     if (integrationCollectionMatch(Implementation, opts.integrations.closeio,
       model)) {
-      _.each(opts.integrations.closeio.mapping, function (collectionName) {
-        Setup.createFields(Implementation, model, schema,
-          collectionName);
-      });
+        Setup.createFields(Implementation, model, schema);
     }
   };
 

@@ -1,7 +1,9 @@
 'use strict';
 var _ = require('lodash');
 
-exports.createCollections = function (Implementation, apimap, collectionName) {
+exports.createCollections = function (Implementation, apimap,
+  collectionAndFieldName) {
+  var collectionName = collectionAndFieldName.split('.')[0];
   var collectionDisplayName = _.capitalize(collectionName);
 
   // jshint camelcase: false
@@ -40,13 +42,11 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
   });
 };
 
-exports.createFields = function (implementation, model, schema,
-  collectionName) {
-
+exports.createFields = function (implementation, model, schema) {
   schema.fields.push({
     field: 'closeio_lead',
     type: 'String',
-    reference: collectionName + '_closeio_leads.id',
+    reference: implementation.getModelName(model) + '_closeio_leads.id',
     column: null,
     isSearchable: false,
     integration: 'close.io'
@@ -55,7 +55,7 @@ exports.createFields = function (implementation, model, schema,
   if (!schema.actions) { schema.actions = []; }
   schema.actions.push({
     name: 'Create Close.io lead',
-    endpoint: '/forest/' + collectionName + '_closeio_leads',
+    endpoint: '/forest/' + implementation.getModelName(model) + '_closeio_leads',
     fields: [{
       field: 'Company/Organization Name',
       type: 'String'
