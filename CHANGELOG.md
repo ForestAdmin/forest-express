@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Record Update - Fix the potential relationship dissociations on record update.
 
 ## RELEASE 0.1.25 - 2016-09-29
 ### Fixed

@@ -51,7 +51,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
                 related: function (dataSet) {
                   var ret = {
                     href: '/forest/' + Implementation.getModelName(model) +
-                      '/' + dataSet[schema.idField] + '/' +
+                      '/' + dataSet[schema.idField] + '/relationships/' +
                       field.field,
                   };
 
