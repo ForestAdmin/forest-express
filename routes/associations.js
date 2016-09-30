@@ -5,7 +5,7 @@ var Schemas = require('../generators/schemas');
 var auth = require('../services/auth');
 var path = require('../services/path');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
 
   function getAssociationField(associationName) {
@@ -34,7 +34,7 @@ module.exports = function (app, model, Implementation, opts) {
         var records = results[1];
 
         return new ResourceSerializer(Implementation, associationModel,
-          records, opts, null, { count: count }).perform();
+          records, integrator, opts, { count: count }).perform();
       })
       .then(function (records) { response.send(records); })
       .catch(next);

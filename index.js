@@ -98,7 +98,8 @@ exports.init = function (Implementation) {
       new ResourcesRoutes(app, model, Implementation, integrator, opts)
         .perform();
 
-      new AssociationsRoutes(app, model, Implementation, opts).perform();
+      new AssociationsRoutes(app, model, Implementation, integrator, opts)
+        .perform();
 
       new StatRoutes(app, model, Implementation, opts).perform();
     })
