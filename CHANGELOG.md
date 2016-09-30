@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 0.1.27 - 2016-09-30
 ### Fixed
 - hasMany - Fix the hasMany fetch when an integration is set.
 
