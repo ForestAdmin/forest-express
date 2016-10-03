@@ -63,7 +63,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.create = function (req, res, next) {
-    new ResourceDeserializer(Implementation, model, req.body, {
+    new ResourceDeserializer(Implementation, model, req.body, true, {
       omitNullAttributes: true
     }).perform()
       .then(function (params) {
@@ -80,7 +80,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.update = function (req, res, next) {
-    new ResourceDeserializer(Implementation, model, req.body)
+    new ResourceDeserializer(Implementation, model, req.body, false)
       .perform()
       .then(function (params) {
         new Implementation.ResourceUpdater(model, params)
@@ -119,4 +119,3 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       auth.ensureAuthenticated, this.remove);
   };
 };
-
