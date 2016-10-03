@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Record Create - Fix empty relationships on record creation.
 
 ## RELEASE 0.1.27 - 2016-09-30
 ### Fixed
