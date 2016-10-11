@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 0.1.28 - 2016-10-11
 ### Added
 - ES5 - Secure the ES5 compatibility with a git hook.
 
