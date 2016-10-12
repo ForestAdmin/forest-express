@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Deserialization - Fix the deserialization if the payload has no attributes.
 
 ## RELEASE 0.1.28 - 2016-10-11
 ### Added
