@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Deserialization - Fix the deserialization if the payload has no attributes.
+- Fields - Serialize the "isVirtual" property in the apimap.
 
 ## RELEASE 0.1.28 - 2016-10-11
 ### Added
