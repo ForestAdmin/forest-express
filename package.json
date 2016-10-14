@@ -1,6 +1,6 @@
 {
   "name": "forest-express",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "description": "The official Express liana for Forest",
   "main": "index.js",
   "scripts": {
