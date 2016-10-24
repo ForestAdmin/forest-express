@@ -32,6 +32,7 @@ exports.createCollections = function (Implementation, apimap,
       }
     ],
     actions: [{
+      id: 'stripe.Refund',
       name: 'Refund',
       endpoint: '/forest/' + collectionName + '_stripe_payments/refunds'
     }]

@@ -24,7 +24,7 @@ var CONFIG = {
 
 var TITLE = '[forest] 🌳🌳🌳  ';
 
-var logger = module.exports = new (winston.Logger)({
+module.exports = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({
       formatter: function (options) {

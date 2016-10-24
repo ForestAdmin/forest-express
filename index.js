@@ -122,7 +122,7 @@ exports.init = function (Implementation) {
               'widget', 'integration', 'isReadOnly', 'isVirtual']
           },
           actions: {
-            ref: 'name',
+            ref: 'id',
             attributes: ['name', 'endpoint', 'httpMethod', 'fields']
           },
           meta: {
@@ -171,6 +171,13 @@ exports.collection = function (name, opts) {
 
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
+
+    // NOTICE: Action ids are defined concatenating the collection name and the
+    //         action name to prevent action id conflicts between collections.
+    _.each(opts.actions, function (action) {
+      action.id = name + '.' + action.name;
+    });
+
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
 
     opts.fields = _.map(opts.fields, function (field) {
