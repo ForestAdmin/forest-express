@@ -25,7 +25,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
               if (!record[field.field]) {
                 if (field.value) {
                   var value = field.value(record);
-                  if (_.isFunction(value.then)) {
+                  if (value && _.isFunction(value.then)) {
                     return value.then(function (value) {
                       record[field.field] = value;
                     });
