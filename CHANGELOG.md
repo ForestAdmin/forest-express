@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Custom Action - Fix the bad endpoints if some actions have the same name.
+- Resources Index - Fix lists with null smart field values.
 
 ## RELEASE 0.1.29 - 2016-10-14
 ### Fixed
