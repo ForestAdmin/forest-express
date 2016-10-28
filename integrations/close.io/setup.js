@@ -54,6 +54,7 @@ exports.createFields = function (implementation, model, schema) {
 
   if (!schema.actions) { schema.actions = []; }
   schema.actions.push({
+    id: implementation.getModelName(model) + '.' + 'Create Close.io lead',
     name: 'Create Close.io lead',
     endpoint: '/forest/' + implementation.getModelName(model) + '_closeio_leads',
     fields: [{
