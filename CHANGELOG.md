@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 0.1.28 - 2016-10-28
 ### Fixed
 - Custom Action - Fix the bad endpoints if some actions have the same name.
 - Resources Index - Fix lists with null smart field values.
