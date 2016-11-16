@@ -1,10 +1,12 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Custom Actions - Fix missing actions for Smart Collections.
 
 ## RELEASE 0.1.30 - 2016-10-28
 ### Fixed
-- Custom Action - Fix the bad endpoints if some actions have the same name.
+- Custom Actions - Fix the bad endpoints if some actions have the same name.
 - Resources Index - Fix lists with null smart field values.
 
 ## RELEASE 0.1.29 - 2016-10-14

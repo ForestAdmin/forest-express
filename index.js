@@ -169,14 +169,14 @@ exports.collection = function (name, opts) {
 
   var collection = _.find(Schemas.schemas, { name: name });
 
+  // NOTICE: Action ids are defined concatenating the collection name and the
+  //         action name to prevent action id conflicts between collections.
+  _.each(opts.actions, function (action) {
+    action.id = name + '.' + action.name;
+  });
+
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
-
-    // NOTICE: Action ids are defined concatenating the collection name and the
-    //         action name to prevent action id conflicts between collections.
-    _.each(opts.actions, function (action) {
-      action.id = name + '.' + action.name;
-    });
 
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
 
