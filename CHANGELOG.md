@@ -2,9 +2,8 @@
 
 ## [Unreleased]
 ### Added
-- Deserializer - Expose Deserializer module to API
+- Deserializer - Expose Deserializer module to API.
 
-## RELEASE 0.1.31 - 2016-11-17
 ### Fixed
 - Custom Actions - Fix missing actions for Smart Collections.
 
