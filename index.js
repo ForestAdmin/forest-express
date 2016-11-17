@@ -199,5 +199,6 @@ exports.collection = function (name, opts) {
 };
 
 exports.ensureAuthenticated = require('./services/auth').ensureAuthenticated;
-exports.StatSerializer = require('./serializers/stat') ;
-exports.ResourceSerializer = require('./serializers/resource') ;
+exports.StatSerializer = require('./serializers/stat');
+exports.ResourceSerializer = require('./serializers/resource');
+exports.ResourceDeserializer = require('./deserializers/resource');
