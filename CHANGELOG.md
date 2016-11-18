@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 0.1.31 - 2016-11-17
 ### Added
 - Deserializer - Expose Deserializer module to API.
 
