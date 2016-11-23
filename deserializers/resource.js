@@ -18,7 +18,7 @@ function ResourceDeserializer(Implementation, model, params,
 
       if (opts.omitNullAttributes) {
         attributes = _.pickBy(attributes, function (value) {
-          return value;
+          return !_.isNull(value);
         });
       }
 
