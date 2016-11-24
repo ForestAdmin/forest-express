@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Deserializer - Fix false booleans from being included in null check
+- Record Creation - Allow false boolean values on record creation.
 
 ## RELEASE 0.1.31 - 2016-11-17
 ### Added
