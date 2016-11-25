@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Record Creation - Allow false boolean values on record creation.
+- Allowed Users - Remove a space in the allowed users retrieval URL.
 
 ## RELEASE 0.1.31 - 2016-11-17
 ### Added

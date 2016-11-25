@@ -10,7 +10,7 @@ function AllowedUsersFinder(renderingId, opts) {
         'https://forestadmin-server.herokuapp.com';
 
       request
-        .get(forestUrl + '/forest/renderings/ ' + renderingId +
+        .get(forestUrl + '/forest/renderings/' + renderingId +
           '/allowed-users')
         .set('forest-secret-key', opts.secretKey)
         .end(function (err, res) {
