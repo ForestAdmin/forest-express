@@ -17,6 +17,7 @@ var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var request = require('superagent');
 var logger = require('./services/logger');
 var Integrator = require('./integrations');
+var errorHandler = require('./services/error-handler');
 
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
@@ -107,6 +108,9 @@ exports.init = function (Implementation) {
       new ForestRoutes(app, opts).perform();
     })
     .then(function () {
+      app.use(errorHandler.catchIfAny);
+    })
+    .then(function () {
       if (opts.authKey) {
         var collections = _.values(Schemas.schemas);
         integrator.defineCollections(Implementation, collections);
@@ -136,19 +140,19 @@ exports.init = function (Implementation) {
 
         request
           .post(forestUrl + '/forest/apimaps')
-            .send(json)
-            .set('forest-secret-key', opts.secretKey)
-            .end(function(error, result) {
-              if (result && result.status !== 204) {
-                logger.error('Cannot find your project secret key. ' +
-                  'Please, ensure you have installed the Forest Liana ' +
-                  'correctly.');
-              } else if (error) {
-                logger.warn('Cannot send the apimap to Forest. Are you ' +
-                  'online?');
-                return;
-              }
-            });
+          .send(json)
+          .set('forest-secret-key', opts.secretKey)
+          .end(function(error, result) {
+            if (result && result.status !== 204) {
+              logger.error('Cannot find your project secret key. ' +
+                'Please, ensure you have installed the Forest Liana ' +
+                'correctly.');
+            } else if (error) {
+              logger.warn('Cannot send the apimap to Forest. Are you ' +
+                'online?');
+              return;
+            }
+          });
       }
     });
 

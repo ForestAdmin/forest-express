@@ -5,6 +5,9 @@
 - Record Creation - Allow false boolean values on record creation.
 - Allowed Users - Remove a space in the allowed users retrieval URL.
 
+### Added
+- Errors - Catch potential validation error and send a response with the first retrieved error.
+
 ## RELEASE 0.1.31 - 2016-11-17
 ### Added
 - Deserializer - Expose Deserializer module to API.
