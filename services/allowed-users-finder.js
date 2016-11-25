@@ -2,10 +2,11 @@
 var P = require('bluebird');
 var request = require('superagent');
 var allowedUsers = require('./auth').allowedUsers;
+var logger = require('./logger');
 
 function AllowedUsersFinder(renderingId, opts) {
   this.perform = function () {
-    return new P(function (resolve, reject) {
+    return new P(function (resolve) {
       var forestUrl = process.env.FOREST_URL ||
         'https://forestadmin-server.herokuapp.com';
 
@@ -13,23 +14,29 @@ function AllowedUsersFinder(renderingId, opts) {
         .get(forestUrl + '/forest/renderings/' + renderingId +
           '/allowed-users')
         .set('forest-secret-key', opts.secretKey)
-        .end(function (err, res) {
-          if (err) { return reject(err); }
-          if (res.status !== 200) {
-            return reject(res.status);
-          }
-
+        .end(function (error, result) {
           allowedUsers = [];
-          res.body.data.forEach(function (d) {
-            var user = d.attributes;
-            user.id = d.id;
-
-            allowedUsers.push(user);
-          });
-
+          if (result.status === 200 && result.body && result.body.data) {
+            result.body.data.forEach(function (userData) {
+              var user = userData.attributes;
+              user.id = userData.id;
+              allowedUsers.push(user);
+            });
+          } else {
+            if (result.status === 0) {
+              logger.error('Cannot retrieve any users for the project you\'re ' +
+                'trying to unlock. Forest API seems to be down right now.');
+            } else if (result.status === 404) {
+              logger.error('Cannot retrieve the project you\'re trying to ' +
+                'unlock. Can you check that you properly copied the Forest ' +
+                'secret key in the forest_liana initializer?');
+            } else {
+              logger.error('Cannot retrieve any users for the project ' +
+                'you\'re trying to unlock. An error occured in Forest API.');
+            }
+          }
           resolve(allowedUsers);
         });
-
     });
   };
 }

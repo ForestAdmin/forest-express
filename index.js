@@ -45,14 +45,6 @@ exports.init = function (Implementation) {
   var app = express();
   var integrator = new Integrator(opts);
 
-  if (opts.jwtSigningKey) {
-    console.warn('DEPRECATION WARNING: the use of jwtSigningKey option is ' +
-    'deprecated. Use secret_key and auth_key instead. More info at: ' +
-    'https://github.com/ForestAdmin/forest-express-mongoose/releases/tag/0.1.0');
-    opts.authKey = opts.jwtSigningKey;
-    opts.secretKey = opts.jwtSigningKey;
-  }
-
   // CORS
   app.use(cors({
     allowedOrigins: ['localhost:4200', '*.forestadmin.com'],
@@ -80,7 +72,7 @@ exports.init = function (Implementation) {
 
   new SessionRoute(app, opts).perform();
 
-  //// Init
+  // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
   requireAllModels(Implementation, absModelDirs)
     .then(function (models) {
@@ -111,48 +103,59 @@ exports.init = function (Implementation) {
       app.use(errorHandler.catchIfAny);
     })
     .then(function () {
-      if (opts.authKey) {
-        var collections = _.values(Schemas.schemas);
-        integrator.defineCollections(Implementation, collections);
+      if (opts.secretKey && opts.secretKey.length !== 64) {
+        logger.error('Your secret key does not seem to be correct. Can you ' +
+          'check on Forest that you copied it properly in the forest_liana ' +
+          'initializer?');
+      } else {
+        if (opts.authKey) {
+          var collections = _.values(Schemas.schemas);
+          integrator.defineCollections(Implementation, collections);
 
-        var json = new JSONAPISerializer('collections', collections, {
-          id: 'name',
-          attributes: ['name', 'displayName', 'paginationType', 'icon',
-            'fields', 'actions', 'onlyForRelationships', 'isVirtual',
-            'isReadOnly'],
-          fields: {
-            attributes: ['field', 'displayName', 'type', 'enums',
-              'collection_name', 'reference', 'column', 'isSearchable',
-              'widget', 'integration', 'isReadOnly', 'isVirtual']
-          },
-          actions: {
-            ref: 'id',
-            attributes: ['name', 'endpoint', 'httpMethod', 'fields']
-          },
-          meta: {
-            'liana': Implementation.getLianaName(),
-            'liana_version': Implementation.getLianaVersion()
-          }
-        });
-
-        var forestUrl = process.env.FOREST_URL ||
-          'https://forestadmin-server.herokuapp.com';
-
-        request
-          .post(forestUrl + '/forest/apimaps')
-          .send(json)
-          .set('forest-secret-key', opts.secretKey)
-          .end(function(error, result) {
-            if (result && result.status !== 204) {
-              logger.error('Cannot find your project secret key. ' +
-                'Please, ensure you have installed the Forest Liana ' +
-                'correctly.');
-            } else if (error) {
-              logger.warn('Cannot send the apimap to Forest. Are you ' +
-                'online?');
-              return;
+          var apimap = new JSONAPISerializer('collections', collections, {
+            id: 'name',
+            attributes: ['name', 'displayName', 'paginationType', 'icon',
+              'fields', 'actions', 'onlyForRelationships', 'isVirtual',
+              'isReadOnly'],
+            fields: {
+              attributes: ['field', 'displayName', 'type', 'enums',
+                'collection_name', 'reference', 'column', 'isSearchable',
+                'widget', 'integration', 'isReadOnly', 'isVirtual']
+            },
+            actions: {
+              ref: 'id',
+              attributes: ['name', 'endpoint', 'httpMethod', 'fields']
+            },
+            meta: {
+              'liana': Implementation.getLianaName(),
+              'liana_version': Implementation.getLianaVersion()
             }
           });
+
+          var forestUrl = process.env.FOREST_URL ||
+            'https://forestadmin-server.herokuapp.com';
+
+          request
+            .post(forestUrl + '/forest/apimaps')
+              .send(apimap)
+              .set('forest-secret-key', opts.secretKey)
+              .end(function(error, result) {
+                if (result && result.status !== 204) {
+                  if (result.status === 0) {
+                    logger.warn('Cannot send the apimap to Forest. Are you ' +
+                      'online?');
+                  } else if (result.status === 404) {
+                    logger.error('Cannot find the project related to the ' +
+                      'secret key you configured. Can you check on Forest ' +
+                      'that you copied it properly in the forest_liana initializer?');
+                  } else {
+                    logger.error('An error occured with the apimap sent to ' +
+                      'Forest. Please contact support@forestadmin.com for ' +
+                      'further investigations.');
+                  }
+                }
+              });
+        }
       }
     });
 
@@ -202,6 +205,7 @@ exports.collection = function (name, opts) {
   }
 };
 
+exports.logger = require('./services/logger');
 exports.ensureAuthenticated = require('./services/auth').ensureAuthenticated;
 exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');

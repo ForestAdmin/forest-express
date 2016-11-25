@@ -11,6 +11,10 @@
 ## RELEASE 0.1.31 - 2016-11-17
 ### Added
 - Deserializer - Expose Deserializer module to API.
+- Errors Tracking - Catch errors on app launch / apimap generation / liana session creation.
+
+### Changed
+- Session Token - Replace the old outline notion by the rendering in the generated token. 
 
 ### Fixed
 - Custom Actions - Fix missing actions for Smart Collections.
