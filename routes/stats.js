@@ -43,4 +43,3 @@ module.exports = function (app, model, Implementation, opts) {
       this.create);
   };
 };
-
