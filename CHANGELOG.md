@@ -1,12 +1,16 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Configuration - Catch a missing auth_key in the configuration and send an explicit error message on liana authentication.
+
+## RELEASE 0.1.32 - 2016-11-24
+### Added
+- Errors - Catch potential validation error and send a response with the first retrieved error.
+
 ### Fixed
 - Record Creation - Allow false boolean values on record creation.
 - Allowed Users - Remove a space in the allowed users retrieval URL.
-
-### Added
-- Errors - Catch potential validation error and send a response with the first retrieved error.
 
 ## RELEASE 0.1.31 - 2016-11-17
 ### Added
@@ -14,7 +18,7 @@
 - Errors Tracking - Catch errors on app launch / apimap generation / liana session creation.
 
 ### Changed
-- Session Token - Replace the old outline notion by the rendering in the generated token. 
+- Session Token - Replace the old outline notion by the rendering in the generated token.
 
 ### Fixed
 - Custom Actions - Fix missing actions for Smart Collections.

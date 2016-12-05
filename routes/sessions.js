@@ -27,28 +27,38 @@ module.exports = function (app, opts) {
         });
 
         if (user) {
-          var token = jwt.sign({
-            id: user.id,
-            type: 'users',
-            data: {
-              email: user.email,
-              'first_name': user['first_name'],
-              'last_name': user['last_name'],
-              teams: user.teams
-            },
-            relationships: {
-              renderings: {
-                data: [{
-                  type: 'renderings',
-                  id: request.body.renderingId
-                }]
+          if (opts.authKey) {
+            var token = jwt.sign({
+              id: user.id,
+              type: 'users',
+              data: {
+                email: user.email,
+                'first_name': user['first_name'],
+                'last_name': user['last_name'],
+                teams: user.teams
+              },
+              relationships: {
+                renderings: {
+                  data: [{
+                    type: 'renderings',
+                    id: request.body.renderingId
+                  }]
+                }
               }
-            }
-          }, opts.authKey, {
-            expiresIn: '14 days'
-          });
+            }, opts.authKey, {
+              expiresIn: '14 days'
+            });
 
-          response.send({ token: token });
+            response.send({ token: token });
+          } else {
+            return response.status(401).send({
+              errors: [{
+                detail: 'Your Forest auth key seems to be missing. Can you ' +
+                  'check that you properly set a Forest auth key in the ' +
+                  'Forest initializer?'
+              }]
+            });
+          }
         } else {
           response.status(401).send();
         }

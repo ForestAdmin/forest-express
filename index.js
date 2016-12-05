@@ -54,20 +54,29 @@ exports.init = function (Implementation) {
   // Mime type
   app.use(bodyParser.json());
 
-  // Authentication
-  var jwtAuthenticator = jwt({
-    secret: opts.authKey,
-    credentialsRequired: false
-  });
+  var jwtAuthenticator;
 
-  if (opts.expressParentApp) {
-    // NOTICE: Forest is a sub-app of the client application; so all routes are
-    //         protected with JWT.
-    app.use(jwtAuthenticator);
+  // Authentication
+  if (opts.authKey) {
+    jwtAuthenticator = jwt({
+      secret: opts.authKey,
+      credentialsRequired: false
+    });
   } else {
-    // NOTICE: Forest routes are part of the client app; only Forest routes are
-    //         protected with JWT.
-    app.use(jwtAuthenticator.unless({ path: /^(?!\/forest).*/ }));
+    logger.error('Your Forest auth key seems to be missing. Can you check ' +
+      'that you properly set a Forest auth key in the Forest initializer?');
+  }
+
+  if (jwtAuthenticator) {
+    if (opts.expressParentApp) {
+      // NOTICE: Forest is a sub-app of the client application; so all routes are
+      //         protected with JWT.
+      app.use(jwtAuthenticator);
+    } else {
+      // NOTICE: Forest routes are part of the client app; only Forest routes are
+      //         protected with JWT.
+      app.use(jwtAuthenticator.unless({ path: /^(?!\/forest).*/ }));
+    }
   }
 
   new SessionRoute(app, opts).perform();
@@ -105,10 +114,10 @@ exports.init = function (Implementation) {
     .then(function () {
       if (opts.secretKey && opts.secretKey.length !== 64) {
         logger.error('Your secret key does not seem to be correct. Can you ' +
-          'check on Forest that you copied it properly in the forest_liana ' +
-          'initializer?');
+          'check on Forest that you copied it properly in the Forest ' +
+          'initialization?');
       } else {
-        if (opts.authKey) {
+        if (opts.secretKey) {
           var collections = _.values(Schemas.schemas);
           integrator.defineCollections(Implementation, collections);
 
@@ -147,7 +156,7 @@ exports.init = function (Implementation) {
                   } else if (result.status === 404) {
                     logger.error('Cannot find the project related to the ' +
                       'secret key you configured. Can you check on Forest ' +
-                      'that you copied it properly in the forest_liana initializer?');
+                      'that you copied it properly in the Forest initialization?');
                   } else {
                     logger.error('An error occured with the apimap sent to ' +
                       'Forest. Please contact support@forestadmin.com for ' +
