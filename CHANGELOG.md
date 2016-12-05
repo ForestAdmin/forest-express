@@ -4,6 +4,9 @@
 ### Added
 - Configuration - Catch a missing auth_key in the configuration and send an explicit error message on liana authentication.
 
+### Changed
+- Packages - Update the node-uuid package to the new version named uuid.
+
 ## RELEASE 0.1.32 - 2016-11-24
 ### Added
 - Errors - Catch potential validation error and send a response with the first retrieved error.
