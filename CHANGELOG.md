@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - Configuration - Catch a missing auth_key in the configuration and send an explicit error message on liana authentication.
+- Errors - Display the explicit error if a request error is catched.
 
 ## RELEASE 0.1.32 - 2016-11-24
 ### Added
