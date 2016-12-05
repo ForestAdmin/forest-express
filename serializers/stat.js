@@ -1,9 +1,9 @@
 'use strict';
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var uuid = require('node-uuid');
+var uuidV1 = require('uuid/v1');
 
 function StatSerializer(stat) {
-  stat.id = uuid.v1();
+  stat.id = uuidV1();
 
   this.perform = function () {
     return new JSONAPISerializer('stats', stat, {

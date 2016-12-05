@@ -22,7 +22,7 @@
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.10.0",
     "logger": "0.0.1",
-    "node-uuid": "^1.4.7",
+    "uuid": "3.0.1",
     "superagent": "^1.8.3",
     "useragent": "^2.1.9",
     "winston": "^2.2.0"
