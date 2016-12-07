@@ -1,33 +1,43 @@
 {
   "name": "forest-express",
+  "description": "Official package for all Forest Express Lianas",
   "version": "0.1.33",
-  "description": "The official Express liana for Forest",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "forest"
+  "author": "Sandro Munda <sandro@munda.me>",
+  "contributors": [
+    "Arnaud Besnier <arnaudibesnier@gmail.com>"
   ],
-  "author": "Sandro Munda",
   "license": "GPL-3.0",
+  "homepage": "http://www.forestadmin.com",
+  "keywords": [
+    "forest",
+    "admin",
+    "panel",
+    "interface"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ForestAdmin/forest-express.git"
+  },
+  "main": "index.js",
   "dependencies": {
-    "bcryptjs": "^2.3.0",
-    "bluebird": "^3.3.4",
-    "body-parser": "^1.15.0",
-    "express": "^4.13.4",
+    "bcryptjs": "2.3.0",
+    "bluebird": "3.3.4",
+    "body-parser": "1.15.0",
+    "express": "4.14.0",
     "express-cors": "0.0.3",
-    "express-jwt": "^3.3.0",
+    "express-jwt": "3.3.0",
     "jsonapi-serializer": "3.4.1",
-    "jsonwebtoken": "^7.1.9",
-    "lodash": "^4.10.0",
-    "logger": "0.0.1",
+    "jsonwebtoken": "7.1.9",
+    "lodash": "4.10.0",
     "uuid": "3.0.1",
-    "superagent": "^1.8.3",
-    "useragent": "^2.1.9",
-    "winston": "^2.2.0"
+    "superagent": "1.8.3",
+    "useragent": "2.1.9",
+    "winston": "2.2.0"
   },
   "devDependencies": {
-    "git-hooks": "^1.1.6"
+    "git-hooks": "1.1.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

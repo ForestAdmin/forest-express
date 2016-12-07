@@ -4,6 +4,11 @@
 ### Added
 - Segments - Smart Segments can be created to define specific records subsets.
 
+### Changed
+- Package - Add contributors, keywords, homepage...
+- Package - Remove an unused package (logger).
+- Dependencies - Freeze the dependencies versions to reduce packages versions changes between projects/environments.
+
 ## RELEASE 0.1.33 - 2016-12-05
 ### Added
 - Configuration - Catch a missing auth_key in the configuration and send an explicit error message on liana authentication.
