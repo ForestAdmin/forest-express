@@ -124,8 +124,8 @@ exports.init = function (Implementation) {
           var apimap = new JSONAPISerializer('collections', collections, {
             id: 'name',
             attributes: ['name', 'displayName', 'paginationType', 'icon',
-              'fields', 'actions', 'onlyForRelationships', 'isVirtual',
-              'isReadOnly'],
+              'fields', 'actions', 'segments', 'onlyForRelationships',
+              'isVirtual', 'isReadOnly'],
             fields: {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
@@ -134,6 +134,10 @@ exports.init = function (Implementation) {
             actions: {
               ref: 'id',
               attributes: ['name', 'endpoint', 'httpMethod', 'fields']
+            },
+            segments: {
+              ref: 'id',
+              attributes: ['name']
             },
             meta: {
               'liana': Implementation.getLianaName(),
@@ -191,10 +195,16 @@ exports.collection = function (name, opts) {
     action.id = name + '.' + action.name;
   });
 
+  _.each(opts.segments, function (segment) {
+    segment.id = name + '.' + segment.name;
+  });
+
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
+    if (!Schemas.schemas[name].segments) { Schemas.schemas[name].segments = []; }
 
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
+    Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
     opts.fields = _.map(opts.fields, function (field) {
       // Smart field
