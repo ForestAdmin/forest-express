@@ -3,11 +3,16 @@
 ## [Unreleased]
 ### Added
 - Segments - Smart Segments can be created to define specific records subsets.
+- Integrations - Create a light Mixpanel integration to retrieve Mixpanel active users in Forest.
 
 ### Changed
 - Package - Add contributors, keywords, homepage...
 - Package - Remove an unused package (logger).
 - Dependencies - Freeze the dependencies versions to reduce packages versions changes between projects/environments.
+
+### Fixed
+- Integrations - Remove some unnecessary routes.
+- Integrations - Fix a serialization issue.
 
 ## RELEASE 0.1.33 - 2016-12-05
 ### Added

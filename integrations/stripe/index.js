@@ -68,7 +68,10 @@ function Checker(opts) {
   this.defineRoutes = function (app, model, Implementation) {
     if (!integrationValid) { return; }
 
-    new Routes(app, model, Implementation, opts).perform();
+    if (integrationCollectionMatch(Implementation, opts.integrations.stripe,
+      model)) {
+      new Routes(app, model, Implementation, opts).perform();
+    }
   };
 
   this.defineCollections = function (Implementation, collections) {
@@ -97,6 +100,7 @@ function Checker(opts) {
         ref: 'id',
         attributes: [],
         included: false,
+        nullIfMissing: true, // TODO: This option in the JSONAPISerializer is weird.
         ignoreRelationshipData: true,
         relationshipLinks: {
           related: function (dataSet) {
