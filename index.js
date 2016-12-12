@@ -45,6 +45,13 @@ exports.init = function (Implementation) {
   var app = express();
   var integrator = new Integrator(opts);
 
+  if (opts.secretKey) {
+    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
+    'is deprecated. Please use envSecret and authSecret instead.');
+    opts.envSecret = opts.secretKey;
+    opts.authSecret = opts.authKey;
+  }
+
   // CORS
   app.use(cors({
     allowedOrigins: ['localhost:4200', '*.forestadmin.com'],
@@ -57,14 +64,14 @@ exports.init = function (Implementation) {
   var jwtAuthenticator;
 
   // Authentication
-  if (opts.authKey) {
+  if (opts.authSecret) {
     jwtAuthenticator = jwt({
-      secret: opts.authKey,
+      secret: opts.authSecret,
       credentialsRequired: false
     });
   } else {
-    logger.error('Your Forest auth key seems to be missing. Can you check ' +
-      'that you properly set a Forest auth key in the Forest initializer?');
+    logger.error('Your Forest authSecret seems to be missing. Can you check ' +
+      'that you properly set a Forest authSecret in the Forest initializer?');
   }
 
   if (jwtAuthenticator) {
@@ -112,12 +119,12 @@ exports.init = function (Implementation) {
       app.use(errorHandler.catchIfAny);
     })
     .then(function () {
-      if (opts.secretKey && opts.secretKey.length !== 64) {
-        logger.error('Your secret key does not seem to be correct. Can you ' +
+      if (opts.envSecret && opts.envSecret.length !== 64) {
+        logger.error('Your envSecret does not seem to be correct. Can you ' +
           'check on Forest that you copied it properly in the Forest ' +
           'initialization?');
       } else {
-        if (opts.secretKey) {
+        if (opts.envSecret) {
           var collections = _.values(Schemas.schemas);
           integrator.defineCollections(Implementation, collections);
 
@@ -151,7 +158,7 @@ exports.init = function (Implementation) {
           request
             .post(forestUrl + '/forest/apimaps')
               .send(apimap)
-              .set('forest-secret-key', opts.secretKey)
+              .set('forest-secret-key', opts.envSecret)
               .end(function(error, result) {
                 if (result && result.status !== 204) {
                   if (result.status === 0) {
@@ -159,7 +166,7 @@ exports.init = function (Implementation) {
                       'online?');
                   } else if (result.status === 404) {
                     logger.error('Cannot find the project related to the ' +
-                      'secret key you configured. Can you check on Forest ' +
+                      'envSecret you configured. Can you check on Forest ' +
                       'that you copied it properly in the Forest initialization?');
                   } else {
                     logger.error('An error occured with the apimap sent to ' +

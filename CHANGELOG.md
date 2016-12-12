@@ -8,6 +8,7 @@
 - Package - Add contributors, keywords, homepage...
 - Package - Remove an unused package (logger).
 - Dependencies - Freeze the dependencies versions to reduce packages versions changes between projects/environments.
+- Configuration - Rename secret values to envSecret and authSecret.
 
 ## RELEASE 0.1.33 - 2016-12-05
 ### Added
