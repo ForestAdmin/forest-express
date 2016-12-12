@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 0.2.0 - 2016-12-12
 ### Added
 - Segments - Smart Segments can be created to define specific records subsets.
 - Integrations - Create a light Mixpanel integration to retrieve Mixpanel active users in Forest.
