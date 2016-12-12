@@ -16,27 +16,43 @@ function IntegrationChecker(opts) {
 
   this.defineRoutes = function (app, model, Implementation) {
     modules.forEach(function (module) {
-      module.defineRoutes(app, model, Implementation);
+      if (module.defineRoutes) {
+        module.defineRoutes(app, model, Implementation);
+      }
     });
   };
 
   this.defineCollections = function (Implementation, collections) {
     modules.forEach(function (module) {
-      module.defineCollections(Implementation, collections);
+      if (module.defineCollections) {
+        module.defineCollections(Implementation, collections);
+      }
+    });
+  };
+
+  this.defineSegments = function (Implementation, model, schema) {
+    modules.forEach(function (module) {
+      if (module.defineSegments) {
+        module.defineSegments(Implementation, model, schema);
+      }
     });
   };
 
   this.defineFields = function (Implementation, model, schema) {
     modules.forEach(function (module) {
-      module.defineFields(Implementation, model, schema);
+      if (module.defineFields) {
+        module.defineFields(Implementation, model, schema);
+      }
     });
   };
 
   this.defineSerializationOption = function (Implementation, model, schema,
     dest, field) {
     modules.forEach(function (module) {
-      module.defineSerializationOption(Implementation, model, schema, dest,
-        field);
+      if (module.defineSerializationOption) {
+        module.defineSerializationOption(Implementation, model, schema, dest,
+          field);
+      }
     });
   };
 }

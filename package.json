@@ -29,9 +29,10 @@
     "jsonapi-serializer": "3.4.1",
     "jsonwebtoken": "7.1.9",
     "lodash": "4.10.0",
-    "uuid": "3.0.1",
+    "moment": "2.17.1",
     "superagent": "1.8.3",
     "useragent": "2.1.9",
+    "uuid": "3.0.1",
     "winston": "2.2.0"
   },
   "devDependencies": {

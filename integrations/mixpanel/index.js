@@ -1,0 +1,91 @@
+'use strict';
+var logger = require('../../services/logger');
+var Setup = require('./setup');
+var Routes = require('./routes');
+
+function Checker(opts) {
+  var integrationValid = false;
+
+  function hasIntegration() {
+    return opts.integrations && opts.integrations.mixpanel;
+  }
+
+  function isProperlyIntegrated() {
+    return opts.integrations.mixpanel.apiKey &&
+      opts.integrations.mixpanel.apiSecret &&
+      opts.integrations.mixpanel.mapping && opts.integrations.mixpanel.mixpanel;
+  }
+
+  function integrationCollectionMatch(Implementation, integration, model) {
+    if (!integrationValid) { return; }
+
+    var models = Implementation.getModels();
+    var collectionName = integration.mapping.split('.')[0];
+    return models[collectionName] === model;
+  }
+
+  if (hasIntegration()) {
+    if (isProperlyIntegrated()) {
+      integrationValid = true;
+    } else {
+      logger.error('Cannot setup properly your Mixpanel integration.');
+    }
+  }
+
+  this.defineRoutes = function (app, model, Implementation) {
+    if (!integrationValid) { return; }
+
+    if (integrationCollectionMatch(Implementation, opts.integrations.mixpanel,
+      model)) {
+      new Routes(app, model, Implementation, opts).perform();
+    }
+  };
+
+  this.defineCollections = function (Implementation, model, schema) {
+    if (!integrationValid) { return; }
+
+    Setup.createCollections(Implementation, model, schema, opts);
+  };
+
+  this.defineSegments = function (Implementation, model, schema) {
+    if (!integrationValid) { return; }
+
+    if (integrationCollectionMatch(Implementation, opts.integrations.mixpanel,
+      model)) {
+      Setup.createSegments(Implementation, model, schema, opts);
+    }
+  };
+
+  this.defineFields = function (Implementation, model, schema) {
+    if (!integrationValid) { return; }
+
+    if (integrationCollectionMatch(Implementation, opts.integrations.mixpanel,
+      model)) {
+      Setup.createFields(Implementation, model, schema.fields);
+    }
+  };
+
+  this.defineSerializationOption = function (Implementation, model, schema,
+    dest, field) {
+    if (integrationValid && field.integration === 'mixpanel') {
+      dest[field.field] = {
+        ref: 'id',
+        attributes: [],
+        included: false,
+        nullIfMissing: true, // TODO: This option in the JSONAPISerializer is weird.
+        ignoreRelationshipData: true,
+        relationshipLinks: {
+          related: function (dataSet) {
+            var ret = {
+              href: '/forest/' + Implementation.getModelName(model) +
+                '/' + dataSet[schema.idField] + '/relationships/' + field.field,
+            };
+            return ret;
+          }
+        }
+      };
+    }
+  };
+}
+
+module.exports = Checker;

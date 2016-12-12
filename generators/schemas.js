@@ -10,6 +10,7 @@ module.exports = {
         return new implementation.SchemaAdapter(model, opts)
           .then(function (schema) {
             integrator.defineFields(implementation, model, schema);
+            integrator.defineSegments(implementation, model, schema);
             return schema;
           })
           .then(function (schema) {
