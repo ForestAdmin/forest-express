@@ -13,7 +13,7 @@ function AllowedUsersFinder(renderingId, opts) {
       request
         .get(forestUrl + '/forest/renderings/' + renderingId +
           '/allowed-users')
-        .set('forest-secret-key', opts.secretKey)
+        .set('forest-secret-key', opts.envSecret)
         .end(function (error, result) {
           allowedUsers = [];
           if (result.status === 200 && result.body && result.body.data) {
@@ -29,7 +29,7 @@ function AllowedUsersFinder(renderingId, opts) {
             } else if (result.status === 404) {
               logger.error('Cannot retrieve the project you\'re trying to ' +
                 'unlock. Can you check that you properly copied the Forest ' +
-                'secret key in the forest_liana initializer?');
+                'envSecret in the forest_liana initializer?');
             } else {
               logger.error('Cannot retrieve any users for the project ' +
                 'you\'re trying to unlock. An error occured in Forest API.');

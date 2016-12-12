@@ -27,7 +27,7 @@ module.exports = function (app, opts) {
         });
 
         if (user) {
-          if (opts.authKey) {
+          if (opts.authSecret) {
             var token = jwt.sign({
               id: user.id,
               type: 'users',
@@ -45,7 +45,7 @@ module.exports = function (app, opts) {
                   }]
                 }
               }
-            }, opts.authKey, {
+            }, opts.authSecret, {
               expiresIn: '14 days'
             });
 
@@ -53,8 +53,8 @@ module.exports = function (app, opts) {
           } else {
             return response.status(401).send({
               errors: [{
-                detail: 'Your Forest auth key seems to be missing. Can you ' +
-                  'check that you properly set a Forest auth key in the ' +
+                detail: 'Your Forest authSecret seems to be missing. Can you ' +
+                  'check that you properly set a Forest authSecret in the ' +
                   'Forest initializer?'
               }]
             });
