@@ -3,7 +3,6 @@ var _ = require('lodash');
 var auth = require('../../services/auth');
 var path = require('../../services/path');
 var IntegrationInformationsGetter = require('../../services/integration-informations-getter');
-var CloseioLeadsGetter = require('./services/closeio-leads-getter');
 var CloseioLeadGetter = require('./services/closeio-lead-getter');
 var CloseioLeadEmailsGetter = require('./services/closeio-lead-emails-getter');
 var CloseioLeadEmailGetter = require('./services/closeio-lead-email-getter');
@@ -27,23 +26,6 @@ module.exports = function (app, model, Implementation, opts) {
       collection: Implementation.getModels()[integrationValues[0]],
       field: integrationValues[1]
     };
-  }
-
-  function closeioLeads(req, res, next) {
-    new CloseioLeadsGetter(Implementation, _.extend(req.query,
-      req.params), opts, integrationInfo)
-      .perform()
-      .then(function (results) {
-        var count = results[0];
-        var leads = results[1];
-
-        return new CloseioLeadsSerializer(leads, modelName, {
-          count: count
-        });
-      })
-      .then(function (leads) {
-        res.send(leads);
-      }, next);
   }
 
   function closeioLead(req, res, next) {
@@ -109,9 +91,6 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get(path.generate(modelName + '_closeio_leads', opts),
-        auth.ensureAuthenticated, closeioLeads);
-
       app.get(path.generate(modelName + '_closeio_leads/:leadId', opts),
         auth.ensureAuthenticated, closeioLead);
 
@@ -121,10 +100,10 @@ module.exports = function (app, model, Implementation, opts) {
       app.get(path.generate(modelName + '_closeio_emails/:emailId', opts),
         auth.ensureAuthenticated, closeioLeadEmail);
 
-      app.get(path.generate(modelName + '/:recordId/closeio_lead', opts),
+      app.get(path.generate(modelName + '/:recordId/lead', opts),
         auth.ensureAuthenticated, customerLead);
 
-      app.get(path.generate(modelName + '_closeio_leads', opts),
+      app.post(path.generate(modelName + '_closeio_leads', opts),
         auth.ensureAuthenticated, createCloseioLead);
     }
   };
