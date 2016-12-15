@@ -13,6 +13,7 @@ exports.createCollections = function (Implementation, apimap,
     icon: 'closeio',
     isVirtual: true,
     isReadOnly: true,
+    onlyForRelationships: true,
     fields: [
       { field: 'url', type: 'String', isSearchable: false, widget: 'link' },
       { field: 'display_name', type: 'String', isSearchable: false },
@@ -44,12 +45,12 @@ exports.createCollections = function (Implementation, apimap,
 
 exports.createFields = function (implementation, model, schema) {
   schema.fields.push({
-    field: 'closeio_lead',
+    field: 'lead',
     type: 'String',
     reference: implementation.getModelName(model) + '_closeio_leads.id',
-    column: null,
     isSearchable: false,
-    integration: 'close.io'
+    integration: 'close.io',
+    isVirtual: true,
   });
 
   if (!schema.actions) { schema.actions = []; }
