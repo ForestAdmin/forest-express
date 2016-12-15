@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 0.2.1 - 2016-12-14
 ### Added
 - Close.io - Add the field of the Lead status_label on the mapped tables.
 
