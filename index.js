@@ -180,7 +180,11 @@ exports.init = function (Implementation) {
             fields: {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
-                'widget', 'integration', 'isReadOnly', 'isVirtual']
+                'widget', 'integration', 'isReadOnly', 'isVirtual',
+                'validations']
+            },
+            validations: {
+              attributes: ['type', 'value', 'message']
             },
             actions: {
               ref: 'id',
