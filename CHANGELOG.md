@@ -3,11 +3,11 @@
 ## [Unreleased]
 
 ## RELEASE 0.2.2 - 2016-01-04
-### Fixed
-- Configuration - Fix bad authentication when a custom path is configured.
-
 ### Added
 - Configurations - Users can specify the directory for Forest Smart Implementation.
+
+### Fixed
+- Configuration - Fix bad authentication when a custom path is configured.
 
 ## RELEASE 0.2.1 - 2016-12-14
 ### Added
