@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Configurations - Users can specify the directory for Forest Smart Implementation.
 
 ## RELEASE 0.2.1 - 2016-12-14
 ### Added

@@ -94,7 +94,15 @@ exports.init = function (Implementation) {
     .then(function (models) {
       return Schemas.perform(Implementation, integrator, models, opts)
         .then(function () {
-          return requireAllModels(Implementation, path.resolve('.') + '/forest')
+          var directorySmartImplementation;
+
+          if (opts.smartDir) {
+            directorySmartImplementation = path.resolve('.', opts.smartDir);
+          } else {
+            directorySmartImplementation = path.resolve('.') + '/forest';
+          }
+
+          return requireAllModels(Implementation, directorySmartImplementation)
             .catch(function () {
               // The forest/ directory does not exist. It's not a problem.
             });
