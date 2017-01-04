@@ -96,8 +96,8 @@ exports.init = function (Implementation) {
         .then(function () {
           var directorySmartImplementation;
 
-          if (opts.smartDir) {
-            directorySmartImplementation = path.resolve('.', opts.smartDir);
+          if (opts.configDir) {
+            directorySmartImplementation = path.resolve('.', opts.configDir);
           } else {
             directorySmartImplementation = path.resolve('.') + '/forest';
           }
