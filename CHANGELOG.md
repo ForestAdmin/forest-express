@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Configuration - Fix bad authentication when a custom path is configured.
+
 ### Added
 - Configurations - Users can specify the directory for Forest Smart Implementation.
 
