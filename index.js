@@ -80,9 +80,9 @@ exports.init = function (Implementation) {
       //         protected with JWT.
       app.use(jwtAuthenticator);
     } else {
-      // NOTICE: Forest routes are part of the client app; only Forest routes are
-      //         protected with JWT.
-      app.use(jwtAuthenticator.unless({ path: /^(?!\/forest).*/ }));
+      // NOTICE: Forest routes are part of the client app; only Forest routes
+      //         are protected with JWT.
+      app.use(jwtAuthenticator.unless({ path: /^((?!.*\/forest\/).)*$/ }));
     }
   }
 

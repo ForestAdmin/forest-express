@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Configuration - Fix bad authentication when a custom path is configured.
 
 ## RELEASE 0.2.1 - 2016-12-14
 ### Added
