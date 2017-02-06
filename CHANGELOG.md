@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart Actions - Support file download.
 
 ## RELEASE 0.2.2 - 2016-01-04
 ### Added

@@ -55,7 +55,7 @@ exports.init = function (Implementation) {
   // CORS
   app.use(cors({
     allowedOrigins: ['localhost:4200', '*.forestadmin.com'],
-      headers: ['Authorization', 'X-Requested-With', 'Content-Type']
+    headers: ['Authorization', 'X-Requested-With', 'Content-Type']
   }));
 
   // Mime type
@@ -148,7 +148,8 @@ exports.init = function (Implementation) {
             },
             actions: {
               ref: 'id',
-              attributes: ['name', 'endpoint', 'httpMethod', 'fields']
+              attributes: ['name', 'endpoint', 'redirect', 'download',
+                'httpMethod', 'fields']
             },
             segments: {
               ref: 'id',
