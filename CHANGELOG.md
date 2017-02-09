@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Configuration - Catch the error if the modelsDir configured does not exist. 
 
 ## RELEASE 1.0.0 - 2016-02-06
 ### Added
