@@ -29,6 +29,11 @@ function requireAllModels(Implementation, modelsDir) {
       })
       .then(function () {
         return _.values(Implementation.getModels());
+      })
+      .catch(function () {
+        logger.error('Your Forest modelsDir option you configured does not ' +
+          'seem to be an existing directory.');
+        return P.resolve([]);
       });
   } else {
     // NOTICE: User didn't provide a modelsDir but may already have required
