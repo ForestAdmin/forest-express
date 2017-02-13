@@ -1,10 +1,12 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Configuration - Display an error message if the Smart Action "fields" option is not an Array. 
 
 ## RELEASE 1.0.1 - 2017-02-10
 ### Changed
-- Configuration - Catch the error if the modelsDir configured does not exist. 
+- Configuration - Catch the error if the modelsDir configured does not exist.
 
 ## RELEASE 1.0.0 - 2016-02-06
 ### Added

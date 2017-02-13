@@ -141,6 +141,21 @@ exports.init = function (Implementation) {
           var collections = _.values(Schemas.schemas);
           integrator.defineCollections(Implementation, collections);
 
+          // NOTICE: Check each Smart Action declaration to detect configuration
+          //         errors.
+          _.each(collections, function (collection) {
+            if (collection.actions) {
+              _.each(collection.actions, function (action) {
+                if (action.fields && !_.isArray(action.fields)) {
+                   logger.error('Cannot find the fields you defined for the ' +
+                     'Smart action "' + action.name + '" of your "' +
+                     collection.name + '" collection. The fields option must ' +
+                     'be an array.');
+                }
+              });
+            }
+          });
+
           var apimap = new JSONAPISerializer('collections', collections, {
             id: 'name',
             attributes: ['name', 'displayName', 'paginationType', 'icon',
