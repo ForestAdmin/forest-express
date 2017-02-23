@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 ### Added
-- Configuration - Display an error message if the Smart Action "fields" option is not an Array. 
+- Configuration - Display an error message if the Smart Action "fields" option is not an Array.
+
+### Changed
+- Errors Handling - Improve the error message if the Forest "sequelize" option is misconfigured.
 
 ## RELEASE 1.0.1 - 2017-02-10
 ### Changed
