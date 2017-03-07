@@ -2,7 +2,10 @@
 
 ## [Unreleased]
 ### Added
-- Configuration - Display an error message if the Smart Action "fields" option is not an Array. 
+- Configuration - Display an error message if the Smart Action "fields" option is not an Array.
+
+### Fixed
+- Mixpanel - Fix the "user events" result display if there is no event.
 
 ## RELEASE 1.0.1 - 2017-02-10
 ### Changed
