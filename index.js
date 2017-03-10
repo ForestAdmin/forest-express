@@ -216,7 +216,7 @@ exports.init = function (Implementation) {
 };
 
 exports.collection = function (name, opts) {
-  if (_.isEmpty(Schemas.schemas)) {
+  if (_.isEmpty(Schemas.schemas) && opts.modelsDir) {
     logger.error('Cannot customize your collection named "' + name +
       '" properly. Did you call the "collection" method in the /forest ' +
       'directory?');
