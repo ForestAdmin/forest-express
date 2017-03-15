@@ -1,11 +1,18 @@
 # Change Log
 
 ## [Unreleased]
-### Added
-- Configuration - Display an error message if the Smart Action "fields" option is not an Array.
+### Changed
+- Logs - Log error messages for unexpected errors only.
+- Errors - Unexpected liana error now return a 500 status code.
+- Errors Handling - Improve the error message if the Forest "sequelize" option is misconfigured.
+- Intercom - Remove duplicate routes (the old ones).
 
 ### Fixed
 - Mixpanel - Fix the "user events" result display if there is no event.
+
+## RELEASE 1.0.2 - 2017-03-10
+### Added
+- Configuration - Display an error message if the Smart Action "fields" option is not an Array.
 
 ## RELEASE 1.0.1 - 2017-02-10
 ### Changed

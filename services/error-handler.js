@@ -9,9 +9,11 @@ exports.catchIfAny = function (error, request, response, next) {
       message = error.errors[0].message;
     }
 
-    logger.error(message);
-
-    response.status(error.status || 400).send({
+    if (!error.status) {
+      // NOTICE: Unexpected errors should log an error in the console.
+      logger.error(message);
+    }
+    response.status(error.status || 500).send({
       errors: [{
         status: error.status,
         detail: message
