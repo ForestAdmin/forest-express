@@ -40,7 +40,7 @@ function MixpanelEventsGetter(Implementation, params, opts) {
         var count = result.length;
         result = _.reverse(result);
         var resultSelection = _.chunk(result, getPageSize())[getPageNumber()];
-        return [count, resultSelection];
+        return [count, resultSelection || []];
       });
   };
 }
