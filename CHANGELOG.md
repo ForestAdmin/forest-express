@@ -5,6 +5,7 @@
 - Logs - Log error messages for unexpected errors only.
 - Errors - Unexpected liana error now return a 500 status code.
 - Errors Handling - Improve the error message if the Forest "sequelize" option is misconfigured.
+- Intercom - Remove duplicate routes (the old ones).
 
 ## RELEASE 1.0.2 - 2017-03-10
 ### Added
