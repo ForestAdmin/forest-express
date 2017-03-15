@@ -30,9 +30,14 @@ function requireAllModels(Implementation, modelsDir) {
       .then(function () {
         return _.values(Implementation.getModels());
       })
-      .catch(function () {
-        logger.error('Your Forest modelsDir option you configured does not ' +
-          'seem to be an existing directory.');
+      .catch(function (error) {
+        if (error.code === 'ENOENT') {
+          logger.error('Your Forest modelsDir option you configured does not ' +
+            'seem to be an existing directory.');
+        } else {
+          logger.error('Cannot read your models for the following reason: ' +
+            error);
+        }
         return P.resolve([]);
       });
   } else {
@@ -216,7 +221,7 @@ exports.init = function (Implementation) {
 };
 
 exports.collection = function (name, opts) {
-  if (_.isEmpty(Schemas.schemas)) {
+  if (_.isEmpty(Schemas.schemas) && opts.modelsDir) {
     logger.error('Cannot customize your collection named "' + name +
       '" properly. Did you call the "collection" method in the /forest ' +
       'directory?');
