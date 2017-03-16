@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 1.0.3 - 2017-03-16
 ### Changed
 - Logs - Log error messages for unexpected errors only.
 - Errors - Unexpected liana error now return a 500 status code.
