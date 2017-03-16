@@ -36,7 +36,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         return new ResourceSerializer(Implementation, associationModel,
           records, integrator, opts, { count: count }).perform();
       })
-      .then(function (records) { response.send(records); })
+      .then(function (records) {
+        response.send(records);
+        next();
+      })
       .catch(next);
   }
 
@@ -51,7 +54,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return new Implementation.HasManyAssociator(model, associationModel, opts,
       request.params, data)
       .perform()
-      .then(function () { response.status(204).send(); })
+      .then(function () {
+        response.status(204).send();
+        next();
+      })
       .catch(next);
   }
 
@@ -66,7 +72,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return new Implementation.HasManyDissociator(model, associationModel, opts,
       request.params, data)
       .perform()
-      .then(function () { response.status(204).send(); })
+      .then(function () {
+        response.status(204).send();
+        next();
+      })
       .catch(next);
   }
 
@@ -81,7 +90,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return new Implementation.BelongsToUpdater(model, associationModel, opts,
       request.params, data)
       .perform()
-      .then(function () { response.status(204).send(); })
+      .then(function () {
+        response.status(204).send();
+        next();
+      })
       .catch(next);
   }
 

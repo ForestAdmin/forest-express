@@ -45,6 +45,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       })
       .then(function (records) {
         res.send(records);
+        next();
       })
       .catch(next);
   };
@@ -58,6 +59,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       })
       .then(function (record) {
         res.send(record);
+        next();
       })
       .catch(next);
   };
@@ -75,6 +77,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       })
       .then(function (record) {
         res.send(record);
+        next();
       })
       .catch(next);
   };
@@ -91,6 +94,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           })
           .then(function (record) {
             res.send(record);
+            next();
             return record;
           })
           .catch(next);
@@ -102,6 +106,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .perform()
       .then(function () {
         res.status(204).send();
+        next();
       })
       .catch(next);
   };

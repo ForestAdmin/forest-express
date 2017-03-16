@@ -34,6 +34,7 @@ module.exports = function (app, model, Implementation, opts) {
       })
       .then(function (stat) {
         res.send(stat);
+        next();
       })
       .catch(next);
   };
