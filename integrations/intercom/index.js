@@ -12,18 +12,16 @@ function IntercomChecker(opts) {
   }
 
   function isIntercomProperlyIntegrated() {
-    return opts.integrations.intercom.apiKey &&
-      opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
+    return opts.integrations.intercom.accessToken &&
+      opts.integrations.intercom.intercom &&
       opts.integrations.intercom.mapping;
   }
 
-  function isIntercomIntegrationDeprecated() {
-    var integrationValid = opts.integrations.intercom.apiKey &&
-      opts.integrations.intercom.appId &&
-      opts.integrations.intercom.intercom &&
+  function isIntercomIntegrationUserCollectionDeprecated() {
+    var integrationValid = opts.integrations.intercom.mapping ||
       opts.integrations.intercom.userCollection;
 
-    if (integrationValid) {
+    if (integrationValid && !opts.integrations.intercom.mapping) {
       logger.warn('Intercom integration attribute "userCollection" is now ' +
         'deprecated, please use "mapping" attribute.');
       opts.integrations.intercom.mapping =
@@ -31,6 +29,34 @@ function IntercomChecker(opts) {
     }
 
     return integrationValid;
+  }
+
+  function isIntercomIntegrationApiKeyDeprecated() {
+    var integrationValid = (opts.integrations.intercom.apiKey &&
+      opts.integrations.intercom.appId) || opts.integrations.accessToken;
+
+    if (integrationValid && !opts.integrations.intercom.accessToken) {
+      logger.warn('Intercom integration attributes "apiKey" + "appId" are now ' +
+        'deprecated, please use "accessToken" attribute.');
+    }
+
+    return integrationValid;
+  }
+
+  function isIntercomIntegrationDeprecated() {
+    var integrationValid = opts.integrations.intercom.intercom &&
+      isIntercomIntegrationApiKeyDeprecated() &&
+      isIntercomIntegrationUserCollectionDeprecated();
+
+    return integrationValid;
+  }
+
+  function getIntercomClientOpts () {
+    if (opts.integrations.intercom.accessToken) {
+      return {token: opts.integrations.intercom.accessToken};
+    } else {
+       return { appId: opts.integrations.intercom.appId, appApiKey: opts.integrations.intercom.apiKey};
+    }
   }
 
   function castToArray(value) {
@@ -59,6 +85,7 @@ function IntercomChecker(opts) {
     isIntercomIntegrationDeprecated()) {
       opts.integrations.intercom.mapping =
       castToArray(opts.integrations.intercom.mapping);
+      opts.integrations.intercom.clientOpts = getIntercomClientOpts();
       integrationValid = true;
     } else {
       logger.error('Cannot setup properly your Intercom integration.');

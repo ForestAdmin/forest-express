@@ -5,8 +5,7 @@ var P = require('bluebird');
 function IntercomConversationsGetter(Implementation, params, opts, collectionName) {
   var model = null;
   var Intercom = opts.integrations.intercom.intercom;
-  var intercom = new Intercom.Client(opts.integrations.intercom.appId,
-    opts.integrations.intercom.apiKey).usePromises();
+  var intercom = new Intercom.Client(opts.integrations.intercom.clientOpts).usePromises();
 
   function hasPagination() {
     return params.page && params.page.number;
