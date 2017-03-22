@@ -11,6 +11,25 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[Implementation.getModelName(model)];
 
+  function addSmartFields (record) {
+    return P.each(schema.fields, function (field) {
+      if (!record[field.field]) {
+        if (field.value) {
+          var value = field.value(record);
+          if (value && _.isFunction(value.then)) {
+            return value.then(function (value) {
+              record[field.field] = value;
+            });
+          } else {
+            record[field.field] = value;
+          }
+        } else if (_.isArray(field.type)) {
+          record[field.field] = [];
+        }
+      }
+    }).thenReturn(record);
+  }
+
   this.list = function (req, res, next) {
     return new Implementation.ResourcesGetter(model, opts, req.query)
       .perform()
@@ -20,24 +39,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
         // Inject smart fields.
         return P
-          .map(records, function (record) {
-            return P.each(schema.fields, function (field) {
-              if (!record[field.field]) {
-                if (field.value) {
-                  var value = field.value(record);
-                  if (value && _.isFunction(value.then)) {
-                    return value.then(function (value) {
-                      record[field.field] = value;
-                    });
-                  } else {
-                    record[field.field] = value;
-                  }
-                } else if (_.isArray(field.type)) {
-                  record[field.field] = [];
-                }
-              }
-            }).thenReturn(record);
-          })
+          .map(records, addSmartFields)
           .then(function (records) {
             return new ResourceSerializer(Implementation, model, records,
               integrator, opts, { count: count }).perform();
@@ -52,6 +54,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.get = function (req, res, next) {
     return new Implementation.ResourceGetter(model, req.params)
       .perform()
+      .then(addSmartFields)
       .then(function (record) {
         return new ResourceSerializer(Implementation, model, record,
           integrator, opts).perform();
