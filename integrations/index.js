@@ -2,7 +2,7 @@
 var fs = require('fs');
 
 function IntegrationChecker(opts) {
-  var modules = [];
+  var modules = opts.integrationModules || [];
 
   fs
     .readdirSync(__dirname)
