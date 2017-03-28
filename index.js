@@ -173,7 +173,7 @@ exports.init = function (Implementation) {
             },
             actions: {
               ref: 'id',
-              attributes: ['name', 'endpoint', 'redirect', 'download',
+              attributes: ['name', 'endpoint', 'redirect', 'download', 'global',
                 'httpMethod', 'fields']
             },
             segments: {
