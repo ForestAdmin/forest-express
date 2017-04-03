@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Console logs - Fix a bad error log display if the smart implementation directory does not exist.
 
 ## RELEASE 1.0.4 - 2017-03-28
 ### Added
