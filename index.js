@@ -195,9 +195,13 @@ exports.init = function (Implementation) {
             .post(forestUrl + '/forest/apimaps')
               .send(apimap)
               .set('forest-secret-key', opts.envSecret)
-              .end(function(error, result) {
-                if (result && result.status !== 204) {
-                  if (result.status === 0) {
+              .end(function (error, result) {
+                if (result) {
+                  if ([200, 202, 204].indexOf(result.status) !== -1) {
+                    if (result.body && result.body.warning) {
+                      logger.warn(result.body.warning);
+                    }
+                  } else if (result.status === 0) {
                     logger.warn('Cannot send the apimap to Forest. Are you ' +
                       'online?');
                   } else if (result.status === 404) {
