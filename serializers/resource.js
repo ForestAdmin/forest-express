@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('lodash');
+var moment = require('moment');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../generators/schemas');
 
@@ -8,6 +9,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
   var schema = Schemas.schemas[Implementation.getModelName(model)];
 
   var reservedWords = ['meta'];
+  var fieldNamesDateonly = [];
 
   function getFieldsNames(fields) {
     return fields.map(function (field) {
@@ -24,6 +26,10 @@ function ResourceSerializer(Implementation, model, records, integrator,
 
     function getAttributesFor(dest, fields) {
       _.map(fields, function (field) {
+        if (field.type === 'Dateonly') {
+          fieldNamesDateonly.push(field.field);
+        }
+
         if (field.integration) {
           integrator.defineSerializationOption(Implementation, model, schema,
             dest, field);
@@ -70,6 +76,17 @@ function ResourceSerializer(Implementation, model, records, integrator,
       });
     }
 
+    function formatDateonly(record) {
+      var offsetServer = moment().utcOffset() / 60;
+
+      _.each(fieldNamesDateonly, function (fieldName) {
+        if (record[fieldName]) {
+          var dateonly = moment.utc(record[fieldName]).add(offsetServer, 'h');
+          record[fieldName] = dateonly.format();
+        }
+      });
+    }
+
     var serializationOptions = {
       id: schema.idField,
       attributes: getFieldsNames(schema.fields),
@@ -82,8 +99,16 @@ function ResourceSerializer(Implementation, model, records, integrator,
 
     getAttributesFor(serializationOptions, schema.fields);
 
-    return new JSONAPISerializer(schema.name, records,
-      serializationOptions);
+    // NOTICE: Format Dateonly field types before serialization.
+    if (_.isArray(records)) {
+      _.each(records, function (record) {
+        formatDateonly(record);
+      });
+    } else {
+      formatDateonly(records);
+    }
+
+    return new JSONAPISerializer(schema.name, records, serializationOptions);
   };
 }
 
