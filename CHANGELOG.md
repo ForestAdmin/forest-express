@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 1.0.5 - 2017-04-06
 ### Added
 - Types Support - Support Dateonly field type.
 - Version Warning - Display a warning message if the liana version used is too old.
