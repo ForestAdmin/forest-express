@@ -32,8 +32,8 @@ function requireAllModels(Implementation, modelsDir) {
       })
       .catch(function (error) {
         if (error.code === 'ENOENT') {
-          logger.error('Your Forest modelsDir option you configured does not ' +
-            'seem to be an existing directory.');
+          logger.error('The Forest modelsDir option you configured does not ' +
+            'seem to be an existing directory: ' + modelsDir);
         } else {
           logger.error('Cannot read your models for the following reason: ' +
             error);
@@ -112,10 +112,7 @@ exports.init = function (Implementation) {
             directorySmartImplementation = path.resolve('.') + '/forest';
           }
 
-          return requireAllModels(Implementation, directorySmartImplementation)
-            .catch(function () {
-              // The forest/ directory does not exist. It's not a problem.
-            });
+          return requireAllModels(Implementation, directorySmartImplementation);
         })
         .thenReturn(models);
     })
