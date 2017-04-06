@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Types Support - Support Dateonly field type.
+
 ### Changed
 - Technical - Promisify only the necessary method on apimap generation.
 
