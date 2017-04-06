@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Promisify only the necessary method on apimap generation.
 
 ## RELEASE 1.0.4 - 2017-03-28
 ### Added
