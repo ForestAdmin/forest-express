@@ -19,24 +19,26 @@ var logger = require('./services/logger');
 var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 
-function requireAllModels(Implementation, modelsDir) {
+function requireAllModels(Implementation, modelsDir, displayMessage) {
   if (modelsDir) {
     return readdirAsync(modelsDir)
       .each(function (file) {
         try {
           require(path.join(modelsDir, file));
-        } catch (e) { }
+        } catch (error) { }
       })
       .then(function () {
         return _.values(Implementation.getModels());
       })
       .catch(function (error) {
-        if (error.code === 'ENOENT') {
-          logger.error('Your Forest modelsDir option you configured does not ' +
-            'seem to be an existing directory.');
-        } else {
-          logger.error('Cannot read your models for the following reason: ' +
-            error);
+        if (displayMessage) {
+          if (error.code === 'ENOENT') {
+            logger.error('Your Forest modelsDir option you configured does not ' +
+              'seem to be an existing directory.');
+          } else {
+            logger.error('Cannot read your models for the following reason: ' +
+              error);
+          }
         }
         return P.resolve([]);
       });
@@ -100,7 +102,7 @@ exports.init = function (Implementation) {
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
-  requireAllModels(Implementation, absModelDirs)
+  requireAllModels(Implementation, absModelDirs, true)
     .then(function (models) {
       return Schemas.perform(Implementation, integrator, models, opts)
         .then(function () {
@@ -112,10 +114,10 @@ exports.init = function (Implementation) {
             directorySmartImplementation = path.resolve('.') + '/forest';
           }
 
-          return requireAllModels(Implementation, directorySmartImplementation)
-            .catch(function () {
-              // The forest/ directory does not exist. It's not a problem.
-            });
+          // NOTICE: Do not display an error log if the forest/ directory does
+          //         not exist.
+          return requireAllModels(Implementation, directorySmartImplementation,
+            false);
         })
         .thenReturn(models);
     })
