@@ -4,6 +4,9 @@
 ### Changed
 - Technical - Promisify only the necessary method on apimap generation.
 
+### Fixed
+- Console logs - Fix a bad error log display if the smart implementation directory does not exist.
+
 ## RELEASE 1.0.4 - 2017-03-28
 ### Added
 - Smart Actions - Users don't have to select records to use a smart action through the global option.
