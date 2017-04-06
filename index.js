@@ -3,7 +3,7 @@ var P = require('bluebird');
 var _ = require('lodash');
 var express = require('express');
 var path = require('path');
-var fs = P.promisifyAll(require('fs'));
+var readdirAsync = P.promisify(require('fs').readdir);
 var cors = require('express-cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
@@ -21,7 +21,7 @@ var errorHandler = require('./services/error-handler');
 
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
-    return fs.readdirAsync(modelsDir)
+    return readdirAsync(modelsDir)
       .each(function (file) {
         try {
           require(path.join(modelsDir, file));
