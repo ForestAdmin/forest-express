@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Claudia.js compat - Only promisify fs.readdir
+- Performances - Use async bcrypt.compare instead of bcrypt.compareSync
 
 ## RELEASE 1.0.4 - 2017-03-28
 ### Added
