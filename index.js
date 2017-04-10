@@ -167,7 +167,7 @@ exports.init = function (Implementation) {
             id: 'name',
             attributes: ['name', 'displayName', 'paginationType', 'icon',
               'fields', 'actions', 'segments', 'onlyForRelationships',
-              'isVirtual', 'integration', 'isReadOnly', 'isSmart'],
+              'isVirtual', 'integration', 'isReadOnly'],
             fields: {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
