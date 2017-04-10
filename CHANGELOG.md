@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Performances - Make the password comparison asynchronous on session creation.
 
 ## RELEASE 1.0.5 - 2017-04-06
 ### Added
