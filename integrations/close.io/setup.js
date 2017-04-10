@@ -1,6 +1,8 @@
 'use strict';
 var _ = require('lodash');
 
+var INTEGRATION_NAME = 'close.io';
+
 exports.createCollections = function (Implementation, apimap,
   collectionAndFieldName) {
   var collectionName = collectionAndFieldName.split('.')[0];
@@ -11,6 +13,7 @@ exports.createCollections = function (Implementation, apimap,
     name: collectionName + '_closeio_leads',
     displayName: collectionDisplayName + ' Leads',
     icon: 'closeio',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
     isReadOnly: true,
     onlyForRelationships: true,
@@ -49,7 +52,7 @@ exports.createFields = function (implementation, model, schema) {
     type: 'String',
     reference: implementation.getModelName(model) + '_closeio_leads.id',
     isSearchable: false,
-    integration: 'close.io',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
   });
 

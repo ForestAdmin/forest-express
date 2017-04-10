@@ -167,7 +167,7 @@ exports.init = function (Implementation) {
             id: 'name',
             attributes: ['name', 'displayName', 'paginationType', 'icon',
               'fields', 'actions', 'segments', 'onlyForRelationships',
-              'isVirtual', 'isReadOnly'],
+              'isVirtual', 'integration', 'isReadOnly', 'isSmart'],
             fields: {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
@@ -254,7 +254,7 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
     opts.fields = _.map(opts.fields, function (field) {
-      // Smart field
+      // NOTICE: Smart Field definition case
       field.isVirtual = true;
       field.isSearchable = false;
       field.isReadOnly = true;
@@ -265,7 +265,7 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
   } else {
-    // NOTICE: Custom collection definition case
+    // NOTICE: Smart Collection definition case
     opts.name = name;
     Schemas.schemas[name] = opts;
   }

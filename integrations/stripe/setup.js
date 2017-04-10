@@ -1,6 +1,8 @@
 'use strict';
 var _ = require('lodash');
 
+var INTEGRATION_NAME = 'stripe';
+
 exports.createCollections = function (Implementation, apimap,
                                       collectionAndFieldName) {
   // jshint camelcase: false
@@ -13,6 +15,7 @@ exports.createCollections = function (Implementation, apimap,
     name: collectionName + '_stripe_payments',
     displayName: collectionDisplayName + ' Payments',
     icon: 'stripe',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
     isReadOnly: true,
     paginationType: 'cursor',
@@ -42,6 +45,7 @@ exports.createCollections = function (Implementation, apimap,
     name: collectionName + '_stripe_invoices',
     displayName: collectionDisplayName + ' Invoices',
     icon: 'stripe',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
     isReadOnly: true,
     paginationType: 'cursor',
@@ -74,6 +78,7 @@ exports.createCollections = function (Implementation, apimap,
     name: collectionName + '_stripe_cards',
     displayName: collectionDisplayName + ' Cards',
     icon: 'stripe',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
     isReadOnly: true,
     onlyForRelationships: true,
@@ -107,6 +112,7 @@ exports.createCollections = function (Implementation, apimap,
     name: collectionName + '_stripe_subscriptions',
     displayName: collectionDisplayName + ' Subscriptions',
     icon: 'stripe',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
     isReadOnly: true,
     paginationType: 'cursor',
@@ -138,6 +144,7 @@ exports.createCollections = function (Implementation, apimap,
     name: collectionName + '_stripe_bank_accounts',
     displayName: collectionDisplayName + ' Bank Accounts',
     icon: 'stripe',
+    integration: INTEGRATION_NAME,
     isVirtual: true,
     isReadOnly: true,
     onlyForRelationships: true,
@@ -173,7 +180,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_stripe_payments.id',
     column: null,
     isSearchable: false,
-    integration: 'stripe'
+    integration: INTEGRATION_NAME
   });
 
   schemaFields.push({
@@ -183,7 +190,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_stripe_invoices.id',
     column: null,
     isSearchable: false,
-    integration: 'stripe'
+    integration: INTEGRATION_NAME
   });
 
   schemaFields.push({
@@ -193,7 +200,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_stripe_cards.id',
     column: null,
     isSearchable: false,
-    integration: 'stripe'
+    integration: INTEGRATION_NAME
   });
 
   schemaFields.push({
@@ -203,7 +210,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_stripe_subscriptions.id',
     column: null,
     isSearchable: false,
-    integration: 'stripe'
+    integration: INTEGRATION_NAME
   });
 
   schemaFields.push({
@@ -213,6 +220,6 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_stripe_bank_accounts.id',
     column: null,
     isSearchable: false,
-    integration: 'stripe'
+    integration: INTEGRATION_NAME
   });
 };

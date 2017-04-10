@@ -1,6 +1,8 @@
 'use strict';
 var _ = require('lodash');
 
+var INTEGRATION_NAME = 'intercom';
+
 exports.createCollections = function (Implementation, apimap, collectionName) {
 
   var collectionDisplayName = _.capitalize(collectionName);
@@ -9,6 +11,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
     name: collectionName + '_intercom_conversations',
     displayName: collectionDisplayName + ' Conversations',
     icon: 'intercom',
+    integration: INTEGRATION_NAME,
     onlyForRelationships: true,
     isVirtual: true,
     isReadOnly: true,
@@ -25,6 +28,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
     name: collectionName + '_intercom_attributes',
     displayName: collectionDisplayName + ' Attributes',
     icon: 'intercom',
+    integration: INTEGRATION_NAME,
     onlyForRelationships: true,
     isVirtual: true,
     isReadOnly: true,
@@ -60,7 +64,7 @@ exports.createFields = function (implementation, model, schemaFields) {
       '_intercom_conversations.id',
     column: null,
     isSearchable: false,
-    integration: 'intercom'
+    integration: INTEGRATION_NAME
   });
 
   schemaFields.push({
@@ -70,6 +74,6 @@ exports.createFields = function (implementation, model, schemaFields) {
       '_intercom_attributes.id',
     column: null,
     isSearchable: false,
-    integration: 'intercom'
+    integration: INTEGRATION_NAME
   });
 };

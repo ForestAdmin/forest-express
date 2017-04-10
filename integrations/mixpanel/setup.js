@@ -3,6 +3,8 @@
 var _ = require('lodash');
 var moment = require('moment');
 
+var INTEGRATION_NAME = 'mixpanel';
+
 exports.createCollections = function (Implementation, apimap, schema, opts) {
   var collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
   var collectionDisplayName = _.capitalize(collectionName);
@@ -12,6 +14,7 @@ exports.createCollections = function (Implementation, apimap, schema, opts) {
     displayName: collectionDisplayName + ' Events',
     icon: 'mixpanel',
     isVirtual: true,
+    integration: INTEGRATION_NAME,
     isReadOnly: true,
     onlyForRelationships: true,
     fields: [
@@ -80,6 +83,6 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_mixpanel_events.id',
     column: null,
     isSearchable: false,
-    integration: 'mixpanel'
+    integration: INTEGRATION_NAME
   });
 };
