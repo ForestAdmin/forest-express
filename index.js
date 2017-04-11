@@ -267,6 +267,7 @@ exports.collection = function (name, opts) {
   } else {
     // NOTICE: Smart Collection definition case
     opts.name = name;
+    opts.isVirtual = true;
     Schemas.schemas[name] = opts;
   }
 };
