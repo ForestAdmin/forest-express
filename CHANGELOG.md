@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Setup Guide - Add integration field to the collections to distinguish Smart Collections and Collections from integrations.
+
 ### Changed
 - Performances - Make the password comparison asynchronous on session creation.
 
