@@ -15,7 +15,7 @@ exports.catchIfAny = function (error, request, response, next) {
     }
     response.status(error.status || 500).send({
       errors: [{
-        status: error.status,
+        status: error.status || 500,
         detail: message
       }]
     });

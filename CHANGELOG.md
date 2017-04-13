@@ -4,6 +4,9 @@
 ### Changed
 - Performances - Make the password comparison asynchronous on session creation.
 
+### Fixed
+- Error Handling - Fix missing error code 500 in case of internal error.
+
 ## RELEASE 1.0.5 - 2017-04-06
 ### Added
 - Types Support - Support Dateonly field type.
