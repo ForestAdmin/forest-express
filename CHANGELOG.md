@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 1.0.7 - 2017-04-21
 ### Fix
 - Smart Fields - Smart fields are sent in the detail view request
 
