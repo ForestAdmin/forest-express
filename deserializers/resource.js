@@ -16,6 +16,15 @@ function ResourceDeserializer(Implementation, model, params,
           params.data.id;
       }
 
+      // NOTICE: Look for some Smart Field setters and apply them if any.
+      var fieldsVirtual = _.filter(schema.fields, function (field) {
+        return field.isVirtual && field.set;
+      });
+      _.each(fieldsVirtual, function (field) {
+        // WARNING: The Smart Fields setters may override other changes.
+        attributes = field.set(attributes, attributes[field.field]);
+      });
+
       if (opts.omitNullAttributes) {
         attributes = _.pickBy(attributes, function (value) {
           return !_.isNull(value);
