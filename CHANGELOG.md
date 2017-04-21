@@ -6,10 +6,10 @@
 ### Added
 - Setup Guide - Add integration field to the collections to distinguish Smart Collections and Collections from integrations.
 
-### Changed
+### Changed
 - Performances - Make the password comparison asynchronous on session creation.
 
-### Fixed
+### Fixed
 - Error Handling - Fix missing error code 500 in case of internal error.
 
 ## RELEASE 1.0.5 - 2017-04-06
@@ -17,10 +17,10 @@
 - Types Support - Support Dateonly field type.
 - Version Warning - Display a warning message if the liana version used is too old.
 
-### Changed
+### Changed
 - Technical - Promisify only the necessary method on apimap generation.
 
-### Fixed
+### Fixed
 - Console logs - Fix a bad error log display if the smart implementation directory does not exist.
 
 ## RELEASE 1.0.4 - 2017-03-28
@@ -50,7 +50,7 @@
 - Smart Actions - Support file download.
 
 ## RELEASE 0.2.2 - 2016-01-04
-### Added
+### Added
 - Configurations - Users can specify the directory for Forest Smart Implementation.
 
 ### Fixed
@@ -65,7 +65,7 @@
 - Segments - Smart Segments can be created to define specific records subsets.
 - Integrations - Create a light Mixpanel integration to retrieve Mixpanel active users in Forest.
 
-### Changed
+### Changed
 - Package - Add contributors, keywords, homepage...
 - Package - Remove an unused package (logger).
 - Dependencies - Freeze the dependencies versions to reduce packages versions changes between projects/environments.
@@ -80,7 +80,7 @@
 - Configuration - Catch a missing auth_key in the configuration and send an explicit error message on liana authentication.
 - Errors - Display the explicit error if a request error is catched.
 
-### Changed
+### Changed
 - Packages - Update the node-uuid package to the new version named uuid.
 
 ## RELEASE 0.1.32 - 2016-11-24
