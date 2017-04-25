@@ -9,30 +9,40 @@ function ResourceDeserializer(Implementation, model, params,
   var schema = Schemas.schemas[Implementation.getModelName(model)];
 
   function extractAttributes() {
-    return new P(function (resolve) {
-      var attributes = params.data.attributes;
-      if (params.data.attributes) {
-        attributes[schema.idField] = params.data.attributes[schema.idField] ||
-          params.data.id;
-      }
+    var attributes = params.data.attributes;
+    if (params.data.attributes) {
+      attributes[schema.idField] = params.data.attributes[schema.idField] ||
+        params.data.id;
+    }
 
-      // NOTICE: Look for some Smart Field setters and apply them if any.
-      var fieldsVirtual = _.filter(schema.fields, function (field) {
-        return field.isVirtual && field.set;
-      });
-      _.each(fieldsVirtual, function (field) {
-        // WARNING: The Smart Fields setters may override other changes.
-        attributes = field.set(attributes, attributes[field.field]);
-      });
-
-      if (opts.omitNullAttributes) {
-        attributes = _.pickBy(attributes, function (value) {
-          return !_.isNull(value);
-        });
-      }
-
-      resolve(attributes);
+    // NOTICE: Look for some Smart Field setters and apply them if any.
+    var fieldsVirtual = _.filter(schema.fields, function (field) {
+      return field.isVirtual && field.set;
     });
+
+    return P
+      .each(fieldsVirtual, function (field) {
+        // WARNING: The Smart Fields setters may override other changes.
+        if (_.isFunction(field.set.then)) {
+          return field.set(attributes, attributes[field.field])
+            .then(function (newAttributes) {
+              attributes = newAttributes;
+              return attributes;
+            });
+        } else {
+          attributes = field.set(attributes, attributes[field.field]);
+          return attributes;
+        }
+      })
+      .then(function () {
+        if (opts.omitNullAttributes) {
+          attributes = _.pickBy(attributes, function (value) {
+            return !_.isNull(value);
+          });
+        }
+
+        return attributes;
+      });
   }
 
   function extractRelationships() {
