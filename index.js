@@ -257,7 +257,7 @@ exports.collection = function (name, opts) {
       // NOTICE: Smart Field definition case
       field.isVirtual = true;
       field.isSearchable = false;
-      field.isReadOnly = true;
+      field.isReadOnly = !field.set;
 
       return field;
     });
