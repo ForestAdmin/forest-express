@@ -10,17 +10,17 @@ var Schemas = require('../generators/schemas');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
-  var schema = Schemas.schemas[Implementation.getModelName(model)];
+  var schema = Schemas.schemas[modelName];
 
   function injectSmartFields(record) {
     return P.each(schema.fields, function (field) {
       if (!record[field.field]) {
         if (field.get || field.value) {
           if (field.value) {
-            logger.warn('DEPRECATION WARNING: Smart Field value method is ' +
-              'deprecated. Please use get method instead.');
+            logger.warn('DEPRECATION WARNING: In your ' + field.field +
+              ' Collection, Smart Field value method is deprecated. ' +
+              'Please use get method instead. ');
           }
-
           var value = field.get ? field.get(record) : field.value(record);
           if (value && _.isFunction(value.then)) {
             return value.then(function (value) {
@@ -32,6 +32,30 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         } else if (_.isArray(field.type)) {
           record[field.field] = [];
         }
+      } else if(field.reference) {
+        // Inject Smart Field in BelongsTo Field
+        var referenceFieldSchema = Schemas.schemas[field.field];
+        _.each(referenceFieldSchema.fields, function (smartFieldObject) {
+          var valueSmartField;
+          if(smartFieldObject.isVirtual &&  (smartFieldObject.get ||
+            smartFieldObject.value)) {
+            if (smartFieldObject.value) {
+              logger.warn('DEPRECATION WARNING: In your ' + field.field +
+                ' Collection, Smart Field value method is deprecated. ' +
+                'Please use get method instead. ');
+              valueSmartField = smartFieldObject.value(record[field.field]);
+            } else {
+              valueSmartField = smartFieldObject.get(record[field.field]);
+            }
+            if (valueSmartField && _.isFunction(valueSmartField.then)) {
+              return valueSmartField.then(function (value) {
+                record[field.field][smartFieldObject.field] = value;
+              });
+            } else {
+              record[field.field][smartFieldObject.field] = valueSmartField;
+            }
+          }
+        });
       }
     }).thenReturn(record);
   }

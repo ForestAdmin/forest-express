@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Fields - Add smart field in belongsTo Fields.
 
 ## RELEASE 1.1.0 - 2017-04-27
 ### Added
