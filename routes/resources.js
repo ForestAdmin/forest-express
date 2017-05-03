@@ -12,52 +12,41 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
+  function addSmartFieldToRecord(record, smartFieldObject, modelName) {
+    var smartFieldValue;
+    if(smartFieldObject.get || smartFieldObject.value) {
+      if (smartFieldObject.value) {
+        logger.warn('DEPRECATION WARNING: In your ' + modelName +
+          ' Model, Smart Field value method is deprecated. ' +
+          'Please use get method instead. ');
+        smartFieldValue = smartFieldObject.value(record);
+      } else {
+        smartFieldValue = smartFieldObject.get(record);
+      }
+      if (smartFieldValue && _.isFunction(smartFieldValue.then)) {
+        return smartFieldValue.then(function (value) {
+          record[smartFieldObject.field] = value;
+        });
+      } else {
+        record[smartFieldObject.field] = smartFieldValue;
+      }
+    } else if (_.isArray(smartFieldObject.type)) {
+      record[smartFieldObject.field] = [];
+    }
+  }
+
   function injectSmartFields(record) {
     return P.each(schema.fields, function (field) {
       if (!record[field.field]) {
-        if (field.get || field.value) {
-          if (field.value) {
-            logger.warn('DEPRECATION WARNING: In your ' + field.field +
-              ' Collection, Smart Field value method is deprecated. ' +
-              'Please use get method instead. ');
-          }
-          var value = field.get ? field.get(record) : field.value(record);
-          if (value && _.isFunction(value.then)) {
-            return value.then(function (value) {
-              record[field.field] = value;
-            });
-          } else {
-            record[field.field] = value;
-          }
-        } else if (_.isArray(field.type)) {
-          record[field.field] = [];
-        }
+        addSmartFieldToRecord(record, field, modelName);
       } else if(field.reference) {
-        console.log('coucou',field);
         // Inject Smart Field in BelongsTo Fields
-        var schemaName = field.reference.split('.')[0];
-        var referenceFieldSchema = Schemas.schemas[schemaName];
+        var belongsToModelName = field.reference.split('.')[0];
+        var referenceFieldSchema = Schemas.schemas[belongsToModelName];
         if (referenceFieldSchema) {
           _.each(referenceFieldSchema.fields, function (smartFieldObject) {
-            var valueSmartField;
-            if(smartFieldObject.isVirtual &&  (smartFieldObject.get ||
-              smartFieldObject.value)) {
-              if (smartFieldObject.value) {
-                logger.warn('DEPRECATION WARNING: In your ' + field.field +
-                  ' Collection, Smart Field value method is deprecated. ' +
-                  'Please use get method instead. ');
-                valueSmartField = smartFieldObject.value(record[field.field]);
-              } else {
-                valueSmartField = smartFieldObject.get(record[field.field]);
-              }
-              if (valueSmartField && _.isFunction(valueSmartField.then)) {
-                return valueSmartField.then(function (value) {
-                  record[field.field][smartFieldObject.field] = value;
-                });
-              } else {
-                record[field.field][smartFieldObject.field] = valueSmartField;
-              }
-            }
+            addSmartFieldToRecord(record[field.field],
+              smartFieldObject, belongsToModelName);
           });
         }
       }
