@@ -33,29 +33,33 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           record[field.field] = [];
         }
       } else if(field.reference) {
-        // Inject Smart Field in BelongsTo Field
-        var referenceFieldSchema = Schemas.schemas[field.field];
-        _.each(referenceFieldSchema.fields, function (smartFieldObject) {
-          var valueSmartField;
-          if(smartFieldObject.isVirtual &&  (smartFieldObject.get ||
-            smartFieldObject.value)) {
-            if (smartFieldObject.value) {
-              logger.warn('DEPRECATION WARNING: In your ' + field.field +
-                ' Collection, Smart Field value method is deprecated. ' +
-                'Please use get method instead. ');
-              valueSmartField = smartFieldObject.value(record[field.field]);
-            } else {
-              valueSmartField = smartFieldObject.get(record[field.field]);
+        console.log('coucou',field);
+        // Inject Smart Field in BelongsTo Fields
+        var schemaName = field.reference.split('.')[0];
+        var referenceFieldSchema = Schemas.schemas[schemaName];
+        if (referenceFieldSchema) {
+          _.each(referenceFieldSchema.fields, function (smartFieldObject) {
+            var valueSmartField;
+            if(smartFieldObject.isVirtual &&  (smartFieldObject.get ||
+              smartFieldObject.value)) {
+              if (smartFieldObject.value) {
+                logger.warn('DEPRECATION WARNING: In your ' + field.field +
+                  ' Collection, Smart Field value method is deprecated. ' +
+                  'Please use get method instead. ');
+                valueSmartField = smartFieldObject.value(record[field.field]);
+              } else {
+                valueSmartField = smartFieldObject.get(record[field.field]);
+              }
+              if (valueSmartField && _.isFunction(valueSmartField.then)) {
+                return valueSmartField.then(function (value) {
+                  record[field.field][smartFieldObject.field] = value;
+                });
+              } else {
+                record[field.field][smartFieldObject.field] = valueSmartField;
+              }
             }
-            if (valueSmartField && _.isFunction(valueSmartField.then)) {
-              return valueSmartField.then(function (value) {
-                record[field.field][smartFieldObject.field] = value;
-              });
-            } else {
-              record[field.field][smartFieldObject.field] = valueSmartField;
-            }
-          }
-        });
+          });
+        }
       }
     }).thenReturn(record);
   }
