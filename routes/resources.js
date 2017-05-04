@@ -12,41 +12,41 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
-  function addSmartFieldToRecord(record, smartFieldObject, modelName) {
+  function tryToAddSmartFieldToRecord(record, fieldObject, modelName) {
     var smartFieldValue;
-    if(smartFieldObject.get || smartFieldObject.value) {
-      if (smartFieldObject.value) {
+    if (fieldObject.get || fieldObject.value) {
+      if (fieldObject.value) {
         logger.warn('DEPRECATION WARNING: In your ' + modelName +
           ' Model, Smart Field value method is deprecated. ' +
           'Please use get method instead. ');
-        smartFieldValue = smartFieldObject.value(record);
+        smartFieldValue = fieldObject.value(record);
       } else {
-        smartFieldValue = smartFieldObject.get(record);
+        smartFieldValue = fieldObject.get(record);
       }
       if (smartFieldValue && _.isFunction(smartFieldValue.then)) {
         return smartFieldValue.then(function (value) {
-          record[smartFieldObject.field] = value;
+          record[fieldObject.field] = value;
         });
       } else {
-        record[smartFieldObject.field] = smartFieldValue;
+        record[fieldObject.field] = smartFieldValue;
       }
-    } else if (_.isArray(smartFieldObject.type)) {
-      record[smartFieldObject.field] = [];
+    } else if (_.isArray(fieldObject.type) && !fieldObject.isVirtual) {
+      record[fieldObject.field] = [];
     }
   }
 
   function injectSmartFields(record) {
     return P.each(schema.fields, function (field) {
       if (!record[field.field]) {
-        addSmartFieldToRecord(record, field, modelName);
-      } else if(field.reference) {
+        return tryToAddSmartFieldToRecord(record, field, modelName);
+      } else if (field.reference) {
         // Inject Smart Field in BelongsTo Fields
         var belongsToModelName = field.reference.split('.')[0];
         var referenceFieldSchema = Schemas.schemas[belongsToModelName];
         if (referenceFieldSchema) {
-          _.each(referenceFieldSchema.fields, function (smartFieldObject) {
-            addSmartFieldToRecord(record[field.field],
-              smartFieldObject, belongsToModelName);
+          _.each(referenceFieldSchema.fields, function (fieldObject) {
+            return tryToAddSmartFieldToRecord(record[field.field],
+              fieldObject, belongsToModelName);
           });
         }
       }
