@@ -75,9 +75,11 @@ function IntercomChecker(opts, Implementation) {
       opts.integrations.intercom.mapping =
         castToArray(opts.integrations.intercom.mapping);
 
-      opts.integrations.intercom.credentials = {
-        token: opts.integrations.intercom.accessToken
-      };
+      if (opts.integrations.intercom.accessToken) {
+        opts.integrations.intercom.credentials = {
+          token: opts.integrations.intercom.accessToken
+        };
+      }
 
       integrationValid = isMappingValid();
     } else {
