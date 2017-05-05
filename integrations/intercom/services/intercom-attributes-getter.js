@@ -5,8 +5,16 @@ var useragent = require('useragent');
 function IntercomAttributesGetter(Implementation, params, opts, collectionName) {
   var model = null;
   var Intercom = opts.integrations.intercom.intercom;
-  var intercom = new Intercom.Client(opts.integrations.intercom.appId,
-    opts.integrations.intercom.apiKey).usePromises();
+  var intercom;
+
+  if (opts.integrations.intercom.credentials) {
+    intercom = new Intercom.Client(opts.integrations.intercom.credentials)
+      .usePromises();
+  } else {
+    // TODO: Remove once appId/apiKey is not supported anymore.
+    intercom = new Intercom.Client(opts.integrations.intercom.appId,
+      opts.integrations.intercom.apiKey).usePromises();
+  }
 
   this.perform = function () {
     model = Implementation.getModels()[collectionName];
