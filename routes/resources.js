@@ -44,9 +44,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var belongsToModelName = field.reference.split('.')[0];
         var referenceFieldSchema = Schemas.schemas[belongsToModelName];
         if (referenceFieldSchema) {
-          _.each(referenceFieldSchema.fields, function (fieldObject) {
-            return tryToAddSmartFieldToRecord(record[field.field],
-              fieldObject, belongsToModelName);
+          return P.each(referenceFieldSchema.fields, function (fieldObject) {
+            var promises = [];
+            promises.push(tryToAddSmartFieldToRecord(record[field.field],
+              fieldObject, belongsToModelName));
+            return P.all(promises);
           });
         }
       }
