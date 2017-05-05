@@ -16,9 +16,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     var smartFieldValue;
     if (fieldObject.get || fieldObject.value) {
       if (fieldObject.value) {
-        logger.warn('DEPRECATION WARNING: In your ' + modelName +
-          ' Model, Smart Field value method is deprecated. ' +
-          'Please use get method instead. ');
+        logger.warn('DEPRECATION WARNING: Smart Fields "value" method is ' +
+          'deprecated. Please use "get" method in your collection ' +
+          modelName + ' instead.');
         smartFieldValue = fieldObject.value(record);
       } else {
         smartFieldValue = fieldObject.get(record);
