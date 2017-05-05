@@ -13,16 +13,13 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var schema = Schemas.schemas[modelName];
 
   function setSmartFieldValue(record, field, modelName) {
-    var value;
     if (field.value) {
       logger.warn('DEPRECATION WARNING: Smart Fields "value" method is ' +
         'deprecated. Please use "get" method in your collection ' +
         modelName + ' instead.');
-      value = field.value(record);
-    } else {
-      value = field.get(record);
     }
 
+    var value = field.get ? field.get(record) : field.value(record);
     if (value && _.isFunction(value.then)) {
       return value.then(function (result) { record[field.field] = result; });
     } else {
