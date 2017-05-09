@@ -18,6 +18,7 @@ var request = require('superagent');
 var logger = require('./services/logger');
 var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
+var inspectSyntaxCode = require('./utils/inspect-syntax');
 
 function requireAllModels(Implementation, modelsDir, displayMessage) {
   if (modelsDir) {
@@ -112,6 +113,11 @@ exports.init = function (Implementation) {
             directorySmartImplementation = path.resolve('.', opts.configDir);
           } else {
             directorySmartImplementation = path.resolve('.') + '/forest';
+          }
+
+          if(directorySmartImplementation){
+            inspectSyntaxCode
+            .extractSyntaxErrorInDirectoryFile(directorySmartImplementation);
           }
 
           // NOTICE: Do not display an error log if the forest/ directory does
