@@ -11,7 +11,8 @@ function extractSyntaxErrorInDirectoryFile(directorySmartImplementation){
     var file = directorySmartImplementation + '/' + filename;
     var fileContent = fs.readFileSync(file);
     try {
-        return esprima.parse(fileContent.toString(), { tolerant: true, loc: true });
+        return esprima.parse(fileContent.toString(),
+          { tolerant: true, loc: true });
   		} catch (errors) {
         if(errors){
           logger.warn('');
@@ -19,7 +20,7 @@ function extractSyntaxErrorInDirectoryFile(directorySmartImplementation){
           logger.warn('Smart Collection build failed: SyntaxError: ' +
             errors.description + ' expected { (' + errors.lineNumber +
             ':' + errors.index +')');
-            logger.warn('');
+          logger.warn('');
         }
   	}
   })
