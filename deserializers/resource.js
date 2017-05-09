@@ -30,7 +30,7 @@ function ResourceDeserializer(Implementation, model, params,
               return attributes;
             });
         } else {
-          attributes = field.set(attributes, attributes[field.field]);
+          attributes[field.field] = field.set(attributes, attributes[field.field]);
           return attributes;
         }
       })
