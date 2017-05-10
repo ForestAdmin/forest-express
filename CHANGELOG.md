@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Smart Fields - Add errors in console when user create smart field with syntax error
+- Smart Collections - Add errors in console when user create smart field or smart collection with syntax error
 
 ### Fixed
 - Smart Fields - Serialize Smart Fields values for belongsTo association.
