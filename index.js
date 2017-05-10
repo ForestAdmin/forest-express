@@ -4,6 +4,7 @@ var _ = require('lodash');
 var express = require('express');
 var path = require('path');
 var readdirAsync = P.promisify(require('fs').readdir);
+var fs = require('fs');
 var cors = require('express-cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
@@ -18,7 +19,7 @@ var request = require('superagent');
 var logger = require('./services/logger');
 var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
-var inspectCodeSyntax = require('./utils/inspect-code-syntax');
+var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 
 function requireAllModels(Implementation, modelsDir, displayMessage) {
   if (modelsDir) {
@@ -115,10 +116,8 @@ exports.init = function (Implementation) {
             directorySmartImplementation = path.resolve('.') + '/forest';
           }
 
-          if(directorySmartImplementation){
-            inspectCodeSyntax
+          codeSyntaxInspector
             .extractCodeSyntaxErrorInDirectoryFile(directorySmartImplementation);
-          }
 
           // NOTICE: Do not display an error log if the forest/ directory does
           //         not exist.
