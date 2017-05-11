@@ -1,42 +1,14 @@
 'use strict';
 var P = require('bluebird');
-var _ = require('lodash');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
-var setSmartFieldValue = require('../services/set-smart-field-value');
 var auth = require('../services/auth');
 var path = require('../services/path');
-var Schemas = require('../generators/schemas');
+var injectSmartFields = require('../services/smart-field-injector');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
-
-  function injectSmartFields(record) {
-    return P.each(schema.fields, function (field) {
-      if (!record[field.field]) {
-        if (field.get || field.value) {
-          return setSmartFieldValue(record, field, modelName);
-        } else if (_.isArray(field.type)) {
-          record[field.field] = [];
-        }
-      } else if (field.reference && !_.isArray(field.type)) {
-        // NOTICE: Set Smart Fields values to "belongsTo" associated records.
-        var modelNameAssociation = field.reference.split('.')[0];
-        var schemaAssociation = Schemas.schemas[modelNameAssociation];
-
-        if (schemaAssociation) {
-          return P.each(schemaAssociation.fields, function (fieldAssociation) {
-            if (!record[field.field][fieldAssociation.field] &&
-              (fieldAssociation.get || fieldAssociation.value)) {
-              return setSmartFieldValue(record[field.field],
-                fieldAssociation, modelNameAssociation);
-            }
-          });
-        }
-      }
-    }).thenReturn(record);
-  }
 
   this.list = function (req, res, next) {
     return new Implementation.ResourcesGetter(model, opts, req.query)
@@ -47,7 +19,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
         // Inject smart fields.
         return P
-          .map(records, injectSmartFields)
+          .map(records, function (record) {
+            return injectSmartFields(record, modelName);
+          })
           .then(function (records) {
             return new ResourceSerializer(Implementation, model, records,
               integrator, opts, { count: count }).perform();
@@ -62,7 +36,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.get = function (req, res, next) {
     return new Implementation.ResourceGetter(model, req.params)
       .perform()
-      .then(injectSmartFields)
+      .then(function(records) {
+        return injectSmartFields(records, modelName);
+      })
       .then(function (record) {
         return new ResourceSerializer(Implementation, model, record,
           integrator, opts).perform();

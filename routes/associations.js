@@ -4,8 +4,8 @@ var P = require('bluebird');
 var ResourceSerializer = require('../serializers/resource');
 var Schemas = require('../generators/schemas');
 var auth = require('../services/auth');
-var setSmartFieldValue = require('../services/set-smart-field-value');
 var path = require('../services/path');
+var injectSmartFields = require('../services/smart-field-injector');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -18,31 +18,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     if (field && field.reference) {
       return field.reference.split('.')[0];
     }
-  }
-
-  function injectSmartFields(record) {
-    return P.each(schemaAssociation.fields, function (field) {
-      if (!record[field.field]) {
-        if (field.get || field.value) {
-          return setSmartFieldValue(record, field, modelName);
-        } else if (_.isArray(field.type)) {
-          record[field.field] = [];
-        }
-      } else if (field.reference) {
-        var modelNameAssociation = field.reference.split('.')[0];
-        var schemaAssociation = Schemas.schemas[modelNameAssociation];
-
-        if (schemaAssociation) {
-          return P.each(schemaAssociation.fields, function (fieldAssociation) {
-            if (!record[field.field][fieldAssociation.field] &&
-              (fieldAssociation.get || fieldAssociation.value)) {
-              return setSmartFieldValue(record[field.field],
-                fieldAssociation, modelNameAssociation);
-            }
-          });
-        }
-      }
-    }).thenReturn(record);
   }
 
   function index(request, response, next) {
@@ -64,7 +39,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var records = results[1];
 
         return P
-          .map(records, injectSmartFields)
+          .map(records, function (record) {
+            return injectSmartFields(record, associationModel.name);
+          })
           .then(function (records) {
             return new ResourceSerializer(Implementation, associationModel,
               records, integrator, opts, { count: count }).perform();
