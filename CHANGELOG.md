@@ -1,6 +1,10 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Customization Errors - Do not send the apimap when users create Forest customization with syntax errors in code.
+- Customization Errors - Add errors in the console when users create Forest customization with syntax errors in code.
+
 ### Fixed
 - Smart Fields - Serialize Smart Fields values for belongsTo association.
 
