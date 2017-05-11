@@ -10,8 +10,6 @@ var injectSmartFields = require('../services/smart-field-injector');
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
-  var schemaAssociation;
-
 
   function getAssociationField(associationName) {
     var field = _.find(schema.fields, { field: associationName });
@@ -27,7 +25,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     var associationModel = _.find(models, function (model) {
       return Implementation.getModelName(model) === associationField;
     });
-    schemaAssociation = Schemas.schemas[associationModel.name];
 
     if (!associationModel) { return response.status(404).send(); }
 
@@ -40,7 +37,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
         return P
           .map(records, function (record) {
-            return injectSmartFields(record, associationModel.name);
+            return injectSmartFields(record, associationField);
           })
           .then(function (records) {
             return new ResourceSerializer(Implementation, associationModel,
