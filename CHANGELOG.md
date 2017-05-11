@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Smart Collections - Add errors in console when user create Forest customization with syntax error in code
+- Smart Collections - Add errors in console when user create Forest customization with syntax errors in code
 
 ### Fixed
 - Smart Fields - Serialize Smart Fields values for belongsTo association.
