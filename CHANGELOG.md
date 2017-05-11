@@ -13,6 +13,7 @@
 
 ### Fixed
 - Smart Fields - Serialize Smart Fields values for belongsTo association.
+- Smart Fields - Send the Smart Fields in the hasmany request.
 
 ## RELEASE 1.1.0 - 2017-04-27
 ### Added
