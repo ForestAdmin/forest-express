@@ -115,13 +115,18 @@ exports.init = function (Implementation) {
             directorySmartImplementation = path.resolve('.') + '/forest';
           }
 
-          codeSyntaxInspector
-            .extractCodeSyntaxErrorInDirectoryFile(directorySmartImplementation);
-
-          // NOTICE: Do not display an error log if the forest/ directory does
-          //         not exist.
-          return requireAllModels(Implementation, directorySmartImplementation,
-            false);
+          return codeSyntaxInspector
+            .extractCodeSyntaxErrorInDirectoryFile(directorySmartImplementation)
+            .then(function (hasError) {
+              if (hasError) {
+                throw new Error();
+              } else {
+                // NOTICE: Do not display an error log if the forest/ directory
+                //         does not exist.
+                return requireAllModels(Implementation,
+                  directorySmartImplementation, false);
+              }
+            });
         })
         .thenReturn(models);
     })
@@ -221,6 +226,11 @@ exports.init = function (Implementation) {
               });
         }
       }
+    })
+    .catch(function () {
+      logger.error('An error occured while computing the Forest apimap. Your ' +
+        'application apimap cannot be sent to Forest. Your Admin UI might ' +
+        'not reflect your application models.');
     });
 
   if (opts.expressParentApp) {

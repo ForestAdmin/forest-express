@@ -7,8 +7,10 @@ var Pfs = P.promisifyAll(fs);
 var logger = require('../services/logger');
 
 exports.extractCodeSyntaxErrorInDirectoryFile = function (modelsDir) {
+  var hasError = false;
+
   if (fs.existsSync(modelsDir)) {
-    Pfs.readdirAsync(modelsDir)
+    return Pfs.readdirAsync(modelsDir)
       .map(function (filename) {
         var file = path.join(modelsDir, filename);
         var fileContent = Pfs.readFileSync(file);
@@ -17,11 +19,15 @@ exports.extractCodeSyntaxErrorInDirectoryFile = function (modelsDir) {
           return esprima.parse(fileContent.toString(), { loc: true });
         } catch (error) {
           if (error) {
+            hasError = true;
             logger.error('Forest customization failed due to a syntax error: ' +
               error.description + ' in ' + file + ':' + error.lineNumber + ':' +
               error.index);
           }
         }
-      });
+      })
+      .then(function () { return hasError; });
+  } else {
+    return hasError;
   }
 };
