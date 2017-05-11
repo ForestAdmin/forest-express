@@ -21,13 +21,14 @@ exports.extractCodeSyntaxErrorInDirectoryFile = function (modelsDir) {
           if (error) {
             hasError = true;
             logger.error('Forest customization failed due to a syntax error: ' +
-              error.description + ' in ' + file + ':' + error.lineNumber + ':' +
-              error.index);
+              error.description + ' in ' + file + ':' + error.lineNumber);
           }
         }
       })
       .then(function () { return hasError; });
   } else {
-    return hasError;
+    return new P(function(resolve) {
+      return resolve(hasError);
+    });
   }
 };
