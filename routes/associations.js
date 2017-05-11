@@ -1,10 +1,10 @@
 'use strict';
 var _ = require('lodash');
 var P = require('bluebird');
-var logger = require('../services/logger');
 var ResourceSerializer = require('../serializers/resource');
 var Schemas = require('../generators/schemas');
 var auth = require('../services/auth');
+var setSmartFieldValue = require('../services/set-smart-field-value');
 var path = require('../services/path');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
@@ -17,21 +17,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     var field = _.find(schema.fields, { field: associationName });
     if (field && field.reference) {
       return field.reference.split('.')[0];
-    }
-  }
-
-  function setSmartFieldValue(record, field, modelName) {
-    if (field.value) {
-      logger.warn('DEPRECATION WARNING: Smart Fields "value" method is ' +
-        'deprecated. Please use "get" method in your collection ' +
-        modelName + ' instead.');
-    }
-
-    var value = field.get ? field.get(record) : field.value(record);
-    if (value && _.isFunction(value.then)) {
-      return value.then(function (result) { record[field.field] = result; });
-    } else {
-      record[field.field] = value;
     }
   }
 

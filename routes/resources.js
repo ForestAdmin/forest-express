@@ -1,9 +1,9 @@
 'use strict';
 var P = require('bluebird');
 var _ = require('lodash');
-var logger = require('../services/logger');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
+var setSmartFieldValue = require('../services/set-smart-field-value');
 var auth = require('../services/auth');
 var path = require('../services/path');
 var Schemas = require('../generators/schemas');
@@ -11,21 +11,6 @@ var Schemas = require('../generators/schemas');
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
-
-  function setSmartFieldValue(record, field, modelName) {
-    if (field.value) {
-      logger.warn('DEPRECATION WARNING: Smart Fields "value" method is ' +
-        'deprecated. Please use "get" method in your collection ' +
-        modelName + ' instead.');
-    }
-
-    var value = field.get ? field.get(record) : field.value(record);
-    if (value && _.isFunction(value.then)) {
-      return value.then(function (result) { record[field.field] = result; });
-    } else {
-      record[field.field] = value;
-    }
-  }
 
   function injectSmartFields(record) {
     return P.each(schema.fields, function (field) {
