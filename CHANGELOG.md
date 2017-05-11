@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Fields - Serialize Smart Fields values for belongsTo association.
 
 ## RELEASE 1.1.0 - 2017-04-27
 ### Added
