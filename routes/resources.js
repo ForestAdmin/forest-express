@@ -35,7 +35,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         } else if (_.isArray(field.type)) {
           record[field.field] = [];
         }
-      } else if (field.reference) {
+      } else if (field.reference && !_.isArray(field.type)) {
+        // NOTICE: Set Smart Fields values to "belongsTo" associated records.
         var modelNameAssociation = field.reference.split('.')[0];
         var schemaAssociation = Schemas.schemas[modelNameAssociation];
 
