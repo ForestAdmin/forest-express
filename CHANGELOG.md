@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Fields - Serialize Smart Fields values for hasMany associations.
 
 ## RELEASE 1.1.2 - 2017-05-16
 ### Fixed
@@ -13,7 +15,6 @@
 
 ### Fixed
 - Smart Fields - Serialize Smart Fields values for belongsTo association.
-- Smart Fields - Send the Smart Fields in the hasmany request.
 
 ## RELEASE 1.1.0 - 2017-04-27
 ### Added
