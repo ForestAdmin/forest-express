@@ -1,11 +1,11 @@
 'use strict';
 var _ = require('lodash');
 var P = require('bluebird');
-var ResourceSerializer = require('../serializers/resource');
-var Schemas = require('../generators/schemas');
 var auth = require('../services/auth');
 var path = require('../services/path');
-var injectSmartFields = require('../services/smart-field-injector');
+var ResourceSerializer = require('../serializers/resource');
+var Schemas = require('../generators/schemas');
+var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -37,7 +37,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
         return P
           .map(records, function (record) {
-            return injectSmartFields(record, associationField);
+            return new SmartFieldsValuesInjector(record, associationField)
+              .perform();
           })
           .then(function (records) {
             return new ResourceSerializer(Implementation, associationModel,

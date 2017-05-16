@@ -1,14 +1,13 @@
 'use strict';
 var P = require('bluebird');
-var ResourceSerializer = require('../serializers/resource');
-var ResourceDeserializer = require('../deserializers/resource');
 var auth = require('../services/auth');
 var path = require('../services/path');
-var injectSmartFields = require('../services/smart-field-injector');
+var ResourceSerializer = require('../serializers/resource');
+var ResourceDeserializer = require('../deserializers/resource');
+var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
-  var schema = Schemas.schemas[modelName];
 
   this.list = function (req, res, next) {
     return new Implementation.ResourcesGetter(model, opts, req.query)
@@ -17,10 +16,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        // Inject smart fields.
         return P
           .map(records, function (record) {
-            return injectSmartFields(record, modelName);
+            return new SmartFieldsValuesInjector(record, modelName).perform();
           })
           .then(function (records) {
             return new ResourceSerializer(Implementation, model, records,
@@ -37,7 +35,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return new Implementation.ResourceGetter(model, req.params)
       .perform()
       .then(function(records) {
-        return injectSmartFields(records, modelName);
+        return new SmartFieldsValuesInjector(records, modelName).perform();
       })
       .then(function (record) {
         return new ResourceSerializer(Implementation, model, record,
