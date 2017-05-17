@@ -5,7 +5,7 @@
 - Smart Fields - Serialize Smart Fields values for hasMany associations.
 
 ## RELEASE 1.1.2 - 2017-05-16
-### Fixed
+### Fixed
 - Smart Fields - Fix some bad Smart Fields getter calls on records list and detail display.
 
 ## RELEASE 1.1.1 - 2017-05-11
