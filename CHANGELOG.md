@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Fields - Serialize Smart Fields values for hasMany associations.
 
 ## RELEASE 1.1.2 - 2017-05-16
 ### Fixed

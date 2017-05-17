@@ -1,15 +1,17 @@
 'use strict';
 var _ = require('lodash');
-var ResourceSerializer = require('../serializers/resource');
-var Schemas = require('../generators/schemas');
+var P = require('bluebird');
 var auth = require('../services/auth');
 var path = require('../services/path');
+var ResourceSerializer = require('../serializers/resource');
+var Schemas = require('../generators/schemas');
+var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
+  var schema = Schemas.schemas[modelName];
 
   function getAssociationField(associationName) {
-    var schema = Schemas.schemas[Implementation.getModelName(model)];
     var field = _.find(schema.fields, { field: associationName });
     if (field && field.reference) {
       return field.reference.split('.')[0];
@@ -33,8 +35,15 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        return new ResourceSerializer(Implementation, associationModel,
-          records, integrator, opts, { count: count }).perform();
+        return P
+          .map(records, function (record) {
+            return new SmartFieldsValuesInjector(record, associationField)
+              .perform();
+          })
+          .then(function (records) {
+            return new ResourceSerializer(Implementation, associationModel,
+              records, integrator, opts, { count: count }).perform();
+          });
       })
       .then(function (records) { response.send(records); })
       .catch(next);
