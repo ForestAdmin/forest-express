@@ -67,8 +67,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.update = function (req, res, next) {
     new ResourceDeserializer(Implementation, model, req.body, false)
       .perform()
-      .then(function (params) {
-        new Implementation.ResourceUpdater(model, params)
+      .then(function (record) {
+        new Implementation.ResourceUpdater(model, req.params, record)
           .perform()
           .then(function (record) {
             return new ResourceSerializer(Implementation, model, record,
