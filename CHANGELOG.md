@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Smart Collections - Users can enable search on Smart Collections
+- Smart Collections - Add a new isSearchable property to display the search bar for Smart Collections.
 
 ## RELEASE 1.1.3 - 2017-05-24
 ### Changed

@@ -267,8 +267,6 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
-    opts.isSearchable = true;
-
     opts.fields = _.map(opts.fields, function (field) {
       // NOTICE: Smart Field definition case
       field.isVirtual = true;
@@ -280,11 +278,12 @@ exports.collection = function (name, opts) {
 
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
+
   } else {
     // NOTICE: Smart Collection definition case
     opts.name = name;
     opts.isVirtual = true;
-    opts.isSearchable = opts.isSearchable ? true :  false;
+    opts.isSearchable = !!opts.isSearchable;
     Schemas.schemas[name] = opts;
   }
 };
