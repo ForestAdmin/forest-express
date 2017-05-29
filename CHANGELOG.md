@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 1.1.4 - 2017-05-29
 ### Added
 - Smart Collections - Add a new isSearchable property to display the search bar for Smart Collections.
 
