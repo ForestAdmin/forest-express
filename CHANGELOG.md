@@ -1,11 +1,13 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart Collections - Add a new isSearchable property to display the search bar for Smart Collections.
 
 ## RELEASE 1.1.3 - 2017-05-24
 ### Changed
 - Resources Updater - Pass the params.recordId to the ResourceUpdater.
- 
+
 ### Fixed
 - Smart Fields - Serialize Smart Fields values for hasMany associations.
 

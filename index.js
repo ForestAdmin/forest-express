@@ -176,7 +176,7 @@ exports.init = function (Implementation) {
             id: 'name',
             attributes: ['name', 'displayName', 'paginationType', 'icon',
               'fields', 'actions', 'segments', 'onlyForRelationships',
-              'isVirtual', 'integration', 'isReadOnly'],
+              'isVirtual', 'integration', 'isReadOnly','isSearchable'],
             fields: {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
@@ -282,6 +282,7 @@ exports.collection = function (name, opts) {
     // NOTICE: Smart Collection definition case
     opts.name = name;
     opts.isVirtual = true;
+    opts.isSearchable = !!opts.isSearchable;
     Schemas.schemas[name] = opts;
   }
 };

@@ -11,6 +11,7 @@ module.exports = {
           .then(function (schema) {
             integrator.defineFields(implementation, model, schema);
             integrator.defineSegments(implementation, model, schema);
+            schema.isSearchable = true;
             return schema;
           })
           .then(function (schema) {
