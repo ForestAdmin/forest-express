@@ -20,26 +20,22 @@ var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 
-function requireAllModels(Implementation, modelsDir, displayMessage) {
+function requireAllModels(Implementation, modelsDir, isDirRequired) {
   if (modelsDir) {
     return readdirAsync(modelsDir)
       .each(function (file) {
-        try {
-          require(path.join(modelsDir, file));
-        } catch (error) { }
+        require(path.join(modelsDir, file));
       })
       .then(function () {
         return _.values(Implementation.getModels());
       })
       .catch(function (error) {
-        if (displayMessage) {
-          if (error.code === 'ENOENT') {
-            logger.error('Your Forest modelsDir option you configured does not ' +
-              'seem to be an existing directory.');
-          } else {
-            logger.error('Cannot read your models for the following reason: ' +
-              error);
-          }
+        if (error.code === 'ENOENT' && isDirRequired) {
+          logger.error('The Forest modelsDir option you configured does not ' +
+            'seem to be an existing directory.');
+        } else if (error.code !== 'ENOENT') {
+          logger.error('Cannot read your models for the following reason: ' +
+            error.message, error);
         }
         return P.resolve([]);
       });
@@ -220,17 +216,17 @@ exports.init = function (Implementation) {
                   } else {
                     logger.error('An error occured with the apimap sent to ' +
                       'Forest. Please contact support@forestadmin.com for ' +
-                      'further investigations.');
+                      'further investigations.', error);
                   }
                 }
               });
         }
       }
     })
-    .catch(function () {
+    .catch(function (error) {
       logger.error('An error occured while computing the Forest apimap. Your ' +
         'application apimap cannot be sent to Forest. Your Admin UI might ' +
-        'not reflect your application models.');
+        'not reflect your application models.', error);
     });
 
   if (opts.expressParentApp) {

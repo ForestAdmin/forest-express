@@ -32,7 +32,7 @@ function AllowedUsersFinder(renderingId, opts) {
                 'envSecret in the forest_liana initializer?');
             } else {
               logger.error('Cannot retrieve any users for the project ' +
-                'you\'re trying to unlock. An error occured in Forest API.');
+                'you\'re trying to unlock. An error occured in Forest API.', error);
             }
           }
           resolve(allowedUsers);

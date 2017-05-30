@@ -11,7 +11,7 @@ exports.catchIfAny = function (error, request, response, next) {
 
     if (!error.status) {
       // NOTICE: Unexpected errors should log an error in the console.
-      logger.error(message);
+      logger.error(message, error);
     }
     response.status(error.status || 500).send({
       errors: [{
