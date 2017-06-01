@@ -102,15 +102,20 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   this.perform = function () {
+    // NOTICE: HasMany associations routes
     _.each(SchemaUtil.getHasManyAssociations(schema), function (association) {
       app.get(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, index);
-      app.put(path.generate(modelName + '/:recordId/relationships/' +
-        association.field, opts), auth.ensureAuthenticated, update);
       app.post(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, add);
       app.delete(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, remove);
+    });
+
+    // NOTICE: belongsTo associations routes
+    _.each(SchemaUtil.getBelongsToAssociations(schema), function (association) {
+      app.put(path.generate(modelName + '/:recordId/relationships/' +
+        association.field, opts), auth.ensureAuthenticated, update);
     });
   };
 };
