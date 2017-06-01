@@ -36,7 +36,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       params)
       .perform()
       .then(function (results) {
-        if (!results) { return next(); }
         var count = results[0];
         var records = results[1];
 
@@ -48,9 +47,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           .then(function (records) {
             return new ResourceSerializer(Implementation, associationModel,
               records, integrator, opts, { count: count }).perform();
-          })
-          .then(function (records) { response.send(records); });
+          });
       })
+      .then(function (records) { response.send(records); })
       .catch(next);
   }
 
