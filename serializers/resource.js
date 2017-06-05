@@ -46,9 +46,9 @@ function ResourceSerializer(Implementation, model, records, integrator,
 
             getAttributesFor(dest[field.field], field.type.fields);
           } else if (field.reference) {
-            var referenceType = typeForAttributes[field.field] =
-              field.reference.split('.')[0];
+            var referenceType = field.reference.split('.')[0];
             var referenceSchema = Schemas.schemas[referenceType];
+            typeForAttributes[field.field] = _.kebabCase(referenceType);
 
             dest[fieldName] = {
               ref: referenceSchema.idField,
@@ -108,7 +108,8 @@ function ResourceSerializer(Implementation, model, records, integrator,
       formatDateonly(records);
     }
 
-    return new JSONAPISerializer(schema.name, records, serializationOptions);
+    var typeName = _.kebabCase(schema.name);
+    return new JSONAPISerializer(typeName, records, serializationOptions);
   };
 }
 
