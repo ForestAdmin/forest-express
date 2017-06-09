@@ -29,6 +29,11 @@ module.exports = new (winston.Logger)({
     new (winston.transports.Console)({
       formatter: function (options) {
         var message = TITLE + options.message;
+
+        if (options.meta && options.meta.stack) {
+          message += '\n' + options.meta.stack;
+        }
+
         return winston.config.colorize(options.level, message);
       }
     })

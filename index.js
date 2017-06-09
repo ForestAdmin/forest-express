@@ -34,11 +34,11 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
       .catch(function (error) {
         if (displayMessage) {
           if (error.code === 'ENOENT') {
-            logger.error('Your Forest modelsDir option you configured does not ' +
-              'seem to be an existing directory.');
+            logger.error('Your Forest modelsDir option you configured does ' +
+              'not seem to be an existing directory.');
           } else {
             logger.error('Cannot read your models for the following reason: ' +
-              error);
+              error.message, error);
           }
         }
         return P.resolve([]);
@@ -216,7 +216,12 @@ exports.init = function (Implementation) {
                   } else if (result.status === 404) {
                     logger.error('Cannot find the project related to the ' +
                       'envSecret you configured. Can you check on Forest ' +
-                      'that you copied it properly in the Forest initialization?');
+                      'that you copied it properly in the Forest ' +
+                      'initialization?');
+                  } else if (result.status === 503) {
+                    logger.warn('Forest is in maintenance for a few minutes. ' +
+                      'We are upgrading your experience in the forest. We ' +
+                      'just need a few more minutes to get it right.');
                   } else {
                     logger.error('An error occured with the apimap sent to ' +
                       'Forest. Please contact support@forestadmin.com for ' +
@@ -227,10 +232,10 @@ exports.init = function (Implementation) {
         }
       }
     })
-    .catch(function () {
+    .catch(function (error) {
       logger.error('An error occured while computing the Forest apimap. Your ' +
         'application apimap cannot be sent to Forest. Your Admin UI might ' +
-        'not reflect your application models.');
+        'not reflect your application models.', error);
     });
 
   if (opts.expressParentApp) {
