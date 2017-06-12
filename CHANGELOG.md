@@ -1,14 +1,14 @@
 # Change Log
 
 ## [Unreleased]
-### Changed
+### Changed
 - Error Messages - Display the stack trace on unexpected errors.
 
-### Fixed
+### Fixed
 - Error Messages - Display an explicit warning if Forest servers are in maintenance.
 
 ## RELEASE 1.1.6 - 2017-06-05
-### Fixed
+### Fixed
 - Records Serialization - Fix the object types case (kebab case) to prevent potential JSON api adapter errors on client side.
 
 ## RELEASE 1.1.5 - 2017-06-01
