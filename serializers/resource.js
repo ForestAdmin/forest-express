@@ -5,9 +5,8 @@ var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../generators/schemas');
 
 function toKebabCase(string) {
-  if (string[0] === '_') {
-    return '_' + _.kebabCase(string);
-  }
+  // NOTICE: Support for the collections beginning with an underscore.
+  if (string[0] === '_') { return '_' + _.kebabCase(string); }
   return _.kebabCase(string);
 }
 
