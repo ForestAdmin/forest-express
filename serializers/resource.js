@@ -4,6 +4,13 @@ var moment = require('moment');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../generators/schemas');
 
+function toKebabCase(string) {
+  if (string[0] === '_') {
+    return '_' + _.kebabCase(string);
+  }
+  return _.kebabCase(string);
+}
+
 function ResourceSerializer(Implementation, model, records, integrator,
   opts, meta) {
   var schema = Schemas.schemas[Implementation.getModelName(model)];
@@ -48,7 +55,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
           } else if (field.reference) {
             var referenceType = field.reference.split('.')[0];
             var referenceSchema = Schemas.schemas[referenceType];
-            typeForAttributes[field.field] = _.kebabCase(referenceType);
+            typeForAttributes[field.field] = toKebabCase(referenceType);
 
             dest[fieldName] = {
               ref: referenceSchema.idField,
@@ -108,7 +115,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
       formatDateonly(records);
     }
 
-    var typeName = _.kebabCase(schema.name);
+    var typeName = toKebabCase(schema.name);
     return new JSONAPISerializer(typeName, records, serializationOptions);
   };
 }
