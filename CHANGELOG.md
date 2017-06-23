@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Collections - Correctly serialize collections that begin with an underscore.
 
 ## RELEASE 1.1.8 - 2017-06-23
 ### Added
