@@ -195,7 +195,7 @@ exports.init = function (Implementation) {
               'liana': Implementation.getLianaName(),
               'liana_version': Implementation.getLianaVersion(),
               'orm_version': Implementation.getOrmVersion(),
-              'db_type': Implementation.getDatabaseType(),
+              'database_type': Implementation.getDatabaseType(),
             }
           });
 
