@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Serializer - Log an error in the console if the association doesn't exist.
 
 ## RELEASE 1.1.9 - 2017-06-23
 ### Fixed
