@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Technical - Use another cors package to prevent console warning.
+- Warnings - Remove a potential console deprecation warning.
 
 ## RELEASE 1.1.10 - 2017-06-28
 ### Fixed
