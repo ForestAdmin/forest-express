@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Technical - Use another cors package to prevent console warning.
 
 ## RELEASE 1.1.10 - 2017-06-28
 ### Fixed
