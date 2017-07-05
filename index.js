@@ -285,6 +285,10 @@ exports.collection = function (name, opts) {
 
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
+
+    if (opts.searchFields) {
+      Schemas.schemas[name].searchFields = opts.searchFields;
+    }
   } else {
     // NOTICE: Smart Collection definition case
     opts.name = name;
