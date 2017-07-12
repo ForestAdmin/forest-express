@@ -41,7 +41,7 @@ function ResourceDeserializer(Implementation, model, params,
           });
         }
 
-        return attributes;
+        return attributes || {};
       });
   }
 
