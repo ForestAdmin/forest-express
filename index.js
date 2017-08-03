@@ -181,7 +181,7 @@ exports.init = function (Implementation) {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
                 'widget', 'integration', 'isReadOnly', 'isVirtual',
-                'validations']
+                'isRequired', 'defaultValue', 'validations']
             },
             validations: {
               attributes: ['type', 'value', 'message']
