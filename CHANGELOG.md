@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Integrations - Add the Layer integration.
 - Integrations - Remove the old ClientAPI Layer Integration.
 
 ## RELEASE 1.2.1 - 2017-08-23
