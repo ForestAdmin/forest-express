@@ -1,7 +1,7 @@
 'use strict';
 var P = require('bluebird');
 var auth = require('../../services/auth');
-var request = require('superagent');
+var superagent = require('superagent');
 var ConversationsSerializer = require('./serializers/conversations');
 var ConversationSerializer = require('./serializers/conversation');
 var MessagesSerializer = require('./serializers/messages');
@@ -11,7 +11,7 @@ var MessagesSerializer = require('./serializers/messages');
 module.exports = function (app, Implementation, opts) {
   function getNonce() {
     return new P(function (resolve, reject) {
-      request
+      return superagent
         .post('https://api.layer.com/nonces')
         .set('Accept', 'application/vnd.layer+json; version=2.0')
         .set('Content-type', 'application/json')
@@ -24,15 +24,15 @@ module.exports = function (app, Implementation, opts) {
 
   function getIdentityToken(nonce) {
     return new P(function (resolve, reject) {
-      request
+      return superagent
         .post(opts.integrations.layer.identityEndpoint)
         .send({
           email: opts.integrations.layer.adminEmail,
           password: opts.integrations.layer.adminPassword,
           nonce: nonce
         })
-        .end(function (err, data) {
-          if (err) { return reject(err); }
+        .end(function (error, data) {
+          if (error) { return reject(error); }
           return resolve(data.body.identity_token);
         });
     });
@@ -40,7 +40,7 @@ module.exports = function (app, Implementation, opts) {
 
   function getSessionToken(identityToken) {
     return new P(function (resolve, reject) {
-      request
+      return superagent
         .post('https://api.layer.com/sessions')
         .set('Accept', 'application/vnd.layer+json; version=2.0')
         .set('Content-type', 'application/json')
@@ -48,14 +48,14 @@ module.exports = function (app, Implementation, opts) {
           identity_token: identityToken,
           app_id: opts.integrations.layer.appId
         })
-        .end(function (err, data) {
-          if (err) { return reject(err); }
+        .end(function (error, data) {
+          if (error) { return reject(error); }
           return resolve(data.body.session_token);
         });
     });
   }
 
-  function layerAuthentication(req, res, next) {
+  function layerAuthentication(request, response, next) {
     getNonce()
       .then(function (nonce) {
         return getIdentityToken(nonce);
@@ -64,15 +64,13 @@ module.exports = function (app, Implementation, opts) {
         return getSessionToken(identityToken);
       })
       .then(function (sessionToken) {
-        req.layerSessionToken = sessionToken;
+        request.layerSessionToken = sessionToken;
         next();
       })
-      .catch(function (err) {
-        return next(err);
-      });
+      .catch(next);
   }
 
-  function mapConversation(conversation) {
+  function getConversationInfo(conversation) {
     var lastSender = null;
     var lastContent = null;
     var lastSentAt = null;
@@ -91,22 +89,22 @@ module.exports = function (app, Implementation, opts) {
     };
   }
 
-  this.conversations = function (req, res, next) {
+  this.conversations = function (request, response, next) {
     return new P(function (resolve, reject) {
-      return request
+      return superagent
         .get('https://api.layer.com/conversations')
         .set('Accept', 'application/vnd.layer+json; version=2.0')
         .set('Content-type', 'application/json')
         .set('Authorization', 'Layer session-token="' +
-          req.layerSessionToken + '"')
-        .end(function (err, data) {
-          if (err) { return reject(err); }
+          request.layerSessionToken + '"')
+        .end(function (error, data) {
+          if (error) { return reject(error); }
           return resolve(data);
         });
     }).then(function (data) {
       return P
         .map(data.body, function (conversation) {
-          return mapConversation(conversation);
+          return getConversationInfo(conversation);
         })
         .then(function (conversations) {
           return new ConversationsSerializer(conversations, {
@@ -114,45 +112,46 @@ module.exports = function (app, Implementation, opts) {
           });
         });
     }).then(function (conversations) {
-      res.send(conversations);
+      response.send(conversations);
     })
     .catch(next);
   };
 
-  this.conversation = function (req, res, next) {
+  this.conversation = function (request, response, next) {
     return new P(function (resolve, reject) {
-      return request
-        .get('https://api.layer.com/conversations/' + req.params.conversationId)
+      return superagent
+        .get('https://api.layer.com/conversations/' +
+          request.params.conversationId)
         .set('Accept', 'application/vnd.layer+json; version=2.0')
         .set('Content-type', 'application/json')
         .set('Authorization', 'Layer session-token="' +
-          req.layerSessionToken + '"')
-        .end(function (err, data) {
-          if (err) { return reject(err); }
+          request.layerSessionToken + '"')
+        .end(function (error, data) {
+          if (error) { return reject(error); }
           return resolve(data);
         });
     }).then(function (data) {
-      return mapConversation(data.body);
+      return getConversationInfo(data.body);
     }).then(function (conversation) {
       return new ConversationSerializer(conversation);
     })
     .then(function (conversation) {
-      res.send(conversation);
+      response.send(conversation);
     })
     .catch(next);
   };
 
-  this.messages = function (req, res, next) {
+  this.messages = function (request, response, next) {
     return new P(function (resolve, reject) {
-      return request
+      return superagent
         .get('https://api.layer.com/conversations/' +
-          req.params.conversationId + '/messages')
+          request.params.conversationId + '/messages')
         .set('Accept', 'application/vnd.layer+json; version=2.0')
         .set('Content-type', 'application/json')
         .set('Authorization', 'Layer session-token="' +
-          req.layerSessionToken + '"')
-        .end(function (err, data) {
-          if (err) { return reject(err); }
+          request.layerSessionToken + '"')
+        .end(function (error, data) {
+          if (error) { return reject(error); }
           return resolve(data);
         });
     }).then(function (data) {
@@ -174,7 +173,7 @@ module.exports = function (app, Implementation, opts) {
         });
     })
     .then(function (messages) {
-      res.send(messages);
+      response.send(messages);
     })
     .catch(next);
   };
@@ -190,4 +189,3 @@ module.exports = function (app, Implementation, opts) {
       auth.ensureAuthenticated, layerAuthentication, this.messages);
   };
 };
-

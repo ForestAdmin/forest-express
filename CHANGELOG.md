@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Integrations - Add the Layer integration.
+- Integrations - Add a first version of Layer integration.
 
 ## RELEASE 1.1.13 - 2017-07-12
 ### Fixed

@@ -10,5 +10,3 @@ function ConversationsSerializer(conversation) {
 }
 
 module.exports = ConversationsSerializer;
-
-

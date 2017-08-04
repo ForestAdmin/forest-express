@@ -10,5 +10,3 @@ function MessagesSerializer(messages, meta) {
 }
 
 module.exports = MessagesSerializer;
-
-

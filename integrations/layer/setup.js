@@ -16,7 +16,7 @@ exports.createCollections = function (Implementation, apimap) {
       { field: 'lastMessageContent', type: 'String', isSearchable: false },
       { field: 'sender', type: 'String', isSearchable: false },
       { field: 'lastMessageSentAt', type: 'Date', isSearchable: false },
-      { field: 'messages', type: ['String'], reference: 'layer_messages.id'},
+      { field: 'messages', type: ['String'], reference: 'layer_messages.id' },
       { field: 'participantsCount', type: 'Number', isSearchable: false }
     ],
     actions: []
