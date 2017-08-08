@@ -1,11 +1,11 @@
 # Change Log
 
 ## [Unreleased]
-### Added
+### Added
 - Validations - Start the support of forms validations (with 9 first validations).
 
 ## RELEASE 1.1.13 - 2017-07-12
-### Fixed
+### Fixed
 - Records Update - Prevent a crash on record updates for records that have no attributes.
 
 ## RELEASE 1.1.12 - 2017-07-05
