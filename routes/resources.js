@@ -9,8 +9,8 @@ var SmartFieldsValuesInjector = require('../services/smart-fields-values-injecto
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
 
-  this.list = function (req, res, next) {
-    return new Implementation.ResourcesGetter(model, opts, req.query)
+  this.list = function (request, response, next) {
+    return new Implementation.ResourcesGetter(model, opts, request.query)
       .perform()
       .then(function (results) {
         var count = results[0];
@@ -26,13 +26,36 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           });
       })
       .then(function (records) {
-        res.send(records);
+        response.send(records);
       })
       .catch(next);
   };
 
-  this.get = function (req, res, next) {
-    return new Implementation.ResourceGetter(model, req.params)
+  this.exportCSV = function (request, response) {
+    return response.send(200);
+    // return new Implementation.ResourcesGetter(model, opts, req.query)
+    //   .perform()
+    //   .then(function (results) {
+    //     var count = results[0];
+    //     var records = results[1];
+    //
+    //     return P
+    //       .map(records, function (record) {
+    //         return new SmartFieldsValuesInjector(record, modelName).perform();
+    //       })
+    //       .then(function (records) {
+    //         return new ResourceSerializer(Implementation, model, records,
+    //           integrator, opts, { count: count }).perform();
+    //       });
+    //   })
+      // .then(function (records) {
+      //   res.send(records);
+      // })
+      // .catch(next);
+  };
+
+  this.get = function (request, response, next) {
+    return new Implementation.ResourceGetter(model, request.params)
       .perform()
       .then(function(records) {
         return new SmartFieldsValuesInjector(records, modelName).perform();
@@ -42,13 +65,13 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           integrator, opts).perform();
       })
       .then(function (record) {
-        res.send(record);
+        response.send(record);
       })
       .catch(next);
   };
 
-  this.create = function (req, res, next) {
-    new ResourceDeserializer(Implementation, model, req.body, true, {
+  this.create = function (request, response, next) {
+    new ResourceDeserializer(Implementation, model, request.body, true, {
       omitNullAttributes: true
     }).perform()
       .then(function (params) {
@@ -59,39 +82,42 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           integrator, opts).perform();
       })
       .then(function (record) {
-        res.send(record);
+        response.send(record);
       })
       .catch(next);
   };
 
-  this.update = function (req, res, next) {
-    new ResourceDeserializer(Implementation, model, req.body, false)
+  this.update = function (request, response, next) {
+    new ResourceDeserializer(Implementation, model, request.body, false)
       .perform()
       .then(function (record) {
-        new Implementation.ResourceUpdater(model, req.params, record)
+        new Implementation.ResourceUpdater(model, request.params, record)
           .perform()
           .then(function (record) {
             return new ResourceSerializer(Implementation, model, record,
               integrator, opts).perform();
           })
           .then(function (record) {
-            res.send(record);
+            response.send(record);
             return record;
           })
           .catch(next);
       });
   };
 
-  this.remove = function (req, res, next) {
-    new Implementation.ResourceRemover(model, req.params)
+  this.remove = function (request, response, next) {
+    new Implementation.ResourceRemover(model, request.params)
       .perform()
       .then(function () {
-        res.status(204).send();
+        response.status(204).send();
       })
       .catch(next);
   };
 
   this.perform = function () {
+    console.log(path.generate(modelName, opts) + '.csv');
+    app.get(path.generate(modelName, opts) + '.csv', // auth.ensureAuthenticated,
+      this.exportCSV);
     app.get(path.generate(modelName, opts), auth.ensureAuthenticated,
       this.list);
     app.get(path.generate(modelName + '/:recordId', opts),
