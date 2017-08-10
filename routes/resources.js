@@ -32,26 +32,24 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.exportCSV = function (request, response) {
-    return response.send(200);
-    // return new Implementation.ResourcesGetter(model, opts, req.query)
-    //   .perform()
-    //   .then(function (results) {
-    //     var count = results[0];
-    //     var records = results[1];
-    //
-    //     return P
-    //       .map(records, function (record) {
-    //         return new SmartFieldsValuesInjector(record, modelName).perform();
-    //       })
-    //       .then(function (records) {
-    //         return new ResourceSerializer(Implementation, model, records,
-    //           integrator, opts, { count: count }).perform();
-    //       });
-    //   })
-      // .then(function (records) {
-      //   res.send(records);
-      // })
-      // .catch(next);
+    var filename = request.query.filename + '.csv';
+    response.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    response.setHeader('Content-disposition', 'attachment; filename=' + filename);
+    // response.setHeader('Last-Modified'] = Time.now.ctime.to_s
+
+    // NOTICE: From nginx doc: Setting this to "no" will allow unbuffered
+    //         responses suitable for Comet and HTTP streaming applications.
+    response.setHeader('X-Accel-Buffering', 'no');
+    response.setHeader('Cache-Control', 'no-cache');
+
+    response.write('id, name, address');
+
+    setTimeout(function() {
+      response.write('1, sandy, 11 rue des vergers');
+    }, 3000);
+    setTimeout(function() {
+      response.end('3, toto, 13 rue des vergers');
+    }, 6000);
   };
 
   this.get = function (request, response, next) {
