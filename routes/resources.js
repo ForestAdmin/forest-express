@@ -31,10 +31,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .catch(next);
   };
 
-  this.exportCSV = function (request, response) {
+  this.exportCSV = function (request, response, next) {
     var filename = request.query.filename + '.csv';
     response.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    response.setHeader('Content-disposition', 'attachment; filename=' + filename);
+    response.setHeader('Content-disposition', 'attachment; filename=' +
+      filename);
     // response.setHeader('Last-Modified'] = Time.now.ctime.to_s
 
     // NOTICE: From nginx doc: Setting this to "no" will allow unbuffered
@@ -42,14 +43,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     response.setHeader('X-Accel-Buffering', 'no');
     response.setHeader('Cache-Control', 'no-cache');
 
-    response.write('id, name, address');
-
-    setTimeout(function() {
-      response.write('1, sandy, 11 rue des vergers');
-    }, 3000);
-    setTimeout(function() {
-      response.end('3, toto, 13 rue des vergers');
-    }, 6000);
+    return new Implementation.RecordsExporter(model, opts, request.query)
+      .perform(function (data) {
+        response.write(data);
+      })
+      .then(function () {
+        response.end('');
+      })
+      .catch(next);
   };
 
   this.get = function (request, response, next) {
@@ -113,7 +114,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.perform = function () {
-    console.log(path.generate(modelName, opts) + '.csv');
     app.get(path.generate(modelName, opts) + '.csv', // auth.ensureAuthenticated,
       this.exportCSV);
     app.get(path.generate(modelName, opts), auth.ensureAuthenticated,
