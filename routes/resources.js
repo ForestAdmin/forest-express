@@ -48,7 +48,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     var CSVHeader = params.header + '\n';
     var CSVAttributes = params.fields[modelName].split(',');
     response.write(CSVHeader);
-    console.log('======== CSVAttributes', CSVAttributes);
 
     return new Implementation.RecordsExporter(model, opts, params)
       .perform(function (records) {
@@ -57,7 +56,16 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records.forEach(function (record) {
             var csvLine = '';
             CSVAttributes.forEach(function (attribute) {
-              csvLine += (record[attribute] || '') + ',';
+              var value;
+              if (params.fields[attribute]) {
+                if (record[attribute]) {
+                  value = record[attribute][params.fields[attribute]];
+                }
+              } else {
+                value = record[attribute];
+              }
+
+              csvLine += (value || '') + ',';
             });
             csvLines += csvLine.slice(0, -1) + '\n';
           });
