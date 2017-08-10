@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart business logic - Let the developer add a POST hook callback after each API calls.
 
 ## RELEASE 1.1.15 - 2017-08-09
 ### Added
