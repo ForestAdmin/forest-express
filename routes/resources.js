@@ -32,7 +32,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.exportCSV = function (request, response, next) {
-    var filename = request.query.filename + '.csv';
+    var params = request.query;
+
+    var filename = params.filename + '.csv';
     response.setHeader('Content-Type', 'text/csv; charset=utf-8');
     response.setHeader('Content-disposition', 'attachment; filename=' +
       filename);
@@ -43,12 +45,38 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     response.setHeader('X-Accel-Buffering', 'no');
     response.setHeader('Cache-Control', 'no-cache');
 
-    return new Implementation.RecordsExporter(model, opts, request.query)
-      .perform(function (data) {
-        response.write(data);
+    var CSVHeader = params.header + '\n';
+    var CSVAttributes = params.fields[modelName].split(',');
+    response.write(CSVHeader);
+    console.log('======== CSVAttributes', CSVAttributes);
+
+    return new Implementation.RecordsExporter(model, opts, params)
+      .perform(function (records) {
+        return new P(function (resolve) {
+          var csvLines = '';
+          records.forEach(function (record) {
+            var csvLine = '';
+            CSVAttributes.forEach(function (attribute) {
+              csvLine += (record[attribute] || '') + ',';
+            });
+            csvLines += csvLine.slice(0, -1) + '\n';
+          });
+          response.write(csvLines);
+          resolve();
+        });
+        // return P
+        //   .map(records, function (record) {
+        //     // console.log('========', modelName, record);
+        //     return new SmartFieldsValuesInjector(record, modelName).perform();
+        //   })
+        //   .then(function (records) {
+        //     console.log('new line!!!!');
+        //     response.write('new line!!!!');
+        //   });
       })
       .then(function () {
-        response.end('');
+        // response.end('');
+        response.end();
       })
       .catch(next);
   };
