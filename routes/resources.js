@@ -53,9 +53,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return new Implementation.RecordsExporter(model, opts, params)
       .perform(function (records) {
         return new P(function (resolve) {
-          var csvLines = '';
+          var CSVLines = '';
           records.forEach(function (record) {
-            var csvLine = '';
+            var CSVLine = '';
             CSVAttributes.forEach(function (attribute) {
               var value;
               if (params.fields[attribute]) {
@@ -66,11 +66,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
                 value = record[attribute];
               }
 
-              csvLine += (value || '') + ',';
+              CSVLine += (value || '') + ',';
             });
-            csvLines += csvLine.slice(0, -1) + '\n';
+            CSVLines += CSVLine.slice(0, -1) + '\n';
           });
-          response.write(csvLines);
+          response.write(CSVLines);
           resolve();
         });
         // TODO: Inject the Smart Fields values? It could take a lot of time to
@@ -147,7 +147,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.perform = function () {
-    app.get(path.generate(modelName, opts) + '.csv', // auth.ensureAuthenticated,
+    app.get(path.generate(modelName, opts) + '.csv', auth.ensureAuthenticated,
       this.exportCSV);
     app.get(path.generate(modelName, opts), auth.ensureAuthenticated,
       this.list);
