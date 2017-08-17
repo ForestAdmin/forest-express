@@ -1,5 +1,6 @@
 'use strict';
 var P = require('bluebird');
+var moment = require('moment');
 var auth = require('../services/auth');
 var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
@@ -38,7 +39,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     response.setHeader('Content-Type', 'text/csv; charset=utf-8');
     response.setHeader('Content-disposition', 'attachment; filename=' +
       filename);
-    // response.setHeader('Last-Modified'] = Time.now.ctime.to_s
+    response.setHeader('Last-Modified', moment());
 
     // NOTICE: From nginx doc: Setting this to "no" will allow unbuffered
     //         responses suitable for Comet and HTTP streaming applications.
@@ -72,18 +73,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           response.write(csvLines);
           resolve();
         });
+        // TODO: Inject the Smart Fields values? It could take a lot of time to
+        //       export...
         // return P
         //   .map(records, function (record) {
-        //     // console.log('========', modelName, record);
         //     return new SmartFieldsValuesInjector(record, modelName).perform();
-        //   })
-        //   .then(function (records) {
-        //     console.log('new line!!!!');
-        //     response.write('new line!!!!');
         //   });
       })
       .then(function () {
-        // response.end('');
         response.end();
       })
       .catch(next);
