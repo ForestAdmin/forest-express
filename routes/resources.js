@@ -60,7 +60,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
               var value;
               if (params.fields[attribute]) {
                 if (record[attribute]) {
-                  value = record[attribute][params.fields[attribute]];
+                  if (params.fields[attribute] &&
+                    record[attribute][params.fields[attribute]]) {
+                    value = record[attribute][params.fields[attribute]];
+                  } else {
+                    console.log(record[attribute]._id);
+                    value = record[attribute].id || record[attribute]._id;
+                  }
+
                 }
               } else {
                 value = record[attribute];
