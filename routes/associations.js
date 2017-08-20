@@ -68,8 +68,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
     var recordsExporter = new Implementation.RecordsExporter(model, opts,
       params, associationModel);
-    return new CSVExporter(params, response, associationModel.name,
-      recordsExporter)
+    return new CSVExporter(params, response,
+      Implementation.getModelName(associationModel), recordsExporter)
       .perform()
       .catch(next);
   }
