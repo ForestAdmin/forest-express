@@ -1,11 +1,11 @@
 'use strict';
 var P = require('bluebird');
-var moment = require('moment');
 var auth = require('../services/auth');
 var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
+var CSVExporter = require('../services/csv-exporter');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -34,62 +34,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
   this.exportCSV = function (request, response, next) {
     var params = request.query;
-
-    var filename = params.filename + '.csv';
-    response.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    response.setHeader('Content-disposition', 'attachment; filename=' +
-      filename);
-    response.setHeader('Last-Modified', moment());
-
-    // NOTICE: From nginx doc: Setting this to "no" will allow unbuffered
-    //         responses suitable for Comet and HTTP streaming applications.
-    response.setHeader('X-Accel-Buffering', 'no');
-    response.setHeader('Cache-Control', 'no-cache');
-
-    var CSVHeader = params.header + '\n';
-    var CSVAttributes = params.fields[modelName].split(',');
-    response.write(CSVHeader);
-
-    return new Implementation.RecordsExporter(model, opts, params)
-      .perform(function (records) {
-        return new P(function (resolve) {
-          var CSVLines = '';
-          records.forEach(function (record) {
-            var CSVLine = '';
-            CSVAttributes.forEach(function (attribute) {
-              var value;
-              if (params.fields[attribute]) {
-                if (record[attribute]) {
-                  if (params.fields[attribute] &&
-                    record[attribute][params.fields[attribute]]) {
-                    value = record[attribute][params.fields[attribute]];
-                  } else {
-                    console.log(record[attribute]._id);
-                    value = record[attribute].id || record[attribute]._id;
-                  }
-
-                }
-              } else {
-                value = record[attribute];
-              }
-
-              CSVLine += (value || '') + ',';
-            });
-            CSVLines += CSVLine.slice(0, -1) + '\n';
-          });
-          response.write(CSVLines);
-          resolve();
-        });
-        // TODO: Inject the Smart Fields values? It could take a lot of time to
-        //       export...
-        // return P
-        //   .map(records, function (record) {
-        //     return new SmartFieldsValuesInjector(record, modelName).perform();
-        //   });
-      })
-      .then(function () {
-        response.end();
-      })
+    var recordsExporter = new Implementation.RecordsExporter(model, opts,
+      params);
+    return new CSVExporter(params, response, modelName, recordsExporter)
+      .perform()
       .catch(next);
   };
 
