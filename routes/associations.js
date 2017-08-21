@@ -7,6 +7,7 @@ var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var Schemas = require('../generators/schemas');
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
+var CSVExporter = require('../services/csv-exporter');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -20,7 +21,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function getAssociation(request) {
-    return { associationName: _.last(request.route.path.split('/')) };
+    return {
+      associationName:
+         _.first(_.last(request.route.path.split('/')).split('.csv'))
+    };
   }
 
   function index(request, response, next) {
@@ -50,6 +54,23 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           });
       })
       .then(function (records) { response.send(records); })
+      .catch(next);
+  }
+
+  function exportCSV (request, response, next) {
+    var association = getAssociation(request);
+    var params = _.extend(request.query, request.params, association);
+    var models = Implementation.getModels();
+    var associationField = getAssociationField(params.associationName);
+    var associationModel = _.find(models, function (model) {
+      return Implementation.getModelName(model) === associationField;
+    });
+
+    var recordsExporter = new Implementation.RecordsExporter(model, opts,
+      params, associationModel);
+    return new CSVExporter(params, response,
+      Implementation.getModelName(associationModel), recordsExporter)
+      .perform()
       .catch(next);
   }
 
@@ -104,6 +125,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.perform = function () {
     // NOTICE: HasMany associations routes
     _.each(SchemaUtil.getHasManyAssociations(schema), function (association) {
+      app.get(path.generate(modelName + '/:recordId/relationships/' +
+        association.field + '.csv', opts), auth.ensureAuthenticated, exportCSV);
       app.get(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, index);
       app.post(path.generate(modelName + '/:recordId/relationships/' +
