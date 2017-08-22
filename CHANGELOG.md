@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Installation - Fix installation errors due to express-cors package using Yarn.
 
 ## RELEASE 1.2.0 - 2017-08-21
 ### Added
