@@ -7,7 +7,6 @@ var readdirAsync = P.promisify(require('fs').readdir);
 var cors = require('express-cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
-var cookieParser = require('cookie-parser');
 var ResourcesRoutes = require('./routes/resources');
 var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
@@ -66,8 +65,6 @@ exports.init = function (Implementation) {
     opts.authSecret = opts.authKey;
   }
 
-  app.use(cookieParser());
-
   // CORS
   app.use(cors({
     allowedOrigins: ['localhost:4200', '*.forestadmin.com'],
@@ -88,12 +85,8 @@ exports.init = function (Implementation) {
         if (request.headers && request.headers.authorization &&
           request.headers.authorization.split(' ')[0] === 'Bearer') {
           return request.headers.authorization.split(' ')[1];
-        } else if (request.cookies && request.cookies['liana_auth%3Asession']) {
-          try {
-            return JSON.parse(request.cookies['liana_auth%3Asession']).token;
-          } catch (error) {
-            return null;
-          }
+        } else if (request.query && request.query.sessionToken) {
+          return request.query.sessionToken;
         }
         return null;
       }
