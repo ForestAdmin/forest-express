@@ -4,6 +4,9 @@
 ### Changed
 - Integrations - Change the Layer integration to be based on the Server API.
 
+### Fixed
+- Code Inspection - Fix Forest customization code inspection to be recursive through directories.
+
 ## RELEASE 1.2.1 - 2017-08-23
 ### Fixed
 - Installation - Fix installation errors due to express-cors package using Yarn.
