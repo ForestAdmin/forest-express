@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 1.2.2 - 2017-08-24
 ### Changed
 - Integrations - Change the Layer integration to be based on the Server API.
 
