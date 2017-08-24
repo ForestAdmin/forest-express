@@ -36,9 +36,7 @@ exports.extractCodeSyntaxErrorInDirectoryFile = function (directory) {
         }
       }
     });
-
-    return new P(function(resolve) { return resolve(hasError); });
-  } else {
-    return new P(function(resolve) { return resolve(hasError); });
   }
+
+  return new P(function(resolve) { return resolve(hasError); });
 };
