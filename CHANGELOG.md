@@ -1,9 +1,8 @@
 # Change Log
 
 ## [Unreleased]
-### Added
-- Integrations - Add the Layer integration.
-- Integrations - Remove the old ClientAPI Layer Integration.
+### Changed
+- Integrations - Change the Layer integration to be based on the Server API.
 
 ## RELEASE 1.2.1 - 2017-08-23
 ### Fixed
