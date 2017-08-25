@@ -56,7 +56,7 @@ exports.logger = logger;
 exports.init = function (Implementation) {
   var opts = Implementation.opts;
   var app = express();
-  var integrator = new Integrator(opts);
+  var integrator = new Integrator(opts, Implementation);
 
   if (opts.secretKey) {
     logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
@@ -140,7 +140,7 @@ exports.init = function (Implementation) {
         .thenReturn(models);
     })
     .each(function (model) {
-      integrator.defineRoutes(app, model, Implementation);
+      integrator.defineRoutes(app, model);
 
       new ResourcesRoutes(app, model, Implementation, integrator, opts)
         .perform();
@@ -164,7 +164,7 @@ exports.init = function (Implementation) {
       } else {
         if (opts.envSecret) {
           var collections = _.values(Schemas.schemas);
-          integrator.defineCollections(Implementation, collections);
+          integrator.defineCollections(collections);
 
           // NOTICE: Check each Smart Action declaration to detect configuration
           //         errors.

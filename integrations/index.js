@@ -1,7 +1,7 @@
 'use strict';
 var fs = require('fs');
 
-function IntegrationChecker(opts) {
+function IntegrationChecker(opts, Implementation) {
   var modules = [];
 
   fs
@@ -11,46 +11,45 @@ function IntegrationChecker(opts) {
     })
     .forEach(function (directory) {
       var Mod = require('./' + directory);
-      modules.push(new Mod(opts));
+      modules.push(new Mod(opts, Implementation));
     });
 
-  this.defineRoutes = function (app, model, Implementation) {
+  this.defineRoutes = function (app, model) {
     modules.forEach(function (module) {
       if (module.defineRoutes) {
-        module.defineRoutes(app, model, Implementation);
+        module.defineRoutes(app, model);
       }
     });
   };
 
-  this.defineCollections = function (Implementation, collections) {
+  this.defineCollections = function (collections) {
     modules.forEach(function (module) {
       if (module.defineCollections) {
-        module.defineCollections(Implementation, collections);
+        module.defineCollections(collections);
       }
     });
   };
 
-  this.defineSegments = function (Implementation, model, schema) {
+  this.defineSegments = function (model, schema) {
     modules.forEach(function (module) {
       if (module.defineSegments) {
-        module.defineSegments(Implementation, model, schema);
+        module.defineSegments(model, schema);
       }
     });
   };
 
-  this.defineFields = function (Implementation, model, schema) {
+  this.defineFields = function (model, schema) {
     modules.forEach(function (module) {
       if (module.defineFields) {
-        module.defineFields(Implementation, model, schema);
+        module.defineFields(model, schema);
       }
     });
   };
 
-  this.defineSerializationOption = function (Implementation, model, schema,
-    dest, field) {
+  this.defineSerializationOption = function (model, schema, dest, field) {
     modules.forEach(function (module) {
       if (module.defineSerializationOption) {
-        module.defineSerializationOption(Implementation, model, schema, dest,
+        module.defineSerializationOption(model, schema, dest,
           field);
       }
     });

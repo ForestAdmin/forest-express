@@ -4,7 +4,7 @@ var logger = require('../../services/logger');
 var Routes = require('./routes');
 var Setup = require('./setup');
 
-function Checker(opts) {
+function Checker(opts, Implementation) {
   var integrationValid = false;
 
   function hasLayerIntegration() {
@@ -28,7 +28,7 @@ function Checker(opts) {
     return _.isString(value) ? [value] : value;
   }
 
-  function integrationCollectionMatch(Implementation, integration, model) {
+  function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
     var models = Implementation.getModels();
@@ -55,16 +55,15 @@ function Checker(opts) {
     }
   }
 
-  this.defineRoutes = function (app, model, Implementation) {
+  this.defineRoutes = function (app, model) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.layer,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.layer, model)) {
       new Routes(app, model, Implementation, opts).perform();
     }
   };
 
-  this.defineCollections = function (Implementation, collections) {
+  this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
     _.each(opts.integrations.layer.mapping,
@@ -74,17 +73,15 @@ function Checker(opts) {
       });
   };
 
-  this.defineFields = function (Implementation, model, schema) {
+  this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.layer,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.layer, model)) {
         Setup.createFields(Implementation, model, schema.fields);
     }
   };
 
-  this.defineSerializationOption = function (Implementation, model, schema,
-    dest, field) {
+  this.defineSerializationOption = function (model, schema, dest, field) {
     if (integrationValid && field.integration === 'layer') {
       dest[field.field] = {
         ref: 'id',
@@ -107,4 +104,3 @@ function Checker(opts) {
 }
 
 module.exports = Checker;
-
