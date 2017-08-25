@@ -49,8 +49,7 @@ function IntegrationChecker(opts, Implementation) {
   this.defineSerializationOption = function (model, schema, dest, field) {
     modules.forEach(function (module) {
       if (module.defineSerializationOption) {
-        module.defineSerializationOption(model, schema, dest,
-          field);
+        module.defineSerializationOption(model, schema, dest, field);
       }
     });
   };
