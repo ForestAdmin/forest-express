@@ -4,20 +4,39 @@ var logger = require('../../services/logger');
 var Routes = require('./routes');
 var Setup = require('./setup');
 
-function IntercomChecker(opts) {
+function IntercomChecker(opts, Implementation) {
   var integrationValid = false;
 
-  function hasIntercomIntegration() {
+  function hasIntegration() {
     return opts.integrations && opts.integrations.intercom;
   }
 
-  function isIntercomProperlyIntegrated() {
+  function isProperlyIntegrated() {
     return opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
       opts.integrations.intercom.mapping;
   }
 
-  function isIntercomIntegrationDeprecated() {
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var mappingValid = true;
+    _.map(opts.integrations.intercom.mapping, function (mappingValue) {
+      var collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Intercom integration mapping values (' +
+        opts.integrations.intercom.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
+    }
+
+    return mappingValid;
+  }
+
+  function isIntegrationDeprecated() {
     var integrationValid = opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId &&
       opts.integrations.intercom.intercom &&
@@ -37,7 +56,7 @@ function IntercomChecker(opts) {
     return _.isString(value) ? [value] : value;
   }
 
-  function integrationCollectionMatch(Implementation, integration, model) {
+  function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
     var models = Implementation.getModels();
@@ -54,27 +73,25 @@ function IntercomChecker(opts) {
       Implementation.getModelName(model)) > -1;
   }
 
-  if (hasIntercomIntegration()) {
-    if (isIntercomProperlyIntegrated() ||
-    isIntercomIntegrationDeprecated()) {
+  if (hasIntegration()) {
+    if (isProperlyIntegrated() || isIntegrationDeprecated()) {
       opts.integrations.intercom.mapping =
       castToArray(opts.integrations.intercom.mapping);
-      integrationValid = true;
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Intercom integration.');
     }
   }
 
-  this.defineRoutes = function (app, model, Implementation) {
+  this.defineRoutes = function (app, model) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.intercom,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.intercom, model)) {
       new Routes(app, model, Implementation, opts).perform();
     }
   };
 
-  this.defineCollections = function (Implementation, collections) {
+  this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
     _.each(opts.integrations.intercom.mapping,
@@ -83,7 +100,7 @@ function IntercomChecker(opts) {
       });
   };
 
-  this.defineFields = function (Implementation, model, schema) {
+  this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(Implementation, opts.integrations.intercom,
@@ -92,8 +109,7 @@ function IntercomChecker(opts) {
     }
   };
 
-  this.defineSerializationOption = function (Implementation, model, schema,
-    dest, field) {
+  this.defineSerializationOption = function (model, schema, dest, field) {
     if (integrationValid && field.integration === 'intercom') {
       dest[field.field] = {
         ref: 'id',

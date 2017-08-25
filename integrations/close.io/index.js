@@ -4,7 +4,7 @@ var logger = require('../../services/logger');
 var Routes = require('./routes');
 var Setup = require('./setup');
 
-function Checker(opts) {
+function Checker(opts, Implementation) {
   var integrationValid = false;
 
   function hasIntegration() {
@@ -17,11 +17,30 @@ function Checker(opts) {
       opts.integrations.closeio.closeio && opts.integrations.closeio.mapping;
   }
 
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var mappingValid = true;
+    _.map(opts.integrations.closeio.mapping, function (mappingValue) {
+      var collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Close.io integration mapping values (' +
+        opts.integrations.closeio.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
+    }
+
+    return mappingValid;
+  }
+
   function castToArray(value) {
     return _.isString(value) ? [value] : value;
   }
 
-  function integrationCollectionMatch(Implementation, integration, model) {
+  function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
     var models = Implementation.getModels();
@@ -42,22 +61,21 @@ function Checker(opts) {
     if (isProperlyIntegrated()) {
       opts.integrations.closeio.mapping =
         castToArray(opts.integrations.closeio.mapping);
-      integrationValid = true;
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Close.io integration.');
     }
   }
 
-  this.defineRoutes = function (app, model, Implementation) {
+  this.defineRoutes = function (app, model) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.closeio,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.closeio, model)) {
         new Routes(app, model, Implementation, opts).perform();
     }
   };
 
-  this.defineCollections = function (Implementation, collections) {
+  this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
     _.each(opts.integrations.closeio.mapping,
@@ -67,18 +85,15 @@ function Checker(opts) {
       });
   };
 
-  this.defineFields = function (Implementation, model, schema) {
+  this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.closeio,
-      model)) {
-        Setup.createFields(Implementation, model, schema);
+    if (integrationCollectionMatch(opts.integrations.closeio, model)) {
+      Setup.createFields(Implementation, model, schema);
     }
   };
 
-  this.defineSerializationOption = function (Implementation, model, schema,
-    dest, field) {
-
+  this.defineSerializationOption = function (model, schema, dest, field) {
     if (integrationValid && field.integration === 'close.io') {
       dest[field.field] = {
         ref: 'id',

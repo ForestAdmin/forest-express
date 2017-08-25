@@ -4,20 +4,20 @@ var logger = require('../../services/logger');
 var Routes = require('./routes');
 var Setup = require('./setup');
 
-function Checker(opts) {
+function Checker(opts, Implementation) {
   var integrationValid = false;
 
-  function hasStripeIntegration() {
+  function hasIntegration() {
     return opts.integrations && opts.integrations.stripe &&
       opts.integrations.stripe.apiKey;
   }
 
-  function isStripeProperlyIntegrated() {
+  function isProperlyIntegrated() {
     return opts.integrations.stripe.apiKey &&
       opts.integrations.stripe.stripe && opts.integrations.stripe.mapping;
   }
 
-  function isStripeIntegrationDeprecated() {
+  function isIntegrationDeprecated() {
     var integrationValid = opts.integrations.stripe.apiKey &&
       opts.integrations.stripe.stripe &&
         (opts.integrations.stripe.userCollection ||
@@ -34,11 +34,30 @@ function Checker(opts) {
     return integrationValid;
   }
 
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var mappingValid = true;
+    _.map(opts.integrations.stripe.mapping, function (mappingValue) {
+      var collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Stripe integration mapping values (' +
+        opts.integrations.stripe.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
+    }
+
+    return mappingValid;
+  }
+
   function castToArray(value) {
     return _.isString(value) ? [value] : value;
   }
 
-  function integrationCollectionMatch(Implementation, integration, model) {
+  function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
     var models = Implementation.getModels();
@@ -55,26 +74,25 @@ function Checker(opts) {
       Implementation.getModelName(model)) > -1;
   }
 
-  if (hasStripeIntegration()) {
-    if (isStripeProperlyIntegrated() || isStripeIntegrationDeprecated()) {
+  if (hasIntegration()) {
+    if (isProperlyIntegrated() || isIntegrationDeprecated()) {
       opts.integrations.stripe.mapping =
         castToArray(opts.integrations.stripe.mapping);
-      integrationValid = true;
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Stripe integration.');
     }
   }
 
-  this.defineRoutes = function (app, model, Implementation) {
+  this.defineRoutes = function (app, model) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.stripe,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.stripe, model)) {
       new Routes(app, model, Implementation, opts).perform();
     }
   };
 
-  this.defineCollections = function (Implementation, collections) {
+  this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
     _.each(opts.integrations.stripe.mapping,
@@ -84,17 +102,15 @@ function Checker(opts) {
       });
   };
 
-  this.defineFields = function (Implementation, model, schema) {
+  this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.stripe,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.stripe, model)) {
         Setup.createFields(Implementation, model, schema.fields);
     }
   };
 
-  this.defineSerializationOption = function (Implementation, model, schema,
-    dest, field) {
+  this.defineSerializationOption = function (model, schema, dest, field) {
     if (integrationValid && field.integration === 'stripe') {
       dest[field.field] = {
         ref: 'id',
