@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var logger = require('../../services/logger');
 var Setup = require('./setup');
 var Routes = require('./routes');
@@ -16,6 +17,20 @@ function Checker(opts, Implementation) {
       opts.integrations.mixpanel.mapping && opts.integrations.mixpanel.mixpanel;
   }
 
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
+    var mappingValid = !!models[collectionName];
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Mixpanel integration mapping values (' +
+        opts.integrations.mixpanel.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
+    }
+
+    return mappingValid;
+  }
+
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
@@ -25,7 +40,7 @@ function Checker(opts, Implementation) {
   }
 
   if (hasIntegration()) {
-    if (isProperlyIntegrated()) {
+    if (isProperlyIntegrated() && isMappingValid()) {
       integrationValid = true;
     } else {
       logger.error('Cannot setup properly your Mixpanel integration.');

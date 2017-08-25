@@ -7,17 +7,17 @@ var Setup = require('./setup');
 function IntercomChecker(opts, Implementation) {
   var integrationValid = false;
 
-  function hasIntercomIntegration() {
+  function hasIntegration() {
     return opts.integrations && opts.integrations.intercom;
   }
 
-  function isIntercomProperlyIntegrated() {
+  function isProperlyIntegrated() {
     return opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
       opts.integrations.intercom.mapping;
   }
 
-  function isIntercomMappingValid() {
+  function isMappingValid() {
     var models = Implementation.getModels();
     var mappingValid = true;
     _.map(opts.integrations.intercom.mapping, function (mappingValue) {
@@ -36,7 +36,7 @@ function IntercomChecker(opts, Implementation) {
     return mappingValid;
   }
 
-  function isIntercomIntegrationDeprecated() {
+  function isIntegrationDeprecated() {
     var integrationValid = opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId &&
       opts.integrations.intercom.intercom &&
@@ -73,12 +73,12 @@ function IntercomChecker(opts, Implementation) {
       Implementation.getModelName(model)) > -1;
   }
 
-  if (hasIntercomIntegration()) {
-    if (isIntercomProperlyIntegrated() ||
-    isIntercomIntegrationDeprecated()) {
+  if (hasIntegration()) {
+    if (isProperlyIntegrated() ||
+      isIntegrationDeprecated()) {
       opts.integrations.intercom.mapping =
       castToArray(opts.integrations.intercom.mapping);
-      integrationValid = isIntercomMappingValid();
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Intercom integration.');
     }

@@ -17,6 +17,25 @@ function Checker(opts, Implementation) {
       opts.integrations.closeio.closeio && opts.integrations.closeio.mapping;
   }
 
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var mappingValid = true;
+    _.map(opts.integrations.closeio.mapping, function (mappingValue) {
+      var collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Close.io integration mapping values (' +
+        opts.integrations.closeio.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
+    }
+
+    return mappingValid;
+  }
+
   function castToArray(value) {
     return _.isString(value) ? [value] : value;
   }
@@ -42,7 +61,7 @@ function Checker(opts, Implementation) {
     if (isProperlyIntegrated()) {
       opts.integrations.closeio.mapping =
         castToArray(opts.integrations.closeio.mapping);
-      integrationValid = true;
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Close.io integration.');
     }

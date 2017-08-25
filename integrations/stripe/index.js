@@ -7,17 +7,17 @@ var Setup = require('./setup');
 function Checker(opts, Implementation) {
   var integrationValid = false;
 
-  function hasStripeIntegration() {
+  function hasIntegration() {
     return opts.integrations && opts.integrations.stripe &&
       opts.integrations.stripe.apiKey;
   }
 
-  function isStripeProperlyIntegrated() {
+  function isProperlyIntegrated() {
     return opts.integrations.stripe.apiKey &&
       opts.integrations.stripe.stripe && opts.integrations.stripe.mapping;
   }
 
-  function isStripeIntegrationDeprecated() {
+  function isIntegrationDeprecated() {
     var integrationValid = opts.integrations.stripe.apiKey &&
       opts.integrations.stripe.stripe &&
         (opts.integrations.stripe.userCollection ||
@@ -32,6 +32,25 @@ function Checker(opts, Implementation) {
     }
 
     return integrationValid;
+  }
+
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var mappingValid = true;
+    _.map(opts.integrations.stripe.mapping, function (mappingValue) {
+      var collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Stripe integration mapping values (' +
+        opts.integrations.stripe.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
+    }
+
+    return mappingValid;
   }
 
   function castToArray(value) {
@@ -55,11 +74,11 @@ function Checker(opts, Implementation) {
       Implementation.getModelName(model)) > -1;
   }
 
-  if (hasStripeIntegration()) {
-    if (isStripeProperlyIntegrated() || isStripeIntegrationDeprecated()) {
+  if (hasIntegration()) {
+    if (isProperlyIntegrated() || isIntegrationDeprecated()) {
       opts.integrations.stripe.mapping =
         castToArray(opts.integrations.stripe.mapping);
-      integrationValid = true;
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Stripe integration.');
     }

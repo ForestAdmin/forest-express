@@ -7,21 +7,32 @@ var Setup = require('./setup');
 function Checker(opts, Implementation) {
   var integrationValid = false;
 
-  function hasLayerIntegration() {
+  function hasIntegration() {
     return opts.integrations && opts.integrations.layer;
   }
 
-  function isLayerProperlyIntegrated() {
+  function isProperlyIntegrated() {
     return opts.integrations.layer.serverApiToken &&
       opts.integrations.layer.appId;
   }
 
-  if (hasLayerIntegration()) {
-    if (isLayerProperlyIntegrated()) {
-      integrationValid = true;
-    } else {
-      logger.error('Cannot setup properly your Layer integration.');
+  function isMappingValid() {
+    var models = Implementation.getModels();
+    var mappingValid = true;
+    _.map(opts.integrations.layer.mapping, function (mappingValue) {
+      var collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
+
+    if (!mappingValid) {
+      logger.error('Cannot find some Layer integration mapping values (' +
+        opts.integrations.layer.mapping + ') among the project models:\n' +
+        _.keys(models).join(', '));
     }
+
+    return mappingValid;
   }
 
   function castToArray(value) {
@@ -45,11 +56,11 @@ function Checker(opts, Implementation) {
       Implementation.getModelName(model)) > -1;
   }
 
-  if (hasLayerIntegration()) {
-    if (isLayerProperlyIntegrated()) {
+  if (hasIntegration()) {
+    if (isProperlyIntegrated()) {
       opts.integrations.layer.mapping =
         castToArray(opts.integrations.layer.mapping);
-      integrationValid = true;
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Layer integration.');
     }
