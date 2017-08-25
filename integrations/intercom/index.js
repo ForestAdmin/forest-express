@@ -74,8 +74,7 @@ function IntercomChecker(opts, Implementation) {
   }
 
   if (hasIntegration()) {
-    if (isProperlyIntegrated() ||
-      isIntegrationDeprecated()) {
+    if (isProperlyIntegrated() || isIntegrationDeprecated()) {
       opts.integrations.intercom.mapping =
       castToArray(opts.integrations.intercom.mapping);
       integrationValid = isMappingValid();
