@@ -84,11 +84,10 @@ function IntercomChecker(opts, Implementation) {
     }
   }
 
-  this.defineRoutes = function (app, model, Implementation) {
+  this.defineRoutes = function (app, model) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(opts.integrations.intercom,
-      model)) {
+    if (integrationCollectionMatch(opts.integrations.intercom, model)) {
       new Routes(app, model, Implementation, opts).perform();
     }
   };

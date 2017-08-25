@@ -38,8 +38,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
         }
 
         if (field.integration) {
-          integrator.defineSerializationOption(Implementation, model, schema,
-            dest, field);
+          integrator.defineSerializationOption(model, schema, dest, field);
         } else {
           var fieldName = field.field;
           if (reservedWords.indexOf(fieldName) > -1) {

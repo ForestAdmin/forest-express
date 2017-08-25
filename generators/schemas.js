@@ -9,8 +9,8 @@ module.exports = {
       .each(models, function (model) {
         return new implementation.SchemaAdapter(model, opts)
           .then(function (schema) {
-            integrator.defineFields(implementation, model, schema);
-            integrator.defineSegments(implementation, model, schema);
+            integrator.defineFields(model, schema);
+            integrator.defineSegments(model, schema);
             schema.isSearchable = true;
             return schema;
           })
