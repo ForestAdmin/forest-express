@@ -1,7 +1,7 @@
 'use strict';
 var P = require('bluebird');
 var moment = require('moment');
-var _ = require('lodash');
+var stringify = require('csv-stringify');
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 function CSVExporter(params, response, modelName, recordsExporter) {
@@ -30,9 +30,9 @@ function CSVExporter(params, response, modelName, recordsExporter) {
           })
           .then(function (records) {
             return new P(function (resolve) {
-              var CSVLines = '';
+              var CSVLines = [];
               records.forEach(function (record) {
-                var CSVLine = '';
+                var CSVLine = [];
                 CSVAttributes.forEach(function (attribute) {
                   var value;
                   if (params.fields[attribute]) {
@@ -48,16 +48,15 @@ function CSVExporter(params, response, modelName, recordsExporter) {
                   } else {
                     value = record[attribute];
                   }
-
-                  if (_.isString(value))  {
-                    value = '"' + value.replace(/"/g, '""') + '"';
-                  }
-                  CSVLine += (value || '') + ',';
+                  CSVLine.push(value || '');
                 });
-                CSVLines += CSVLine.slice(0, -1) + '\n';
+                CSVLines.push(CSVLine);
               });
-              response.write(CSVLines);
-              resolve();
+
+              stringify(CSVLines, function(error, csv) {
+                response.write(csv);
+                resolve();
+              });
             });
           });
       })
