@@ -1,6 +1,7 @@
 'use strict';
 var P = require('bluebird');
 var moment = require('moment');
+var _ = require('lodash');
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 function CSVExporter(params, response, modelName, recordsExporter) {
@@ -48,6 +49,9 @@ function CSVExporter(params, response, modelName, recordsExporter) {
                     value = record[attribute];
                   }
 
+                  if (_.isString(value))  {
+                    value = '"' + value.replace(/"/g, '""') + '"';
+                  }
                   CSVLine += (value || '') + ',';
                 });
                 CSVLines += CSVLine.slice(0, -1) + '\n';

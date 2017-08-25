@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Exports - Espace special characters for the string fields. 
 
 ## RELEASE 1.2.2 - 2017-08-24
 ### Changed
