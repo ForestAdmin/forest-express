@@ -1,8 +1,11 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Onboarding - Display an error message if the envSecret option is missing.
+
 ### Fixed
-- Exports - Escape special characters for the string fields. 
+- Exports - Escape special characters for the string fields.
 - Integrations - Display models "mapping" errors if any.
 
 ## RELEASE 1.2.2 - 2017-08-24

@@ -96,6 +96,11 @@ exports.init = function (Implementation) {
       'that you properly set a Forest authSecret in the Forest initializer?');
   }
 
+  if (!opts.envSecret) {
+    logger.error('Your Forest envSecret seems to be missing. Can you check ' +
+      'that you properly set a Forest envSecret in the Forest initializer?');
+  }
+
   if (jwtAuthenticator) {
     if (opts.expressParentApp) {
       // NOTICE: Forest is a sub-app of the client application; so all routes are
