@@ -33,6 +33,9 @@ function ConversationsGetter(Implementation, params, opts, integrationInfo) {
         return getConversations(user[collectionFieldName])
           .spread(function (count, conversations) {
             return [count, conversations];
+          })
+          .catch(function () {
+            return [0, []];
           });
       });
   };

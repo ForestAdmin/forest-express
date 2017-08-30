@@ -67,7 +67,6 @@ exports.createCollections = function (Implementation, apimap,
 };
 
 exports.createFields = function (Implementation, model, schemaFields) {
-
   schemaFields.push({
     field: 'layer_conversations',
     displayName: 'Conversations',

@@ -63,8 +63,9 @@ exports.createSegments = function (Implementation, model, schema, opts) {
         })
         .then(function (data) {
           var where = {};
+          var results = data.results || [];
           where[fieldName] = {
-            $in: data.results.map(function (result) {
+            $in: results.map(function (result) {
               return result.$distinct_id;
             })
           };

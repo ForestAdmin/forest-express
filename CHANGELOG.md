@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Integrations - Catch an error if the user is not found by the Layer API.
+- Integrations - Catch an error if Mixpanel API does not responds data.
 
 ## RELEASE 1.2.4 - 2017-08-30
 ### Added
