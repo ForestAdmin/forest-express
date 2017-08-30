@@ -52,6 +52,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
 
 exports.Schemas = Schemas;
 exports.logger = logger;
+exports.ResourcesRoute = {};
 
 exports.init = function (Implementation) {
   var opts = Implementation.opts;
@@ -145,10 +146,14 @@ exports.init = function (Implementation) {
         .thenReturn(models);
     })
     .each(function (model) {
-      integrator.defineRoutes(app, model);
+      var modelName = Implementation.getModelName(model);
 
-      new ResourcesRoutes(app, model, Implementation, integrator, opts)
-        .perform();
+      integrator.defineRoutes(app, model, Implementation);
+
+      var resourcesRoute = new ResourcesRoutes(app, model, Implementation,
+        integrator, opts);
+      resourcesRoute.perform();
+      exports.ResourcesRoute[modelName] = resourcesRoute;
 
       new AssociationsRoutes(app, model, Implementation, integrator, opts)
         .perform();
