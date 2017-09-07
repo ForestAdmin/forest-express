@@ -1,9 +1,11 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Export - Fix datetime formatting regression introduced by liana version 1.2.3.
 
 ## RELEASE 1.2.5 - 2017-08-30
-### Fixed
+### Fixed
 - Integrations - Catch an error if the user is not found by the Layer API.
 - Integrations - Catch an error if Mixpanel API does not responds data.
 
