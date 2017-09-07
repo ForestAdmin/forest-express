@@ -4,6 +4,13 @@ var moment = require('moment');
 var stringify = require('csv-stringify');
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
+// NOTICE: Prevent bad date formatting into timestamps.
+var CSV_OPTIONS = {
+  formatters: {
+    date: function (value) { return moment(value).format(); }
+  }
+};
+
 function CSVExporter(params, response, modelName, recordsExporter) {
 
   this.perform = function () {
@@ -53,7 +60,7 @@ function CSVExporter(params, response, modelName, recordsExporter) {
                 CSVLines.push(CSVLine);
               });
 
-              stringify(CSVLines, function(error, csv) {
+              stringify(CSVLines, CSV_OPTIONS, function(error, csv) {
                 response.write(csv);
                 resolve();
               });
