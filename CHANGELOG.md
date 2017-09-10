@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Initialization - Display an explicit error log if a model cannot be loaded properly.
 
 ## RELEASE 1.2.6 - 2017-09-07
 ### Fixed
