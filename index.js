@@ -26,7 +26,12 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
       .each(function (file) {
         try {
           require(path.join(modelsDir, file));
-        } catch (error) { }
+        } catch (error) {
+          if (displayMessage) {
+            logger.error('Cannot read your model in the file ' + file +
+              ' for the following reason: ', error);
+          }
+        }
       })
       .then(function () {
         return _.values(Implementation.getModels());
