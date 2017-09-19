@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Model loading - ignore non-files in model loading
 
 ## RELEASE 1.2.7 - 2017-09-10
 ### Changed
