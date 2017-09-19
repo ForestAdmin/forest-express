@@ -3,7 +3,8 @@ var P = require('bluebird');
 var _ = require('lodash');
 var express = require('express');
 var path = require('path');
-var readdirAsync = P.promisify(require('fs').readdir);
+var fs = require('fs');
+var readdirAsync = P.promisify(fs.readdir);
 var cors = require('express-cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
@@ -25,7 +26,9 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
     return readdirAsync(modelsDir)
       .each(function (file) {
         try {
-          require(path.join(modelsDir, file));
+          if ( fs.lstatSync(path.join(modelsDir, file)).isFile() ) {
+            require(path.join(modelsDir, file));
+          }
         } catch (error) {
           if (displayMessage) {
             logger.error('Cannot read your model in the file ' + file +
