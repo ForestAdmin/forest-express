@@ -58,6 +58,18 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
   }
 }
 
+function getFields(opts) {
+  return _.map(opts.fields, function (field) {
+    // NOTICE: Smart Field definition case
+    field.isVirtual = true;
+    field.isSearchable = false;
+    field.isSortable = field.isSortable || false;
+    field.isReadOnly = !field.set;
+
+    return field;
+  });
+}
+
 exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
@@ -305,16 +317,7 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
-    opts.fields = _.map(opts.fields, function (field) {
-      // NOTICE: Smart Field definition case
-      field.isVirtual = true;
-      field.isSearchable = false;
-      field.isSortable = false; 
-      field.isReadOnly = !field.set;
-
-      return field;
-    });
-
+    opts.fields = getFields(opts);
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
 
@@ -326,7 +329,7 @@ exports.collection = function (name, opts) {
     opts.name = name;
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
-    opts.isSortable = false; 
+    opts.fields = getFields(opts);
     Schemas.schemas[name] = opts;
   }
 };
