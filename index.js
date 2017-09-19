@@ -208,7 +208,7 @@ exports.init = function (Implementation) {
               attributes: ['field', 'displayName', 'type', 'enums',
                 'collection_name', 'reference', 'column', 'isSearchable',
                 'widget', 'integration', 'isReadOnly', 'isVirtual',
-                'isRequired', 'defaultValue', 'validations']
+                'isRequired', 'defaultValue', 'validations', 'isSortable']
             },
             validations: {
               attributes: ['type', 'value', 'message']
@@ -309,6 +309,7 @@ exports.collection = function (name, opts) {
       // NOTICE: Smart Field definition case
       field.isVirtual = true;
       field.isSearchable = false;
+      field.isSortable = false; 
       field.isReadOnly = !field.set;
 
       return field;
@@ -325,6 +326,7 @@ exports.collection = function (name, opts) {
     opts.name = name;
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
+    opts.isSortable = false; 
     Schemas.schemas[name] = opts;
   }
 };
