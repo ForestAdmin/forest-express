@@ -26,7 +26,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
     return readdirAsync(modelsDir)
       .each(function (file) {
         try {
-          if ( fs.lstatSync(path.join(modelsDir, file)).isFile() ) {
+          if (fs.statSync(path.join(modelsDir, file)).isFile()) {
             require(path.join(modelsDir, file));
           }
         } catch (error) {

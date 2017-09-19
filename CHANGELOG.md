@@ -2,10 +2,10 @@
 
 ## [Unreleased]
 ### Fixed
-- Model loading - ignore non-files in model loading
+- Initialization - Ignore directories while loading models.
 
 ## RELEASE 1.2.7 - 2017-09-10
-### Changed
+### Changed
 - Initialization - Display an explicit error log if a model cannot be loaded properly.
 
 ## RELEASE 1.2.6 - 2017-09-07
