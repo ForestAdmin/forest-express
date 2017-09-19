@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart Collections - Add a field parameter isSorting to allow the sorting in UI.
+
 ### Fixed
 - Initialization - Ignore directories while loading models.
 

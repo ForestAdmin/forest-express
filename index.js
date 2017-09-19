@@ -60,13 +60,14 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
 
 function getFields(opts) {
   return _.map(opts.fields, function (field) {
-    // NOTICE: Smart Field definition case
-    field.isVirtual = true;
-    field.isSearchable = false;
-    field.isSortable = field.isSortable || false;
-    field.isReadOnly = !field.set;
-
-    return field;
+    return {
+      field: field.field,
+      type: field.type,
+      isVirtual: true,
+      isSearchable: false,
+      isSortable: field.isSortable || false,
+      isReadOnly: !field.set
+    };
   });
 }
 
@@ -245,6 +246,7 @@ exports.init = function (Implementation) {
           var forestUrl = process.env.FOREST_URL ||
             'https://forestadmin-server.herokuapp.com';
 
+          console.log(JSON.stringify(apimap));
           request
             .post(forestUrl + '/forest/apimaps')
               .send(apimap)
@@ -317,6 +319,7 @@ exports.collection = function (name, opts) {
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
+    // NOTICE: Smart Field definition case
     opts.fields = getFields(opts);
     Schemas.schemas[name].fields = _.concat(opts.fields,
       Schemas.schemas[name].fields);
