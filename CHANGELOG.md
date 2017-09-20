@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Smart Collections - Add a field parameter isSorting to allow the sorting in UI.
+- Smart Fields - Add a parameter to specify if the sorting is allowed on this field.
 
 ### Fixed
 - Initialization - Ignore directories while loading models.
