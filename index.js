@@ -60,14 +60,12 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
 
 function getFields(opts) {
   return _.map(opts.fields, function (field) {
-    return {
-      field: field.field,
-      type: field.type,
-      isVirtual: true,
-      isSearchable: false,
-      isSortable: field.isSortable || false,
-      isReadOnly: !field.set
-    };
+    field.isVirtual = true;
+    field.isSearchable = false;
+    field.isSortable = field.isSortable || false;
+    field.isReadOnly = !field.set;
+
+    return field;
   });
 }
 
@@ -246,7 +244,6 @@ exports.init = function (Implementation) {
           var forestUrl = process.env.FOREST_URL ||
             'https://forestadmin-server.herokuapp.com';
 
-          console.log(JSON.stringify(apimap));
           request
             .post(forestUrl + '/forest/apimaps')
               .send(apimap)
