@@ -107,9 +107,8 @@ function IntercomChecker(opts, Implementation) {
   this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.intercom,
-      model)) {
-        Setup.createFields(Implementation, model, schema.fields);
+    if (integrationCollectionMatch(opts.integrations.intercom, model)) {
+      Setup.createFields(Implementation, model, schema.fields);
     }
   };
 
