@@ -1,6 +1,7 @@
 'use strict';
 var P = require('bluebird');
 var useragent = require('useragent');
+var logger = require('../../../services/logger');
 
 function IntercomAttributesGetter(Implementation, params, opts, collectionName) {
   var model = null;
@@ -58,7 +59,8 @@ function IntercomAttributesGetter(Implementation, params, opts, collectionName) 
             return user;
           });
       })
-      .catch(function () {
+      .catch(function (error) {
+        logger.error('Cannot retrieve Intercom attributes for the following reason:', error);
         return null;
       });
   };
