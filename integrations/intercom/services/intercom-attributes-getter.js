@@ -60,7 +60,9 @@ function IntercomAttributesGetter(Implementation, params, opts, collectionName) 
           });
       })
       .catch(function (error) {
-        logger.error('Cannot retrieve Intercom attributes for the following reason:', error);
+        if (error.statusCode && error.statusCode !== 404) {
+          logger.error('Cannot retrieve Intercom attributes for the following reason:', error);
+        }
         return null;
       });
   };
