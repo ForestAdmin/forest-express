@@ -1,12 +1,21 @@
 'use strict';
 var P = require('bluebird');
 var useragent = require('useragent');
+var logger = require('../../../services/logger');
 
 function IntercomAttributesGetter(Implementation, params, opts, collectionName) {
   var model = null;
   var Intercom = opts.integrations.intercom.intercom;
-  var intercom = new Intercom.Client(opts.integrations.intercom.appId,
-    opts.integrations.intercom.apiKey).usePromises();
+  var intercom;
+
+  if (opts.integrations.intercom.credentials) {
+    intercom = new Intercom.Client(opts.integrations.intercom.credentials)
+      .usePromises();
+  } else {
+    // TODO: Remove once appId/apiKey is not supported anymore.
+    intercom = new Intercom.Client(opts.integrations.intercom.appId,
+      opts.integrations.intercom.apiKey).usePromises();
+  }
 
   this.perform = function () {
     model = Implementation.getModels()[collectionName];
@@ -50,7 +59,10 @@ function IntercomAttributesGetter(Implementation, params, opts, collectionName) 
             return user;
           });
       })
-      .catch(function () {
+      .catch(function (error) {
+        if (error.statusCode && error.statusCode !== 404) {
+          logger.error('Cannot retrieve Intercom attributes for the following reason:', error);
+        }
         return null;
       });
   };

@@ -6,9 +6,10 @@ var INTEGRATION_NAME = 'intercom';
 exports.createCollections = function (Implementation, apimap, collectionName) {
 
   var collectionDisplayName = _.capitalize(collectionName);
+  var model = Implementation.getModels()[collectionName];
   // jshint camelcase: false
   apimap.push({
-    name: collectionName + '_intercom_conversations',
+    name: Implementation.getModelName(model) + '_intercom_conversations',
     displayName: collectionDisplayName + ' Conversations',
     icon: 'intercom',
     integration: INTEGRATION_NAME,
@@ -25,7 +26,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
   });
 
   apimap.push({
-    name: collectionName + '_intercom_attributes',
+    name: Implementation.getModelName(model) + '_intercom_attributes',
     displayName: collectionDisplayName + ' Attributes',
     icon: 'intercom',
     integration: INTEGRATION_NAME,

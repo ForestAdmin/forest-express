@@ -12,9 +12,8 @@ function IntercomChecker(opts, Implementation) {
   }
 
   function isProperlyIntegrated() {
-    return opts.integrations.intercom.apiKey &&
-      opts.integrations.intercom.appId && opts.integrations.intercom.intercom &&
-      opts.integrations.intercom.mapping;
+    return opts.integrations.intercom.accessToken &&
+      opts.integrations.intercom.intercom && opts.integrations.intercom.mapping;
   }
 
   function isMappingValid() {
@@ -40,13 +39,11 @@ function IntercomChecker(opts, Implementation) {
     var integrationValid = opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId &&
       opts.integrations.intercom.intercom &&
-      opts.integrations.intercom.userCollection;
+      opts.integrations.intercom.mapping;
 
     if (integrationValid) {
-      logger.warn('Intercom integration attribute "userCollection" is now ' +
-        'deprecated, please use "mapping" attribute.');
-      opts.integrations.intercom.mapping =
-        opts.integrations.intercom.userCollection;
+      logger.warn('Intercom integration attributes "apiKey" and "appId" are ' +
+        'now deprecated, please use "accessToken" attribute.');
     }
 
     return integrationValid;
@@ -76,7 +73,14 @@ function IntercomChecker(opts, Implementation) {
   if (hasIntegration()) {
     if (isProperlyIntegrated() || isIntegrationDeprecated()) {
       opts.integrations.intercom.mapping =
-      castToArray(opts.integrations.intercom.mapping);
+        castToArray(opts.integrations.intercom.mapping);
+
+      if (opts.integrations.intercom.accessToken) {
+        opts.integrations.intercom.credentials = {
+          token: opts.integrations.intercom.accessToken
+        };
+      }
+
       integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Intercom integration.');
@@ -103,9 +107,8 @@ function IntercomChecker(opts, Implementation) {
   this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(Implementation, opts.integrations.intercom,
-      model)) {
-        Setup.createFields(Implementation, model, schema.fields);
+    if (integrationCollectionMatch(opts.integrations.intercom, model)) {
+      Setup.createFields(Implementation, model, schema.fields);
     }
   };
 
