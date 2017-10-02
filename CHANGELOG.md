@@ -1,7 +1,7 @@
 # Change Log
 
 ## [Unreleased]
-### Changed
+### Changed
 - Intercom Integration - Prefer Intercom accessToken configuration to old fashioned appId/apiKey.
 - Intercom Integration - Remove support for old configuration parameter use "userCollection" (use mapping instead).
 
