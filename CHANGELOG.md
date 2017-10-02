@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Initialisation - Prevent bad ES2017 syntax error detections on initialisation.
 
 ## RELEASE 1.3.1 - 2017-10-02
 ### Changed
@@ -12,11 +14,11 @@
 - Smart Fields - Add a parameter to specify if the sorting is allowed on this field.
 
 ### Fixed
-- Initialization - Ignore directories while loading models.
+- Initialisation - Ignore directories while loading models.
 
 ## RELEASE 1.2.7 - 2017-09-10
 ### Changed
-- Initialization - Display an explicit error log if a model cannot be loaded properly.
+- Initialisation - Display an explicit error log if a model cannot be loaded properly.
 
 ## RELEASE 1.2.6 - 2017-09-07
 ### Fixed
