@@ -1,10 +1,12 @@
 'use strict';
 var _ = require('lodash');
 var IntegrationInformationsGetter = require('./services/integration-informations-getter');
-var IntercomAttributesGetter = require('./services/intercom-attributes-getter');
-var IntercomAttributesSerializer = require('./serializers/intercom-attributes');
-var IntercomConversationsGetter = require('./services/intercom-conversations-getter');
-var IntercomConversationsSerializer = require('./serializers/intercom-conversations');
+var AttributesGetter = require('./services/attributes-getter');
+var AttributesSerializer = require('./serializers/intercom-attributes');
+var ConversationsGetter = require('./services/conversations-getter');
+var ConversationsSerializer = require('./serializers/intercom-conversations');
+var ConversationGetter = require('./services/conversation-getter');
+var ConversationSerializer = require('./serializers/intercom-conversation');
 var auth = require('../../services/auth');
 
 module.exports = function (app, model, Implementation, opts) {
@@ -16,29 +18,41 @@ module.exports = function (app, model, Implementation, opts) {
         Implementation, opts.integrations.intercom).perform();
   }
 
-  this.intercomAttributes = function (req, res, next) {
-    new IntercomAttributesGetter(Implementation, _.extend(req.query,
-      req.params), opts, integrationInfo)
+  this.getAttributes = function (request, response, next) {
+    new AttributesGetter(Implementation, _.extend(request.query, request.params), opts,
+      integrationInfo)
       .perform()
       .then(function (attributes) {
-        return new IntercomAttributesSerializer(attributes, modelName);
+        return new AttributesSerializer(attributes, modelName);
       })
       .then(function (attributes) {
-        res.send(attributes);
+        response.send(attributes);
       })
       .catch(next);
   };
 
-  this.intercomConversations = function (req, res, next) {
-    new IntercomConversationsGetter(Implementation,_.extend(req.query,
-      req.params), opts, integrationInfo)
+  this.listConversations = function (request, response, next) {
+    new ConversationsGetter(Implementation, _.extend(request.query, request.params), opts,
+      integrationInfo)
       .perform()
       .spread(function (count, conversations) {
-        return new IntercomConversationsSerializer(conversations, modelName,
+        return new ConversationsSerializer(conversations, modelName,
           { count: count });
       })
       .then(function (conversations) {
-        res.send(conversations);
+        response.send(conversations);
+      })
+      .catch(next);
+  };
+
+  this.getConversation = function (request, response, next) {
+    new ConversationGetter(Implementation, _.extend(request.query, request.params), opts)
+      .perform()
+      .then(function (conversation) {
+        return new ConversationSerializer(conversation, modelName);
+      })
+      .then(function (conversation) {
+        response.send(conversation);
       })
       .catch(next);
   };
@@ -46,10 +60,11 @@ module.exports = function (app, model, Implementation, opts) {
   this.perform = function () {
     if (integrationInfo) {
       app.get('/forest/' + modelName + '/:recordId/intercom_attributes',
-        auth.ensureAuthenticated, this.intercomAttributes);
-
+        auth.ensureAuthenticated, this.getAttributes);
       app.get('/forest/' + modelName + '/:recordId/intercom_conversations',
-        auth.ensureAuthenticated, this.intercomConversations);
+        auth.ensureAuthenticated, this.listConversations);
+      app.get('/forest/' + modelName + '_intercom_conversations/:conversationId',
+        auth.ensureAuthenticated, this.getConversation);
     }
   };
 };

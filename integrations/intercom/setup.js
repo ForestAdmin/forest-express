@@ -18,7 +18,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
     isReadOnly: true,
     fields: [
       { field: 'subject', type: 'String' },
-      { field: 'body', type: ['String'], widget: 'link' },
+      { field: 'body', type: ['String'] },
       { field: 'open', type: 'Boolean'},
       { field: 'read', type: 'Boolean'},
       { field: 'assignee', type: 'String' }

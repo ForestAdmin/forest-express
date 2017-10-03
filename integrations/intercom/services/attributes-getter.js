@@ -3,7 +3,7 @@ var P = require('bluebird');
 var useragent = require('useragent');
 var logger = require('../../../services/logger');
 
-function IntercomAttributesGetter(Implementation, params, opts, collectionName) {
+function AttributesGetter(Implementation, params, opts, collectionName) {
   var model = null;
   var Intercom = opts.integrations.intercom.intercom;
   var intercom;
@@ -68,4 +68,4 @@ function IntercomAttributesGetter(Implementation, params, opts, collectionName) 
   };
 }
 
-module.exports = IntercomAttributesGetter;
+module.exports = AttributesGetter;

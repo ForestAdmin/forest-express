@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var P = require('bluebird');
 
-function IntercomConversationsGetter(Implementation, params, opts, collectionName) {
+function ConversationsGetter(Implementation, params, opts, collectionName) {
   var model = null;
   var Intercom = opts.integrations.intercom.intercom;
   var intercom;
@@ -33,9 +33,7 @@ function IntercomConversationsGetter(Implementation, params, opts, collectionNam
   }
 
   function getLink(conversation) {
-    return 'https://api.intercom.io/a/apps/' +
-      opts.integrations.intercom.appId + '/inbox/all/conversations/' +
-      conversation.id;
+    return 'https://api.intercom.io/conversations/' + conversation.id;
   }
 
 
@@ -91,7 +89,10 @@ function IntercomConversationsGetter(Implementation, params, opts, collectionNam
                       conversation.assignee = admin;
                     }
 
-                    conversation.link = getLink(conversation);
+                    if (opts.integrations.intercom.apiKey) {
+                      conversation.link = getLink(conversation);
+                    }
+
                     return conversation;
                   })
                   .then(function (conversations) {
@@ -106,4 +107,4 @@ function IntercomConversationsGetter(Implementation, params, opts, collectionNam
   };
 }
 
-module.exports = IntercomConversationsGetter;
+module.exports = ConversationsGetter;
