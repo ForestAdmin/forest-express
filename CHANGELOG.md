@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## RELEASE 1.3.3 - 2017-10-03
+
 ## RELEASE 1.3.2 - 2017-10-02
 ### Fixed
 - Initialisation - Prevent bad ES2017 syntax error detections on initialisation.
