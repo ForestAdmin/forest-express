@@ -78,7 +78,7 @@ exports.ResourcesRoute = {};
 exports.init = function (Implementation) {
   var opts = Implementation.opts;
   var app = express();
-  var integrator = new Integrator(opts, Implementation);
+  var integrator;
 
   if (opts.secretKey) {
     logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
@@ -141,6 +141,8 @@ exports.init = function (Implementation) {
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
   requireAllModels(Implementation, absModelDirs, true)
     .then(function (models) {
+      integrator = new Integrator(opts, Implementation);
+
       return Schemas.perform(Implementation, integrator, models, opts)
         .then(function () {
           var directorySmartImplementation;

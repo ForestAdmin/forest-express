@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Stripe - Fix the 'mapping' collection name on Express/Mongoose.
 
 ## RELEASE 1.3.4 - 2017-10-04
 ### Fixed

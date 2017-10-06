@@ -6,13 +6,13 @@ var INTEGRATION_NAME = 'stripe';
 exports.createCollections = function (Implementation, apimap,
                                       collectionAndFieldName) {
   // jshint camelcase: false
-  var collectionName = collectionAndFieldName.split('.')[0];
-  var model = Implementation.getModels()[collectionName];
-  var referenceName = Implementation.getModelName(model) + '.id';
-  var collectionDisplayName = _.capitalize(collectionName);
+  var model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
+  var modelName = Implementation.getModelName(model);
+  var referenceName = modelName + '.id';
+  var collectionDisplayName = _.capitalize(modelName);
 
   apimap.push({
-    name: collectionName + '_stripe_payments',
+    name: modelName + '_stripe_payments',
     displayName: collectionDisplayName + ' Payments',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -37,12 +37,12 @@ exports.createCollections = function (Implementation, apimap,
     actions: [{
       id: 'stripe.Refund',
       name: 'Refund',
-      endpoint: '/forest/' + collectionName + '_stripe_payments/refunds'
+      endpoint: '/forest/' + modelName + '_stripe_payments/refunds'
     }]
   });
 
   apimap.push({
-    name: collectionName + '_stripe_invoices',
+    name: modelName + '_stripe_invoices',
     displayName: collectionDisplayName + ' Invoices',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -75,7 +75,7 @@ exports.createCollections = function (Implementation, apimap,
   });
 
   apimap.push({
-    name: collectionName + '_stripe_cards',
+    name: modelName + '_stripe_cards',
     displayName: collectionDisplayName + ' Cards',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -109,7 +109,7 @@ exports.createCollections = function (Implementation, apimap,
   });
 
   apimap.push({
-    name: collectionName + '_stripe_subscriptions',
+    name: modelName + '_stripe_subscriptions',
     displayName: collectionDisplayName + ' Subscriptions',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -141,7 +141,7 @@ exports.createCollections = function (Implementation, apimap,
   });
 
   apimap.push({
-    name: collectionName + '_stripe_bank_accounts',
+    name: modelName + '_stripe_bank_accounts',
     displayName: collectionDisplayName + ' Bank Accounts',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
