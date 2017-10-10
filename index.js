@@ -21,6 +21,15 @@ var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 
+function getModels(Implementation) {
+  var models = Implementation.getModels();
+  _.each(models, function (model, modelName) {
+    model.modelName = modelName;
+  });
+
+  return _.values(models);
+}
+
 function requireAllModels(Implementation, modelsDir, displayMessage) {
   if (modelsDir) {
     return readdirAsync(modelsDir)
@@ -39,7 +48,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
         }
       })
       .then(function () {
-        return _.values(Implementation.getModels());
+        return getModels(Implementation);
       })
       .catch(function (error) {
         if (displayMessage) {
@@ -56,7 +65,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
   } else {
     // NOTICE: User didn't provide a modelsDir but may already have required
     // them manually so they might be available.
-    return P.resolve(_.values(Implementation.getModels()));
+    return P.resolve(getModels(Implementation));
   }
 }
 
