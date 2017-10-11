@@ -27,7 +27,7 @@ exports.extractCodeSyntaxErrorInDirectoryFile = function (directory) {
       var fileContent = Pfs.readFileSync(file);
 
       try {
-        return esprima.parse(fileContent.toString(), { loc: true });
+        return esprima.parseModule(fileContent.toString(), { loc: true });
       } catch (error) {
         if (error) {
           hasError = true;
