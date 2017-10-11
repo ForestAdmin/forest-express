@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Sessions - Display a clean error message if the renderingId and envSecret are missing or inconsistent.
 
 ## RELEASE 1.3.5 - 2017-10-06
 ### Fixed
@@ -8,7 +10,7 @@
 - Integrations - Ensure all the models are loading before integrations setup.
 
 ## RELEASE 1.3.4 - 2017-10-04
-### Fixed
+### Fixed
 - Initialisation - Do not try to require file that don't have the js extension.
 
 ## RELEASE 1.3.3 - 2017-10-03
