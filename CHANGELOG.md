@@ -4,6 +4,9 @@
 ### Changed
 - Sessions - Display a clean error message if the renderingId and envSecret are missing or inconsistent.
 
+### Fixed
+- Initialisation - Prevent bad "import" syntax error detections on initialisation.
+
 ## RELEASE 1.3.5 - 2017-10-06
 ### Fixed
 - Stripe - Fix the 'mapping' collection name on Express/Mongoose.
