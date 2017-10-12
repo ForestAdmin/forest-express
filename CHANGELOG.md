@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Serializer - Supports collections with name  like 'ACHCredit'.
 
 ## RELEASE 1.3.6 - 2017-10-11
 ### Changed
