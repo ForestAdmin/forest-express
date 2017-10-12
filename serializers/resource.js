@@ -62,8 +62,19 @@ function ResourceSerializer(Implementation, model, records, integrator,
               return;
             }
 
+            var fieldReference = referenceSchema.idField;
+
+            if (_.isArray(field.type) && !fieldReference && referenceSchema.isVirtual) {
+              if (_.find(referenceSchema.fields, function (field) { return field.field === 'id'; })) {
+                fieldReference = 'id';
+              } else {
+                logger.warn('Cannot find the \'idField\' attribute in your \'' +
+                  referenceSchema.name + '\' Smart Collection declaration.');
+              }
+            }
+
             dest[fieldName] = {
-              ref: referenceSchema.idField,
+              ref: fieldReference,
               attributes: getFieldsNames(referenceSchema.fields),
               relationshipLinks: {
                 related: function (dataSet) {
