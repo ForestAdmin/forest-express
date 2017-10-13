@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var StringsUtil = require('../../../utils/strings');
 
 function ConversationsSerializer(conversations, collectionName, meta) {
 
@@ -30,7 +29,7 @@ function ConversationsSerializer(conversations, collectionName, meta) {
     return conversation;
   }
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-layer-conversations';
+  var type = collectionName + '_layer_conversations';
   var data = null;
 
   if (_.isArray(conversations)) {
@@ -64,8 +63,7 @@ function ConversationsSerializer(conversations, collectionName, meta) {
     keyForAttribute: function (key) { return key; },
     typeForAttribute: function (attribute) {
       if (attribute === 'lastMessage') {
-        return StringsUtil.camelCaseToDashed(collectionName) +
-          '-layer-messages';
+        return collectionName + '_layer_messages';
       }
 
       return undefined;

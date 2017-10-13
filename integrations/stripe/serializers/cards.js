@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../../../generators/schemas');
-var StringsUtil = require('../../../utils/strings');
 
 function CardsSerializer(cards, collectionName, meta) {
   function getCustomerAttributes() {
@@ -15,7 +14,7 @@ function CardsSerializer(cards, collectionName, meta) {
 
   var customerAttributes = getCustomerAttributes();
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-stripe-cards';
+  var type = collectionName + '_stripe_cards';
 
   return new JSONAPISerializer(type, cards, {
     attributes: ['last4', 'brand', 'funding', 'exp_month', 'exp_year',
@@ -36,4 +35,3 @@ function CardsSerializer(cards, collectionName, meta) {
 }
 
 module.exports = CardsSerializer;
-

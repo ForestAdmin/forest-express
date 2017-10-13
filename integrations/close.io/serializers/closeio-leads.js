@@ -1,9 +1,8 @@
 'use strict';
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var StringsUtil = require('../../../utils/strings');
 
 function CloseioLeadsSerializer(attributes, collectionName, meta) {
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-closeio-leads';
+  var type = collectionName + '_closeio_leads';
 
   return new JSONAPISerializer(type, attributes, {
     attributes: ['url', 'created_by_name', 'display_name', 'status_label',

@@ -1,6 +1,5 @@
 'use strict';
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var StringsUtil = require('../../../utils/strings');
 
 function IntercomConversationsSerializer(conversations, collectionName, meta) {
   conversations = conversations.map(function (conversation) {
@@ -16,8 +15,7 @@ function IntercomConversationsSerializer(conversations, collectionName, meta) {
     return conversation;
   });
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) +
-                                           '-intercom-conversations';
+  var type = collectionName + '-intercom-conversations';
 
   return new JSONAPISerializer(type, conversations, {
     attributes: ['created_at', 'updated_at', 'open', 'read', 'subject',

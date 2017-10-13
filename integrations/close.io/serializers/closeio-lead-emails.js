@@ -1,9 +1,8 @@
 'use strict';
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var StringsUtil = require('../../../utils/strings');
 
 function CloseioLeadEmailsSerializer(attributes, collectionName, meta) {
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-closeio-emails';
+  var type = collectionName + '_closeio_emails';
 
   return new JSONAPISerializer(type, attributes, {
     attributes: ['id', 'status', 'sender', 'subject', 'body_text'],
