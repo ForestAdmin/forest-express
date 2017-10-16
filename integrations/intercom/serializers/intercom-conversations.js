@@ -15,7 +15,7 @@ function IntercomConversationsSerializer(conversations, collectionName, meta) {
     return conversation;
   });
 
-  var type = collectionName + '-intercom-conversations';
+  var type = collectionName + '_intercom_conversations';
 
   return new JSONAPISerializer(type, conversations, {
     attributes: ['created_at', 'updated_at', 'open', 'read', 'subject',

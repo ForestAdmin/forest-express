@@ -11,7 +11,7 @@ function IntercomConversationSerializer(conversation, collectionName) {
     conversation.assignee =  conversation.assignee.email;
   }
 
-  var type = collectionName + '-intercom-conversations';
+  var type = collectionName + '_intercom_conversations';
 
   return new JSONAPISerializer(type, conversation, {
     attributes: ['created_at', 'updated_at', 'open', 'read', 'subject',

@@ -2,7 +2,7 @@
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function IntercomAttributesSerializer(attributes, collectionName, meta) {
-  var type = collectionName + '-intercom-attributes';
+  var type = collectionName + '_intercom_attributes';
 
   return new JSONAPISerializer(type, attributes, {
     attributes: ['session_count', 'last_seen_ip', 'created_at', 'updated_at',
