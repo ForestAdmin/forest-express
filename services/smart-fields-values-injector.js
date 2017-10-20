@@ -17,8 +17,11 @@ function SmartFieldsValuesInjector(record, modelName) {
 
     try {
       value = field.get ? field.get(record) : field.value(record);
-    } catch (e) {
-      logger.error(e);
+    } catch (error) {
+      logger.error('Cannot retrieve the ' +
+        field.field +
+        ' value because of an internal error in the getter implementation: ' +
+        error);
     }
     if (value && _.isFunction(value.then)) {
       return value.then(function (result) {
