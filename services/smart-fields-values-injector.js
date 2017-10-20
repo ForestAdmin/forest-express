@@ -14,7 +14,11 @@ function SmartFieldsValuesInjector(record, modelName) {
         modelName + ' instead.');
     }
 
-    var value = field.get ? field.get(record) : field.value(record);
+    try {
+      var value = field.get ? field.get(record) : field.value(record);
+    } catch (e) {
+      logger.error(e);
+    }
     if (value && _.isFunction(value.then)) {
       return value.then(function (result) {
         record[field.field] = result;
