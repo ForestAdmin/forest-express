@@ -4,6 +4,9 @@
 ### Changed
 - Smart Relationships - Add a warning if a Smart Collection does not define the "idField" attribute necessary for Smart Relationships. 
 
+### Fixed
+- Smart Fields - Prevent crash when trying to compute Smart Field value.
+
 ## RELEASE 1.3.6 - 2017-10-11
 ### Changed
 - Sessions - Display a clean error message if the renderingId and envSecret are missing or inconsistent.

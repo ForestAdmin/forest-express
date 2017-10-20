@@ -8,6 +8,7 @@ function SmartFieldsValuesInjector(record, modelName) {
   var schema = Schemas.schemas[modelName];
 
   function setSmartFieldValue(record, field, modelName) {
+    var value;
     if (field.value) {
       logger.warn('DEPRECATION WARNING: Smart Fields "value" method is ' +
         'deprecated. Please use "get" method in your collection ' +
@@ -15,7 +16,7 @@ function SmartFieldsValuesInjector(record, modelName) {
     }
 
     try {
-      var value = field.get ? field.get(record) : field.value(record);
+      value = field.get ? field.get(record) : field.value(record);
     } catch (e) {
       logger.error(e);
     }
