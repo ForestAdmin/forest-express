@@ -8,13 +8,21 @@ function SmartFieldsValuesInjector(record, modelName) {
   var schema = Schemas.schemas[modelName];
 
   function setSmartFieldValue(record, field, modelName) {
+    var value;
     if (field.value) {
       logger.warn('DEPRECATION WARNING: Smart Fields "value" method is ' +
         'deprecated. Please use "get" method in your collection ' +
         modelName + ' instead.');
     }
 
-    var value = field.get ? field.get(record) : field.value(record);
+    try {
+      value = field.get ? field.get(record) : field.value(record);
+    } catch (error) {
+      logger.error('Cannot retrieve the ' +
+        field.field +
+        ' value because of an internal error in the getter implementation: ' +
+        error);
+    }
     if (value && _.isFunction(value.then)) {
       return value.then(function (result) {
         record[field.field] = result;
