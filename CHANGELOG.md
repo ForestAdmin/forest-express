@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Record Serialization - Type Point are serialized and in ressources attibutes.
+
 ### Changed
 - Smart Relationships - Add a warning if a Smart Collection does not define the "idField" attribute necessary for Smart Relationships. 
 - Smart Fields - Prevent the Smart Fields computation errors to generate a crash and handle it letting the value empty.

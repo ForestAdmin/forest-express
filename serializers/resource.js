@@ -17,6 +17,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
 
   var reservedWords = ['meta'];
   var fieldNamesDateonly = [];
+  var fieldPoints = [];
 
   function getFieldsNames(fields) {
     return fields.map(function (field) {
@@ -35,6 +36,10 @@ function ResourceSerializer(Implementation, model, records, integrator,
       _.map(fields, function (field) {
         if (field.type === 'Dateonly') {
           fieldNamesDateonly.push(field.field);
+        }
+
+        if (field.type === 'Point') {
+          fieldPoints.push(field.field);
         }
 
         if (field.integration) {
@@ -99,13 +104,19 @@ function ResourceSerializer(Implementation, model, records, integrator,
       });
     }
 
-    function formatDateonly(record) {
+    function formatFields(record) {
       var offsetServer = moment().utcOffset() / 60;
 
       _.each(fieldNamesDateonly, function (fieldName) {
         if (record[fieldName]) {
           var dateonly = moment.utc(record[fieldName]).add(offsetServer, 'h');
           record[fieldName] = dateonly.format();
+        }
+      });
+
+      _.each(fieldPoints, function (fieldName) {
+        if (record[fieldName]) {
+          record[fieldName] = record[fieldName].coordinates;
         }
       });
     }
@@ -125,10 +136,10 @@ function ResourceSerializer(Implementation, model, records, integrator,
     // NOTICE: Format Dateonly field types before serialization.
     if (_.isArray(records)) {
       _.each(records, function (record) {
-        formatDateonly(record);
+        formatFields(record);
       });
     } else {
-      formatDateonly(records);
+      formatFields(records);
     }
 
     var typeName = toKebabCase(schema.name);
