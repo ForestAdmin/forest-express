@@ -20,6 +20,16 @@ function ResourceDeserializer(Implementation, model, params,
       return field.isVirtual && field.set;
     });
 
+    _.each(schema.fields, function (field) {
+      if (field.type === 'Point' && params.data.attributes[field.field]) {
+        var coordinates = params.data.attributes[field.field].split(',');
+        params.data.attributes[field.field] = {
+          type: 'Point',
+          coordinates: coordinates
+        };
+      }
+    });
+
     return P
       .each(fieldsVirtual, function (field) {
         // WARNING: The Smart Fields setters may override other changes.
