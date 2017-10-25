@@ -17,7 +17,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
 
   var reservedWords = ['meta'];
   var fieldNamesDateonly = [];
-  var fieldPoints = [];
+  var fieldNamesPoint = [];
 
   function getFieldsNames(fields) {
     return fields.map(function (field) {
@@ -39,7 +39,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
         }
 
         if (field.type === 'Point') {
-          fieldPoints.push(field.field);
+          fieldNamesPoint.push(field.field);
         }
 
         if (field.integration) {
@@ -114,7 +114,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
         }
       });
 
-      _.each(fieldPoints, function (fieldName) {
+      _.each(fieldNamesPoint, function (fieldName) {
         if (record[fieldName]) {
           record[fieldName] = record[fieldName].coordinates;
         }

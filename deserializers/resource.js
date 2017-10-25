@@ -22,10 +22,10 @@ function ResourceDeserializer(Implementation, model, params,
 
     _.each(schema.fields, function (field) {
       if (field.type === 'Point' && params.data.attributes[field.field]) {
-        var value = params.data.attributes[field.field];
+        var coordinates = params.data.attributes[field.field].split(',');
         params.data.attributes[field.field] = {
           type: 'Point',
-          coordinates: value.split(',')
+          coordinates: coordinates
         };
       }
     });
