@@ -1,10 +1,8 @@
 'use strict';
-var P = require('bluebird');
 var auth = require('../services/auth');
 var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
-var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 var CSVExporter = require('../services/csv-exporter');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
@@ -17,14 +15,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        return P
-          .map(records, function (record) {
-            return new SmartFieldsValuesInjector(record, modelName).perform();
-          })
-          .then(function (records) {
-            return new ResourceSerializer(Implementation, model, records,
-              integrator, opts, { count: count }).perform();
-          });
+        return new ResourceSerializer(Implementation, model, records,
+          integrator, opts, { count: count }).perform();
       })
       .then(function (records) {
         response.send(records);
@@ -44,9 +36,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.get = function (request, response, next) {
     return new Implementation.ResourceGetter(model, request.params)
       .perform()
-      .then(function(records) {
-        return new SmartFieldsValuesInjector(records, modelName).perform();
-      })
       .then(function (record) {
         return new ResourceSerializer(Implementation, model, record,
           integrator, opts).perform();
