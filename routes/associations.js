@@ -1,12 +1,10 @@
 'use strict';
 var _ = require('lodash');
-var P = require('bluebird');
 var SchemaUtil = require('../utils/schema');
 var auth = require('../services/auth');
 var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var Schemas = require('../generators/schemas');
-var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 var CSVExporter = require('../services/csv-exporter');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
@@ -43,15 +41,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        return P
-          .map(records, function (record) {
-            return new SmartFieldsValuesInjector(record, associationField)
-              .perform();
-          })
-          .then(function (records) {
-            return new ResourceSerializer(Implementation, associationModel,
-              records, integrator, opts, { count: count }).perform();
-          });
+        return new ResourceSerializer(Implementation, associationModel,
+          records, integrator, opts, { count: count }).perform();
       })
       .then(function (records) { response.send(records); })
       .catch(next);

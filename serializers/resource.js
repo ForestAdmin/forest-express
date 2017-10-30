@@ -1,7 +1,9 @@
 'use strict';
 var _ = require('lodash');
+var P = require('bluebird');
 var moment = require('moment');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 var Schemas = require('../generators/schemas');
 var logger = require('../services/logger');
 
@@ -13,7 +15,8 @@ function toKebabCase(string) {
 
 function ResourceSerializer(Implementation, model, records, integrator,
   opts, meta) {
-  var schema = Schemas.schemas[Implementation.getModelName(model)];
+  var modelName = Implementation.getModelName(model);
+  var schema = Schemas.schemas[modelName];
 
   var reservedWords = ['meta'];
   var fieldNamesDateonly = [];
@@ -142,8 +145,19 @@ function ResourceSerializer(Implementation, model, records, integrator,
       formatFields(records);
     }
 
-    var typeName = toKebabCase(schema.name);
-    return new JSONAPISerializer(typeName, records, serializationOptions);
+    return new P(function (resolve) {
+        if (_.isArray(records)) {
+          resolve(P.map(records, function (record) {
+            return new SmartFieldsValuesInjector(record, modelName).perform();
+          }));
+        } else {
+          resolve(new SmartFieldsValuesInjector(records, modelName).perform());
+        }
+      })
+      .then(function (recordsWithSmartFields) {
+        var typeName = toKebabCase(schema.name);
+        return new JSONAPISerializer(typeName, recordsWithSmartFields, serializationOptions);
+      });
   };
 }
 

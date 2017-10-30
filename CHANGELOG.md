@@ -1,13 +1,15 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Smart Fields - Do the Smart Fields values injection in the Serializer to simplify Smart Relationships implementation.
 
 ## RELEASE 1.4.0 - 2017-10-26
 ### Added
 - Types Support - Support Point field type.
 
 ### Changed
-- Smart Relationships - Add a warning if a Smart Collection does not define the "idField" attribute necessary for Smart Relationships. 
+- Smart Relationships - Add a warning if a Smart Collection does not define the "idField" attribute necessary for Smart Relationships.
 - Smart Fields - Prevent the Smart Fields computation errors to generate a crash and handle it letting the value empty.
 
 ## RELEASE 1.3.6 - 2017-10-11
