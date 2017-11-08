@@ -88,8 +88,14 @@ exports.init = function (Implementation) {
   }
 
   // CORS
+  var origins = ['localhost:4200', '*.forestadmin.com'];
+
+  if (process.env.CORS_ORIGINS) {
+    origins = origins.concat(process.env.CORS_ORIGINS.split(','));
+  }
+
   app.use(cors({
-    allowedOrigins: ['localhost:4200', '*.forestadmin.com'],
+    allowedOrigins: origins,
     headers: ['Authorization', 'X-Requested-With', 'Content-Type']
   }));
 

@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Custom Domain - Add CORS_ORIGINS support.
 
 ## RELEASE 1.5.1 - 2017-11-06
 ### Changed
