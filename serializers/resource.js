@@ -107,11 +107,16 @@ function ResourceSerializer(Implementation, model, records, integrator,
       });
     }
 
+    function isDateOnlyString(field) {
+      return moment(field, 'YYYY-MM-DD', true).isValid();
+    }
+
     function formatFields(record) {
       var offsetServer = moment().utcOffset() / 60;
 
       _.each(fieldNamesDateonly, function (fieldName) {
-        if (record[fieldName]) {
+        //Sequelize 4 returns date strings while 3 returns dateTimeStrings
+        if (record[fieldName] && !isDateOnlyString(record[fieldName])) {
           var dateonly = moment.utc(record[fieldName]).add(offsetServer, 'h');
           record[fieldName] = dateonly.format();
         }
