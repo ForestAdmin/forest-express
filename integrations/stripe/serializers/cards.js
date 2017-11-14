@@ -5,7 +5,6 @@ var Schemas = require('../../../generators/schemas');
 var StringsUtil = require('../../../utils/strings');
 
 function CardsSerializer(cards, collectionName, meta) {
-
   function getCustomerAttributes() {
     if (!cards.length) { return []; }
 

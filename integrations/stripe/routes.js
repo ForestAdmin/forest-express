@@ -6,7 +6,9 @@ var PaymentGetter = require('./services/payment-getter');
 var InvoicesGetter = require('./services/invoices-getter');
 var InvoiceGetter = require('./services/invoice-getter');
 var CardsGetter = require('./services/cards-getter');
+var CardGetter = require('./services/card-getter');
 var BankAccountsGetter = require('./services/bank-accounts-getter');
+var BankAccountGetter = require('./services/bank-account-getter');
 var SubscriptionsGetter = require('./services/subscriptions-getter');
 var SubscriptionGetter = require('./services/subscription-getter');
 var PaymentRefunder = require('./services/payment-refunder');
@@ -124,6 +126,19 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
+  this.card = function (req, res, next) {
+    new CardGetter(Implementation, _.extend(req.query, req.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (card) {
+        return new CardsSerializer(card, modelName);
+      })
+      .then(function (card) {
+        res.send(card);
+      })
+      .catch(next);
+  };
+
   this.subscriptions = function (req, res, next) {
     new SubscriptionsGetter(Implementation, _.extend(req.query, req.params),
       opts, integrationInfo)
@@ -171,6 +186,20 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
+  this.bankAccount = function (req, res, next) {
+    new BankAccountGetter(Implementation, _.extend(req.query, req.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (bankAccount) {
+        return new BankAccountsSerializer(bankAccount, modelName);
+      })
+      .then(function (bankAccount) {
+        res.send(bankAccount);
+      })
+      .catch(next);
+  };
+
+
   this.perform = function () {
     if (integrationInfo) {
       app.get(path.generate(modelName + '_stripe_payments', opts),
@@ -197,6 +226,9 @@ module.exports = function (app, model, Implementation, opts) {
       app.get(path.generate(modelName + '/:recordId/stripe_cards', opts),
         auth.ensureAuthenticated, this.cards);
 
+      app.get(path.generate(modelName + '_stripe_cards', opts),
+        auth.ensureAuthenticated, this.card);
+
       app.get(path.generate(modelName + '_stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
 
@@ -208,6 +240,9 @@ module.exports = function (app, model, Implementation, opts) {
 
       app.get(path.generate(modelName + '/:recordId/stripe_bank_accounts', opts),
         auth.ensureAuthenticated, this.bankAccounts);
+
+      app.get(path.generate(modelName + '_stripe_bank_accounts', opts),
+        auth.ensureAuthenticated, this.bankAccount);
     }
   };
 };
