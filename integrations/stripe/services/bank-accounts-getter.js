@@ -4,6 +4,7 @@ var P = require('bluebird');
 function BankAccountsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
   var collectionModel = null;
+  // jshint camelcase: false  
 
   function hasPagination() {
     return params.page;
@@ -31,10 +32,10 @@ function BankAccountsGetter(Implementation, params, opts, integrationInfo) {
 
   function getBankAccounts(customerId, query) {
     return new P(function (resolve, reject) {
-      stripe.customers.listSources(customerId, query, function (err, charges) {
+      stripe.customers.listSources(customerId, query, function (err, bankAccounts) {
         if (err) { return reject(err); }
         // jshint camelcase: false
-        resolve([charges.total_count, charges.data]);
+        resolve([bankAccounts.total_count, bankAccounts.data]);
       });
     });
   }
@@ -54,23 +55,23 @@ function BankAccountsGetter(Implementation, params, opts, integrationInfo) {
         };
 
         return getBankAccounts(customer[collectionFieldName], query)
-          .spread(function (count, payments) {
+          .spread(function (count, bankAccounts) {
             return P
-              .map(payments, function (payment) {
+              .map(bankAccounts, function (bankAccount) {
                 if (customer) {
-                  payment.customer = customer;
+                  bankAccount.customer = customer;
                 } else {
                   return Implementation.Stripe.getCustomerByUserField(
-                    collectionModel, collectionFieldName, payment.customer)
+                    collectionModel, collectionFieldName, bankAccount.customer)
                     .then(function (customer) {
-                      payment.customer = customer;
-                      return payment;
+                      bankAccount.customer = customer;
+                      return bankAccount;
                     });
                 }
-                return payment;
+                return bankAccount;
               })
-              .then(function (payments) {
-                return [count, payments];
+              .then(function (bankAccounts) {
+                return [count, bankAccounts];
               });
           });
       }, function () {
