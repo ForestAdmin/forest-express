@@ -13,9 +13,8 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     return _.map(schema.fields, 'field');
   }
 
-  var customerAttributes = getCustomerAttributes();
-
-  subscriptions = subscriptions.map(function (subscription) {
+  function formatSubscription(subscription) {
+    // jshint camelcase: false
     if (subscription.canceled_at) {
       subscription.canceled_at = new Date(subscription.canceled_at * 1000);
     }
@@ -52,7 +51,15 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     }
 
     return subscription;
-  });
+  }
+
+  var customerAttributes = getCustomerAttributes();
+
+  if (subscriptions.length) {
+    subscriptions = subscriptions.map(formatSubscription);
+  } else {
+    subscriptions = formatSubscription(subscriptions);
+  }
 
   var type = StringsUtil.camelCaseToDashed(collectionName) +
     '-stripe-subscriptions';

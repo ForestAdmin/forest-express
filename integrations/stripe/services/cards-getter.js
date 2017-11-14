@@ -4,6 +4,7 @@ var P = require('bluebird');
 function CardsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
   var collectionModel = null;
+  // jshint camelcase: false
 
   function hasPagination() {
     return params.page;

@@ -13,9 +13,7 @@ function PaymentsSerializer(payments, collectionName, meta) {
     return _.map(schema.fields, 'field');
   }
 
-  var customerAttributes = getCustomerAttributes();
-
-  payments = payments.map(function (payment) {
+  function formatPayment(payment) {
     if (payment.created) {
       payment.created =  new Date(payment.created * 1000);
     }
@@ -23,7 +21,15 @@ function PaymentsSerializer(payments, collectionName, meta) {
     if (payment.amount) { payment.amount /= 100; }
 
     return payment;
-  });
+  }
+
+  var customerAttributes = getCustomerAttributes();
+
+  if (payments.length) {
+    payments = payments.map(formatPayment);
+  } else {
+    payments = formatPayment(payments);
+  }
 
   var type = StringsUtil.camelCaseToDashed(collectionName) + '-stripe-payments';
 
