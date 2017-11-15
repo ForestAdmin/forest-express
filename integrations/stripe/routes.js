@@ -5,10 +5,8 @@ var PaymentsGetter = require('./services/payments-getter');
 var PaymentGetter = require('./services/payment-getter');
 var InvoicesGetter = require('./services/invoices-getter');
 var InvoiceGetter = require('./services/invoice-getter');
-var CardsGetter = require('./services/cards-getter');
-var CardGetter = require('./services/card-getter');
-var BankAccountsGetter = require('./services/bank-accounts-getter');
-var BankAccountGetter = require('./services/bank-account-getter');
+var SourcesGetter = require('./services/sources-getter');
+var SourceGetter = require('./services/source-getter');
 var SubscriptionsGetter = require('./services/subscriptions-getter');
 var SubscriptionGetter = require('./services/subscription-getter');
 var PaymentRefunder = require('./services/payment-refunder');
@@ -111,7 +109,8 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.cards = function (req, res, next) {
-    new CardsGetter(Implementation, _.extend(req.query, req.params),
+    req.params.object = 'card';    
+    new SourcesGetter(Implementation, _.extend(req.query, req.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -127,7 +126,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.card = function (req, res, next) {
-    new CardGetter(Implementation, _.extend(req.query, req.params),
+    new SourceGetter(Implementation, _.extend(req.query, req.params),
       opts, integrationInfo)
       .perform()
       .then(function (card) {
@@ -170,7 +169,8 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.bankAccounts = function (req, res, next) {
-    new BankAccountsGetter(Implementation, _.extend(req.query, req.params),
+    req.params.object = 'bank_account';
+    new SourcesGetter(Implementation, _.extend(req.query, req.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -187,7 +187,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.bankAccount = function (req, res, next) {
-    new BankAccountGetter(Implementation, _.extend(req.query, req.params),
+    new SourceGetter(Implementation, _.extend(req.query, req.params),
       opts, integrationInfo)
       .perform()
       .then(function (bankAccount) {

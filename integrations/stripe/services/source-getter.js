@@ -1,17 +1,15 @@
 'use strict';
 var P = require('bluebird');
 
-function CardGetter(Implementation, params, opts, integrationInfo) {
+function SourceGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
   var collectionModel = null;
 
-  function getCard(customer, cardId) {
+  function getBankAccount(customerId, objectId) {
     return new P(function (resolve, reject) {
-      if (!customer) { return resolve([0, []]); }
-
-      stripe.customers.retrieveCard(customer, cardId, function (err, card) {
+      stripe.customers.retrieveSource(customerId, objectId, function (err, bankAccount) {
         if (err) { return reject(err); }
-        resolve(card);
+        resolve(bankAccount);
       });
     });
   }
@@ -23,17 +21,17 @@ function CardGetter(Implementation, params, opts, integrationInfo) {
     return Implementation.Stripe.getCustomer(collectionModel,
       collectionFieldName, params.recordId)
       .then(function (customer) {
-        return getCard(customer[collectionFieldName], params.objectId)
-          .then(function (card) {
+        return getBankAccount(customer[collectionFieldName], params.objectId)
+          .then(function (bankAccount) {
             return Implementation.Stripe.getCustomerByUserField(
-              collectionModel, collectionFieldName, card.customer)
+              collectionModel, collectionFieldName, bankAccount.customer)
               .then(function (customer) {
-                card.customer = customer;
-                return card;
+                bankAccount.customer = customer;
+                return bankAccount;
               });
           });
       });
   };
 }
 
-module.exports = CardGetter;
+module.exports = SourceGetter;

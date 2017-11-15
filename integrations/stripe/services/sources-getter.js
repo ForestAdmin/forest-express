@@ -1,10 +1,10 @@
 'use strict';
 var P = require('bluebird');
 
-function CardsGetter(Implementation, params, opts, integrationInfo) {
+function BankAccountsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
   var collectionModel = null;
-  // jshint camelcase: false
+  // jshint camelcase: false  
 
   function hasPagination() {
     return params.page;
@@ -30,14 +30,12 @@ function CardsGetter(Implementation, params, opts, integrationInfo) {
     }
   }
 
-  function getCards(customer, query) {
+  function getBankAccounts(customerId, query) {
     return new P(function (resolve, reject) {
-      if (!customer) { return resolve([0, []]); }
-
-      stripe.customers.listCards(customer, query, function (err, cards) {
+      stripe.customers.listSources(customerId, query, function (err, bankAccounts) {
         if (err) { return reject(err); }
         // jshint camelcase: false
-        resolve([cards.total_count, cards.data]);
+        resolve([bankAccounts.total_count, bankAccounts.data]);
       });
     });
   }
@@ -53,26 +51,34 @@ function CardsGetter(Implementation, params, opts, integrationInfo) {
           limit: getLimit(),
           starting_after: getStartingAfter(),
           ending_before: getEndingBefore(),
-          'include[]': 'total_count'
+          'include[]': 'total_count',
+          object: params.object
         };
 
-        return getCards(customer[collectionFieldName], query)
-          .spread(function (count, cards) {
+        return getBankAccounts(customer[collectionFieldName], query)
+          .spread(function (count, bankAccounts) {
             return P
-              .map(cards, function (card) {
-                return Implementation.Stripe.getCustomerByUserField(
-                  collectionModel, collectionFieldName, card.customer)
-                  .then(function (customer) {
-                    card.customer = customer;
-                    return card;
-                  });
+              .map(bankAccounts, function (bankAccount) {
+                if (customer) {
+                  bankAccount.customer = customer;
+                } else {
+                  return Implementation.Stripe.getCustomerByUserField(
+                    collectionModel, collectionFieldName, bankAccount.customer)
+                    .then(function (customer) {
+                      bankAccount.customer = customer;
+                      return bankAccount;
+                    });
+                }
+                return bankAccount;
               })
-              .then(function (cards) {
-                return [count, cards];
+              .then(function (bankAccounts) {
+                return [count, bankAccounts];
               });
           });
+      }, function () {
+        return new P(function (resolve) { resolve([0, []]); });
       });
   };
 }
 
-module.exports = CardsGetter;
+module.exports = BankAccountsGetter;
