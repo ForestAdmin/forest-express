@@ -7,8 +7,8 @@ function PaymentsGetter(Implementation, params, opts, integrationInfo) {
 
   function getCharge(paymentId) {
     return new P(function (resolve, reject) {
-      stripe.charges.retrieve(paymentId, function (err, charge) {
-        if (err) { return reject(err); }
+      stripe.charges.retrieve(paymentId, function (error, charge) {
+        if (error) { return reject(error); }
         resolve(charge);
       });
     });

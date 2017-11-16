@@ -1,14 +1,13 @@
 'use strict';
 var P = require('bluebird');
 
-function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
+function SubscriptionGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  var collectionModel = null;
 
   function getSubscription(subscriptionId) {
     return new P(function (resolve, reject) {
-      stripe.subscriptions.retrieve(subscriptionId, function (err, subscription) {
-        if (err) { return reject(err); }
+      stripe.subscriptions.retrieve(subscriptionId, function (error, subscription) {
+        if (error) { return reject(error); }
         resolve(subscription);
       });
     });
@@ -16,7 +15,7 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
 
   this.perform = function () {
     var collectionFieldName = integrationInfo.field;
-    collectionModel = integrationInfo.collection;
+    var collectionModel = integrationInfo.collection;
 
     return getSubscription(params.subscriptionId)
       .then(function (subscription) {
@@ -30,4 +29,4 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
   };
 }
 
-module.exports = SubscriptionsGetter;
+module.exports = SubscriptionGetter;

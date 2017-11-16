@@ -35,8 +35,8 @@ module.exports = function (app, model, Implementation, opts) {
     };
   }
 
-  this.payments = function (req, res, next) {
-    new PaymentsGetter(Implementation, _.extend(req.query, req.params),
+  this.payments = function (request, response, next) {
+    new PaymentsGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -46,41 +46,41 @@ module.exports = function (app, model, Implementation, opts) {
         return new PaymentsSerializer(payments, modelName, { count: count });
       })
       .then(function (payments) {
-        res.send(payments);
+        response.send(payments);
       })
       .catch(next);
   };
 
-  this.payment = function (req, res, next) {
-    new PaymentGetter(Implementation, _.extend(req.query, req.params),
+  this.payment = function (request, response, next) {
+    new PaymentGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (payment) {
         return new PaymentsSerializer(payment, modelName);
       })
       .then(function (payment) {
-        res.send(payment);
+        response.send(payment);
       })
       .catch(next);
   };
 
-  this.refund = function (req, res, next) {
-    new PaymentRefunder(req.body, opts)
+  this.refund = function (request, response, next) {
+    new PaymentRefunder(request.body, opts)
       .perform()
       .then(function () {
-        res.status(204).send();
+        response.status(204).send();
       })
       .catch(function (err) {
         if (err.type === 'StripeInvalidRequestError') {
-          res.status(400).send({ error: err.message });
+          response.status(400).send({ error: err.message });
         } else {
           next(err);
         }
       });
   };
 
-  this.invoices = function (req, res, next) {
-    new InvoicesGetter(Implementation, _.extend(req.query, req.params),
+  this.invoices = function (request, response, next) {
+    new InvoicesGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -90,27 +90,27 @@ module.exports = function (app, model, Implementation, opts) {
         return new InvoicesSerializer(invoices, modelName, { count: count });
       })
       .then(function (invoices) {
-        res.send(invoices);
+        response.send(invoices);
       })
       .catch(next);
   };
 
-  this.invoice = function (req, res, next) {
-    new InvoiceGetter(Implementation, _.extend(req.query, req.params),
+  this.invoice = function (request, response, next) {
+    new InvoiceGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (invoice) {
         return new InvoicesSerializer(invoice, modelName);
       })
       .then(function (invoice) {
-        res.send(invoice);
+        response.send(invoice);
       })
       .catch(next);
   };
 
-  this.cards = function (req, res, next) {
-    req.params.object = 'card';    
-    new SourcesGetter(Implementation, _.extend(req.query, req.params),
+  this.cards = function (request, response, next) {
+    request.params.object = 'card';
+    new SourcesGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -120,26 +120,26 @@ module.exports = function (app, model, Implementation, opts) {
         return new CardsSerializer(cards, modelName, { count: count });
       })
       .then(function (cards) {
-        res.send(cards);
+        response.send(cards);
       })
       .catch(next);
   };
 
-  this.card = function (req, res, next) {
-    new SourceGetter(Implementation, _.extend(req.query, req.params),
+  this.card = function (request, response, next) {
+    new SourceGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (card) {
         return new CardsSerializer(card, modelName);
       })
       .then(function (card) {
-        res.send(card);
+        response.send(card);
       })
       .catch(next);
   };
 
-  this.subscriptions = function (req, res, next) {
-    new SubscriptionsGetter(Implementation, _.extend(req.query, req.params),
+  this.subscriptions = function (request, response, next) {
+    new SubscriptionsGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -150,27 +150,27 @@ module.exports = function (app, model, Implementation, opts) {
           { count: count });
       })
       .then(function (subscriptions) {
-        res.send(subscriptions);
+        response.send(subscriptions);
       })
       .catch(next);
   };
 
-  this.subscription = function (req, res, next) {
-    new SubscriptionGetter(Implementation, _.extend(req.query, req.params),
+  this.subscription = function (request, response, next) {
+    new SubscriptionGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (subscription) {
         return new SubscriptionsSerializer(subscription, modelName);
       })
       .then(function (subscription) {
-        res.send(subscription);
+        response.send(subscription);
       })
       .catch(next);
   };
 
-  this.bankAccounts = function (req, res, next) {
-    req.params.object = 'bank_account';
-    new SourcesGetter(Implementation, _.extend(req.query, req.params),
+  this.bankAccounts = function (request, response, next) {
+    request.params.object = 'bank_account';
+    new SourcesGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -181,20 +181,20 @@ module.exports = function (app, model, Implementation, opts) {
           { count: count });
       })
       .then(function (bankAccounts) {
-        res.send(bankAccounts);
+        response.send(bankAccounts);
       })
       .catch(next);
   };
 
-  this.bankAccount = function (req, res, next) {
-    new SourceGetter(Implementation, _.extend(req.query, req.params),
+  this.bankAccount = function (request, response, next) {
+    new SourceGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (bankAccount) {
         return new BankAccountsSerializer(bankAccount, modelName);
       })
       .then(function (bankAccount) {
-        res.send(bankAccount);
+        response.send(bankAccount);
       })
       .catch(next);
   };

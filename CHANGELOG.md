@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Stripe Integration - Allow users to display the details stripe records.
+- Stripe Integration - Allow users to display Stripe records in the Details view.
 
 ## RELEASE 1.5.2 - 2017-11-08
 ### Fixed

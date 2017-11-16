@@ -13,7 +13,7 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     return _.map(schema.fields, 'field');
   }
 
-  function formatSubscription(subscription) {
+  function format(subscription) {
     // jshint camelcase: false
     if (subscription.canceled_at) {
       subscription.canceled_at = new Date(subscription.canceled_at * 1000);
@@ -56,9 +56,9 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   var customerAttributes = getCustomerAttributes();
 
   if (subscriptions.length) {
-    subscriptions = subscriptions.map(formatSubscription);
+    subscriptions = subscriptions.map(format);
   } else {
-    subscriptions = formatSubscription(subscriptions);
+    subscriptions = format(subscriptions);
   }
 
   var type = StringsUtil.camelCaseToDashed(collectionName) +
@@ -83,4 +83,3 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
 }
 
 module.exports = SubscriptionsSerializer;
-

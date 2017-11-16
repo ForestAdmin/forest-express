@@ -7,8 +7,8 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
 
   function getInvoice(invoiceId) {
     return new P(function (resolve, reject) {
-      stripe.invoices.retrieve(invoiceId, function (err, invoice) {
-        if (err) { return reject(err); }
+      stripe.invoices.retrieve(invoiceId, function (error, invoice) {
+        if (error) { return reject(error); }
         resolve(invoice);
       });
     });
@@ -30,4 +30,3 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
 }
 
 module.exports = InvoicesGetter;
-
