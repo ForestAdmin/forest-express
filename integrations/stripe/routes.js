@@ -2,10 +2,13 @@
 var _ = require('lodash');
 var IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 var PaymentsGetter = require('./services/payments-getter');
+var PaymentGetter = require('./services/payment-getter');
 var InvoicesGetter = require('./services/invoices-getter');
-var CardsGetter = require('./services/cards-getter');
-var BankAccountsGetter = require('./services/bank-accounts-getter');
+var InvoiceGetter = require('./services/invoice-getter');
+var SourcesGetter = require('./services/sources-getter');
+var SourceGetter = require('./services/source-getter');
 var SubscriptionsGetter = require('./services/subscriptions-getter');
+var SubscriptionGetter = require('./services/subscription-getter');
 var PaymentRefunder = require('./services/payment-refunder');
 var PaymentsSerializer = require('./serializers/payments');
 var InvoicesSerializer = require('./serializers/invoices');
@@ -21,7 +24,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   if (opts.integrations && opts.integrations.stripe) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
-         Implementation, opts.integrations.stripe).perform();
+      Implementation, opts.integrations.stripe).perform();
   }
 
   if (integrationInfo) {
@@ -32,8 +35,8 @@ module.exports = function (app, model, Implementation, opts) {
     };
   }
 
-  this.payments = function (req, res, next) {
-    new PaymentsGetter(Implementation, _.extend(req.query, req.params),
+  this.payments = function (request, response, next) {
+    new PaymentsGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -43,28 +46,41 @@ module.exports = function (app, model, Implementation, opts) {
         return new PaymentsSerializer(payments, modelName, { count: count });
       })
       .then(function (payments) {
-        res.send(payments);
+        response.send(payments);
       })
       .catch(next);
   };
 
-  this.refund = function (req, res, next) {
-    new PaymentRefunder(req.body, opts)
+  this.payment = function (request, response, next) {
+    new PaymentGetter(Implementation, _.extend(request.query, request.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (payment) {
+        return new PaymentsSerializer(payment, modelName);
+      })
+      .then(function (payment) {
+        response.send(payment);
+      })
+      .catch(next);
+  };
+
+  this.refund = function (request, response, next) {
+    new PaymentRefunder(request.body, opts)
       .perform()
       .then(function () {
-        res.status(204).send();
+        response.status(204).send();
       })
       .catch(function (err) {
         if (err.type === 'StripeInvalidRequestError') {
-          res.status(400).send({ error: err.message });
+          response.status(400).send({ error: err.message });
         } else {
           next(err);
         }
       });
   };
 
-  this.invoices = function (req, res, next) {
-    new InvoicesGetter(Implementation, _.extend(req.query, req.params),
+  this.invoices = function (request, response, next) {
+    new InvoicesGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -74,13 +90,27 @@ module.exports = function (app, model, Implementation, opts) {
         return new InvoicesSerializer(invoices, modelName, { count: count });
       })
       .then(function (invoices) {
-        res.send(invoices);
+        response.send(invoices);
       })
       .catch(next);
   };
 
-  this.cards = function (req, res, next) {
-    new CardsGetter(Implementation, _.extend(req.query, req.params),
+  this.invoice = function (request, response, next) {
+    new InvoiceGetter(Implementation, _.extend(request.query, request.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (invoice) {
+        return new InvoicesSerializer(invoice, modelName);
+      })
+      .then(function (invoice) {
+        response.send(invoice);
+      })
+      .catch(next);
+  };
+
+  this.cards = function (request, response, next) {
+    request.params.object = 'card';
+    new SourcesGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
@@ -90,47 +120,93 @@ module.exports = function (app, model, Implementation, opts) {
         return new CardsSerializer(cards, modelName, { count: count });
       })
       .then(function (cards) {
-        res.send(cards);
+        response.send(cards);
       })
       .catch(next);
   };
 
-  this.subscriptions = function (req, res, next) {
-    new SubscriptionsGetter(Implementation, _.extend(req.query, req.params),
+  this.card = function (request, response, next) {
+    new SourceGetter(Implementation, _.extend(request.query, request.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (card) {
+        return new CardsSerializer(card, modelName);
+      })
+      .then(function (card) {
+        response.send(card);
+      })
+      .catch(next);
+  };
+
+  this.subscriptions = function (request, response, next) {
+    new SubscriptionsGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
         var count = results[0];
-        var cards = results[1];
+        var subscriptions = results[1];
 
-        return new SubscriptionsSerializer(cards, modelName, { count: count });
+        return new SubscriptionsSerializer(subscriptions, modelName,
+          { count: count });
       })
-      .then(function (cards) {
-        res.send(cards);
+      .then(function (subscriptions) {
+        response.send(subscriptions);
       })
       .catch(next);
   };
 
-  this.bankAccounts = function (req, res, next) {
-    new BankAccountsGetter(Implementation, _.extend(req.query, req.params),
+  this.subscription = function (request, response, next) {
+    new SubscriptionGetter(Implementation, _.extend(request.query, request.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (subscription) {
+        return new SubscriptionsSerializer(subscription, modelName);
+      })
+      .then(function (subscription) {
+        response.send(subscription);
+      })
+      .catch(next);
+  };
+
+  this.bankAccounts = function (request, response, next) {
+    request.params.object = 'bank_account';
+    new SourcesGetter(Implementation, _.extend(request.query, request.params),
       opts, integrationInfo)
       .perform()
       .then(function (results) {
         var count = results[0];
-        var cards = results[1];
+        var bankAccounts = results[1];
 
-        return new BankAccountsSerializer(cards, modelName, { count: count });
+        return new BankAccountsSerializer(bankAccounts, modelName,
+          { count: count });
       })
-      .then(function (cards) {
-        res.send(cards);
+      .then(function (bankAccounts) {
+        response.send(bankAccounts);
       })
       .catch(next);
   };
+
+  this.bankAccount = function (request, response, next) {
+    new SourceGetter(Implementation, _.extend(request.query, request.params),
+      opts, integrationInfo)
+      .perform()
+      .then(function (bankAccount) {
+        return new BankAccountsSerializer(bankAccount, modelName);
+      })
+      .then(function (bankAccount) {
+        response.send(bankAccount);
+      })
+      .catch(next);
+  };
+
 
   this.perform = function () {
     if (integrationInfo) {
       app.get(path.generate(modelName + '_stripe_payments', opts),
         auth.ensureAuthenticated, this.payments);
+
+      app.get(path.generate(modelName + '_stripe_payments/:paymentId', opts),
+        auth.ensureAuthenticated, this.payment);
 
       app.get(path.generate(modelName + '/:recordId/stripe_payments', opts),
         auth.ensureAuthenticated, this.payments);
@@ -144,17 +220,29 @@ module.exports = function (app, model, Implementation, opts) {
       app.get(path.generate(modelName + '/:recordId/stripe_invoices', opts),
         auth.ensureAuthenticated, this.invoices);
 
+      app.get(path.generate(modelName + '_stripe_invoices/:invoiceId', opts),
+        auth.ensureAuthenticated, this.invoice);
+
       app.get(path.generate(modelName + '/:recordId/stripe_cards', opts),
         auth.ensureAuthenticated, this.cards);
 
+      app.get(path.generate(modelName + '_stripe_cards', opts),
+        auth.ensureAuthenticated, this.card);
+
       app.get(path.generate(modelName + '_stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
+
+      app.get(path.generate(modelName + '_stripe_subscriptions/:subscriptionId', opts),
+        auth.ensureAuthenticated, this.subscription);
 
       app.get(path.generate(modelName + '/:recordId/stripe_subscriptions', opts),
         auth.ensureAuthenticated, this.subscriptions);
 
       app.get(path.generate(modelName + '/:recordId/stripe_bank_accounts', opts),
         auth.ensureAuthenticated, this.bankAccounts);
+
+      app.get(path.generate(modelName + '_stripe_bank_accounts', opts),
+        auth.ensureAuthenticated, this.bankAccount);
     }
   };
 };

@@ -13,9 +13,7 @@ function InvoicesSerializer(invoices, collectionName, meta) {
     return _.map(schema.fields, 'field');
   }
 
-  var customerAttributes = getCustomerAttributes();
-
-  invoices = invoices.map(function (invoice) {
+  function format(invoice) {
     // jshint camelcase: false
     invoice.date =  new Date(invoice.date * 1000);
 
@@ -31,7 +29,15 @@ function InvoicesSerializer(invoices, collectionName, meta) {
     if (invoice.total) { invoice.total /= 100; }
 
     return invoice;
-  });
+  }
+
+  var customerAttributes = getCustomerAttributes();
+
+  if (invoices.length) {
+    invoices = invoices.map(format);
+  } else {
+    invoices = format(invoices);
+  }
 
   var type = StringsUtil.camelCaseToDashed(collectionName) + '-stripe-invoices';
 
@@ -54,4 +60,3 @@ function InvoicesSerializer(invoices, collectionName, meta) {
 }
 
 module.exports = InvoicesSerializer;
-
