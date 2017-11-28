@@ -86,13 +86,11 @@ function ResourceSerializer(Implementation, model, records, integrator,
               attributes: getFieldsNames(referenceSchema.fields),
               relationshipLinks: {
                 related: function (dataSet) {
-                  var ret = {
+                  return {
                     href: '/forest/' + Implementation.getModelName(model) +
                       '/' + dataSet[schema.idField] + '/relationships/' +
                       field.field,
                   };
-
-                  return ret;
                 }
               }
             };
@@ -146,14 +144,14 @@ function ResourceSerializer(Implementation, model, records, integrator,
     }
 
     return new P(function (resolve) {
-        if (_.isArray(records)) {
-          resolve(P.map(records, function (record) {
-            return new SmartFieldsValuesInjector(record, modelName).perform();
-          }));
-        } else {
-          resolve(new SmartFieldsValuesInjector(records, modelName).perform());
-        }
-      })
+      if (_.isArray(records)) {
+        resolve(P.map(records, function (record) {
+          return new SmartFieldsValuesInjector(record, modelName).perform();
+        }));
+      } else {
+        resolve(new SmartFieldsValuesInjector(records, modelName).perform());
+      }
+    })
       .then(function (recordsWithSmartFields) {
         var typeName = toKebabCase(schema.name);
         return new JSONAPISerializer(typeName, recordsWithSmartFields, serializationOptions);

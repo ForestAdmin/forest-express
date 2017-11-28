@@ -87,11 +87,10 @@ function Checker(opts, Implementation) {
         ignoreRelationshipData: true,
         relationshipLinks: {
           related: function (dataSet) {
-            var ret = {
+            return {
               href: '/forest/' + Implementation.getModelName(model) +
                 '/' + dataSet[schema.idField] + '/relationships/' + field.field,
             };
-            return ret;
           }
         }
       };

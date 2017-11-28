@@ -88,7 +88,7 @@ function Checker(opts, Implementation) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.layer, model)) {
-        Setup.createFields(Implementation, model, schema.fields);
+      Setup.createFields(Implementation, model, schema.fields);
     }
   };
 
@@ -102,11 +102,10 @@ function Checker(opts, Implementation) {
         ignoreRelationshipData: true,
         relationshipLinks: {
           related: function (dataSet) {
-            var ret = {
+            return {
               href: '/forest/' + Implementation.getModelName(model) +
                 '/' + dataSet[schema.idField] + '/' + field.field,
             };
-            return ret;
           }
         }
       };

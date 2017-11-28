@@ -15,12 +15,10 @@ function CloseioLeadsSerializer(attributes, collectionName, meta) {
       nullIfMissing: true,
       relationshipLinks: {
         related: function (dataSet) {
-          var ret = {
+          return {
             href: '/forest/' + collectionName + '_closeio_leads/' +
               dataSet.id + '/emails'
           };
-
-          return ret;
         }
       }
     },

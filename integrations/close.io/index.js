@@ -71,7 +71,7 @@ function Checker(opts, Implementation) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.closeio, model)) {
-        new Routes(app, model, Implementation, opts).perform();
+      new Routes(app, model, Implementation, opts).perform();
     }
   };
 
@@ -102,11 +102,10 @@ function Checker(opts, Implementation) {
         ignoreRelationshipData: true,
         relationshipLinks: {
           related: function (dataSet) {
-            var ret = {
+            return {
               href: '/forest/' + Implementation.getModelName(model) +
                 '/' + dataSet[schema.idField] + '/' + field.field,
             };
-            return ret;
           }
         }
       };
