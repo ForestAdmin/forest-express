@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../../../generators/schemas');
-var StringsUtil = require('../../../utils/strings');
 
 function BankAccountsSerializer(bankAccounts, collectionName, meta) {
   function getCustomerAttributes() {
@@ -15,8 +14,7 @@ function BankAccountsSerializer(bankAccounts, collectionName, meta) {
 
   var customerAttributes = getCustomerAttributes();
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) +
-    '-stripe-bank-accounts';
+  var type = collectionName + '_stripe_bank_accounts';
 
   return new JSONAPISerializer(type, bankAccounts, {
     attributes: ['account', 'account_holder_name', 'account_holder_type',
@@ -36,4 +34,3 @@ function BankAccountsSerializer(bankAccounts, collectionName, meta) {
 }
 
 module.exports = BankAccountsSerializer;
-

@@ -1,7 +1,6 @@
 'use strict';
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var StringsUtil = require('../../../utils/strings');
 
 function MessagesSerializer(messages, collectionName, meta) {
   function mapMessage(message) {
@@ -24,7 +23,7 @@ function MessagesSerializer(messages, collectionName, meta) {
     data = mapMessage(messages);
   }
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-layer-messages';
+  var type = collectionName + '_layer_messages';
 
   return new JSONAPISerializer(type, data, {
     attributes: ['sender', 'sentAt', 'content', 'mimeType'],

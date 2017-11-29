@@ -7,12 +7,6 @@ var SmartFieldsValuesInjector = require('../services/smart-fields-values-injecto
 var Schemas = require('../generators/schemas');
 var logger = require('../services/logger');
 
-function toKebabCase(string) {
-  // NOTICE: Support for the collections beginning with an underscore.
-  if (string[0] === '_') { return '_' + _.kebabCase(string); }
-  return _.kebabCase(string);
-}
-
 function ResourceSerializer(Implementation, model, records, integrator,
   opts, meta) {
   var modelName = Implementation.getModelName(model);
@@ -62,7 +56,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
           } else if (field.reference) {
             var referenceType = field.reference.split('.')[0];
             var referenceSchema = Schemas.schemas[referenceType];
-            typeForAttributes[field.field] = toKebabCase(referenceType);
+            typeForAttributes[field.field] = referenceType;
 
             if (!referenceSchema) {
               logger.error('Cannot find the \'' + referenceType +
@@ -153,8 +147,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
       }
     })
       .then(function (recordsWithSmartFields) {
-        var typeName = toKebabCase(schema.name);
-        return new JSONAPISerializer(typeName, recordsWithSmartFields, serializationOptions);
+        return new JSONAPISerializer(schema.name, records, serializationOptions);
       });
   };
 }

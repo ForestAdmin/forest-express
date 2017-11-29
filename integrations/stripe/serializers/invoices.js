@@ -2,7 +2,6 @@
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../../../generators/schemas');
-var StringsUtil = require('../../../utils/strings');
 
 function InvoicesSerializer(invoices, collectionName, meta) {
   function getCustomerAttributes() {
@@ -39,7 +38,7 @@ function InvoicesSerializer(invoices, collectionName, meta) {
     invoices = format(invoices);
   }
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-stripe-invoices';
+  var type = collectionName + '_stripe_invoices';
 
   return new JSONAPISerializer(type, invoices, {
     attributes: ['amount_due', 'attempt_count', 'attempted', 'closed',

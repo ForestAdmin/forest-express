@@ -3,7 +3,6 @@
 var moment = require('moment');
 var uuidV1 = require('uuid/v1');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var StringsUtil = require('../../../utils/strings');
 
 function MixpanelEventsSerializer(events, collectionName, meta) {
   events = events.map(function (event) {
@@ -17,7 +16,7 @@ function MixpanelEventsSerializer(events, collectionName, meta) {
     return event;
   });
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) + '-mixpanel-events';
+  var type = collectionName + '_mixpanel_events';
 
   return new JSONAPISerializer(type, events, {
     attributes: ['id', 'event', 'date', 'city', 'os', 'browser',

@@ -2,8 +2,8 @@
 var _ = require('lodash');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var Schemas = require('../../../generators/schemas');
-var StringsUtil = require('../../../utils/strings');
 
+// jshint camelcase: false
 function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   function getCustomerAttributes() {
     if (!subscriptions.length) { return []; }
@@ -61,8 +61,7 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     subscriptions = format(subscriptions);
   }
 
-  var type = StringsUtil.camelCaseToDashed(collectionName) +
-    '-stripe-subscriptions';
+  var type = collectionName + '_stripe_subscriptions';
 
   return new JSONAPISerializer(type, subscriptions, {
     attributes: ['cancel_at_period_end', 'canceled_at', 'created',
