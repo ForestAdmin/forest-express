@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.0.0 - 2017-11-29
 - Collections Names - Collection names are now based on the model name whatever the ORM is.
 
 ## RELEASE 1.5.3 - 2017-11-27
