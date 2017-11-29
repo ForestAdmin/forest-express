@@ -231,7 +231,7 @@ exports.init = function (Implementation) {
 
           var apimap = new JSONAPISerializer('collections', collections, {
             id: 'name',
-            // TODO: Remove nameOld attribute once the lianas versions older than 1.4.0 are minority.
+            // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
             attributes: ['name', 'nameOld', 'displayName', 'paginationType', 'icon',
               'fields', 'actions', 'segments', 'onlyForRelationships',
               'isVirtual', 'integration', 'isReadOnly','isSearchable'],
