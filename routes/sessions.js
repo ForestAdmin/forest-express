@@ -46,8 +46,10 @@ module.exports = function (app, opts) {
           'https://forestadmin-server.herokuapp.com';
 
         SuperAgent
-          .get(forestUrl + '/api/environment/' + opts.envSecret + '/authExpirationAt')
+          .get(forestUrl + '/api/environment/' + opts.envSecret + '/authExpirationTime')
           .end(function(error, result) {
+            var authExpirationTime = result.body.authExpirationTime || 60 * 60 * 24 * 14;
+
             var token = jwt.sign({
               id: user.id,
               type: 'users',
@@ -66,7 +68,7 @@ module.exports = function (app, opts) {
                 }
               }
             }, opts.authSecret, {
-              expiresIn: result.body.authExpirationTime || '14 days'
+              expiresIn: authExpirationTime + ' seconds'
             });
 
             response.send({ token: token });
