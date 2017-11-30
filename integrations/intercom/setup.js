@@ -10,6 +10,8 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
   // jshint camelcase: false
   apimap.push({
     name: Implementation.getModelName(model) + '_intercom_conversations',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_intercom_conversations',
     displayName: collectionDisplayName + ' Conversations',
     icon: 'intercom',
     integration: INTEGRATION_NAME,
@@ -27,6 +29,8 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
 
   apimap.push({
     name: Implementation.getModelName(model) + '_intercom_attributes',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_intercom_attributes',
     displayName: collectionDisplayName + ' Attributes',
     icon: 'intercom',
     integration: INTEGRATION_NAME,

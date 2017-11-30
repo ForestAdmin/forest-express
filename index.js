@@ -319,6 +319,16 @@ exports.collection = function (name, opts) {
 
   var collection = _.find(Schemas.schemas, { name: name });
 
+  if (!collection) {
+    collection = _.find(Schemas.schemas, { nameOld: name });
+    if (collection) {
+      name = collection.name;
+      logger.warn('DEPRECATION WARNING: Collection names are now based on the models ' +
+        'names. Please rename the collection "' + collection.nameOld + '" of your Forest ' +
+        'customisation in "' + collection.name + '".');
+    }
+  }
+
   // NOTICE: Action ids are defined concatenating the collection name and the
   //         action name to prevent action id conflicts between collections.
   _.each(opts.actions, function (action) {

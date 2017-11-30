@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Collection Names - Improve the lianas versions transition from V1 to V2.
 
 ## RELEASE 2.0.0 - 2017-11-29
 - Collections Names - Collection names are now based on the model name whatever the ORM is.

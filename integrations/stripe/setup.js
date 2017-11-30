@@ -3,8 +3,7 @@ var _ = require('lodash');
 
 var INTEGRATION_NAME = 'stripe';
 
-exports.createCollections = function (Implementation, apimap,
-                                      collectionAndFieldName) {
+exports.createCollections = function (Implementation, apimap, collectionAndFieldName) {
   // jshint camelcase: false
   var model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
   var modelName = Implementation.getModelName(model);
@@ -13,6 +12,8 @@ exports.createCollections = function (Implementation, apimap,
 
   apimap.push({
     name: modelName + '_stripe_payments',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_stripe_payments',
     displayName: collectionDisplayName + ' Payments',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -43,6 +44,8 @@ exports.createCollections = function (Implementation, apimap,
 
   apimap.push({
     name: modelName + '_stripe_invoices',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_stripe_invoices',
     displayName: collectionDisplayName + ' Invoices',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -76,6 +79,8 @@ exports.createCollections = function (Implementation, apimap,
 
   apimap.push({
     name: modelName + '_stripe_cards',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_stripe_cards',
     displayName: collectionDisplayName + ' Cards',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -110,6 +115,8 @@ exports.createCollections = function (Implementation, apimap,
 
   apimap.push({
     name: modelName + '_stripe_subscriptions',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_stripe_subscriptions',
     displayName: collectionDisplayName + ' Subscriptions',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
@@ -142,6 +149,8 @@ exports.createCollections = function (Implementation, apimap,
 
   apimap.push({
     name: modelName + '_stripe_bank_accounts',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_stripe_bank_accounts',
     displayName: collectionDisplayName + ' Bank Accounts',
     icon: 'stripe',
     integration: INTEGRATION_NAME,
