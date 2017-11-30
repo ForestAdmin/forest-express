@@ -3,11 +3,11 @@
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+var SuperAgent = require('superagent');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 
 module.exports = function (app, opts) {
-
   function login(request, response) {
     new AllowedUsersFinder(request.body.renderingId, opts)
       .perform()
@@ -41,28 +41,35 @@ module.exports = function (app, opts) {
           });
       })
       .then(function (user) {
-        var token = jwt.sign({
-          id: user.id,
-          type: 'users',
-          data: {
-            email: user.email,
-            'first_name': user['first_name'],
-            'last_name': user['last_name'],
-            teams: user.teams
-          },
-          relationships: {
-            renderings: {
-              data: [{
-                type: 'renderings',
-                id: request.body.renderingId
-              }]
-            }
-          }
-        }, opts.authSecret, {
-          expiresIn: '14 days'
-        });
+        var forestUrl = process.env.FOREST_URL ||
+          'https://forestadmin-server.herokuapp.com';
 
-        response.send({ token: token });
+        SuperAgent
+          .get(forestUrl + '/api/environment/' + opts.envSecret + '/authExpirationAt')
+          .end(function(error, result) {
+            var token = jwt.sign({
+              id: user.id,
+              type: 'users',
+              data: {
+                email: user.email,
+                'first_name': user['first_name'],
+                'last_name': user['last_name'],
+                teams: user.teams
+              },
+              relationships: {
+                renderings: {
+                  data: [{
+                    type: 'renderings',
+                    id: request.body.renderingId
+                  }]
+                }
+              }
+            }, opts.authSecret, {
+              expiresIn: result.body.authExpirationTime || '14 days'
+            });
+
+            response.send({ token: token });
+          });
       })
       .catch(function (error) {
         var body;
