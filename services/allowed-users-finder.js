@@ -1,19 +1,17 @@
 'use strict';
 var P = require('bluebird');
-var request = require('superagent');
-var ServiceUrlGetter = require('./service-url-getter');
+var Request = require('superagent');
 var allowedUsers = require('./auth').allowedUsers;
 var logger = require('./logger');
 var errorMessages = require('../utils/error-messages');
 
-function AllowedUsersFinder(renderingId, environmentSecret) {
+function AllowedUsersFinder(renderingId, opts) {
   this.perform = function () {
     return new P(function (resolve) {
-      var urlService = new ServiceUrlGetter().perform();
-
-      request
-        .get(urlService + '/forest/renderings/' + renderingId + '/allowed-users')
-        .set('forest-secret-key', environmentSecret)
+      Request
+        .get(opts.forestUrl + '/forest/renderings/' + renderingId +
+          '/allowed-users')
+        .set('forest-secret-key', opts.envSecret)
         .end(function (error, result) {
           allowedUsers = [];
           if (result.status === 200 && result.body && result.body.data) {
