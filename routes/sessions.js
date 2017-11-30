@@ -8,6 +8,7 @@ var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 
 module.exports = function (app, opts) {
+
   function login(request, response) {
     new AllowedUsersFinder(request.body.renderingId, opts)
       .perform()
