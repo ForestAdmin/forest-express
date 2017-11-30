@@ -1,17 +1,14 @@
 'use strict';
 var P = require('bluebird');
-var request = require('superagent');
+var Request = require('superagent');
 var allowedUsers = require('./auth').allowedUsers;
 var logger = require('./logger');
 
 function AllowedUsersFinder(renderingId, opts) {
   this.perform = function () {
     return new P(function (resolve) {
-      var forestUrl = process.env.FOREST_URL ||
-        'https://forestadmin-server.herokuapp.com';
-
-      request
-        .get(forestUrl + '/forest/renderings/' + renderingId +
+      Request
+        .get(opts.forestUrl + '/forest/renderings/' + renderingId +
           '/allowed-users')
         .set('forest-secret-key', opts.envSecret)
         .end(function (error, result) {
@@ -36,8 +33,7 @@ function AllowedUsersFinder(renderingId, opts) {
                 'unlock. The envSecret and renderingId seems to be missing or inconsistent.');
             } else {
               logger.error('Cannot retrieve any users for the project ' +
-                'you\'re trying to unlock. An error occured in Forest API.',
-                error);
+                'you\'re trying to unlock. An error occured in Forest API.', error);
             }
           }
           resolve(allowedUsers);

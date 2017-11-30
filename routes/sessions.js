@@ -1,69 +1,53 @@
 'use strict';
 /* jshint sub: true */
-var _ = require('lodash');
-var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+var moment = require('moment');
 var path = require('../services/path');
-var AllowedUsersFinder = require('../services/allowed-users-finder');
+var UserAuthenticator = require('../services/user-authenticator');
+var VerifyRefreshToken = require('../services/verify-refresh-token');
 
 module.exports = function (app, opts) {
+  function refreshAccessToken(request, response) {
+    var requestRefreshToken = jwt.verify(request.body.refreshToken, opts.authSecret).token;
+    var decodedToken = JSON.parse(Buffer
+      .from(request.body.token.split('.')[1], 'base64').toString());
+    var lastSession = decodedToken.data.maximumInactive;
 
-  function login(request, response) {
-    new AllowedUsersFinder(request.body.renderingId, opts)
+    if (moment(lastSession).isBefore(moment())) {
+      return response.status(401).send();
+    }
+
+    new VerifyRefreshToken(opts, request.body, requestRefreshToken)
       .perform()
-      .then(function (allowedUsers) {
-        if (!opts.authSecret) {
-          throw new Error('Your Forest authSecret seems to be missing. Can ' +
-            'you check that you properly set a Forest authSecret in the ' +
-            'Forest initializer?');
+      .then(function (result) {
+        if (result.status !== 204) {
+          response.sendStatus(400);
+          return null;
         }
-
-        if (allowedUsers.length === 0) {
-          throw new Error('Forest cannot retrieve any users for the project ' +
-            'you\'re trying to unlock.');
-        }
-
-        var user = _.find(allowedUsers, function (allowedUser) {
-          return allowedUser.email === request.body.email;
-        });
-
-        if (user === undefined) {
-          throw new Error();
-        }
-
-        return bcrypt.compare(request.body.password, user.password)
-          .then(function (isEqual) {
-            if (!isEqual) {
-              throw new Error();
+        return new UserAuthenticator(request, opts, true)
+          .perform()
+          .then(function (tokens) { response.send(tokens); })
+          .catch(function (error) {
+            var body;
+            if (error && error.message) {
+              body = { errors: [{ detail: error.message }] };
             }
-
-            return user;
+            return response.status(401).send(body);
           });
       })
-      .then(function (user) {
-        var token = jwt.sign({
-          id: user.id,
-          type: 'users',
-          data: {
-            email: user.email,
-            'first_name': user['first_name'],
-            'last_name': user['last_name'],
-            teams: user.teams
-          },
-          relationships: {
-            renderings: {
-              data: [{
-                type: 'renderings',
-                id: request.body.renderingId
-              }]
-            }
-          }
-        }, opts.authSecret, {
-          expiresIn: '14 days'
-        });
+      .catch(function (error) {
+        var body;
+        if (error && error.message) {
+          body = { errors: [{ detail: error.message }] };
+        }
+        return response.status(401).send(body);
+      });
+  }
 
-        response.send({ token: token });
-      })
+  function login(request, response) {
+    new UserAuthenticator(request, opts)
+      .perform()
+      .then(function (tokens) { response.send(tokens); })
       .catch(function (error) {
         var body;
         if (error && error.message) {
@@ -75,5 +59,6 @@ module.exports = function (app, opts) {
 
   this.perform = function () {
     app.post(path.generate('sessions', opts), login);
+    app.post(path.generate('refreshAccessToken', opts), refreshAccessToken);
   };
 };

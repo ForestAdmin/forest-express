@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Added
 - TypeScript Support - Forest can now load TypeScript modules.
+- Authentication - Customisable maximum inactive time to the liana token.
+- Authentication - Use Oauth2 protocol.
 
 ## RELEASE 2.0.2 - 2017-12-06
 ### Fixed
