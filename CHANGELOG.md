@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.0.1 - 2017-11-30
 ### Changed
 - Collection Names - Improve the lianas versions transition from V1 to V2.
 
