@@ -13,6 +13,7 @@ var ResourcesRoutes = require('./routes/resources');
 var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
 var SessionRoute = require('./routes/sessions');
+var SessionGoogleRoute = require('./routes/sessions-google');
 var ForestRoutes = require('./routes/forest');
 var Schemas = require('./generators/schemas');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
@@ -156,6 +157,7 @@ exports.init = function (Implementation) {
   }
 
   new SessionRoute(app, opts).perform();
+  new SessionGoogleRoute(app, opts).perform();
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
