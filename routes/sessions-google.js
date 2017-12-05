@@ -1,19 +1,15 @@
 'use strict';
 /* jshint sub: true */
 var P = require('bluebird');
-var _ = require('lodash');
-var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var CheckGoogleAuthAndGetUser = require('../services/google-auth');
-var AllowedUsersFinder = require('../services/allowed-users-finder');
 
 module.exports = function (app, opts) {
   function login(request, response) {
     var renderingId = request.body.renderingId;
     var envSecret = opts.envSecret;
     var googleAccessToken = request.body.accessToken;
-    var userEmail;
 
     P.resolve()
       .then(() => {

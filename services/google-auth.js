@@ -29,9 +29,11 @@ function CheckGoogleAuthAndGetUser(renderingId, accessToken, envSecret) {
               logger.error('Cannot retrieve the project you\'re trying to ' +
                 'unlock. The envSecret and renderingId seems to be missing or inconsistent.');
             } else {
-              logger.error('Cannot retrieve the user for the project ' +
+              logger.error(
+                'Cannot retrieve the user for the project ' +
                 'you\'re trying to unlock. An error occured in Forest API.',
-                error);
+                error
+              );
             }
             reject();
           }
