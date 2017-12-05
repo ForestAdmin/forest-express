@@ -12,19 +12,21 @@ module.exports = function (app, opts) {
     var googleAccessToken = request.body.accessToken;
 
     P.resolve()
-      .then(() => {
+      .then(function () {
         if (!opts.authSecret) {
           throw new Error('Your Forest authSecret seems to be missing. Can ' +
             'you check that you properly set a Forest authSecret in the ' +
             'Forest initializer?');
         }
       })
-      .then(() => new CheckGoogleAuthAndGetUser(
-        renderingId,
-        googleAccessToken,
-        envSecret
-      ).perform())
-      .then((user) => {
+      .then(function () {
+        return new CheckGoogleAuthAndGetUser(
+          renderingId,
+          googleAccessToken,
+          envSecret
+        ).perform();
+      })
+      .then(function (user) {
         if (!user) {
           throw new Error();
         }
