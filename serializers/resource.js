@@ -13,8 +13,8 @@ function ResourceSerializer(Implementation, model, records, integrator,
   var schema = Schemas.schemas[modelName];
 
   var reservedWords = ['meta'];
-  var fieldNamesDateonly = [];
-  var fieldNamesPoint = [];
+  var fieldInfoDateonly = [];
+  var fieldInfoPoint = [];
 
   function getFieldsNames(fields) {
     return fields.map(function (field) {
@@ -26,18 +26,22 @@ function ResourceSerializer(Implementation, model, records, integrator,
     });
   }
 
+  function detectFieldWithSpecialFormat(field, fieldReference) {
+    if (field.type === 'Dateonly') {
+      fieldInfoDateonly.push({ name: field.field, association: fieldReference });
+    }
+
+    if (field.type === 'Point') {
+      fieldInfoPoint.push({ name: field.field, association: fieldReference });
+    }
+  }
+
   this.perform = function () {
     var typeForAttributes = {};
 
     function getAttributesFor(dest, fields) {
       _.map(fields, function (field) {
-        if (field.type === 'Dateonly') {
-          fieldNamesDateonly.push(field.field);
-        }
-
-        if (field.type === 'Point') {
-          fieldNamesPoint.push(field.field);
-        }
+        detectFieldWithSpecialFormat(field);
 
         if (field.integration) {
           integrator.defineSerializationOption(model, schema, dest, field);
@@ -75,6 +79,10 @@ function ResourceSerializer(Implementation, model, records, integrator,
               }
             }
 
+            _.each(referenceSchema.fields, function (field) {
+              detectFieldWithSpecialFormat(field, fieldName);
+            });
+
             dest[fieldName] = {
               ref: fieldReference,
               attributes: getFieldsNames(referenceSchema.fields),
@@ -102,16 +110,28 @@ function ResourceSerializer(Implementation, model, records, integrator,
     function formatFields(record) {
       var offsetServer = moment().utcOffset() / 60;
 
-      _.each(fieldNamesDateonly, function (fieldName) {
-        if (record[fieldName]) {
-          var dateonly = moment.utc(record[fieldName]).add(offsetServer, 'h');
-          record[fieldName] = dateonly.format();
+      _.each(fieldInfoDateonly, function (fieldInfo) {
+        var dateonly;
+        if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name &&
+          record[fieldInfo.association][fieldInfo.name]) {
+          dateonly = moment.utc(record[fieldInfo.association][fieldInfo.name])
+            .add(offsetServer, 'h');
+          record[fieldInfo.association][fieldInfo.name] = dateonly.format();
+        }
+        if (fieldInfo.name && record[fieldInfo.name]) {
+          dateonly = moment.utc(record[fieldInfo.name]).add(offsetServer, 'h');
+          record[fieldInfo.name] = dateonly.format();
         }
       });
 
-      _.each(fieldNamesPoint, function (fieldName) {
-        if (record[fieldName]) {
-          record[fieldName] = record[fieldName].coordinates;
+      _.each(fieldInfoPoint, function (fieldInfo) {
+        if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name &&
+          record[fieldInfo.association][fieldInfo.name]) {
+          record[fieldInfo.association][fieldInfo.name] =
+            record[fieldInfo.association][fieldInfo.name].coordinates;
+        }
+        if (fieldInfo.name && record[fieldInfo.name]) {
+          record[fieldInfo.name] = record[fieldInfo.name].coordinates;
         }
       });
     }
@@ -146,7 +166,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
         resolve(new SmartFieldsValuesInjector(records, modelName).perform());
       }
     })
-      .then(function (recordsWithSmartFields) {
+      .then(function () {
         return new JSONAPISerializer(schema.name, records, serializationOptions);
       });
   };
