@@ -166,7 +166,7 @@ function ResourceSerializer(Implementation, model, records, integrator,
         resolve(new SmartFieldsValuesInjector(records, modelName).perform());
       }
     })
-      .then(function (recordsWithSmartFields) {
+      .then(function () {
         return new JSONAPISerializer(schema.name, records, serializationOptions);
       });
   };
