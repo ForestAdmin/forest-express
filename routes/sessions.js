@@ -3,6 +3,7 @@
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+var SuperAgent = require('superagent');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 
@@ -41,28 +42,37 @@ module.exports = function (app, opts) {
           });
       })
       .then(function (user) {
-        var token = jwt.sign({
-          id: user.id,
-          type: 'users',
-          data: {
-            email: user.email,
-            'first_name': user['first_name'],
-            'last_name': user['last_name'],
-            teams: user.teams
-          },
-          relationships: {
-            renderings: {
-              data: [{
-                type: 'renderings',
-                id: request.body.renderingId
-              }]
-            }
-          }
-        }, opts.authSecret, {
-          expiresIn: '14 days'
-        });
+        var forestUrl = process.env.FOREST_URL ||
+          'https://forestadmin-server.herokuapp.com';
 
-        response.send({ token: token });
+        SuperAgent
+          .get(forestUrl + '/api/environment/' + opts.envSecret + '/authExpirationTime')
+          .end(function(error, result) {
+            var authExpirationTime = result.body.authExpirationTime || 60 * 60 * 24 * 14;
+
+            var token = jwt.sign({
+              id: user.id,
+              type: 'users',
+              data: {
+                email: user.email,
+                'first_name': user['first_name'],
+                'last_name': user['last_name'],
+                teams: user.teams
+              },
+              relationships: {
+                renderings: {
+                  data: [{
+                    type: 'renderings',
+                    id: request.body.renderingId
+                  }]
+                }
+              }
+            }, opts.authSecret, {
+              expiresIn: authExpirationTime + ' seconds'
+            });
+
+            response.send({ token: token });
+          });
       })
       .catch(function (error) {
         var body;

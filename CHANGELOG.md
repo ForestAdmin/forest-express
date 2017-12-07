@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Authentication - Customisable expiration time to the liana token.
 
 ## RELEASE 2.0.2 - 2017-12-06
 ### Fixed
