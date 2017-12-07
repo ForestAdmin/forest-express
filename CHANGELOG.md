@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Support loading typescript files
 
 ## RELEASE 2.0.2 - 2017-12-06
 ### Fixed
