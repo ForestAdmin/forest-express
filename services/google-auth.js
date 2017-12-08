@@ -7,7 +7,7 @@ function CheckGoogleAuthAndGetUser(renderingId, accessToken, envSecret) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       var forestUrl = process.env.FOREST_URL ||
-        'https://forestadmin-server.herokuapp.com';
+        'https://api.forestadmin.com';
 
       request
         .get(forestUrl + '/forest/renderings/' + renderingId + '/check-auth-google')
