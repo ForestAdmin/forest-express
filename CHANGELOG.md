@@ -8,7 +8,7 @@
 - Smart Fields - Prevent Smart Fields values injection errors on related data retrieval.
 
 ## RELEASE 2.0.2 - 2017-12-06
-### Fixed
+### Fixed
 - Summary View - Fix potential Summary View freeze on records having "Point" type fields (if some related data are displayed).
 
 ## RELEASE 2.0.1 - 2017-11-30
