@@ -24,9 +24,11 @@ function SmartFieldsValuesInjector(record, modelName) {
 
       if (value) {
         if (_.isFunction(value.then)) {
-          return value.then(function (result) {
-            record[field.field] = result;
-          });
+          return value
+            .then(function (result) {
+              record[field.field] = result;
+            })
+            .catch(function () { return; });
         } else {
           record[field.field] = value;
         }
