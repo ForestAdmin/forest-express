@@ -35,7 +35,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
     return readdirAsync(modelsDir)
       .each(function (file) {
         try {
-          if (file.endsWith('.js') || file.endsWith('.ts')) {
+          if (file.endsWith('.js') || (file.endsWith('.ts') && !file.endsWith('.d.ts')) ) {
             if (fs.statSync(path.join(modelsDir, file)).isFile()) {
               require(path.join(modelsDir, file));
             }
