@@ -4,6 +4,9 @@
 ### Added
 - TypeScript Support - Forest can now load TypeScript modules.
 
+### Fixed
+- Smart Fields - Prevent Smart Fields values injection errors on related data retrieval.
+
 ## RELEASE 2.0.2 - 2017-12-06
 ### Fixed
 - Summary View - Fix potential Summary View freeze on records having "Point" type fields (if some related data are displayed).
