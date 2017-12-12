@@ -7,8 +7,7 @@ var SmartFieldsValuesInjector = require('../services/smart-fields-values-injecto
 var Schemas = require('../generators/schemas');
 var logger = require('../services/logger');
 
-function ResourceSerializer(Implementation, model, records, integrator,
-  opts, meta) {
+function ResourceSerializer(Implementation, model, records, integrator, opts, meta) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
@@ -44,7 +43,9 @@ function ResourceSerializer(Implementation, model, records, integrator,
         detectFieldWithSpecialFormat(field);
 
         if (field.integration) {
-          integrator.defineSerializationOption(model, schema, dest, field);
+          if (integrator) {
+            integrator.defineSerializationOption(model, schema, dest, field);
+          }
         } else {
           var fieldName = field.field;
           if (reservedWords.indexOf(fieldName) > -1) {
