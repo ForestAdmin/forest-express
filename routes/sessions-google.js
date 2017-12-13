@@ -5,7 +5,11 @@ var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var CheckGoogleAuthAndGetUser = require('../services/google-auth');
 
-module.exports = function (app, opts) {
+module.exports = function (app, opts, dependencies) {
+  if (dependencies.CheckGoogleAuthAndGetUser) {
+    CheckGoogleAuthAndGetUser = dependencies.CheckGoogleAuthAndGetUser;
+  }
+
   function login(request, response) {
     var renderingId = request.body.renderingId;
     var envSecret = opts.envSecret;

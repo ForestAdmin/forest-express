@@ -92,7 +92,7 @@ exports.ensureAuthenticated = function (request, response, next) {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-exports.init = function (Implementation) {
+exports.init = function (Implementation, dependencies) {
   var opts = Implementation.opts;
   var app = express();
   var integrator;
@@ -157,7 +157,7 @@ exports.init = function (Implementation) {
   }
 
   new SessionRoute(app, opts).perform();
-  new SessionGoogleRoute(app, opts).perform();
+  new SessionGoogleRoute(app, opts, dependencies).perform();
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
