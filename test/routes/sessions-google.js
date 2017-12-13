@@ -62,6 +62,10 @@ describe('API > Google OAuth2 Login', () => {
           });
         };
       },
+
+      PostApimap: function () {
+        this.perform = function () {};
+      }
     };
 
     app = createServer(dependencies);

@@ -97,6 +97,8 @@ exports.init = function (Implementation, dependencies) {
   var app = express();
   var integrator;
 
+  dependencies = dependencies || {};
+
   if (opts.secretKey) {
     logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
     'is deprecated. Please use envSecret and authSecret instead.');
@@ -268,6 +270,9 @@ exports.init = function (Implementation, dependencies) {
             }
           });
 
+          if (dependencies.PostApimap) {
+            ApimapSender = dependencies.PostApimap;
+          }
           new ApimapSender(opts.envSecret, apimap).perform();
         }
       }
