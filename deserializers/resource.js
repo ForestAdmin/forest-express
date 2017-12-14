@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var P = require('bluebird');
+var logger = require('../services/logger');
 var Schemas = require('../generators/schemas');
 
 function ResourceDeserializer(Implementation, model, params,
@@ -17,7 +18,10 @@ function ResourceDeserializer(Implementation, model, params,
 
     // NOTICE: Look for some Smart Field setters and apply them if any.
     var fieldsVirtual = _.filter(schema.fields, function (field) {
-      return field.isVirtual && field.set;
+      if (field.isVirtual && field.set && field.reference) {
+        logger.warn('The "' + field.field + '" Smart Relationship cannot be updated implementing a "set" function.');
+      }
+      return field.isVirtual && field.set && !field.reference;
     });
 
     _.each(schema.fields, function (field) {
