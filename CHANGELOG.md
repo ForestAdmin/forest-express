@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart BelongsTo - Developers can now implement Smart BelongsTo values updates.
 
 ## RELEASE 2.0.4 - 2017-12-12
 ### Fixed
