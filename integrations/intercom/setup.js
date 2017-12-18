@@ -38,23 +38,23 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
     isVirtual: true,
     isReadOnly: true,
     fields: [
-      { field: 'created_at', type: 'Date', isSearchable: false },
-      { field: 'updated_at', type: 'Date', isSearchable: false  },
-      { field: 'session_count', type: 'Number', isSearchable: false  },
-      { field: 'last_seen_ip', type: 'String', isSearchable: false  },
-      { field: 'signed_up_at', type: 'Date', isSearchable: false  },
-      { field: 'country', type: 'String', isSearchable: false  },
-      { field: 'city', type: 'String', isSearchable: false  },
-      { field: 'browser', type: 'String', isSearchable: false  },
-      { field: 'platform', type: 'String', isSearchable: false  },
-      { field: 'companies', type: 'String', isSearchable: false  },
-      { field: 'segments', type: 'String', isSearchable: false  },
-      { field: 'tags', type: 'String', isSearchable: false  },
+      { field: 'created_at', type: 'Date', isFilterable: false },
+      { field: 'updated_at', type: 'Date', isFilterable: false },
+      { field: 'session_count', type: 'Number', isFilterable: false },
+      { field: 'last_seen_ip', type: 'String', isFilterable: false },
+      { field: 'signed_up_at', type: 'Date', isFilterable: false },
+      { field: 'country', type: 'String', isFilterable: false },
+      { field: 'city', type: 'String', isFilterable: false },
+      { field: 'browser', type: 'String', isFilterable: false },
+      { field: 'platform', type: 'String', isFilterable: false },
+      { field: 'companies', type: 'String', isFilterable: false },
+      { field: 'segments', type: 'String', isFilterable: false },
+      { field: 'tags', type: 'String', isFilterable: false },
       {
         field: 'geoloc',
         type: 'String',
         widget: 'google map',
-        isSearchable: false
+        isFilterable: false
       }
     ]
   });
@@ -68,7 +68,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) +
       '_intercom_conversations.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 
@@ -78,7 +78,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) +
       '_intercom_attributes.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 };

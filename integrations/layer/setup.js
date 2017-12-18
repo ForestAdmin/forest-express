@@ -22,26 +22,26 @@ exports.createCollections = function (Implementation, apimap,
     onlyForRelationships: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'title', type: 'String', isSearchable: false },
-      { field: 'createdAt', type: 'Date', isSearchable: false },
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'title', type: 'String', isFilterable: false },
+      { field: 'createdAt', type: 'Date', isFilterable: false },
       {
         field: 'lastMessage',
         type: 'String',
         reference: Implementation.getModelName(model) + '_layer_messages',
-        isSearchable: false
+        isFilterable: false
       },
       {
         field: 'messages',
         type: ['String'],
         reference: Implementation.getModelName(model) + '_layer_messages',
-        isSearchable: false
+        isFilterable: false
       },
       {
         field: 'participants',
         type: ['String'],
         reference: referenceName,
-        isSearchable: false
+        isFilterable: false
       }
     ]
   });
@@ -56,11 +56,11 @@ exports.createCollections = function (Implementation, apimap,
     isReadOnly: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'sender', type: 'String', isSearchable: false },
-      { field: 'sentAt', type: 'Date', isSearchable: false },
-      { field: 'content', type: 'String', isSearchable: false },
-      { field: 'mimeType', type: 'String', isSearchable: false }
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'sender', type: 'String', isFilterable: false },
+      { field: 'sentAt', type: 'Date', isFilterable: false },
+      { field: 'content', type: 'String', isFilterable: false },
+      { field: 'mimeType', type: 'String', isFilterable: false }
     ],
     actions: []
   });
@@ -73,7 +73,7 @@ exports.createFields = function (Implementation, model, schemaFields) {
     type: ['String'],
     reference: Implementation.getModelName(model) + '_layer_conversations.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 };
