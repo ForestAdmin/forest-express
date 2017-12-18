@@ -72,7 +72,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
 function getFields(opts) {
   return _.map(opts.fields, function (field) {
     field.isVirtual = true;
-    field.isSearchable = false;
+    field.isFilterable = true;
     field.isSortable = field.isSortable || false;
     field.isReadOnly = !field.set;
 
@@ -237,7 +237,7 @@ exports.init = function (Implementation) {
               'isVirtual', 'integration', 'isReadOnly','isSearchable'],
             fields: {
               attributes: ['field', 'displayName', 'type', 'enums',
-                'collection_name', 'reference', 'column', 'isSearchable',
+                'collection_name', 'reference', 'column', 'isFilterable',
                 'widget', 'integration', 'isReadOnly', 'isVirtual',
                 'isRequired', 'defaultValue', 'validations', 'isSortable']
             },
