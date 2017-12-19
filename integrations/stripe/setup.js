@@ -21,18 +21,18 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     isReadOnly: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'created', type: 'Date', isSearchable: false },
-      { field: 'amount', type: 'Number', isSearchable: false },
-      { field: 'status', type: 'String', isSearchable: false },
-      { field: 'currency', type: 'String', isSearchable: false },
-      { field: 'refunded', type: 'Boolean', isSearchable: false },
-      { field: 'description', type: 'String', isSearchable: false },
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'created', type: 'Date', isFilterable: false },
+      { field: 'amount', type: 'Number', isFilterable: false },
+      { field: 'status', type: 'String', isFilterable: false },
+      { field: 'currency', type: 'String', isFilterable: false },
+      { field: 'refunded', type: 'Boolean', isFilterable: false },
+      { field: 'description', type: 'String', isFilterable: false },
       {
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        'isSearchable': false
+        isFilterable: false
       }
     ],
     actions: [{
@@ -53,26 +53,26 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     isReadOnly: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'amount_due', type: 'Number', isSearchable: false },
-      { field: 'attempt_count', type: 'Number', isSearchable: false },
-      { field: 'attempted', type: 'Boolean', isSearchable: false },
-      { field: 'closed', type: 'Boolean', isSearchable: false },
-      { field: 'currency', type: 'String', isSearchable: false },
-      { field: 'date', type: 'Date', isSearchable: false },
-      { field: 'forgiven', type: 'Boolean', isSearchable: false },
-      { field: 'period_start', type: 'Date', isSearchable: false },
-      { field: 'period_end', type: 'Date', isSearchable: false },
-      { field: 'subtotal', type: 'Number', isSearchable: false },
-      { field: 'total', type: 'Number', isSearchable: false },
-      { field: 'application_fee', type: 'Number', isSearchable: false },
-      { field: 'tax', type: 'Number', isSearchable: false },
-      { field: 'tax_percent', type: 'Number', isSearchable: false },
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'amount_due', type: 'Number', isFilterable: false },
+      { field: 'attempt_count', type: 'Number', isFilterable: false },
+      { field: 'attempted', type: 'Boolean', isFilterable: false },
+      { field: 'closed', type: 'Boolean', isFilterable: false },
+      { field: 'currency', type: 'String', isFilterable: false },
+      { field: 'date', type: 'Date', isFilterable: false },
+      { field: 'forgiven', type: 'Boolean', isFilterable: false },
+      { field: 'period_start', type: 'Date', isFilterable: false },
+      { field: 'period_end', type: 'Date', isFilterable: false },
+      { field: 'subtotal', type: 'Number', isFilterable: false },
+      { field: 'total', type: 'Number', isFilterable: false },
+      { field: 'application_fee', type: 'Number', isFilterable: false },
+      { field: 'tax', type: 'Number', isFilterable: false },
+      { field: 'tax_percent', type: 'Number', isFilterable: false },
       {
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isSearchable: false
+        isFilterable: false
       }
     ]
   });
@@ -89,26 +89,26 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     onlyForRelationships: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'last4', type: 'String', isSearchable: false },
-      { field: 'brand', type: 'String', isSearchable: false },
-      { field: 'funding', type: 'String', isSearchable: false },
-      { field: 'exp_month', type: 'Number', isSearchable: false },
-      { field: 'exp_year', type: 'Number', isSearchable: false },
-      { field: 'country', type: 'String', isSearchable: false },
-      { field: 'name', type: 'String', isSearchable: false },
-      { field: 'address_line1', type: 'String', isSearchable: false },
-      { field: 'address_line2', type: 'String', isSearchable: false },
-      { field: 'address_city', type: 'String', isSearchable: false },
-      { field: 'address_state', type: 'String', isSearchable: false },
-      { field: 'address_zip', type: 'String', isSearchable: false },
-      { field: 'address_country', type: 'String', isSearchable: false },
-      { field: 'cvc_check', type: 'String', isSearchable: false },
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'last4', type: 'String', isFilterable: false },
+      { field: 'brand', type: 'String', isFilterable: false },
+      { field: 'funding', type: 'String', isFilterable: false },
+      { field: 'exp_month', type: 'Number', isFilterable: false },
+      { field: 'exp_year', type: 'Number', isFilterable: false },
+      { field: 'country', type: 'String', isFilterable: false },
+      { field: 'name', type: 'String', isFilterable: false },
+      { field: 'address_line1', type: 'String', isFilterable: false },
+      { field: 'address_line2', type: 'String', isFilterable: false },
+      { field: 'address_city', type: 'String', isFilterable: false },
+      { field: 'address_state', type: 'String', isFilterable: false },
+      { field: 'address_zip', type: 'String', isFilterable: false },
+      { field: 'address_country', type: 'String', isFilterable: false },
+      { field: 'cvc_check', type: 'String', isFilterable: false },
       {
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isSearchable: false
+        isFilterable: false
       }
     ]
   });
@@ -124,25 +124,25 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     isReadOnly: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'cancel_at_period_end', type: 'Boolean', isSearchable: false },
-      { field: 'canceled_at', type: 'Date', isSearchable: false },
-      { field: 'created', type: 'Date', isSearchable: false },
-      { field: 'current_period_end', type: 'Date', isSearchable: false },
-      { field: 'current_period_start', type: 'Date', isSearchable: false },
-      { field: 'ended_at', type: 'Date', isSearchable: false },
-      { field: 'livemode', type: 'Boolean', isSearchable: false },
-      { field: 'quantity', type: 'Number', isSearchable: false },
-      { field: 'start', type: 'Date', isSearchable: false },
-      { field: 'status', type: 'String', isSearchable: false },
-      { field: 'tax_percent', type: 'Number', isSearchable: false },
-      { field: 'trial_end', type: 'Date', isSearchable: false },
-      { field: 'trial_start', type: 'Date', isSearchable: false },
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'cancel_at_period_end', type: 'Boolean', isFilterable: false },
+      { field: 'canceled_at', type: 'Date', isFilterable: false },
+      { field: 'created', type: 'Date', isFilterable: false },
+      { field: 'current_period_end', type: 'Date', isFilterable: false },
+      { field: 'current_period_start', type: 'Date', isFilterable: false },
+      { field: 'ended_at', type: 'Date', isFilterable: false },
+      { field: 'livemode', type: 'Boolean', isFilterable: false },
+      { field: 'quantity', type: 'Number', isFilterable: false },
+      { field: 'start', type: 'Date', isFilterable: false },
+      { field: 'status', type: 'String', isFilterable: false },
+      { field: 'tax_percent', type: 'Number', isFilterable: false },
+      { field: 'trial_end', type: 'Date', isFilterable: false },
+      { field: 'trial_start', type: 'Date', isFilterable: false },
       {
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isSearchable: false
+        isFilterable: false
       }
     ]
   });
@@ -159,23 +159,23 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     onlyForRelationships: true,
     paginationType: 'cursor',
     fields: [
-      { field: 'id', type: 'String', isSearchable: false },
-      { field: 'account', type: 'String', isSearchable: false },
-      { field: 'account_holder_name', type: 'String', isSearchable: false },
-      { field: 'account_holder_type', type: 'String', isSearchable: false },
-      { field: 'bank_name', type: 'String', isSearchable: false },
-      { field: 'country', type: 'String', isSearchable: false },
-      { field: 'currency', type: 'String', isSearchable: false },
-      { field: 'default_for_currency', type: 'Boolean', isSearchable: false },
-      { field: 'fingerprint', type: 'String', isSearchable: false },
-      { field: 'last4', type: 'String', isSearchable: false },
-      { field: 'rooting_number', type: 'String', isSearchable: false },
-      { field: 'status', type: 'String', isSearchable: false },
+      { field: 'id', type: 'String', isFilterable: false },
+      { field: 'account', type: 'String', isFilterable: false },
+      { field: 'account_holder_name', type: 'String', isFilterable: false },
+      { field: 'account_holder_type', type: 'String', isFilterable: false },
+      { field: 'bank_name', type: 'String', isFilterable: false },
+      { field: 'country', type: 'String', isFilterable: false },
+      { field: 'currency', type: 'String', isFilterable: false },
+      { field: 'default_for_currency', type: 'Boolean', isFilterable: false },
+      { field: 'fingerprint', type: 'String', isFilterable: false },
+      { field: 'last4', type: 'String', isFilterable: false },
+      { field: 'rooting_number', type: 'String', isFilterable: false },
+      { field: 'status', type: 'String', isFilterable: false },
       {
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isSearchable: false
+        isFilterable: false
       }
     ]
   });
@@ -188,7 +188,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_stripe_payments.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 
@@ -198,7 +198,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_stripe_invoices.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 
@@ -208,7 +208,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_stripe_cards.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 
@@ -218,7 +218,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_stripe_subscriptions.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 
@@ -228,7 +228,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_stripe_bank_accounts.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 };

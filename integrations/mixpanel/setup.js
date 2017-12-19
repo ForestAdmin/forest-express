@@ -18,13 +18,13 @@ exports.createCollections = function (Implementation, apimap, schema, opts) {
     isReadOnly: true,
     onlyForRelationships: true,
     fields: [
-      { field: 'event', type: 'String', isSearchable: false },
-      { field: 'date', type: 'String', isSearchable: false },
-      { field: 'city', type: 'String', isSearchable: false },
-      { field: 'os', type: 'String', isSearchable: false },
-      { field: 'browser', type: 'String', isSearchable: false },
-      { field: 'browserVersion', type: 'String', isSearchable: false },
-      { field: 'id', type: 'String', isSearchable: false }
+      { field: 'event', type: 'String', isFilterable: false },
+      { field: 'date', type: 'String', isFilterable: false },
+      { field: 'city', type: 'String', isFilterable: false },
+      { field: 'os', type: 'String', isFilterable: false },
+      { field: 'browser', type: 'String', isFilterable: false },
+      { field: 'browserVersion', type: 'String', isFilterable: false },
+      { field: 'id', type: 'String', isFilterable: false }
     ]
   });
 };
@@ -83,7 +83,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_mixpanel_events.id',
     column: null,
-    isSearchable: false,
+    isFilterable: false,
     integration: INTEGRATION_NAME
   });
 };
