@@ -72,7 +72,7 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
 function getFields(opts) {
   return _.map(opts.fields, function (field) {
     field.isVirtual = true;
-    field.isFilterable = true;
+    field.isFilterable = field.isFilterable || false;
     field.isSortable = field.isSortable || false;
     field.isReadOnly = !field.set;
 
