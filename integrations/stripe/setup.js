@@ -32,7 +32,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        'isFilterable': false
+        isFilterable: false
       }
     ],
     actions: [{
