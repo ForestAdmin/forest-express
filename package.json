@@ -4,7 +4,9 @@
   "version": "2.0.4",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
-    "Arnaud Besnier <arnaudibesnier@gmail.com>"
+    "Arnaud Besnier <arnaudibesnier@gmail.com>",
+    "Lucas Scariot <scluckas@gmail.com>",
+    "Arnaud Valensi <arnaud.valensi@gmail.com>"
   ],
   "license": "GPL-3.0",
   "homepage": "http://www.forestadmin.com",
@@ -47,7 +49,7 @@
     "simple-git": "1.65.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "detect-vulnerabilities": "nsp check --output summary"
+    "detect-vulnerabilities": "nsp check --output summary",
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
