@@ -63,7 +63,7 @@ describe('API > Google OAuth2 Login', () => {
         };
       },
 
-      PostApimap: function () {
+      ApimapSender: function () {
         this.perform = function () {};
       }
     };

@@ -270,8 +270,8 @@ exports.init = function (Implementation, dependencies) {
             }
           });
 
-          if (dependencies.PostApimap) {
-            ApimapSender = dependencies.PostApimap;
+          if (dependencies.ApimapSender) {
+            ApimapSender = dependencies.ApimapSender;
           }
           new ApimapSender(opts.envSecret, apimap).perform();
         }
