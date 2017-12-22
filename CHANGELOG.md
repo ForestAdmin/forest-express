@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Authentification - Fix authentification for custom routes.
 
 ## RELEASE 2.0.5 - 2017-12-22
 ### Added

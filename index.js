@@ -20,6 +20,9 @@ var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 var ApimapSender = require('./services/apimap-sender');
+var Unauthorized = require('./services/error').Unauthorized;
+
+var jwtAuthenticator;
 
 function getModels(Implementation) {
   var models = Implementation.getModels();
@@ -84,6 +87,25 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
+exports.ensureAuthenticated = function (request, response, next) {
+  if (!jwtAuthenticator) {
+    logger.error('The Liana was not initialized');
+  }
+
+  jwtAuthenticator(request, response, function (hasError) {
+    if (hasError) {
+      logger.debug(hasError);
+      return next(new Unauthorized('Forest cannot authenticate the user for this request.'));
+    }
+
+    if (request.user) {
+      return next();
+    } else {
+      return next(new Unauthorized('Forest cannot authenticate the user for this request.'));
+    }
+  });
+};
+
 exports.init = function (Implementation) {
   var opts = Implementation.opts;
   var app = express();
@@ -110,8 +132,6 @@ exports.init = function (Implementation) {
 
   // Mime type
   app.use(bodyParser.json());
-
-  var jwtAuthenticator;
 
   // Authentication
   if (opts.authSecret) {
@@ -334,7 +354,6 @@ exports.collection = function (name, opts) {
 };
 
 exports.logger = require('./services/logger');
-exports.ensureAuthenticated = require('./services/auth').ensureAuthenticated;
 exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');
