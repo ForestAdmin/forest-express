@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git://github.com/ForestAdmin/forest-express.git"
   },
-  "main": "index.js",
+  "main": "./dist/index.js",
   "dependencies": {
     "bcryptjs": "2.4.3",
     "bluebird": "3.3.4",
@@ -40,6 +40,9 @@
     "winston": "2.2.0"
   },
   "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-core": "6.26.0",
+    "babel-preset-env": "1.6.1",
     "eslint": "4.11.0",
     "git-hooks": "1.1.9",
     "gulp": "3.9.1",
@@ -49,6 +52,8 @@
     "simple-git": "1.65.0"
   },
   "scripts": {
+    "build": "./node_modules/babel-cli/bin/babel.js src --out-dir dist",
+    "prepublish": "npm run build",
     "detect-vulnerabilities": "nsp check --output summary",
     "test": "echo \"Error: no test specified\" && exit 1"
   }

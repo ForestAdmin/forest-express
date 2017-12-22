@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Build - Add es2017+ transpilation with babel.
 
 ## RELEASE 2.0.5 - 2017-12-22
 ### Added
