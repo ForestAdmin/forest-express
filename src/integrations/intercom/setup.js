@@ -1,12 +1,10 @@
-
 const _ = require('lodash');
 
 const INTEGRATION_NAME = 'intercom';
 
-exports.createCollections = function (Implementation, apimap, collectionName) {
+exports.createCollections = function createCollections(Implementation, apimap, collectionName) {
   const collectionDisplayName = _.capitalize(collectionName);
   const model = Implementation.getModels()[collectionName];
-  // jshint camelcase: false
   apimap.push({
     name: `${Implementation.getModelName(model)}_intercom_conversations`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
@@ -59,7 +57,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
   });
 };
 
-exports.createFields = function (implementation, model, schemaFields) {
+exports.createFields = function createFields(implementation, model, schemaFields) {
   schemaFields.push({
     field: 'intercom_conversations',
     type: ['String'],

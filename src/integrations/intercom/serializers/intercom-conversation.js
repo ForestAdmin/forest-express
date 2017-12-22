@@ -1,8 +1,6 @@
-
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function IntercomConversationSerializer(conversation, collectionName) {
-  // jshint camelcase: false
   conversation.subject = conversation.conversation_message.subject;
   conversation.body = [conversation.conversation_message.body,
     conversation.link];

@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
@@ -82,8 +81,8 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
-exports.init = function (Implementation) {
-  const opts = Implementation.opts;
+exports.init = (Implementation) => {
+  const { opts } = Implementation;
   const app = express();
   let integrator;
 
@@ -278,7 +277,7 @@ exports.init = function (Implementation) {
   return app;
 };
 
-exports.collection = function (name, opts) {
+exports.collection = (name, opts) => {
   if (_.isEmpty(Schemas.schemas) && opts.modelsDir) {
     logger.error(`Cannot customize your collection named "${name
     }" properly. Did you call the "collection" method in the /forest ` +

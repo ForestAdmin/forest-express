@@ -28,7 +28,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
 
   function getSkip() {
     if (hasPagination()) {
-      return (parseInt(params.page.number) - 1) * getLimit();
+      return (parseInt(params.page.number, 10) - 1) * getLimit();
     }
     return 0;
   }
@@ -51,7 +51,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
       });
   }
 
-  this.perform = function () {
+  this.perform = () => {
     model = Implementation.getModels()[collectionName];
 
     return Implementation.Intercom.getCustomer(model, params.recordId)
@@ -62,7 +62,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
           display_as: 'plaintext',
         })
         .then((response) => {
-          const conversations = response.body.conversations;
+          const { conversations } = response.body;
 
           if (response.body.pages.next) {
             return fetchPages(response.body.pages, conversations);
@@ -73,12 +73,12 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
           conversations.slice(getSkip(), getSkip() + getLimit())])
         .spread((count, conversations) => intercom.admins.list()
           .then((response) => {
-            const admins = response.body.admins;
+            const { admins } = response.body;
 
             return P
               .map(conversations, (conversation) => {
                 if (conversation.assignee.type === 'admin') {
-                  const adminId = parseInt(conversation.assignee.id);
+                  const adminId = parseInt(conversation.assignee.id, 10);
                   const admin = _.find(admins, { id: adminId });
 
                   conversation.assignee = admin;
@@ -90,7 +90,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
 
                 return conversation;
               })
-              .then(conversations => [count, conversations]);
+              .then(currentConversations => [count, currentConversations]);
           }))
         .catch(() => [0, []]));
   };

@@ -1,11 +1,9 @@
-
-/* jshint camelcase: false */
 const _ = require('lodash');
 const moment = require('moment');
 
 const INTEGRATION_NAME = 'mixpanel';
 
-exports.createCollections = function (Implementation, apimap, schema, opts) {
+exports.createCollections = function createCollections(Implementation, apimap, schema, opts) {
   const collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
   const collectionDisplayName = _.capitalize(collectionName);
 
@@ -29,7 +27,7 @@ exports.createCollections = function (Implementation, apimap, schema, opts) {
   });
 };
 
-exports.createSegments = function (Implementation, model, schema, opts) {
+exports.createSegments = function createSegments(Implementation, model, schema, opts) {
   if (!schema.segments) { schema.segments = []; }
   const mappingSplit = opts.integrations.mixpanel.mapping.split('.');
   const collectionName = mappingSplit[0];
@@ -74,7 +72,7 @@ exports.createSegments = function (Implementation, model, schema, opts) {
   });
 };
 
-exports.createFields = function (implementation, model, schemaFields) {
+exports.createFields = function createFields(implementation, model, schemaFields) {
   schemaFields.push({
     field: 'mixpanel_events_this_week',
     displayName: 'Events this week',

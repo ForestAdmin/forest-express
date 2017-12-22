@@ -9,9 +9,7 @@ const ConversationGetter = require('./services/conversation-getter');
 const MessagesGetter = require('./services/messages-getter');
 const MessagesSerializer = require('./serializers/messages');
 
-/* jshint camelcase: false */
-
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -30,7 +28,7 @@ module.exports = function (app, model, Implementation, opts) {
     };
   }
 
-  this.conversations = function (req, res, next) {
+  this.conversations = function conversations(req, res, next) {
     new ConversationsGetter(
       Implementation, _.extend(req.query, req.params),
       opts, integrationInfo,
@@ -38,32 +36,32 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const conversations = results[1];
+        const currentConversations = results[1];
 
-        return new ConversationsSerializer(conversations, modelName, {
+        return new ConversationsSerializer(currentConversations, modelName, {
           count,
         });
       })
-      .then((conversations) => {
-        res.send(conversations);
+      .then((currentConversations) => {
+        res.send(currentConversations);
       })
       .catch(next);
   };
 
-  this.conversation = function (req, res, next) {
+  this.conversation = function conversation(req, res, next) {
     new ConversationGetter(
       Implementation, _.extend(req.query, req.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(conversation => new ConversationsSerializer(conversation, modelName))
-      .then((conversation) => {
-        res.send(conversation);
+      .then(currentConversations => new ConversationsSerializer(currentConversations, modelName))
+      .then((currentConversations) => {
+        res.send(currentConversations);
       })
       .catch(next);
   };
 
-  this.messages = function (req, res, next) {
+  this.messages = function messages(req, res, next) {
     new MessagesGetter(
       Implementation, _.extend(req.query, req.params),
       opts, integrationInfo,
@@ -71,19 +69,19 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const messages = results[1];
+        const currentMessages = results[1];
 
-        return new MessagesSerializer(messages, modelName, {
+        return new MessagesSerializer(currentMessages, modelName, {
           count,
         });
       })
-      .then((messages) => {
-        res.send(messages);
+      .then((currentMessages) => {
+        res.send(currentMessages);
       })
       .catch(next);
   };
 
-  this.perform = function () {
+  this.perform = function perform() {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}/:recordId/layer_conversations`, opts),

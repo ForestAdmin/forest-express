@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 const useragent = require('useragent');
 const logger = require('../../../services/logger');
@@ -19,14 +18,13 @@ function AttributesGetter(Implementation, params, opts, collectionName) {
     ).usePromises();
   }
 
-  this.perform = function () {
+  this.perform = () => {
     model = Implementation.getModels()[collectionName];
 
     return Implementation.Intercom.getCustomer(model, params.recordId)
       .then(customer => intercom.users.find({ email: customer.email }))
       .then(response => response.body)
       .then((user) => {
-        // jshint camelcase: false
         const agent = useragent.parse(user.user_agent_data);
         user.browser = agent.toAgent();
         user.platform = agent.os.toString();

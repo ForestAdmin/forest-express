@@ -1,9 +1,7 @@
-
 const P = require('bluebird');
 
 function SourcesGetter(Implementation, params, opts, integrationInfo) {
   const stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  // jshint camelcase: false
 
   function hasPagination() {
     return params.page;
@@ -20,25 +18,26 @@ function SourcesGetter(Implementation, params, opts, integrationInfo) {
     if (hasPagination() && params.starting_after) {
       return params.starting_after;
     }
+    return null;
   }
 
   function getEndingBefore() {
     if (hasPagination() && params.ending_before) {
       return params.ending_before;
     }
+    return null;
   }
 
   function getSources(customerId, query) {
     return new P(((resolve, reject) => {
       stripe.customers.listSources(customerId, query, (error, sources) => {
         if (error) { return reject(error); }
-        // jshint camelcase: false
-        resolve([sources.total_count, sources.data]);
+        return resolve([sources.total_count, sources.data]);
       });
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const collectionFieldName = integrationInfo.field;
     const collectionModel = integrationInfo.collection;
 
@@ -61,15 +60,16 @@ function SourcesGetter(Implementation, params, opts, integrationInfo) {
               if (customer) {
                 source.customer = customer;
               } else {
-                return Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, source.customer)
-                  .then((customer) => {
-                    source.customer = customer;
+                return Implementation.Stripe
+                  .getCustomerByUserField(collectionModel, collectionFieldName, source.customer)
+                  .then((currentCustomer) => {
+                    source.customer = currentCustomer;
                     return source;
                   });
               }
               return source;
             })
-            .then(sources => [count, sources]));
+            .then(currentSources => [count, currentSources]));
       }, () => new P(((resolve) => { resolve([0, []]); })));
   };
 }

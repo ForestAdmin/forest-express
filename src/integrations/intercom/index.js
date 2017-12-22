@@ -36,17 +36,17 @@ function IntercomChecker(opts, Implementation) {
   }
 
   function isIntegrationDeprecated() {
-    const integrationValid = opts.integrations.intercom.apiKey &&
+    const isIntegrationValid = opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId &&
       opts.integrations.intercom.intercom &&
       opts.integrations.intercom.mapping;
 
-    if (integrationValid) {
+    if (isIntegrationValid) {
       logger.warn('Intercom integration attributes "apiKey" and "appId" are ' +
         'now deprecated, please use "accessToken" attribute.');
     }
 
-    return integrationValid;
+    return isIntegrationValid;
   }
 
   function castToArray(value) {
@@ -54,7 +54,7 @@ function IntercomChecker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return null; }
 
     const models = Implementation.getModels();
 
@@ -65,6 +65,7 @@ function IntercomChecker(opts, Implementation) {
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
+        return null;
       },
     );
 
@@ -88,7 +89,7 @@ function IntercomChecker(opts, Implementation) {
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = (app, model) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.intercom, model)) {
@@ -96,7 +97,7 @@ function IntercomChecker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = (collections) => {
     if (!integrationValid) { return; }
 
     _.each(
@@ -107,7 +108,7 @@ function IntercomChecker(opts, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = (model, schema) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.intercom, model)) {
@@ -115,7 +116,7 @@ function IntercomChecker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = (model, schema, dest, field) => {
     if (integrationValid && field.integration === 'intercom') {
       dest[field.field] = {
         ref: 'id',

@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 const request = require('superagent');
 
@@ -23,7 +22,7 @@ function ConversationsGetter(Implementation, params, opts, integrationInfo) {
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 

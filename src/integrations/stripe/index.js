@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
@@ -18,12 +17,12 @@ function Checker(opts, Implementation) {
   }
 
   function isIntegrationDeprecated() {
-    const integrationValid = opts.integrations.stripe.apiKey &&
+    const isIntegrationValid = opts.integrations.stripe.apiKey &&
       opts.integrations.stripe.stripe &&
         (opts.integrations.stripe.userCollection ||
           opts.integrations.stripe.userCollection);
 
-    if (integrationValid) {
+    if (isIntegrationValid) {
       logger.warn('Stripe integration attributes "userCollection" and ' +
         '"userField" are now deprecated, please use "mapping" attribute.');
       opts.integrations.stripe.mapping =
@@ -31,7 +30,7 @@ function Checker(opts, Implementation) {
           opts.integrations.stripe.userField}`;
     }
 
-    return integrationValid;
+    return isIntegrationValid;
   }
 
   function isMappingValid() {
@@ -58,7 +57,7 @@ function Checker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return null; }
 
     const models = Implementation.getModels();
 
@@ -69,6 +68,7 @@ function Checker(opts, Implementation) {
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
+        return null;
       },
     );
 
@@ -85,7 +85,7 @@ function Checker(opts, Implementation) {
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = function defineRoutes(app, model) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.stripe, model)) {
@@ -93,7 +93,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = function defineCollections(collections) {
     if (!integrationValid) { return; }
 
     _.each(
@@ -104,7 +104,7 @@ function Checker(opts, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = function defineFields(model, schema) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.stripe, model)) {
@@ -112,7 +112,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = function defineSerializationOption(model, schema, dest, field) {
     if (integrationValid && field.integration === 'stripe') {
       dest[field.field] = {
         ref: 'id',

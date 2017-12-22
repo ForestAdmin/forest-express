@@ -1,5 +1,3 @@
-
-/* jshint camelcase: false */
 const _ = require('lodash');
 const moment = require('moment');
 
@@ -24,7 +22,7 @@ function MixpanelEventsGetter(Implementation, params, opts) {
     return 0;
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const today = moment().format('YYYY-MM-DD');
     const firstDayOfWeek = moment().startOf('week').format('YYYY-MM-DD');
 

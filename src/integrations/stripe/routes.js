@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 const PaymentsGetter = require('./services/payments-getter');
@@ -18,7 +17,7 @@ const BankAccountsSerializer = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -37,7 +36,7 @@ module.exports = function (app, model, Implementation, opts) {
     };
   }
 
-  this.payments = function (request, response, next) {
+  this.payments = function payments(request, response, next) {
     new PaymentsGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
@@ -45,30 +44,30 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const payments = results[1];
+        const currentPayments = results[1];
 
-        return new PaymentsSerializer(payments, modelName, { count });
+        return new PaymentsSerializer(currentPayments, modelName, { count });
       })
-      .then((payments) => {
-        response.send(payments);
+      .then((currentPayments) => {
+        response.send(currentPayments);
       })
       .catch(next);
   };
 
-  this.payment = function (request, response, next) {
+  this.payment = function payment(request, response, next) {
     new PaymentGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(payment => new PaymentsSerializer(payment, modelName))
-      .then((payment) => {
-        response.send(payment);
+      .then(currentPayment => new PaymentsSerializer(currentPayment, modelName))
+      .then((currentPayment) => {
+        response.send(currentPayment);
       })
       .catch(next);
   };
 
-  this.refund = function (request, response, next) {
+  this.refund = function currentPayment(request, response, next) {
     new PaymentRefunder(request.body, opts)
       .perform()
       .then(() => {
@@ -83,7 +82,7 @@ module.exports = function (app, model, Implementation, opts) {
       });
   };
 
-  this.invoices = function (request, response, next) {
+  this.invoices = function invoices(request, response, next) {
     new InvoicesGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
@@ -91,30 +90,30 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const invoices = results[1];
+        const currentInvoices = results[1];
 
-        return new InvoicesSerializer(invoices, modelName, { count });
+        return new InvoicesSerializer(currentInvoices, modelName, { count });
       })
-      .then((invoices) => {
-        response.send(invoices);
+      .then((currentInvoices) => {
+        response.send(currentInvoices);
       })
       .catch(next);
   };
 
-  this.invoice = function (request, response, next) {
+  this.invoice = function invoice(request, response, next) {
     new InvoiceGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(invoice => new InvoicesSerializer(invoice, modelName))
-      .then((invoice) => {
-        response.send(invoice);
+      .then(currentInvoice => new InvoicesSerializer(currentInvoice, modelName))
+      .then((currentInvoice) => {
+        response.send(currentInvoice);
       })
       .catch(next);
   };
 
-  this.cards = function (request, response, next) {
+  this.cards = function cards(request, response, next) {
     request.params.object = 'card';
     new SourcesGetter(
       Implementation, _.extend(request.query, request.params),
@@ -123,30 +122,30 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const cards = results[1];
+        const currentCards = results[1];
 
-        return new CardsSerializer(cards, modelName, { count });
+        return new CardsSerializer(currentCards, modelName, { count });
       })
-      .then((cards) => {
-        response.send(cards);
+      .then((currentCards) => {
+        response.send(currentCards);
       })
       .catch(next);
   };
 
-  this.card = function (request, response, next) {
+  this.card = function card(request, response, next) {
     new SourceGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(card => new CardsSerializer(card, modelName))
-      .then((card) => {
-        response.send(card);
+      .then(currentCard => new CardsSerializer(currentCard, modelName))
+      .then((currentCard) => {
+        response.send(currentCard);
       })
       .catch(next);
   };
 
-  this.subscriptions = function (request, response, next) {
+  this.subscriptions = function subscriptions(request, response, next) {
     new SubscriptionsGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
@@ -154,33 +153,33 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const subscriptions = results[1];
+        const currentSubscriptions = results[1];
 
         return new SubscriptionsSerializer(
-          subscriptions, modelName,
+          currentSubscriptions, modelName,
           { count },
         );
       })
-      .then((subscriptions) => {
-        response.send(subscriptions);
+      .then((currentSubscriptions) => {
+        response.send(currentSubscriptions);
       })
       .catch(next);
   };
 
-  this.subscription = function (request, response, next) {
+  this.subscription = function subscription(request, response, next) {
     new SubscriptionGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(subscription => new SubscriptionsSerializer(subscription, modelName))
-      .then((subscription) => {
-        response.send(subscription);
+      .then(currentSubscription => new SubscriptionsSerializer(currentSubscription, modelName))
+      .then((currentSubscription) => {
+        response.send(currentSubscription);
       })
       .catch(next);
   };
 
-  this.bankAccounts = function (request, response, next) {
+  this.bankAccounts = function bankAccounts(request, response, next) {
     request.params.object = 'bank_account';
     new SourcesGetter(
       Implementation, _.extend(request.query, request.params),
@@ -189,34 +188,34 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then((results) => {
         const count = results[0];
-        const bankAccounts = results[1];
+        const currentBankAccounts = results[1];
 
         return new BankAccountsSerializer(
-          bankAccounts, modelName,
+          currentBankAccounts, modelName,
           { count },
         );
       })
-      .then((bankAccounts) => {
-        response.send(bankAccounts);
+      .then((currentBankAccounts) => {
+        response.send(currentBankAccounts);
       })
       .catch(next);
   };
 
-  this.bankAccount = function (request, response, next) {
+  this.bankAccount = function bankAccount(request, response, next) {
     new SourceGetter(
       Implementation, _.extend(request.query, request.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(bankAccount => new BankAccountsSerializer(bankAccount, modelName))
-      .then((bankAccount) => {
-        response.send(bankAccount);
+      .then(currentBankAccount => new BankAccountsSerializer(currentBankAccount, modelName))
+      .then((currentBankAccount) => {
+        response.send(currentBankAccount);
       })
       .catch(next);
   };
 
 
-  this.perform = function () {
+  this.perform = function perform() {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}_stripe_payments`, opts),

@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
@@ -13,7 +12,6 @@ function InvoicesSerializer(invoices, collectionName, meta) {
   }
 
   function format(invoice) {
-    // jshint camelcase: false
     invoice.date = new Date(invoice.date * 1000);
 
     if (invoice.period_start) {

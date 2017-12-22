@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 
 function InvoicesGetter(Implementation, params, opts, integrationInfo) {
@@ -20,25 +19,26 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
     if (hasPagination() && params.starting_after) {
       return params.starting_after;
     }
+    return null;
   }
 
   function getEndingBefore() {
     if (hasPagination() && params.ending_before) {
       return params.ending_before;
     }
+    return null;
   }
 
   function getInvoices(query) {
     return new P(((resolve, reject) => {
       stripe.invoices.list(query, (err, invoices) => {
         if (err) { return reject(err); }
-        // jshint camelcase: false
-        resolve([invoices.total_count, invoices.data]);
+        return resolve([invoices.total_count, invoices.data]);
       });
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 
@@ -62,18 +62,18 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
               if (customer) {
                 invoice.customer = customer;
               } else {
-                return Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, invoice.customer)
-                  .then((customer) => {
-                    invoice.customer = customer;
+                return Implementation.Stripe
+                  .getCustomerByUserField(collectionModel, collectionFieldName, invoice.customer)
+                  .then((currentCustomer) => {
+                    invoice.customer = currentCustomer;
                     return invoice;
                   });
               }
               return invoice;
             })
-            .then(invoices => [count, invoices]));
+            .then(currentInvoices => [count, currentInvoices]));
       }, () => new P(((resolve) => { resolve([0, []]); })));
   };
 }
 
 module.exports = InvoicesGetter;
-

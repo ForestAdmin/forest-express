@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('./services/integration-informations-getter');
 const AttributesGetter = require('./services/attributes-getter');
@@ -9,7 +8,7 @@ const ConversationGetter = require('./services/conversation-getter');
 const ConversationSerializer = require('./serializers/intercom-conversation');
 const auth = require('../../services/auth');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -20,7 +19,7 @@ module.exports = function (app, model, Implementation, opts) {
     ).perform();
   }
 
-  this.getAttributes = function (request, response, next) {
+  this.getAttributes = function getAttributes(request, response, next) {
     new AttributesGetter(
       Implementation, _.extend(request.query, request.params), opts,
       integrationInfo,
@@ -33,7 +32,7 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.listConversations = function (request, response, next) {
+  this.listConversations = function listConversations(request, response, next) {
     new ConversationsGetter(
       Implementation, _.extend(request.query, request.params), opts,
       integrationInfo,
@@ -49,7 +48,7 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.getConversation = function (request, response, next) {
+  this.getConversation = function getConversation(request, response, next) {
     new ConversationGetter(Implementation, _.extend(request.query, request.params), opts)
       .perform()
       .then(conversation => new ConversationSerializer(conversation, modelName))
@@ -59,7 +58,7 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.perform = function () {
+  this.perform = function perform() {
     if (integrationInfo) {
       app.get(
         `/forest/${modelName}/:recordId/intercom_attributes`,

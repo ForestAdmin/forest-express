@@ -1,16 +1,11 @@
-
 const _ = require('lodash');
 
 const INTEGRATION_NAME = 'close.io';
 
-exports.createCollections = function (
-  Implementation, apimap,
-  collectionAndFieldName,
-) {
+exports.createCollections = (Implementation, apimap, collectionAndFieldName) => {
   const collectionName = collectionAndFieldName.split('.')[0];
   const collectionDisplayName = _.capitalize(collectionName);
 
-  // jshint camelcase: false
   apimap.push({
     name: `${collectionName}_closeio_leads`,
     displayName: `${collectionDisplayName} Leads`,
@@ -55,7 +50,7 @@ exports.createCollections = function (
   });
 };
 
-exports.createFields = function (implementation, model, schema) {
+exports.createFields = (implementation, model, schema) => {
   schema.fields.push({
     field: 'lead',
     type: 'String',
@@ -67,7 +62,7 @@ exports.createFields = function (implementation, model, schema) {
 
   if (!schema.actions) { schema.actions = []; }
   schema.actions.push({
-    id: `${implementation.getModelName(model)}.` + 'Create Close.io lead',
+    id: `${implementation.getModelName(model)}.Create Close.io lead`,
     name: 'Create Close.io lead',
     endpoint: `/forest/${implementation.getModelName(model)}_closeio_leads`,
     fields: [{

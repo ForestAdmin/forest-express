@@ -1,5 +1,3 @@
-
-/* jshint camelcase: false */
 const moment = require('moment');
 const uuidV1 = require('uuid/v1');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;

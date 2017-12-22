@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 
 function SourceGetter(Implementation, params, opts, integrationInfo) {
@@ -9,12 +8,12 @@ function SourceGetter(Implementation, params, opts, integrationInfo) {
     return new P(((resolve, reject) => {
       stripe.customers.retrieveSource(customerId, objectId, (error, source) => {
         if (error) { return reject(error); }
-        resolve(source);
+        return resolve(source);
       });
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 
@@ -23,9 +22,10 @@ function SourceGetter(Implementation, params, opts, integrationInfo) {
       collectionFieldName, params.recordId,
     )
       .then(customer => getSource(customer[collectionFieldName], params.objectId)
-        .then(source => Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, source.customer)
-          .then((customer) => {
-            source.customer = customer;
+        .then(source => Implementation.Stripe
+          .getCustomerByUserField(collectionModel, collectionFieldName, source.customer)
+          .then((currentCustomer) => {
+            source.customer = currentCustomer;
             return source;
           })));
   };

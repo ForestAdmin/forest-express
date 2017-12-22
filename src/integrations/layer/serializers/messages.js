@@ -1,10 +1,8 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function MessagesSerializer(messages, collectionName, meta) {
   function mapMessage(message) {
-    // jshint camelcase: false
     message.id = message.id.replace('layer:///messages/', '');
     message.sentAt = message.sent_at;
     message.content = message.parts[0].body;

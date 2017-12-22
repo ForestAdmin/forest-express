@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
@@ -11,7 +10,7 @@ const CloseioLeadCreator = require('./services/closeio-lead-creator');
 const CloseioLeadsSerializer = require('./serializers/closeio-leads');
 const CloseioLeadEmailsSerializer = require('./serializers/closeio-lead-emails');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -65,6 +64,7 @@ module.exports = function (app, model, Implementation, opts) {
     ), opts, integrationInfo)
       .perform()
       .then((lead) => {
+        // eslint-disable-next-line no-throw-literal
         if (!lead) { throw { status: 404, message: 'not_found' }; }
         return new CloseioLeadsSerializer(lead, modelName);
       })
@@ -93,7 +93,7 @@ module.exports = function (app, model, Implementation, opts) {
       }, next);
   }
 
-  this.perform = function () {
+  this.perform = () => {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}_closeio_leads/:leadId`, opts),

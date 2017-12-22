@@ -20,25 +20,26 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
     if (hasPagination() && params.starting_after) {
       return params.starting_after;
     }
+    return null;
   }
 
   function getEndingBefore() {
     if (hasPagination() && params.ending_before) {
       return params.ending_before;
     }
+    return null;
   }
 
   function getSubscriptions(query) {
     return new P(((resolve, reject) => {
       stripe.subscriptions.list(query, (err, subcriptions) => {
         if (err) { return reject(err); }
-        // jshint camelcase: false
-        resolve([subcriptions.total_count, subcriptions.data]);
+        return resolve([subcriptions.total_count, subcriptions.data]);
       });
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 
@@ -62,15 +63,20 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
               if (customer) {
                 subscription.customer = customer;
               } else {
-                return Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, subscription.customer)
-                  .then((customer) => {
-                    subscription.customer = customer;
+                return Implementation.Stripe
+                  .getCustomerByUserField(
+                    collectionModel,
+                    collectionFieldName,
+                    subscription.customer,
+                  )
+                  .then((currentCustomer) => {
+                    subscription.customer = currentCustomer;
                     return subscription;
                   });
               }
               return subscription;
             })
-            .then(subscriptions => [count, subscriptions]));
+            .then(currentSubscriptions => [count, currentSubscriptions]));
       }, () => new P(((resolve) => { resolve([0, []]); })));
   };
 }

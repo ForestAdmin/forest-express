@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 
 function IntegrationChecker(opts, Implementation) {
@@ -12,7 +11,7 @@ function IntegrationChecker(opts, Implementation) {
       modules.push(new Mod(opts, Implementation));
     });
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = function defineRoutes(app, model) {
     modules.forEach((module) => {
       if (module.defineRoutes) {
         module.defineRoutes(app, model);
@@ -20,7 +19,7 @@ function IntegrationChecker(opts, Implementation) {
     });
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = function defineCollections(collections) {
     modules.forEach((module) => {
       if (module.defineCollections) {
         module.defineCollections(collections);
@@ -28,7 +27,7 @@ function IntegrationChecker(opts, Implementation) {
     });
   };
 
-  this.defineSegments = function (model, schema) {
+  this.defineSegments = function defineSegments(model, schema) {
     modules.forEach((module) => {
       if (module.defineSegments) {
         module.defineSegments(model, schema);
@@ -36,7 +35,7 @@ function IntegrationChecker(opts, Implementation) {
     });
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = function defineFields(model, schema) {
     modules.forEach((module) => {
       if (module.defineFields) {
         module.defineFields(model, schema);
@@ -44,7 +43,7 @@ function IntegrationChecker(opts, Implementation) {
     });
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = function defineSerializationOption(model, schema, dest, field) {
     modules.forEach((module) => {
       if (module.defineSerializationOption) {
         module.defineSerializationOption(model, schema, dest, field);

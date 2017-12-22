@@ -1,10 +1,8 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function ConversationsSerializer(conversations, collectionName, meta) {
   function mapConversation(conversation) {
-    // jshint camelcase: false
     conversation.id = conversation.id.replace('layer:///conversations/', '');
     conversation.createdAt = conversation.created_at;
 

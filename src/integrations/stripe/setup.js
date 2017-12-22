@@ -1,10 +1,12 @@
-
 const _ = require('lodash');
 
 const INTEGRATION_NAME = 'stripe';
 
-exports.createCollections = function (Implementation, apimap, collectionAndFieldName) {
-  // jshint camelcase: false
+exports.createCollections = function createCollections(
+  Implementation,
+  apimap,
+  collectionAndFieldName,
+) {
   const model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
   const modelName = Implementation.getModelName(model);
   const referenceName = `${modelName}.id`;
@@ -181,7 +183,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
   });
 };
 
-exports.createFields = function (implementation, model, schemaFields) {
+exports.createFields = function createFields(implementation, model, schemaFields) {
   schemaFields.push({
     field: 'stripe_payments',
     displayName: 'Payments',

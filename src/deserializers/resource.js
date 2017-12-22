@@ -12,7 +12,7 @@ function ResourceDeserializer(
   const schema = Schemas.schemas[Implementation.getModelName(model)];
 
   function extractAttributes() {
-    let attributes = params.data.attributes;
+    let { attributes } = params.data;
     if (params.data.attributes) {
       attributes[schema.idField] = params.data.attributes[schema.idField] ||
         params.data.id;
@@ -85,7 +85,7 @@ function ResourceDeserializer(
     }));
   }
 
-  this.perform = function () {
+  this.perform = () => {
     if (withRelationships) {
       return P.all([extractAttributes(), extractRelationships()])
         .spread((attributes, relationships) => _.extend(attributes, relationships));

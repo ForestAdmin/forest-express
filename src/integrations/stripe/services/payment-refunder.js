@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 
 function PaymentRefunder(params, opts) {
@@ -10,12 +9,12 @@ function PaymentRefunder(params, opts) {
         charge: chargeId,
       }, (err) => {
         if (err) { return reject(err); }
-        resolve();
+        return resolve();
       });
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     return P.map(params.data.attributes.ids, id => refund(id));
   };
 }

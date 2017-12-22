@@ -1,5 +1,3 @@
-
-/* jshint sub: true */
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');

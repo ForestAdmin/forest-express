@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Setup = require('./setup');
@@ -32,7 +31,7 @@ function Checker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return null; }
 
     const models = Implementation.getModels();
     const collectionName = integration.mapping.split('.')[0];
@@ -47,7 +46,7 @@ function Checker(opts, Implementation) {
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = function defineRoutes(app, model) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.mixpanel, model)) {
@@ -55,13 +54,13 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (model, schema) {
+  this.defineCollections = function defineCollections(model, schema) {
     if (!integrationValid) { return; }
 
     Setup.createCollections(Implementation, model, schema, opts);
   };
 
-  this.defineSegments = function (model, schema) {
+  this.defineSegments = function defineSegments(model, schema) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.mixpanel, model)) {
@@ -69,7 +68,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = function defineFields(model, schema) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.mixpanel, model)) {
@@ -77,7 +76,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = function defineSerializationOption(model, schema, dest, field) {
     if (integrationValid && field.integration === 'mixpanel') {
       dest[field.field] = {
         ref: 'id',

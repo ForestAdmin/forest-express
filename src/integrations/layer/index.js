@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
@@ -40,7 +39,7 @@ function Checker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return null; }
 
     const models = Implementation.getModels();
 
@@ -51,6 +50,7 @@ function Checker(opts, Implementation) {
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
+        return null;
       },
     );
 
@@ -67,7 +67,7 @@ function Checker(opts, Implementation) {
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = function defineRoutes(app, model) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.layer, model)) {
@@ -75,7 +75,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = function defineCollections(collections) {
     if (!integrationValid) { return; }
 
     _.each(
@@ -89,7 +89,7 @@ function Checker(opts, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = function defineFields(model, schema) {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.layer, model)) {
@@ -97,7 +97,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = function defineSerializationOption(model, schema, dest, field) {
     if (integrationValid && field.integration === 'layer') {
       dest[field.field] = {
         ref: 'id',

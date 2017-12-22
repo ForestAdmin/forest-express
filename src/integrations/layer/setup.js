@@ -3,11 +3,11 @@ const _ = require('lodash');
 
 const INTEGRATION_NAME = 'layer';
 
-exports.createCollections = function (
-  Implementation, apimap,
+exports.createCollections = function createCollections(
+  Implementation,
+  apimap,
   collectionAndFieldName,
 ) {
-  // jshint camelcase: false
   const collectionName = collectionAndFieldName.split('.')[0];
   const model = Implementation.getModels()[collectionName];
   const referenceName = `${Implementation.getModelName(model)}.id`;
@@ -67,7 +67,7 @@ exports.createCollections = function (
   });
 };
 
-exports.createFields = function (Implementation, model, schemaFields) {
+exports.createFields = function createFields(Implementation, model, schemaFields) {
   schemaFields.push({
     field: 'layer_conversations',
     displayName: 'Conversations',

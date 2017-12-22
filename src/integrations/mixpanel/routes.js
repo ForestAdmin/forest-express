@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 const MixpanelEventsGetter = require('./services/mixpanel-events-getter');
@@ -6,7 +5,7 @@ const MixpanelEventsSerializer = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -17,7 +16,7 @@ module.exports = function (app, model, Implementation, opts) {
     ).perform();
   }
 
-  this.mixpanelEvents = function (request, response, next) {
+  this.mixpanelEvents = function mixpanelEvents(request, response, next) {
     new MixpanelEventsGetter(Implementation, _.extend(
       request.query,
       request.params,
@@ -28,7 +27,7 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.perform = function () {
+  this.perform = function perform() {
     app.get(
       path.generate(`${modelName
       }/:recordId/relationships/mixpanel_events_this_week`, opts),

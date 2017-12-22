@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 const request = require('superagent');
 
@@ -16,7 +15,7 @@ function ConversationGetter(Implementation, params, opts) {
       })));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     return getConversation();
   };
 }

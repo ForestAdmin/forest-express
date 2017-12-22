@@ -20,25 +20,26 @@ function PaymentsGetter(Implementation, params, opts, integrationInfo) {
     if (hasPagination() && params.starting_after) {
       return params.starting_after;
     }
+    return null;
   }
 
   function getEndingBefore() {
     if (hasPagination() && params.ending_before) {
       return params.ending_before;
     }
+    return null;
   }
 
   function getCharges(query) {
     return new P(((resolve, reject) => {
       stripe.charges.list(query, (err, charges) => {
         if (err) { return reject(err); }
-        // jshint camelcase: false
-        resolve([charges.total_count, charges.data]);
+        return resolve([charges.total_count, charges.data]);
       });
     }));
   }
 
-  this.perform = function () {
+  this.perform = function perform() {
     const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 
@@ -63,15 +64,16 @@ function PaymentsGetter(Implementation, params, opts, integrationInfo) {
               if (customer) {
                 payment.customer = customer;
               } else {
-                return Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, payment.customer)
-                  .then((customer) => {
-                    payment.customer = customer;
+                return Implementation.Stripe
+                  .getCustomerByUserField(collectionModel, collectionFieldName, payment.customer)
+                  .then((currentCustomer) => {
+                    payment.customer = currentCustomer;
                     return payment;
                   });
               }
               return payment;
             })
-            .then(payments => [count, payments]));
+            .then(currentPayments => [count, currentPayments]));
       }, () => new P(((resolve) => { resolve([0, []]); })));
   };
 }

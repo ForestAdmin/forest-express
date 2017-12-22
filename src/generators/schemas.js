@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 
 module.exports = {

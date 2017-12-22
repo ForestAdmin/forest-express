@@ -1,9 +1,7 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
 
-// jshint camelcase: false
 function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   function getCustomerAttributes() {
     if (!subscriptions.length) { return []; }
@@ -14,7 +12,6 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   }
 
   function format(subscription) {
-    // jshint camelcase: false
     if (subscription.canceled_at) {
       subscription.canceled_at = new Date(subscription.canceled_at * 1000);
     }
