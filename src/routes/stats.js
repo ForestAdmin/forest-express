@@ -10,18 +10,18 @@ module.exports = function (app, model, Implementation, opts) {
     var promise = null;
 
     switch (req.body.type) {
-      case 'Value':
-        promise = new Implementation.ValueStatGetter(model, req.body, opts)
-          .perform();
-        break;
-      case 'Pie':
-        promise = new Implementation.PieStatGetter(model, req.body, opts)
-          .perform();
-        break;
-      case 'Line':
-        promise = new Implementation.LineStatGetter(model, req.body, opts)
-          .perform();
-        break;
+    case 'Value':
+      promise = new Implementation.ValueStatGetter(model, req.body, opts)
+        .perform();
+      break;
+    case 'Pie':
+      promise = new Implementation.PieStatGetter(model, req.body, opts)
+        .perform();
+      break;
+    case 'Line':
+      promise = new Implementation.LineStatGetter(model, req.body, opts)
+        .perform();
+      break;
     }
 
     if (!promise) {

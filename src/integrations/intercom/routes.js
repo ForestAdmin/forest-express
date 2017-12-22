@@ -15,7 +15,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   if (opts.integrations && opts.integrations.intercom) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
-        Implementation, opts.integrations.intercom).perform();
+      Implementation, opts.integrations.intercom).perform();
   }
 
   this.getAttributes = function (request, response, next) {

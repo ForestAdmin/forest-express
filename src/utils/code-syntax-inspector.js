@@ -2,6 +2,7 @@
 var P = require('bluebird');
 var esprima = require('esprima');
 var fs = require('fs');
+
 var Pfs = P.promisifyAll(fs);
 var logger = require('../services/logger');
 

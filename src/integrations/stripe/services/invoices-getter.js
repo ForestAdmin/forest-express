@@ -57,24 +57,24 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
 
         return getInvoices(query)
           .spread(function (count, invoices) {
-              return P
-                .map(invoices, function (invoice) {
-                  if (customer) {
-                    invoice.customer = customer;
-                  } else {
-                    return Implementation.Stripe.getCustomerByUserField(
-                      collectionModel, collectionFieldName, invoice.customer)
-                      .then(function (customer) {
-                        invoice.customer = customer;
-                        return invoice;
-                      });
-                  }
-                  return invoice;
-                })
-                .then(function (invoices) {
-                  return [count, invoices];
-                });
-            });
+            return P
+              .map(invoices, function (invoice) {
+                if (customer) {
+                  invoice.customer = customer;
+                } else {
+                  return Implementation.Stripe.getCustomerByUserField(
+                    collectionModel, collectionFieldName, invoice.customer)
+                    .then(function (customer) {
+                      invoice.customer = customer;
+                      return invoice;
+                    });
+                }
+                return invoice;
+              })
+              .then(function (invoices) {
+                return [count, invoices];
+              });
+          });
       }, function () {
         return new P(function (resolve) { resolve([0, []]); });
       });

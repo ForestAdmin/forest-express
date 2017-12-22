@@ -84,11 +84,11 @@ module.exports = function (app, model, Implementation, opts) {
 
       app.get(path.generate(modelName +
         '_layer_conversations/:conversationId', opts),
-        auth.ensureAuthenticated, this.conversation);
+      auth.ensureAuthenticated, this.conversation);
 
       app.get(path.generate(modelName +
         '_layer_conversations/:conversationId/relationships/messages', opts),
-        auth.ensureAuthenticated, this.messages);
+      auth.ensureAuthenticated, this.messages);
     }
   };
 };

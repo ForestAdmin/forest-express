@@ -17,7 +17,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   if (opts.integrations && opts.integrations.closeio) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
-         Implementation, opts.integrations.closeio).perform();
+      Implementation, opts.integrations.closeio).perform();
   }
 
   if (integrationInfo) {

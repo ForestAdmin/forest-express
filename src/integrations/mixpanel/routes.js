@@ -12,7 +12,7 @@ module.exports = function (app, model, Implementation, opts) {
 
   if (opts.integrations && opts.integrations.mixpanel) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
-        Implementation, opts.integrations.mixpanel).perform();
+      Implementation, opts.integrations.mixpanel).perform();
   }
 
   this.mixpanelEvents = function (request, response, next) {
@@ -29,6 +29,6 @@ module.exports = function (app, model, Implementation, opts) {
   this.perform = function () {
     app.get(path.generate(modelName +
       '/:recordId/relationships/mixpanel_events_this_week', opts),
-      auth.ensureAuthenticated, this.mixpanelEvents);
+    auth.ensureAuthenticated, this.mixpanelEvents);
   };
 };

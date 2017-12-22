@@ -10,7 +10,7 @@ function IntegrationInformationsGetter(modelName, Implementation, integration) {
       function (mappingValue) {
         var collectionName = mappingValue.split('.')[0];
         if (models[collectionName] && Implementation
-              .getModelName(models[collectionName]) === modelName) {
+          .getModelName(models[collectionName]) === modelName) {
           value = mappingValue;
         }
       });
