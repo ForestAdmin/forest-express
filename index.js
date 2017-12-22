@@ -5,7 +5,7 @@ var express = require('express');
 var path = require('path');
 var fs = require('fs');
 var readdirAsync = P.promisify(fs.readdir);
-var cors = require('express-cors');
+var cors = require('cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
 var auth = require('./services/auth');
@@ -111,8 +111,8 @@ exports.init = function (Implementation) {
   }
 
   app.use(cors({
-    allowedOrigins: allowedOrigins,
-    headers: ['Authorization', 'X-Requested-With', 'Content-Type']
+    origin: allowedOrigins,
+    maxAge: 86400, // NOTICE: 1 day
   }));
 
   // Mime type
