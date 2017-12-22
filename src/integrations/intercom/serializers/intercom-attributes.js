@@ -1,15 +1,15 @@
-'use strict';
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function IntercomAttributesSerializer(attributes, collectionName, meta) {
-  var type = collectionName + '_intercom_attributes';
+  const type = `${collectionName}_intercom_attributes`;
 
   return new JSONAPISerializer(type, attributes, {
     attributes: ['session_count', 'last_seen_ip', 'created_at', 'updated_at',
       'signed_up_at', 'last_request_at', 'country', 'city', 'user_agent',
       'companies', 'segments', 'tags', 'browser', 'platform', 'geoloc'],
-    keyForAttribute: function (key) { return key; },
-    meta: meta
+    keyForAttribute(key) { return key; },
+    meta,
   });
 }
 

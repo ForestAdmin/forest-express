@@ -1,17 +1,16 @@
-'use strict';
+
 /* jshint sub: true */
-var _ = require('lodash');
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
-var path = require('../services/path');
-var AllowedUsersFinder = require('../services/allowed-users-finder');
+const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const path = require('../services/path');
+const AllowedUsersFinder = require('../services/allowed-users-finder');
 
 module.exports = function (app, opts) {
-
   function login(request, response) {
     new AllowedUsersFinder(request.body.renderingId, opts)
       .perform()
-      .then(function (allowedUsers) {
+      .then((allowedUsers) => {
         if (!opts.authSecret) {
           throw new Error('Your Forest authSecret seems to be missing. Can ' +
             'you check that you properly set a Forest authSecret in the ' +
@@ -23,16 +22,14 @@ module.exports = function (app, opts) {
             'you\'re trying to unlock.');
         }
 
-        var user = _.find(allowedUsers, function (allowedUser) {
-          return allowedUser.email === request.body.email;
-        });
+        const user = _.find(allowedUsers, allowedUser => allowedUser.email === request.body.email);
 
         if (user === undefined) {
           throw new Error();
         }
 
         return bcrypt.compare(request.body.password, user.password)
-          .then(function (isEqual) {
+          .then((isEqual) => {
             if (!isEqual) {
               throw new Error();
             }
@@ -40,32 +37,32 @@ module.exports = function (app, opts) {
             return user;
           });
       })
-      .then(function (user) {
-        var token = jwt.sign({
+      .then((user) => {
+        const token = jwt.sign({
           id: user.id,
           type: 'users',
           data: {
             email: user.email,
-            'first_name': user['first_name'],
-            'last_name': user['last_name'],
-            teams: user.teams
+            first_name: user.first_name,
+            last_name: user.last_name,
+            teams: user.teams,
           },
           relationships: {
             renderings: {
               data: [{
                 type: 'renderings',
-                id: request.body.renderingId
-              }]
-            }
-          }
+                id: request.body.renderingId,
+              }],
+            },
+          },
         }, opts.authSecret, {
-          expiresIn: '14 days'
+          expiresIn: '14 days',
         });
 
-        response.send({ token: token });
+        response.send({ token });
       })
-      .catch(function (error) {
-        var body;
+      .catch((error) => {
+        let body;
         if (error && error.message) {
           body = { errors: [{ detail: error.message }] };
         }

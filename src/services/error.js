@@ -1,4 +1,4 @@
-'use strict';
+
 
 exports.Unauthorized = function (msg) {
   this.name = 'Unauthorized';

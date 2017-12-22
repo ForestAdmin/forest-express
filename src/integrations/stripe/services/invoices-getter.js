@@ -1,9 +1,9 @@
-'use strict';
-var P = require('bluebird');
+
+const P = require('bluebird');
 
 function InvoicesGetter(Implementation, params, opts, integrationInfo) {
-  var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  var collectionModel = null;
+  const stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
+  let collectionModel = null;
 
   function hasPagination() {
     return params.page;
@@ -12,9 +12,8 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
   function getLimit() {
     if (hasPagination()) {
       return params.page.size || 10;
-    } else {
-      return 10;
     }
+    return 10;
   }
 
   function getStartingAfter() {
@@ -30,54 +29,49 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
   }
 
   function getInvoices(query) {
-    return new P(function (resolve, reject) {
-      stripe.invoices.list(query, function (err, invoices) {
+    return new P(((resolve, reject) => {
+      stripe.invoices.list(query, (err, invoices) => {
         if (err) { return reject(err); }
         // jshint camelcase: false
         resolve([invoices.total_count, invoices.data]);
       });
-    });
+    }));
   }
 
   this.perform = function () {
-    var collectionFieldName = integrationInfo.field;
+    const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 
-    return Implementation.Stripe.getCustomer(collectionModel,
-      collectionFieldName, params.recordId)
-      .then(function (customer) {
-        var query = {
+    return Implementation.Stripe.getCustomer(
+      collectionModel,
+      collectionFieldName, params.recordId,
+    )
+      .then((customer) => {
+        const query = {
           limit: getLimit(),
           starting_after: getStartingAfter(),
           ending_before: getEndingBefore(),
-          'include[]': 'total_count'
+          'include[]': 'total_count',
         };
 
         if (customer) { query.customer = customer[collectionFieldName]; }
 
         return getInvoices(query)
-          .spread(function (count, invoices) {
-            return P
-              .map(invoices, function (invoice) {
-                if (customer) {
-                  invoice.customer = customer;
-                } else {
-                  return Implementation.Stripe.getCustomerByUserField(
-                    collectionModel, collectionFieldName, invoice.customer)
-                    .then(function (customer) {
-                      invoice.customer = customer;
-                      return invoice;
-                    });
-                }
-                return invoice;
-              })
-              .then(function (invoices) {
-                return [count, invoices];
-              });
-          });
-      }, function () {
-        return new P(function (resolve) { resolve([0, []]); });
-      });
+          .spread((count, invoices) => P
+            .map(invoices, (invoice) => {
+              if (customer) {
+                invoice.customer = customer;
+              } else {
+                return Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, invoice.customer)
+                  .then((customer) => {
+                    invoice.customer = customer;
+                    return invoice;
+                  });
+              }
+              return invoice;
+            })
+            .then(invoices => [count, invoices]));
+      }, () => new P(((resolve) => { resolve([0, []]); })));
   };
 }
 

@@ -1,17 +1,17 @@
-'use strict';
-var request = require('superagent');
-var ServiceUrlGetter = require('./service-url-getter');
-var logger = require('./logger');
+
+const request = require('superagent');
+const ServiceUrlGetter = require('./service-url-getter');
+const logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
-  this.perform = function() {
-    var urlService = new ServiceUrlGetter().perform();
+  this.perform = function () {
+    const urlService = new ServiceUrlGetter().perform();
 
     request
-      .post(urlService + '/forest/apimaps')
+      .post(`${urlService}/forest/apimaps`)
       .send(apimap)
       .set('forest-secret-key', envSecret)
-      .end(function (error, result) {
+      .end((error, result) => {
         if (result) {
           if ([200, 202, 204].indexOf(result.status) !== -1) {
             if (result.body && result.body.warning) {

@@ -1,6 +1,6 @@
-'use strict';
-var _ = require('lodash');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+
+const _ = require('lodash');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function MessagesSerializer(messages, collectionName, meta) {
   function mapMessage(message) {
@@ -14,21 +14,19 @@ function MessagesSerializer(messages, collectionName, meta) {
     return message;
   }
 
-  var data = null;
+  let data = null;
   if (_.isArray(messages)) {
-    data = messages.map(function (message) {
-      return mapMessage(message);
-    });
+    data = messages.map(message => mapMessage(message));
   } else {
     data = mapMessage(messages);
   }
 
-  var type = collectionName + '_layer_messages';
+  const type = `${collectionName}_layer_messages`;
 
   return new JSONAPISerializer(type, data, {
     attributes: ['sender', 'sentAt', 'content', 'mimeType'],
-    keyForAttribute: function (key) { return key; },
-    meta: meta
+    keyForAttribute(key) { return key; },
+    meta,
   });
 }
 

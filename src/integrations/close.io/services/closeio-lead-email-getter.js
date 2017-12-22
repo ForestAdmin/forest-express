@@ -1,11 +1,11 @@
-'use strict';
+
 
 function CloseioLeadGetter(Implementation, params, opts) {
-  var Closeio = opts.integrations.closeio.closeio;
-  var closeio = new Closeio(opts.integrations.closeio.apiKey);
+  const Closeio = opts.integrations.closeio.closeio;
+  const closeio = new Closeio(opts.integrations.closeio.apiKey);
 
   this.perform = function () {
-    return closeio._get('/activity/email/'  + params.emailId);
+    return closeio._get(`/activity/email/${params.emailId}`);
   };
 }
 

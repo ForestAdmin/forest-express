@@ -1,9 +1,9 @@
-'use strict';
-var P = require('bluebird');
+
+const P = require('bluebird');
 
 function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
-  var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  var collectionModel = null;
+  const stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
+  let collectionModel = null;
 
   function hasPagination() {
     return params.page;
@@ -12,9 +12,8 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
   function getLimit() {
     if (hasPagination()) {
       return params.page.size || 10;
-    } else {
-      return 10;
     }
+    return 10;
   }
 
   function getStartingAfter() {
@@ -30,54 +29,49 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
   }
 
   function getSubscriptions(query) {
-    return new P(function (resolve, reject) {
-      stripe.subscriptions.list(query, function (err, subcriptions) {
+    return new P(((resolve, reject) => {
+      stripe.subscriptions.list(query, (err, subcriptions) => {
         if (err) { return reject(err); }
         // jshint camelcase: false
         resolve([subcriptions.total_count, subcriptions.data]);
       });
-    });
+    }));
   }
 
   this.perform = function () {
-    var collectionFieldName = integrationInfo.field;
+    const collectionFieldName = integrationInfo.field;
     collectionModel = integrationInfo.collection;
 
-    return Implementation.Stripe.getCustomer(collectionModel,
-      collectionFieldName, params.recordId)
-      .then(function (customer) {
-        var query = {
+    return Implementation.Stripe.getCustomer(
+      collectionModel,
+      collectionFieldName, params.recordId,
+    )
+      .then((customer) => {
+        const query = {
           limit: getLimit(),
           starting_after: getStartingAfter(),
           ending_before: getEndingBefore(),
-          'include[]': 'total_count'
+          'include[]': 'total_count',
         };
 
         if (customer) { query.customer = customer[collectionFieldName]; }
 
         return getSubscriptions(query)
-          .spread(function (count, subscriptions) {
-            return P
-              .map(subscriptions, function (subscription) {
-                if (customer) {
-                  subscription.customer = customer;
-                } else {
-                  return Implementation.Stripe.getCustomerByUserField(
-                    collectionModel, collectionFieldName, subscription.customer)
-                    .then(function (customer) {
-                      subscription.customer = customer;
-                      return subscription;
-                    });
-                }
-                return subscription;
-              })
-              .then(function (subscriptions) {
-                return [count, subscriptions];
-              });
-          });
-      }, function () {
-        return new P(function (resolve) { resolve([0, []]); });
-      });
+          .spread((count, subscriptions) => P
+            .map(subscriptions, (subscription) => {
+              if (customer) {
+                subscription.customer = customer;
+              } else {
+                return Implementation.Stripe.getCustomerByUserField(collectionModel, collectionFieldName, subscription.customer)
+                  .then((customer) => {
+                    subscription.customer = customer;
+                    return subscription;
+                  });
+              }
+              return subscription;
+            })
+            .then(subscriptions => [count, subscriptions]));
+      }, () => new P(((resolve) => { resolve([0, []]); })));
   };
 }
 

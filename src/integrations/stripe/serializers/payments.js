@@ -1,20 +1,20 @@
-'use strict';
-var _ = require('lodash');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var Schemas = require('../../../generators/schemas');
+
+const _ = require('lodash');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const Schemas = require('../../../generators/schemas');
 
 function PaymentsSerializer(payments, collectionName, meta) {
   function getCustomerAttributes() {
     if (!payments.length) { return []; }
 
-    var schema = Schemas.schemas[collectionName];
+    const schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
     return _.map(schema.fields, 'field');
   }
 
   function format(payment) {
     if (payment.created) {
-      payment.created =  new Date(payment.created * 1000);
+      payment.created = new Date(payment.created * 1000);
     }
 
     if (payment.amount) { payment.amount /= 100; }
@@ -22,7 +22,7 @@ function PaymentsSerializer(payments, collectionName, meta) {
     return payment;
   }
 
-  var customerAttributes = getCustomerAttributes();
+  const customerAttributes = getCustomerAttributes();
 
   if (payments.length) {
     payments = payments.map(format);
@@ -30,21 +30,21 @@ function PaymentsSerializer(payments, collectionName, meta) {
     payments = format(payments);
   }
 
-  var type = collectionName + '_stripe_payments';
+  const type = `${collectionName}_stripe_payments`;
 
   return new JSONAPISerializer(type, payments, {
     attributes: ['created', 'status', 'amount', 'currency', 'refunded',
       'customer', 'description'],
     customer: {
       ref: Schemas.schemas[collectionName].idField,
-      attributes: customerAttributes
+      attributes: customerAttributes,
     },
-    keyForAttribute: function (key) { return key; },
-    typeForAttribute: function (attr) {
+    keyForAttribute(key) { return key; },
+    typeForAttribute(attr) {
       if (attr === 'customer') { return collectionName; }
       return attr;
     },
-    meta: meta
+    meta,
   });
 }
 

@@ -1,20 +1,20 @@
-'use strict';
-var P = require('bluebird');
-var esprima = require('esprima');
-var fs = require('fs');
 
-var Pfs = P.promisifyAll(fs);
-var logger = require('../services/logger');
+const P = require('bluebird');
+const esprima = require('esprima');
+const fs = require('fs');
+
+const Pfs = P.promisifyAll(fs);
+const logger = require('../services/logger');
 
 exports.extractCodeSyntaxErrorInDirectoryFile = function (directory) {
-  var hasError = false;
-  var listFiles = [];
+  let hasError = false;
+  const listFiles = [];
 
   function getDirectoryFiles(parentDirectory) {
-    var files = fs.readdirSync(parentDirectory);
-    files.forEach(function (file) {
-      var path = parentDirectory + '/' + file;
-      if (fs.statSync(path).isDirectory()){
+    const files = fs.readdirSync(parentDirectory);
+    files.forEach((file) => {
+      const path = `${parentDirectory}/${file}`;
+      if (fs.statSync(path).isDirectory()) {
         getDirectoryFiles(path);
       } else {
         listFiles.push(path);
@@ -24,20 +24,20 @@ exports.extractCodeSyntaxErrorInDirectoryFile = function (directory) {
 
   if (fs.existsSync(directory)) {
     getDirectoryFiles(directory);
-    listFiles.forEach(function (file) {
-      var fileContent = Pfs.readFileSync(file);
+    listFiles.forEach((file) => {
+      const fileContent = Pfs.readFileSync(file);
 
       try {
         return esprima.parseModule(fileContent.toString(), { loc: true });
       } catch (error) {
         if (error) {
           hasError = true;
-          logger.error('Forest customization failed due to a syntax error: ' +
-            error.description + ' in ' + file + ':' + error.lineNumber);
+          logger.error(`Forest customization failed due to a syntax error: ${
+            error.description} in ${file}:${error.lineNumber}`);
         }
       }
     });
   }
 
-  return new P(function(resolve) { return resolve(hasError); });
+  return new P((resolve => resolve(hasError)));
 };

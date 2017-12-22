@@ -1,6 +1,6 @@
-'use strict';
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var uuidV1 = require('uuid/v1');
+
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const uuidV1 = require('uuid/v1');
 
 function StatSerializer(stat) {
   stat.id = uuidV1();
@@ -8,7 +8,7 @@ function StatSerializer(stat) {
   this.perform = function () {
     return new JSONAPISerializer('stats', stat, {
       attributes: ['value'],
-      keyForAttribute: function (key) { return key; }
+      keyForAttribute(key) { return key; },
     });
   };
 }

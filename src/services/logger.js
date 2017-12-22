@@ -1,7 +1,7 @@
-'use strict';
-var winston = require('winston');
 
-var CONFIG = {
+const winston = require('winston');
+
+const CONFIG = {
   levels: {
     error: 0,
     debug: 1,
@@ -9,7 +9,7 @@ var CONFIG = {
     data: 3,
     info: 4,
     verbose: 5,
-    silly: 6
+    silly: 6,
   },
   colors: {
     error: 'red',
@@ -18,26 +18,26 @@ var CONFIG = {
     data: 'grey',
     info: 'green',
     verbose: 'cyan',
-    silly: 'magenta'
-  }
+    silly: 'magenta',
+  },
 };
 
-var TITLE = '[forest] 🌳🌳🌳  ';
+const TITLE = '[forest] 🌳🌳🌳  ';
 
 module.exports = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({
-      formatter: function (options) {
-        var message = TITLE + options.message;
+      formatter(options) {
+        let message = TITLE + options.message;
 
         if (options.meta && options.meta.stack) {
-          message += '\n' + options.meta.stack;
+          message += `\n${options.meta.stack}`;
         }
 
         return winston.config.colorize(options.level, message);
-      }
-    })
+      },
+    }),
   ],
   levels: CONFIG.levels,
-  colors: CONFIG.colors
+  colors: CONFIG.colors,
 });

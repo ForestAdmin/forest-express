@@ -1,5 +1,5 @@
-'use strict';
-var error = require('./error');
+
+const error = require('./error');
 
 exports.ensureAuthenticated = function (req, res, next) {
   if (req.user) {

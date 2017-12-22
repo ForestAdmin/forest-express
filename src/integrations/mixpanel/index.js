@@ -1,11 +1,11 @@
-'use strict';
-var _ = require('lodash');
-var logger = require('../../services/logger');
-var Setup = require('./setup');
-var Routes = require('./routes');
+
+const _ = require('lodash');
+const logger = require('../../services/logger');
+const Setup = require('./setup');
+const Routes = require('./routes');
 
 function Checker(opts, Implementation) {
-  var integrationValid = false;
+  let integrationValid = false;
 
   function hasIntegration() {
     return opts.integrations && opts.integrations.mixpanel;
@@ -18,14 +18,14 @@ function Checker(opts, Implementation) {
   }
 
   function isMappingValid() {
-    var models = Implementation.getModels();
-    var collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
-    var mappingValid = !!models[collectionName];
+    const models = Implementation.getModels();
+    const collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
+    const mappingValid = !!models[collectionName];
 
     if (!mappingValid) {
-      logger.error('Cannot find some Mixpanel integration mapping values (' +
-        opts.integrations.mixpanel.mapping + ') among the project models:\n' +
-        _.keys(models).join(', '));
+      logger.error(`Cannot find some Mixpanel integration mapping values (${
+        opts.integrations.mixpanel.mapping}) among the project models:\n${
+        _.keys(models).join(', ')}`);
     }
 
     return mappingValid;
@@ -34,8 +34,8 @@ function Checker(opts, Implementation) {
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
-    var models = Implementation.getModels();
-    var collectionName = integration.mapping.split('.')[0];
+    const models = Implementation.getModels();
+    const collectionName = integration.mapping.split('.')[0];
     return models[collectionName] === model;
   }
 
@@ -86,13 +86,13 @@ function Checker(opts, Implementation) {
         nullIfMissing: true, // TODO: This option in the JSONAPISerializer is weird.
         ignoreRelationshipData: true,
         relationshipLinks: {
-          related: function (dataSet) {
+          related(dataSet) {
             return {
-              href: '/forest/' + Implementation.getModelName(model) +
-                '/' + dataSet[schema.idField] + '/relationships/' + field.field,
+              href: `/forest/${Implementation.getModelName(model)
+              }/${dataSet[schema.idField]}/relationships/${field.field}`,
             };
-          }
-        }
+          },
+        },
       };
     }
   };

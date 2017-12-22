@@ -1,14 +1,14 @@
-'use strict';
-var _ = require('lodash');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var Schemas = require('../../../generators/schemas');
+
+const _ = require('lodash');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const Schemas = require('../../../generators/schemas');
 
 // jshint camelcase: false
 function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   function getCustomerAttributes() {
     if (!subscriptions.length) { return []; }
 
-    var schema = Schemas.schemas[collectionName];
+    const schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
     return _.map(schema.fields, 'field');
   }
@@ -53,7 +53,7 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     return subscription;
   }
 
-  var customerAttributes = getCustomerAttributes();
+  const customerAttributes = getCustomerAttributes();
 
   if (subscriptions.length) {
     subscriptions = subscriptions.map(format);
@@ -61,7 +61,7 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     subscriptions = format(subscriptions);
   }
 
-  var type = collectionName + '_stripe_subscriptions';
+  const type = `${collectionName}_stripe_subscriptions`;
 
   return new JSONAPISerializer(type, subscriptions, {
     attributes: ['cancel_at_period_end', 'canceled_at', 'created',
@@ -70,14 +70,14 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
       'customer'],
     customer: {
       ref: Schemas.schemas[collectionName].idField,
-      attributes: customerAttributes
+      attributes: customerAttributes,
     },
-    keyForAttribute: function (key) { return key; },
-    typeForAttribute: function (attr) {
+    keyForAttribute(key) { return key; },
+    typeForAttribute(attr) {
       if (attr === 'customer') { return collectionName; }
       return attr;
     },
-    meta: meta
+    meta,
   });
 }
 

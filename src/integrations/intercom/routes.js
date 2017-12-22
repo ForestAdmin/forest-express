@@ -1,45 +1,49 @@
-'use strict';
-var _ = require('lodash');
-var IntegrationInformationsGetter = require('./services/integration-informations-getter');
-var AttributesGetter = require('./services/attributes-getter');
-var AttributesSerializer = require('./serializers/intercom-attributes');
-var ConversationsGetter = require('./services/conversations-getter');
-var ConversationsSerializer = require('./serializers/intercom-conversations');
-var ConversationGetter = require('./services/conversation-getter');
-var ConversationSerializer = require('./serializers/intercom-conversation');
-var auth = require('../../services/auth');
+
+const _ = require('lodash');
+const IntegrationInformationsGetter = require('./services/integration-informations-getter');
+const AttributesGetter = require('./services/attributes-getter');
+const AttributesSerializer = require('./serializers/intercom-attributes');
+const ConversationsGetter = require('./services/conversations-getter');
+const ConversationsSerializer = require('./serializers/intercom-conversations');
+const ConversationGetter = require('./services/conversation-getter');
+const ConversationSerializer = require('./serializers/intercom-conversation');
+const auth = require('../../services/auth');
 
 module.exports = function (app, model, Implementation, opts) {
-  var modelName = Implementation.getModelName(model);
-  var integrationInfo;
+  const modelName = Implementation.getModelName(model);
+  let integrationInfo;
 
   if (opts.integrations && opts.integrations.intercom) {
-    integrationInfo = new IntegrationInformationsGetter(modelName,
-      Implementation, opts.integrations.intercom).perform();
+    integrationInfo = new IntegrationInformationsGetter(
+      modelName,
+      Implementation, opts.integrations.intercom,
+    ).perform();
   }
 
   this.getAttributes = function (request, response, next) {
-    new AttributesGetter(Implementation, _.extend(request.query, request.params), opts,
-      integrationInfo)
+    new AttributesGetter(
+      Implementation, _.extend(request.query, request.params), opts,
+      integrationInfo,
+    )
       .perform()
-      .then(function (attributes) {
-        return new AttributesSerializer(attributes, modelName);
-      })
-      .then(function (attributes) {
+      .then(attributes => new AttributesSerializer(attributes, modelName))
+      .then((attributes) => {
         response.send(attributes);
       })
       .catch(next);
   };
 
   this.listConversations = function (request, response, next) {
-    new ConversationsGetter(Implementation, _.extend(request.query, request.params), opts,
-      integrationInfo)
+    new ConversationsGetter(
+      Implementation, _.extend(request.query, request.params), opts,
+      integrationInfo,
+    )
       .perform()
-      .spread(function (count, conversations) {
-        return new ConversationsSerializer(conversations, modelName,
-          { count: count });
-      })
-      .then(function (conversations) {
+      .spread((count, conversations) => new ConversationsSerializer(
+        conversations, modelName,
+        { count },
+      ))
+      .then((conversations) => {
         response.send(conversations);
       })
       .catch(next);
@@ -48,10 +52,8 @@ module.exports = function (app, model, Implementation, opts) {
   this.getConversation = function (request, response, next) {
     new ConversationGetter(Implementation, _.extend(request.query, request.params), opts)
       .perform()
-      .then(function (conversation) {
-        return new ConversationSerializer(conversation, modelName);
-      })
-      .then(function (conversation) {
+      .then(conversation => new ConversationSerializer(conversation, modelName))
+      .then((conversation) => {
         response.send(conversation);
       })
       .catch(next);
@@ -59,12 +61,18 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get('/forest/' + modelName + '/:recordId/intercom_attributes',
-        auth.ensureAuthenticated, this.getAttributes);
-      app.get('/forest/' + modelName + '/:recordId/intercom_conversations',
-        auth.ensureAuthenticated, this.listConversations);
-      app.get('/forest/' + modelName + '_intercom_conversations/:conversationId',
-        auth.ensureAuthenticated, this.getConversation);
+      app.get(
+        `/forest/${modelName}/:recordId/intercom_attributes`,
+        auth.ensureAuthenticated, this.getAttributes,
+      );
+      app.get(
+        `/forest/${modelName}/:recordId/intercom_conversations`,
+        auth.ensureAuthenticated, this.listConversations,
+      );
+      app.get(
+        `/forest/${modelName}_intercom_conversations/:conversationId`,
+        auth.ensureAuthenticated, this.getConversation,
+      );
     }
   };
 };

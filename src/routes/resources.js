@@ -1,33 +1,37 @@
-'use strict';
-var auth = require('../services/auth');
-var path = require('../services/path');
-var ResourceSerializer = require('../serializers/resource');
-var ResourceDeserializer = require('../deserializers/resource');
-var CSVExporter = require('../services/csv-exporter');
+
+const auth = require('../services/auth');
+const path = require('../services/path');
+const ResourceSerializer = require('../serializers/resource');
+const ResourceDeserializer = require('../deserializers/resource');
+const CSVExporter = require('../services/csv-exporter');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
-  var modelName = Implementation.getModelName(model);
+  const modelName = Implementation.getModelName(model);
 
   this.list = function (request, response, next) {
     return new Implementation.ResourcesGetter(model, opts, request.query)
       .perform()
-      .then(function (results) {
-        var count = results[0];
-        var records = results[1];
+      .then((results) => {
+        const count = results[0];
+        const records = results[1];
 
-        return new ResourceSerializer(Implementation, model, records,
-          integrator, opts, { count: count }).perform();
+        return new ResourceSerializer(
+          Implementation, model, records,
+          integrator, opts, { count },
+        ).perform();
       })
-      .then(function (records) {
+      .then((records) => {
         response.send(records);
       })
       .catch(next);
   };
 
   this.exportCSV = function (request, response, next) {
-    var params = request.query;
-    var recordsExporter = new Implementation.RecordsExporter(model, opts,
-      params);
+    const params = request.query;
+    const recordsExporter = new Implementation.RecordsExporter(
+      model, opts,
+      params,
+    );
     return new CSVExporter(params, response, modelName, recordsExporter)
       .perform()
       .catch(next);
@@ -36,11 +40,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.get = function (request, response, next) {
     return new Implementation.ResourceGetter(model, request.params)
       .perform()
-      .then(function (record) {
-        return new ResourceSerializer(Implementation, model, record,
-          integrator, opts).perform();
-      })
-      .then(function (record) {
+      .then(record => new ResourceSerializer(
+        Implementation, model, record,
+        integrator, opts,
+      ).perform())
+      .then((record) => {
         response.send(record);
       })
       .catch(next);
@@ -48,16 +52,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
   this.create = function (request, response, next) {
     new ResourceDeserializer(Implementation, model, request.body, true, {
-      omitNullAttributes: true
+      omitNullAttributes: true,
     }).perform()
-      .then(function (params) {
-        return new Implementation.ResourceCreator(model, params).perform();
-      })
-      .then(function (record) {
-        return new ResourceSerializer(Implementation, model, record,
-          integrator, opts).perform();
-      })
-      .then(function (record) {
+      .then(params => new Implementation.ResourceCreator(model, params).perform())
+      .then(record => new ResourceSerializer(
+        Implementation, model, record,
+        integrator, opts,
+      ).perform())
+      .then((record) => {
         response.send(record);
       })
       .catch(next);
@@ -66,14 +68,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.update = function (request, response, next) {
     new ResourceDeserializer(Implementation, model, request.body, false)
       .perform()
-      .then(function (record) {
+      .then((record) => {
         new Implementation.ResourceUpdater(model, request.params, record)
           .perform()
-          .then(function (record) {
-            return new ResourceSerializer(Implementation, model, record,
-              integrator, opts).perform();
-          })
-          .then(function (record) {
+          .then(record => new ResourceSerializer(
+            Implementation, model, record,
+            integrator, opts,
+          ).perform())
+          .then((record) => {
             response.send(record);
             return record;
           })
@@ -84,24 +86,36 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.remove = function (request, response, next) {
     new Implementation.ResourceRemover(model, request.params)
       .perform()
-      .then(function () {
+      .then(() => {
         response.status(204).send();
       })
       .catch(next);
   };
 
   this.perform = function () {
-    app.get(path.generate(modelName, opts) + '.csv', auth.ensureAuthenticated,
-      this.exportCSV);
-    app.get(path.generate(modelName, opts), auth.ensureAuthenticated,
-      this.list);
-    app.get(path.generate(modelName + '/:recordId', opts),
-      auth.ensureAuthenticated, this.get);
-    app.post(path.generate(modelName, opts), auth.ensureAuthenticated,
-      this.create);
-    app.put(path.generate(modelName + '/:recordId', opts),
-      auth.ensureAuthenticated, this.update);
-    app.delete(path.generate(modelName + '/:recordId', opts),
-      auth.ensureAuthenticated, this.remove);
+    app.get(
+      `${path.generate(modelName, opts)}.csv`, auth.ensureAuthenticated,
+      this.exportCSV,
+    );
+    app.get(
+      path.generate(modelName, opts), auth.ensureAuthenticated,
+      this.list,
+    );
+    app.get(
+      path.generate(`${modelName}/:recordId`, opts),
+      auth.ensureAuthenticated, this.get,
+    );
+    app.post(
+      path.generate(modelName, opts), auth.ensureAuthenticated,
+      this.create,
+    );
+    app.put(
+      path.generate(`${modelName}/:recordId`, opts),
+      auth.ensureAuthenticated, this.update,
+    );
+    app.delete(
+      path.generate(`${modelName}/:recordId`, opts),
+      auth.ensureAuthenticated, this.remove,
+    );
   };
 };

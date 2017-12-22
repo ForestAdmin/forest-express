@@ -1,45 +1,43 @@
-'use strict';
+
 /* jshint camelcase: false */
-var _ = require('lodash');
-var moment = require('moment');
+const _ = require('lodash');
+const moment = require('moment');
 
 function MixpanelEventsGetter(Implementation, params, opts) {
-  var MixpanelExport = opts.integrations.mixpanel.mixpanel;
-  var panel = new MixpanelExport({
-    'api_key': opts.integrations.mixpanel.apiKey,
-    'api_secret': opts.integrations.mixpanel.apiSecret
+  const MixpanelExport = opts.integrations.mixpanel.mixpanel;
+  const panel = new MixpanelExport({
+    api_key: opts.integrations.mixpanel.apiKey,
+    api_secret: opts.integrations.mixpanel.apiSecret,
   });
 
   function getPageSize() {
     if (params.page && params.page.size) {
       return parseInt(params.page.size, 10);
-    } else {
-      return 5;
     }
+    return 5;
   }
 
   function getPageNumber() {
     if (params.page && params.page.number) {
       return parseInt(params.page.number, 10);
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   this.perform = function () {
-    var today = moment().format('YYYY-MM-DD');
-    var firstDayOfWeek = moment().startOf('week').format('YYYY-MM-DD');
+    const today = moment().format('YYYY-MM-DD');
+    const firstDayOfWeek = moment().startOf('week').format('YYYY-MM-DD');
 
     return panel
       .export({
         from_date: firstDayOfWeek,
         to_date: today,
-        where: 'properties["id"] == "' + params.recordId + '"'
+        where: `properties["id"] == "${params.recordId}"`,
       })
-      .then(function (result) {
-        var count = result.length;
+      .then((result) => {
+        const count = result.length;
         result = _.reverse(result);
-        var resultSelection = _.chunk(result, getPageSize())[getPageNumber()];
+        const resultSelection = _.chunk(result, getPageSize())[getPageNumber()];
         return [count, resultSelection || []];
       });
   };

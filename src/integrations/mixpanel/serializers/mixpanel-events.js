@@ -1,11 +1,11 @@
-'use strict';
+
 /* jshint camelcase: false */
-var moment = require('moment');
-var uuidV1 = require('uuid/v1');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const moment = require('moment');
+const uuidV1 = require('uuid/v1');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function MixpanelEventsSerializer(events, collectionName, meta) {
-  events = events.map(function (event) {
+  events = events.map((event) => {
     event.id = uuidV1();
     event.date = moment(parseInt(event.properties.time, 10) * 1000).format('');
     event.city = event.properties.$city;
@@ -16,13 +16,13 @@ function MixpanelEventsSerializer(events, collectionName, meta) {
     return event;
   });
 
-  var type = collectionName + '_mixpanel_events';
+  const type = `${collectionName}_mixpanel_events`;
 
   return new JSONAPISerializer(type, events, {
     attributes: ['id', 'event', 'date', 'city', 'os', 'browser',
       'browserVersion'],
-    keyForAttribute: function (key) { return key; },
-    meta: meta
+    keyForAttribute(key) { return key; },
+    meta,
   });
 }
 
