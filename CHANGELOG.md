@@ -5,6 +5,9 @@
 - Smart BelongsTo - Developers can now implement Smart BelongsTo values updates.
 - Smart Fields - Add a "isFilterable" option to let them appear in the filters selection.
 
+### Fixed
+- Security - Remove a vulnerability by upgrading Moment.js library.
+
 ## RELEASE 2.0.4 - 2017-12-12
 ### Fixed
 - Smart Fields - Prevent Smart Fields promise values injection errors on related data retrieval.
