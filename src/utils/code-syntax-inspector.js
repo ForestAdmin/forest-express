@@ -6,7 +6,7 @@ const fs = require('fs');
 const Pfs = P.promisifyAll(fs);
 const logger = require('../services/logger');
 
-exports.extractCodeSyntaxErrorInDirectoryFile = function (directory) {
+exports.extractCodeSyntaxErrorInDirectoryFile = (directory) => {
   let hasError = false;
   const listFiles = [];
 
@@ -35,6 +35,7 @@ exports.extractCodeSyntaxErrorInDirectoryFile = function (directory) {
           logger.error(`Forest customization failed due to a syntax error: ${
             error.description} in ${file}:${error.lineNumber}`);
         }
+        return null;
       }
     });
   }

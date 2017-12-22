@@ -36,6 +36,7 @@ function SmartFieldsValuesInjector(record, modelName) {
       logger.warn(`Cannot set the ${field.field} value because of an unexpected error: ${
         error}`);
     }
+    return null;
   }
 
   this.perform = function () {
