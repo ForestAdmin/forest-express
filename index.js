@@ -8,6 +8,7 @@ var readdirAsync = P.promisify(fs.readdir);
 var cors = require('express-cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
+var auth = require('./services/auth');
 var ResourcesRoutes = require('./routes/resources');
 var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
@@ -20,6 +21,8 @@ var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 var ApimapSender = require('./services/apimap-sender');
+
+var jwtAuthenticator;
 
 function getModels(Implementation) {
   var models = Implementation.getModels();
@@ -84,6 +87,10 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
+exports.ensureAuthenticated = function (request, response, next) {
+  auth.authenticate(request, response, next, jwtAuthenticator);
+};
+
 exports.init = function (Implementation) {
   var opts = Implementation.opts;
   var app = express();
@@ -110,8 +117,6 @@ exports.init = function (Implementation) {
 
   // Mime type
   app.use(bodyParser.json());
-
-  var jwtAuthenticator;
 
   // Authentication
   if (opts.authSecret) {
@@ -334,7 +339,6 @@ exports.collection = function (name, opts) {
 };
 
 exports.logger = require('./services/logger');
-exports.ensureAuthenticated = require('./services/auth').ensureAuthenticated;
 exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');

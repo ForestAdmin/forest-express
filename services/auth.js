@@ -1,12 +1,38 @@
 'use strict';
 var error = require('./error');
+var logger = require('./logger');
 
-exports.ensureAuthenticated = function (request, response, next) {
+var ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
+
+function ensureAuthenticated(request, response, next) {
   if (request.user) {
-    next();
+    return next();
   } else {
-    return next(new error.Unauthorized('Forest cannot authenticate the user for this request.'));
+    return next(new error.Unauthorized(ERROR_MESSAGE));
   }
-};
+}
+
+function authenticate(request, response, next, authenticator) {
+  if (request.user) {
+    // NOTICE: User already authentified by the liana authentication middleware.
+    return next();
+  } else {
+    if (!authenticator) {
+      logger.error('The Liana has not been initialized to enable the authentication.');
+      return next(new error.Unauthorized(ERROR_MESSAGE));
+    }
+
+    authenticator(request, response, function (hasError) {
+      if (hasError) {
+        logger.debug(hasError);
+        return next(new error.Unauthorized(ERROR_MESSAGE));
+      }
+
+      return ensureAuthenticated(request, response, next);
+    });
+  }
+}
 
 exports.allowedUsers = [];
+exports.ensureAuthenticated = ensureAuthenticated;
+exports.authenticate = authenticate;
