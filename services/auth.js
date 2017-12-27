@@ -12,7 +12,7 @@ function ensureAuthenticated(request, response, next) {
   }
 }
 
-function authentify(request, response, next, authenticator) {
+function authenticate(request, response, next, authenticator) {
   if (request.user) {
     // NOTICE: User already authentified by the liana authentication middleware.
     return next();
@@ -35,4 +35,4 @@ function authentify(request, response, next, authenticator) {
 
 exports.allowedUsers = [];
 exports.ensureAuthenticated = ensureAuthenticated;
-exports.authentify = authentify;
+exports.authenticate = authenticate;

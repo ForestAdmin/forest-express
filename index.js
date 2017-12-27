@@ -88,7 +88,7 @@ exports.logger = logger;
 exports.ResourcesRoute = {};
 
 exports.ensureAuthenticated = function (request, response, next) {
-  auth.authentify(request, response, next, jwtAuthenticator);
+  auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
 exports.init = function (Implementation) {
