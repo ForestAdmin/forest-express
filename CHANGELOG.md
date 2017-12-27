@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Authentication - Fix authentication for custom routes.
+- Authentication - Developers whom want to extend the Admin API can now use the authentication for the overridden routes.
 
 ## RELEASE 2.0.5 - 2017-12-22
 ### Added
