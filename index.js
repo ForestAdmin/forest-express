@@ -8,6 +8,7 @@ var readdirAsync = P.promisify(fs.readdir);
 var cors = require('express-cors');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
+var auth = require('./services/auth');
 var ResourcesRoutes = require('./routes/resources');
 var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
@@ -20,7 +21,6 @@ var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 var ApimapSender = require('./services/apimap-sender');
-var Unauthorized = require('./services/error').Unauthorized;
 
 var jwtAuthenticator;
 
@@ -88,22 +88,7 @@ exports.logger = logger;
 exports.ResourcesRoute = {};
 
 exports.ensureAuthenticated = function (request, response, next) {
-  if (!jwtAuthenticator) {
-    logger.error('The Liana was not initialized');
-  }
-
-  jwtAuthenticator(request, response, function (hasError) {
-    if (hasError) {
-      logger.debug(hasError);
-      return next(new Unauthorized('Forest cannot authenticate the user for this request.'));
-    }
-
-    if (request.user) {
-      return next();
-    } else {
-      return next(new Unauthorized('Forest cannot authenticate the user for this request.'));
-    }
-  });
+  auth.authentify(request, response, next, jwtAuthenticator);
 };
 
 exports.init = function (Implementation) {
