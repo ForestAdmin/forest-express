@@ -2,12 +2,12 @@
 var P = require('bluebird');
 var request = require('superagent');
 var logger = require('./logger');
+var ServiceUrlGetter = require('./service-url-getter');
 
 function CheckGoogleAuthAndGetUser(renderingId, accessToken, envSecret) {
   this.perform = function () {
     return new P(function (resolve, reject) {
-      var forestUrl = process.env.FOREST_URL ||
-        'https://api.forestadmin.com';
+      var forestUrl = new ServiceUrlGetter().perform();
 
       request
         .get(forestUrl + '/forest/renderings/' + renderingId + '/google-authorization')

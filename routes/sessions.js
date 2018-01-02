@@ -5,11 +5,53 @@ var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
+var CheckGoogleAuthAndGetUser = require('../services/google-auth');
+var P = require('bluebird');
 
-module.exports = function (app, opts) {
+module.exports = function (app, opts, dependencies) {
+  if (dependencies.CheckGoogleAuthAndGetUser) {
+    CheckGoogleAuthAndGetUser = dependencies.CheckGoogleAuthAndGetUser;
+  }
+
+  function createToken(user, renderingId) {
+    var token = jwt.sign({
+      id: user.id,
+      type: 'users',
+      data: {
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        teams: user.teams
+      },
+      relationships: {
+        renderings: {
+          data: [{
+            type: 'renderings',
+            id: renderingId
+          }]
+        }
+      }
+    }, opts.authSecret, {
+      expiresIn: '14 days'
+    });
+
+    return token;
+  }
+
+  function formatAndSendError(response) {
+    return function (error) {
+      var body;
+      if (error && error.message) {
+        body = { errors: [{ detail: error.message }] };
+      }
+      return response.status(401).send(body);
+    };
+  }
 
   function login(request, response) {
-    new AllowedUsersFinder(request.body.renderingId, opts)
+    var renderingId = request.body.renderingId;
+
+    new AllowedUsersFinder(renderingId, opts)
       .perform()
       .then(function (allowedUsers) {
         if (!opts.authSecret) {
@@ -41,39 +83,48 @@ module.exports = function (app, opts) {
           });
       })
       .then(function (user) {
-        var token = jwt.sign({
-          id: user.id,
-          type: 'users',
-          data: {
-            email: user.email,
-            'first_name': user['first_name'],
-            'last_name': user['last_name'],
-            teams: user.teams
-          },
-          relationships: {
-            renderings: {
-              data: [{
-                type: 'renderings',
-                id: request.body.renderingId
-              }]
-            }
-          }
-        }, opts.authSecret, {
-          expiresIn: '14 days'
-        });
-
+        var token = createToken(user, renderingId);
         response.send({ token: token });
       })
-      .catch(function (error) {
-        var body;
-        if (error && error.message) {
-          body = { errors: [{ detail: error.message }] };
+      .catch(formatAndSendError(response));
+  }
+
+  function loginWithGoogle(request, response) {
+    var renderingId = request.body.renderingId;
+    var envSecret = opts.envSecret;
+    var googleAccessToken = request.body.accessToken;
+
+    P.resolve()
+      .then(function () {
+        if (!opts.authSecret) {
+          throw new Error('Your Forest authSecret seems to be missing. Can ' +
+            'you check that you properly set a Forest authSecret in the ' +
+            'Forest initializer?');
         }
-        return response.status(401).send(body);
-      });
+      })
+      .then(function () {
+        return new CheckGoogleAuthAndGetUser(
+          renderingId,
+          googleAccessToken,
+          envSecret
+        ).perform();
+      })
+      .then(function (user) {
+        if (!user) {
+          throw new Error();
+        }
+
+        return user;
+      })
+      .then(function (user) {
+        var token = createToken(user, renderingId);
+        response.send({ token: token });
+      })
+      .catch(formatAndSendError(response));
   }
 
   this.perform = function () {
     app.post(path.generate('sessions', opts), login);
+    app.post(path.generate('sessions-google', opts), loginWithGoogle);
   };
 };
