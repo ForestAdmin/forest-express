@@ -10,7 +10,7 @@ function CheckGoogleAuthAndGetUser(renderingId, accessToken, envSecret) {
         'https://api.forestadmin.com';
 
       request
-        .get(forestUrl + '/forest/renderings/' + renderingId + '/check-auth-google')
+        .get(forestUrl + '/forest/renderings/' + renderingId + '/google-authorization')
         .set('forest-secret-key', envSecret)
         .set('google-access-token', accessToken)
         .end(function (error, result) {
