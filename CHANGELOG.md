@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Authentication - Users can connect to their project using Google Single Sign-On.
 
 ## RELEASE 2.0.6 - 2017-12-27
 ### Changed
@@ -13,7 +15,6 @@
 ### Added
 - Smart BelongsTo - Developers can now implement Smart BelongsTo values updates.
 - Smart Fields - Add a "isFilterable" option to let them appear in the filters selection.
-- Authentication - Users can connect to their project using Google Single Sign-On.
 
 ### Fixed
 - Security - Remove a vulnerability by upgrading Moment.js library.
