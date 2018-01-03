@@ -5,12 +5,12 @@ var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
-var CheckGoogleAuthAndGetUser = require('../services/google-auth');
+var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 var P = require('bluebird');
 
 module.exports = function (app, opts, dependencies) {
-  if (dependencies.CheckGoogleAuthAndGetUser) {
-    CheckGoogleAuthAndGetUser = dependencies.CheckGoogleAuthAndGetUser;
+  if (dependencies.GoogleAuthorizationFinder) {
+    GoogleAuthorizationFinder = dependencies.GoogleAuthorizationFinder;
   }
 
   function createToken(user, renderingId) {
@@ -101,11 +101,7 @@ module.exports = function (app, opts, dependencies) {
           'Forest initializer?');
       }
 
-      return new CheckGoogleAuthAndGetUser(
-        renderingId,
-        googleAccessToken,
-        envSecret
-      ).perform();
+      return new GoogleAuthorizationFinder(renderingId, googleAccessToken, envSecret).perform();
     })
       .then(function (user) {
         if (!user) {

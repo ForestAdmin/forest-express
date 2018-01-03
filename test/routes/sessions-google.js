@@ -49,7 +49,7 @@ describe('API > Google OAuth2 Login', () => {
 
   before(() => {
     const dependencies = {
-      CheckGoogleAuthAndGetUser: function (renderingId, googleAccessToken, envSecret) {
+      GoogleAuthorizationFinder: function (renderingId, googleAccessToken, envSecret) {
         googleServiceData = { renderingId, googleAccessToken, envSecret };
 
         this.perform = function perform() {

@@ -4,7 +4,7 @@ var request = require('superagent');
 var logger = require('./logger');
 var ServiceUrlGetter = require('./service-url-getter');
 
-function CheckGoogleAuthAndGetUser(renderingId, accessToken, envSecret) {
+function GoogleAuthorizationFinder(renderingId, accessToken, envSecret) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       var forestUrl = new ServiceUrlGetter().perform();
@@ -42,4 +42,4 @@ function CheckGoogleAuthAndGetUser(renderingId, accessToken, envSecret) {
   };
 }
 
-module.exports = CheckGoogleAuthAndGetUser;
+module.exports = GoogleAuthorizationFinder;
