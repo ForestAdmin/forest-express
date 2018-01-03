@@ -94,29 +94,24 @@ module.exports = function (app, opts, dependencies) {
     var envSecret = opts.envSecret;
     var googleAccessToken = request.body.accessToken;
 
-    P.resolve()
-      .then(function () {
-        if (!opts.authSecret) {
-          throw new Error('Your Forest authSecret seems to be missing. Can ' +
-            'you check that you properly set a Forest authSecret in the ' +
-            'Forest initializer?');
-        }
-      })
-      .then(function () {
-        return new CheckGoogleAuthAndGetUser(
-          renderingId,
-          googleAccessToken,
-          envSecret
-        ).perform();
-      })
+    P.try(function () {
+      if (!opts.authSecret) {
+        throw new Error('Your Forest authSecret seems to be missing. Can ' +
+          'you check that you properly set a Forest authSecret in the ' +
+          'Forest initializer?');
+      }
+
+      return new CheckGoogleAuthAndGetUser(
+        renderingId,
+        googleAccessToken,
+        envSecret
+      ).perform();
+    })
       .then(function (user) {
         if (!user) {
           throw new Error();
         }
 
-        return user;
-      })
-      .then(function (user) {
         var token = createToken(user, renderingId);
         response.send({ token: token });
       })
