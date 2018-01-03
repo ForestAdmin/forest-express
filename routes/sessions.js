@@ -48,7 +48,7 @@ module.exports = function (app, opts, dependencies) {
     };
   }
 
-  function login(request, response) {
+  function loginWithPassword(request, response) {
     var renderingId = request.body.renderingId;
 
     new AllowedUsersFinder(renderingId, opts)
@@ -115,7 +115,7 @@ module.exports = function (app, opts, dependencies) {
   }
 
   this.perform = function () {
-    app.post(path.generate('sessions', opts), login);
+    app.post(path.generate('sessions', opts), loginWithPassword);
     app.post(path.generate('sessions-google', opts), loginWithGoogle);
   };
 };
