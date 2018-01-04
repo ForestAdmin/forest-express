@@ -3,6 +3,7 @@ var P = require('bluebird');
 var request = require('superagent');
 var logger = require('./logger');
 var ServiceUrlGetter = require('./service-url-getter');
+var errorMessages = require('../utils/error-messages');
 
 function GoogleAuthorizationFinder(renderingId, accessToken, envSecret) {
   this.perform = function () {
@@ -18,22 +19,13 @@ function GoogleAuthorizationFinder(renderingId, accessToken, envSecret) {
             resolve(result.body.data);
           } else {
             if (result.status === 0) {
-              logger.error('Cannot retrieve the user for the project ' +
-                'you\'re trying to unlock. Forest API seems to be down right ' +
-                'now.');
+              logger.error(errorMessages.SESSION.SERVER_DOWN);
             } else if (result.status === 404) {
-              logger.error('Cannot retrieve the project you\'re trying to ' +
-                'unlock. Can you check that you properly copied the Forest ' +
-                'envSecret in the forest_liana initializer?');
+              logger.error(errorMessages.SESSION.SECRET_NOT_FOUND);
             } else if (result.status === 422) {
-              logger.error('Cannot retrieve the project you\'re trying to ' +
-                'unlock. The envSecret and renderingId seems to be missing or inconsistent.');
+              logger.error(errorMessages.SESSION.SECRET_AND_RENDERINGID_INCONSISTENT);
             } else {
-              logger.error(
-                'Cannot retrieve the user for the project ' +
-                'you\'re trying to unlock. An error occured in Forest API.',
-                error
-              );
+              logger.error(errorMessages.SESSION.UNEXPECTED, error);
             }
             reject();
           }

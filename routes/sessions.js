@@ -1,20 +1,29 @@
 'use strict';
 /* jshint sub: true */
+var P = require('bluebird');
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
-var P = require('bluebird');
+var errorMessages = require('../utils/error-messages');
 
 module.exports = function (app, opts, dependencies) {
   if (dependencies.GoogleAuthorizationFinder) {
     GoogleAuthorizationFinder = dependencies.GoogleAuthorizationFinder;
   }
 
+  function checkAuthSecret(request, response, next) {
+    if (!opts.authSecret) {
+      return response.status(401)
+        .send({ errors: [{ detail: errorMessages.CONFIGURATION.AUTH_SECRET_MISSING }] });
+    }
+    next();
+  }
+
   function createToken(user, renderingId) {
-    var token = jwt.sign({
+    return jwt.sign({
       id: user.id,
       type: 'users',
       data: {
@@ -34,8 +43,13 @@ module.exports = function (app, opts, dependencies) {
     }, opts.authSecret, {
       expiresIn: '14 days'
     });
+  }
 
-    return token;
+  function sendToken(response, renderingId) {
+    return function (user) {
+      var token = createToken(user, renderingId);
+      response.send({ token: token });
+    };
   }
 
   function formatAndSendError(response) {
@@ -50,19 +64,13 @@ module.exports = function (app, opts, dependencies) {
 
   function loginWithPassword(request, response) {
     var renderingId = request.body.renderingId;
+    var envSecret = opts.envSecret;
 
-    new AllowedUsersFinder(renderingId, opts)
+    new AllowedUsersFinder(renderingId, envSecret)
       .perform()
       .then(function (allowedUsers) {
-        if (!opts.authSecret) {
-          throw new Error('Your Forest authSecret seems to be missing. Can ' +
-            'you check that you properly set a Forest authSecret in the ' +
-            'Forest initializer?');
-        }
-
         if (allowedUsers.length === 0) {
-          throw new Error('Forest cannot retrieve any users for the project ' +
-            'you\'re trying to unlock.');
+          throw new Error(errorMessages.SESSION.NO_USERS);
         }
 
         var user = _.find(allowedUsers, function (allowedUser) {
@@ -75,17 +83,11 @@ module.exports = function (app, opts, dependencies) {
 
         return bcrypt.compare(request.body.password, user.password)
           .then(function (isEqual) {
-            if (!isEqual) {
-              throw new Error();
-            }
-
+            if (!isEqual) { throw new Error(); }
             return user;
           });
       })
-      .then(function (user) {
-        var token = createToken(user, renderingId);
-        response.send({ token: token });
-      })
+      .then(sendToken(response, renderingId))
       .catch(formatAndSendError(response));
   }
 
@@ -95,27 +97,18 @@ module.exports = function (app, opts, dependencies) {
     var googleAccessToken = request.body.accessToken;
 
     P.try(function () {
-      if (!opts.authSecret) {
-        throw new Error('Your Forest authSecret seems to be missing. Can ' +
-          'you check that you properly set a Forest authSecret in the ' +
-          'Forest initializer?');
-      }
-
       return new GoogleAuthorizationFinder(renderingId, googleAccessToken, envSecret).perform();
     })
       .then(function (user) {
-        if (!user) {
-          throw new Error();
-        }
-
-        var token = createToken(user, renderingId);
-        response.send({ token: token });
+        if (!user) { throw new Error(); }
+        return user;
       })
+      .then(sendToken(response, renderingId))
       .catch(formatAndSendError(response));
   }
 
   this.perform = function () {
-    app.post(path.generate('sessions', opts), loginWithPassword);
-    app.post(path.generate('sessions-google', opts), loginWithGoogle);
+    app.post(path.generate('sessions', opts), checkAuthSecret, loginWithPassword);
+    app.post(path.generate('sessions-google', opts), checkAuthSecret, loginWithGoogle);
   };
 };
