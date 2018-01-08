@@ -93,11 +93,11 @@ module.exports = function (app, opts, dependencies) {
 
   function loginWithGoogle(request, response) {
     var renderingId = request.body.renderingId;
+    var forestJwt = request.body.forestJwt;
     var envSecret = opts.envSecret;
-    var googleAccessToken = request.body.accessToken;
 
     P.try(function () {
-      return new GoogleAuthorizationFinder(renderingId, googleAccessToken, envSecret).perform();
+      return new GoogleAuthorizationFinder(renderingId, forestJwt, envSecret).perform();
     })
       .then(function (user) {
         if (!user) { throw new Error(); }
