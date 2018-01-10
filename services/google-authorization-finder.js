@@ -5,7 +5,7 @@ var logger = require('./logger');
 var ServiceUrlGetter = require('./service-url-getter');
 var errorMessages = require('../utils/error-messages');
 
-function GoogleAuthorizationFinder(renderingId, forestJwt, envSecret) {
+function GoogleAuthorizationFinder(renderingId, forestToken, envSecret) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       var forestUrl = new ServiceUrlGetter().perform();
@@ -13,7 +13,7 @@ function GoogleAuthorizationFinder(renderingId, forestJwt, envSecret) {
       request
         .get(forestUrl + '/forest/renderings/' + renderingId + '/google-authorization')
         .set('forest-secret-key', envSecret)
-        .set('forest-jwt', forestJwt)
+        .set('forest-token', forestToken)
         .end(function (error, result) {
           if (result.status === 200 && result.body && result.body.data) {
             resolve(result.body.data);
