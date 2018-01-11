@@ -1,27 +1,22 @@
 'use strict';
 var P = require('bluebird');
 var request = require('superagent');
-var ServiceUrlGetter = require('./service-url-getter');
-var allowedUsers = require('./auth').allowedUsers;
 var logger = require('./logger');
+var ServiceUrlGetter = require('./service-url-getter');
 var errorMessages = require('../utils/error-messages');
 
-function AllowedUsersFinder(renderingId, environmentSecret) {
+function GoogleAuthorizationFinder(renderingId, forestToken, envSecret) {
   this.perform = function () {
-    return new P(function (resolve) {
-      var urlService = new ServiceUrlGetter().perform();
+    return new P(function (resolve, reject) {
+      var forestUrl = new ServiceUrlGetter().perform();
 
       request
-        .get(urlService + '/forest/renderings/' + renderingId + '/allowed-users')
-        .set('forest-secret-key', environmentSecret)
+        .get(forestUrl + '/forest/renderings/' + renderingId + '/google-authorization')
+        .set('forest-secret-key', envSecret)
+        .set('forest-token', forestToken)
         .end(function (error, result) {
-          allowedUsers = [];
           if (result.status === 200 && result.body && result.body.data) {
-            result.body.data.forEach(function (userData) {
-              var user = userData.attributes;
-              user.id = userData.id;
-              allowedUsers.push(user);
-            });
+            resolve(result.body.data);
           } else {
             if (result.status === 0) {
               logger.error(errorMessages.SESSION.SERVER_DOWN);
@@ -32,11 +27,11 @@ function AllowedUsersFinder(renderingId, environmentSecret) {
             } else {
               logger.error(errorMessages.SESSION.UNEXPECTED, error);
             }
+            reject();
           }
-          resolve(allowedUsers);
         });
     });
   };
 }
 
-module.exports = AllowedUsersFinder;
+module.exports = GoogleAuthorizationFinder;
