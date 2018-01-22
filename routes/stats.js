@@ -32,14 +32,11 @@ module.exports = function (app, model, Implementation, opts) {
       .then(function (stat) {
         return new StatSerializer(stat).perform();
       })
-      .then(function (stat) {
-        response.send(stat);
-      })
+      .then(function (stat) { response.send(stat); })
       .catch(next);
   };
 
   this.perform = function () {
-    app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated,
-      this.get);
+    app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated, this.get);
   };
 };
