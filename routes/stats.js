@@ -36,64 +36,66 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.query = function (req, res, next) {
-    return new Implementation.QueryStatGetter(req.body, opts)
-      .perform()
-      .then(function (stat) {
-        switch (req.body.type) {
-          case 'Value':
-            if (stat.length) {
-              stat = stat[0];
-              if (!stat.value) {
-                throw new Error('The result columns must be named ' +
-                  '\'value\' instead of \'' +
-                  Object.keys(stat).join(', ') + '\'');
-              } else {
-                stat = {
-                  countCurrent: stat.value,
-                  countPrevious: stat.previous
-                };
-              }
-            }
-            break;
-          case 'Pie':
-            if (stat.length) {
-              stat.forEach(function (s) {
-                if (!s.value || !s.key) {
-                  throw new Error('The result columns must be named ' +
-                    '\'key, value\' instead of \'' +
-                    Object.keys(s).join(', ') + '\'');
-                }
-              });
-            }
-            break;
-          case 'Line':
-            if (stat.length) {
-              stat.forEach(function (s) {
-                if (!s.value || !s.key) {
-                  throw new Error('The result columns must be named ' +
-                    '\'key, value\' instead of \'' +
-                    Object.keys(s).join(', ') + '\'');
-                }
-              });
-            }
+  function ErrorQueryColumnsName(result) {
+    return new Error('The result columns must be named \'value\' instead of ' +
+      '\'' + Object.keys(result).join(', ') + '\'');
+  }
 
-            stat = stat.map(function (s) {
-              return { label: s.key, values: { value: s.value }};
+  this.getWithLiveQuery = function (request, response, next) {
+    return new Implementation.QueryStatGetter(request.body, opts)
+      .perform()
+      .then(function (result) {
+        switch (request.body.type) {
+        case 'Value':
+          if (result.length) {
+            var resultLine = result[0];
+            if (!resultLine.value) {
+              throw ErrorQueryColumnsName(resultLine);
+            } else {
+              result = {
+                countCurrent: resultLine.value,
+                countPrevious: resultLine.previous
+              };
+            }
+          }
+          break;
+        case 'Pie':
+          if (result.length) {
+            result.forEach(function (resultLine) {
+              if (!resultLine.value || !resultLine.key) {
+                throw ErrorQueryColumnsName(resultLine);
+              }
             });
-            break;
+          }
+          break;
+        case 'Line':
+          if (result.length) {
+            result.forEach(function (resultLine) {
+              if (!resultLine.value || !resultLine.key) {
+                throw ErrorQueryColumnsName(resultLine);
+              }
+            });
+          }
+
+          result = result.map(function (resultLine) {
+            return {
+              label: resultLine.key,
+              values: {
+                value: resultLine.value,
+              },
+            };
+          });
+          break;
         }
 
-        return new StatSerializer({ value: stat }).perform();
+        return new StatSerializer({ value: result }).perform();
       })
-      .then(function (stat) {
-        res.send(stat);
-      })
+      .then(function (data) { response.send(data); })
       .catch(next);
   };
 
   this.perform = function () {
     app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated, this.get);
-    app.post('/stats', auth.ensureAuthenticated, this.query);
+    app.post('/stats', auth.ensureAuthenticated, this.getWithLiveQuery);
   };
 };
