@@ -6,26 +6,26 @@ var StatSerializer = require('../serializers/stat');
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
 
-  this.create = function (req, res, next) {
+  this.get = function (request, response, next) {
     var promise = null;
 
-    switch (req.body.type) {
-      case 'Value':
-        promise = new Implementation.ValueStatGetter(model, req.body, opts)
-          .perform();
-        break;
-      case 'Pie':
-        promise = new Implementation.PieStatGetter(model, req.body, opts)
-          .perform();
-        break;
-      case 'Line':
-        promise = new Implementation.LineStatGetter(model, req.body, opts)
-          .perform();
-        break;
+    switch (request.body.type) {
+    case 'Value':
+      promise = new Implementation.ValueStatGetter(model, request.body, opts)
+        .perform();
+      break;
+    case 'Pie':
+      promise = new Implementation.PieStatGetter(model, request.body, opts)
+        .perform();
+      break;
+    case 'Line':
+      promise = new Implementation.LineStatGetter(model, request.body, opts)
+        .perform();
+      break;
     }
 
     if (!promise) {
-      return res.status(400).send({ error: 'Chart type not found.' });
+      return response.status(400).send({ error: 'Chart type not found.' });
     }
 
     promise
@@ -33,13 +33,13 @@ module.exports = function (app, model, Implementation, opts) {
         return new StatSerializer(stat).perform();
       })
       .then(function (stat) {
-        res.send(stat);
+        response.send(stat);
       })
       .catch(next);
   };
 
   this.perform = function () {
     app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated,
-      this.create);
+      this.get);
   };
 };
