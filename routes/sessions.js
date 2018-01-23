@@ -1,114 +1,64 @@
 'use strict';
 /* jshint sub: true */
-var P = require('bluebird');
-var _ = require('lodash');
-var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+var moment = require('moment');
 var path = require('../services/path');
-var AllowedUsersFinder = require('../services/allowed-users-finder');
-var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
-var errorMessages = require('../utils/error-messages');
+var UserAuthenticator = require('../services/user-authenticator');
+var VerifyRefreshToken = require('../services/verify-refresh-token');
 
-module.exports = function (app, opts, dependencies) {
-  if (dependencies.GoogleAuthorizationFinder) {
-    GoogleAuthorizationFinder = dependencies.GoogleAuthorizationFinder;
-  }
+module.exports = function (app, opts) {
+  function refreshAccessToken(request, response) {
+    var requestRefreshToken = jwt.verify(request.body.refreshToken, opts.authSecret).token;
+    var decodedToken = JSON.parse(Buffer
+      .from(request.body.token.split('.')[1], 'base64').toString());
+    var lastSession = decodedToken.data.maximumInactive;
 
-  function checkAuthSecret(request, response, next) {
-    if (!opts.authSecret) {
-      return response.status(401)
-        .send({ errors: [{ detail: errorMessages.CONFIGURATION.AUTH_SECRET_MISSING }] });
+    if (moment(lastSession).isBefore(moment())) {
+      return response.status(401).send();
     }
-    next();
-  }
 
-  function createToken(user, renderingId) {
-    return jwt.sign({
-      id: user.id,
-      type: 'users',
-      data: {
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        teams: user.teams
-      },
-      relationships: {
-        renderings: {
-          data: [{
-            type: 'renderings',
-            id: renderingId
-          }]
-        }
-      }
-    }, opts.authSecret, {
-      expiresIn: '14 days'
-    });
-  }
-
-  function sendToken(response, renderingId) {
-    return function (user) {
-      var token = createToken(user, renderingId);
-      response.send({ token: token });
-    };
-  }
-
-  function formatAndSendError(response) {
-    return function (error) {
-      var body;
-      if (error && error.message) {
-        body = { errors: [{ detail: error.message }] };
-      }
-      return response.status(401).send(body);
-    };
-  }
-
-  function loginWithPassword(request, response) {
-    var renderingId = request.body.renderingId;
-    var envSecret = opts.envSecret;
-
-    new AllowedUsersFinder(renderingId, envSecret)
+    new VerifyRefreshToken(opts, request.body, requestRefreshToken)
       .perform()
-      .then(function (allowedUsers) {
-        if (allowedUsers.length === 0) {
-          throw new Error(errorMessages.SESSION.NO_USERS);
+      .then(function (result) {
+        if (result.status !== 204) {
+          response.sendStatus(400);
+          return null;
         }
-
-        var user = _.find(allowedUsers, function (allowedUser) {
-          return allowedUser.email === request.body.email;
-        });
-
-        if (user === undefined) {
-          throw new Error();
-        }
-
-        return bcrypt.compare(request.body.password, user.password)
-          .then(function (isEqual) {
-            if (!isEqual) { throw new Error(); }
-            return user;
+        return new UserAuthenticator(request, opts, true)
+          .perform()
+          .then(function (tokens) { response.send(tokens); })
+          .catch(function (error) {
+            var body;
+            if (error && error.message) {
+              body = { errors: [{ detail: error.message }] };
+            }
+            return response.status(401).send(body);
           });
       })
-      .then(sendToken(response, renderingId))
-      .catch(formatAndSendError(response));
+      .catch(function (error) {
+        var body;
+        if (error && error.message) {
+          body = { errors: [{ detail: error.message }] };
+        }
+        return response.status(401).send(body);
+      });
   }
 
-  function loginWithGoogle(request, response) {
-    var renderingId = request.body.renderingId;
-    var forestToken = request.body.forestToken;
-    var envSecret = opts.envSecret;
-
-    P.try(function () {
-      return new GoogleAuthorizationFinder(renderingId, forestToken, envSecret).perform();
-    })
-      .then(function (user) {
-        if (!user) { throw new Error(); }
-        return user;
-      })
-      .then(sendToken(response, renderingId))
-      .catch(formatAndSendError(response));
+  function login(request, response) {
+    new UserAuthenticator(request, opts)
+      .perform()
+      .then(function (tokens) { response.send(tokens); })
+      .catch(function (error) {
+        var body;
+        if (error && error.message) {
+          body = { errors: [{ detail: error.message }] };
+        }
+        return response.status(401).send(body);
+      });
   }
 
   this.perform = function () {
-    app.post(path.generate('sessions', opts), checkAuthSecret, loginWithPassword);
-    app.post(path.generate('sessions-google', opts), checkAuthSecret, loginWithGoogle);
+    app.post(path.generate('sessions', opts), login);
+    app.post(path.generate('refreshAccessToken', opts), refreshAccessToken);
   };
 };

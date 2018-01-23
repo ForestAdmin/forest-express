@@ -28,6 +28,8 @@
 ## RELEASE 2.0.3 - 2017-12-12
 ### Added
 - TypeScript Support - Forest can now load TypeScript modules.
+- Authentication - Customisable maximum inactive time to the liana token.
+- Authentication - Use Oauth2 protocol.
 
 ### Fixed
 - Smart Fields - Prevent Smart Fields values injection errors on related data retrieval.
