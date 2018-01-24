@@ -1,5 +1,7 @@
 'use strict';
 var auth = require('../services/auth');
+var logger = require('../services/logger');
+var error = require('../services/error');
 var path = require('../services/path');
 var StatSerializer = require('../serializers/stat');
 
@@ -37,8 +39,10 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   function ErrorQueryColumnsName(result) {
-    return new Error('The result columns must be named \'value\' instead of \'' +
-      Object.keys(result).join(', ') + '\'.');
+    var message = 'The result columns must be named \'value\' instead of \'' +
+      Object.keys(result).join(', ') + '\'.';
+    logger.error('Live Query error: ' + message);
+    return new error.UnprocessableEntity(message);
   }
 
   this.getWithLiveQuery = function (request, response, next) {
