@@ -38,9 +38,9 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  function ErrorQueryColumnsName(result) {
-    var message = 'The result columns must be named \'value\' instead of \'' +
-      Object.keys(result).join(', ') + '\'.';
+  function ErrorQueryColumnsName(result, keyNames) {
+    var message = 'The result columns must be named ' + keyNames + ' instead of \'' +
+      Object.keys(result).join('\', \'') + '\'.';
     logger.error('Live Query error: ' + message);
     return new error.UnprocessableEntity(message);
   }
@@ -54,7 +54,7 @@ module.exports = function (app, model, Implementation, opts) {
           if (result.length) {
             var resultLine = result[0];
             if (!resultLine.value) {
-              throw ErrorQueryColumnsName(resultLine);
+              throw ErrorQueryColumnsName(resultLine, '\'value\'');
             } else {
               result = {
                 countCurrent: resultLine.value,
@@ -67,7 +67,7 @@ module.exports = function (app, model, Implementation, opts) {
           if (result.length) {
             result.forEach(function (resultLine) {
               if (!resultLine.value || !resultLine.key) {
-                throw ErrorQueryColumnsName(resultLine);
+                throw ErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
               }
             });
           }
@@ -76,7 +76,7 @@ module.exports = function (app, model, Implementation, opts) {
           if (result.length) {
             result.forEach(function (resultLine) {
               if (!resultLine.value || !resultLine.key) {
-                throw ErrorQueryColumnsName(resultLine);
+                throw ErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
               }
             });
           }
