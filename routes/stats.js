@@ -96,6 +96,6 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated, this.get);
-    app.post(path.generate('/stats', opts), auth.ensureAuthenticated, this.getWithLiveQuery);
+    app.post(path.generate('stats', opts), auth.ensureAuthenticated, this.getWithLiveQuery);
   };
 };
