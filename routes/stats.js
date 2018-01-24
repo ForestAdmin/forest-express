@@ -1,5 +1,7 @@
 'use strict';
 var auth = require('../services/auth');
+var logger = require('../services/logger');
+var error = require('../services/error');
 var path = require('../services/path');
 var StatSerializer = require('../serializers/stat');
 
@@ -36,7 +38,68 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
+  function ErrorQueryColumnsName(result, keyNames) {
+    var message = 'The result columns must be named ' + keyNames + ' instead of \'' +
+      Object.keys(result).join('\', \'') + '\'.';
+    logger.error('Live Query error: ' + message);
+    return new error.UnprocessableEntity(message);
+  }
+
+  this.getWithLiveQuery = function (request, response, next) {
+    return new Implementation.QueryStatGetter(request.body, opts)
+      .perform()
+      .then(function (result) {
+        switch (request.body.type) {
+        case 'Value':
+          if (result.length) {
+            var resultLine = result[0];
+            if (!resultLine.value) {
+              throw ErrorQueryColumnsName(resultLine, '\'value\'');
+            } else {
+              result = {
+                countCurrent: resultLine.value,
+                countPrevious: resultLine.previous
+              };
+            }
+          }
+          break;
+        case 'Pie':
+          if (result.length) {
+            result.forEach(function (resultLine) {
+              if (!resultLine.value || !resultLine.key) {
+                throw ErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              }
+            });
+          }
+          break;
+        case 'Line':
+          if (result.length) {
+            result.forEach(function (resultLine) {
+              if (!resultLine.value || !resultLine.key) {
+                throw ErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              }
+            });
+          }
+
+          result = result.map(function (resultLine) {
+            return {
+              label: resultLine.key,
+              values: {
+                value: resultLine.value,
+              },
+            };
+          });
+          break;
+        }
+
+        return new StatSerializer({ value: result }).perform();
+      })
+      .then(function (data) { response.send(data); })
+      .catch(next);
+  };
+
   this.perform = function () {
     app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated, this.get);
+    app.post(path.generate('stats', opts), auth.ensureAuthenticated, this.getWithLiveQuery);
   };
 };
