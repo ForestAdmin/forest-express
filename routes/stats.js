@@ -37,8 +37,8 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   function ErrorQueryColumnsName(result) {
-    return new Error('The result columns must be named \'value\' instead of ' +
-      '\'' + Object.keys(result).join(', ') + '\'');
+    return new Error('The result columns must be named \'value\' instead of \'' +
+      Object.keys(result).join(', ') + '\'.');
   }
 
   this.getWithLiveQuery = function (request, response, next) {
