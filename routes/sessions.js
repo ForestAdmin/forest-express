@@ -64,9 +64,8 @@ module.exports = function (app, opts, dependencies) {
 
   function loginWithPassword(request, response) {
     var renderingId = request.body.renderingId;
-    var envSecret = opts.envSecret;
 
-    new AllowedUsersFinder(renderingId, envSecret)
+    new AllowedUsersFinder(renderingId, opts)
       .perform()
       .then(function (allowedUsers) {
         if (allowedUsers.length === 0) {
@@ -94,10 +93,9 @@ module.exports = function (app, opts, dependencies) {
   function loginWithGoogle(request, response) {
     var renderingId = request.body.renderingId;
     var forestToken = request.body.forestToken;
-    var envSecret = opts.envSecret;
 
     P.try(function () {
-      return new GoogleAuthorizationFinder(renderingId, forestToken, envSecret).perform();
+      return new GoogleAuthorizationFinder(renderingId, forestToken, opts).perform();
     })
       .then(function (user) {
         if (!user) { throw new Error(); }
