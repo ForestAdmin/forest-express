@@ -1,4 +1,6 @@
 'use strict';
+var uuidV1 = require('uuid/v1');
+
 /* jshint sub: true */
 var P = require('bluebird');
 var _ = require('lodash');
@@ -6,6 +8,7 @@ var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
+var AuthEnvironmentGetter = require('../services/auth-environment-getter');
 var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 var errorMessages = require('../utils/error-messages');
 
@@ -22,7 +25,7 @@ module.exports = function (app, opts, dependencies) {
     next();
   }
 
-  function createToken(user, renderingId) {
+  function createToken(user, renderingId, expTime) {
     return jwt.sign({
       id: user.id,
       type: 'users',
@@ -41,14 +44,27 @@ module.exports = function (app, opts, dependencies) {
         }
       }
     }, opts.authSecret, {
-      expiresIn: '14 days'
+      expiresIn: expTime.accessTokenExpiration + ' seconds'
     });
   }
 
-  function sendToken(response, renderingId) {
-    return function (user) {
-      var token = createToken(user, renderingId);
-      response.send({ token: token });
+  function createRefreshToken(user, renderingId, expTime) {
+    return jwt.sign({
+      id: user.id,
+      type: 'users',
+      data: {
+        refreshToken: uuidV1(),
+      }
+    }, opts.authSecret, {
+      expiresIn: expTime.refreshTokenExpiration + ' seconds'
+    });
+  }
+
+  function sendToken(response, renderingId, user) {
+    return function (expTime) {
+      var token = createToken(user, renderingId, expTime.body);
+      var refreshToken = createRefreshToken(user, renderingId, expTime.body);
+      response.send({ token: token, refreshToken: refreshToken });
     };
   }
 
@@ -86,7 +102,11 @@ module.exports = function (app, opts, dependencies) {
             return user;
           });
       })
-      .then(sendToken(response, renderingId))
+      .then(function (user) {
+        return new AuthEnvironmentGetter(opts)
+          .perform()
+          .then(sendToken(response, renderingId, user));
+      })
       .catch(formatAndSendError(response));
   }
 
