@@ -62,8 +62,8 @@ module.exports = function (app, opts, dependencies) {
 
   function sendToken(response, renderingId, user) {
     return function (expTime) {
-      var token = createToken(user, renderingId, expTime.body);
-      var refreshToken = createRefreshToken(user, renderingId, expTime.body);
+      var token = createToken(user, renderingId, expTime);
+      var refreshToken = createRefreshToken(user, renderingId, expTime);
       response.send({ token: token, refreshToken: refreshToken });
     };
   }
