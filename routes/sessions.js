@@ -10,6 +10,7 @@ var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 var AuthEnvironmentGetter = require('../services/auth-environment-getter');
 var RefreshTokenSender = require('../services/refresh-token-sender');
+var RefreshTokenVerify = require('../services/refresh-token-verify');
 var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 var errorMessages = require('../utils/error-messages');
 
@@ -61,7 +62,7 @@ module.exports = function (app, opts, dependencies) {
     return function (expTime) {
       var refreshToken = uuidV1();
       var token = createToken(user, renderingId, expTime);
-      var encodedRefreshToken = encodeRefreshToken(token, expTime);
+      var encodedRefreshToken = encodeRefreshToken(refreshToken, expTime);
       response.send({ token: token, refreshToken: encodedRefreshToken });
       return refreshToken;
     };
@@ -77,9 +78,8 @@ module.exports = function (app, opts, dependencies) {
     };
   }
 
-  function loginWithPassword(request, response) {
+  function loginWithPassword(request, response, isRefresh) {
     var renderingId = request.body.renderingId;
-
     new AllowedUsersFinder(renderingId, opts)
       .perform()
       .then(function (allowedUsers) {
@@ -94,6 +94,8 @@ module.exports = function (app, opts, dependencies) {
         if (user === undefined) {
           throw new Error();
         }
+
+        if (isRefresh === true) { return user; }
 
         return bcrypt.compare(request.body.password, user.password)
           .then(function (isEqual) {
@@ -128,8 +130,28 @@ module.exports = function (app, opts, dependencies) {
       .catch(formatAndSendError(response));
   }
 
+  function refreshAccessToken(request, response) {
+    if (!request.body.refreshToken || !request.body.renderingId ||
+      !request.body.userId || !request.body.email) {
+      response.sendStatus(403);
+      return null;
+    }
+    return new RefreshTokenVerify(opts,
+      request.body.refreshToken,
+      request.body.renderingId,
+      request.body.userId)
+      .perform()
+      .then(function () {
+        return loginWithPassword(request, response, true);
+      })
+      .catch(function () {
+        response.sendStatus(403);
+      });
+  }
+
   this.perform = function () {
     app.post(path.generate('sessions', opts), checkAuthSecret, loginWithPassword);
+    app.post(path.generate('sessions-refresh', opts), checkAuthSecret, refreshAccessToken);
     app.post(path.generate('sessions-google', opts), checkAuthSecret, loginWithGoogle);
   };
 };
