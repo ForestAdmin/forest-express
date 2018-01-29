@@ -5,6 +5,8 @@
 ## RELEASE 2.2.0 - 2018-01-26
 ### Added
 - Charts - Users can create charts using raw database queries with the Live Query option.
+- Authentication - Customisable maximum inactive time to the liana token.
+- Authentication - Use Oauth2 protocol.
 
 ## RELEASE 2.1.0 - 2018-01-11
 ### Added

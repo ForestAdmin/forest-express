@@ -97,6 +97,7 @@ exports.init = function (Implementation, dependencies) {
   var integrator;
 
   dependencies = dependencies || {};
+  opts.forestUrl = process.env.FOREST_URL || 'https://forestadmin-server.herokuapp.com';
 
   if (opts.secretKey) {
     logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
@@ -271,7 +272,7 @@ exports.init = function (Implementation, dependencies) {
           if (dependencies.ApimapSender) {
             ApimapSender = dependencies.ApimapSender;
           }
-          new ApimapSender(opts.envSecret, apimap).perform();
+          new ApimapSender(opts, apimap).perform();
         }
       }
     })
