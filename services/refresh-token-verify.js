@@ -8,11 +8,6 @@ function VerifyRefreshToken(opts, encodeRefreshToken, renderingId, userId) {
     return new P(function (resolve, reject) {
       jwt.verify(encodeRefreshToken, opts.authSecret,
         function(err, decoded) {
-          console.log({
-            refreshToken: decoded.refreshToken,
-            renderingId: renderingId,
-            userId: userId,
-          });
           request
             .post(opts.forestUrl + '/forest/verifyRefreshToken')
             .send({
