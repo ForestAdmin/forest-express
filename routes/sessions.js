@@ -9,6 +9,7 @@ var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 var AuthEnvironmentGetter = require('../services/auth-environment-getter');
+var RefreshTokenSender = require('../services/refresh-token-sender');
 var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 var errorMessages = require('../utils/error-messages');
 
@@ -48,13 +49,9 @@ module.exports = function (app, opts, dependencies) {
     });
   }
 
-  function createRefreshToken(user, renderingId, expTime) {
+  function encodeRefreshToken(refreshToken, expTime) {
     return jwt.sign({
-      id: user.id,
-      type: 'users',
-      data: {
-        refreshToken: uuidV1(),
-      }
+      refreshToken: refreshToken,
     }, opts.authSecret, {
       expiresIn: expTime.refreshTokenExpiration + ' seconds'
     });
@@ -62,9 +59,11 @@ module.exports = function (app, opts, dependencies) {
 
   function sendToken(response, renderingId, user) {
     return function (expTime) {
+      var refreshToken = uuidV1();
       var token = createToken(user, renderingId, expTime);
-      var refreshToken = createRefreshToken(user, renderingId, expTime);
-      response.send({ token: token, refreshToken: refreshToken });
+      var encodedRefreshToken = encodeRefreshToken(token, expTime);
+      response.send({ token: token, refreshToken: encodedRefreshToken });
+      return refreshToken;
     };
   }
 
@@ -105,7 +104,11 @@ module.exports = function (app, opts, dependencies) {
       .then(function (user) {
         return new AuthEnvironmentGetter(opts)
           .perform()
-          .then(sendToken(response, renderingId, user));
+          .then(sendToken(response, renderingId, user))
+          .then(function(refreshToken) {
+            return new RefreshTokenSender(opts, refreshToken, renderingId, user.id)
+              .perform();
+          });
       })
       .catch(formatAndSendError(response));
   }

@@ -2,7 +2,7 @@
 var P = require('bluebird');
 var request = require('superagent');
 
-function AllowedUsersFinder(opts) {
+function AuthEnvironmentGetter(opts) {
   this.perform = function () {
     return new P(function (resolve) {
       request
@@ -15,4 +15,4 @@ function AllowedUsersFinder(opts) {
   };
 }
 
-module.exports = AllowedUsersFinder;
+module.exports = AuthEnvironmentGetter;
