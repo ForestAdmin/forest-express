@@ -3,7 +3,7 @@ var P = require('bluebird');
 var request = require('superagent');
 var jwt = require('jsonwebtoken');
 
-function VerifyRefreshToken(opts, encodeRefreshToken, renderingId, userId) {
+function RefreshTokenVerify(opts, encodeRefreshToken, renderingId, userId) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       jwt.verify(encodeRefreshToken, opts.authSecret,
@@ -24,4 +24,4 @@ function VerifyRefreshToken(opts, encodeRefreshToken, renderingId, userId) {
   };
 }
 
-module.exports = VerifyRefreshToken;
+module.exports = RefreshTokenVerify;
