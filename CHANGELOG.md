@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Apimap - Prevent random sorting collections and useless updates.
+
 ### Fixed
 - Tests - Fix Google session creation test.
 
