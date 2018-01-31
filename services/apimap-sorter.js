@@ -1,14 +1,12 @@
 'use strict';
+var _ = require('lodash');
 
 function ApimapSorter(apimap) {
+  apimap.data = _.sortBy(apimap.data, ['id']);
 
-  apimap.data = apimap.data.sort(function (c1, c2) {
-    return c1.id < c2.id;
-  });
-
-  apimap.included = apimap.included.sort(function (c1, c2) {
-    return c1.id < c2.id;
-  });
+  if (apimap.included) {
+    apimap.included = _.sortBy(apimap.included, ['id']);
+  }
 
   return apimap;
 }
