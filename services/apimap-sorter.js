@@ -21,6 +21,10 @@ function ApimapSorter(apimap) {
 
   if (apimap.included) {
     apimap.included = _.sortBy(apimap.included, ['type', 'id']);
+
+    _.each(apimap.included, function (include) {
+      include.attributes = order(include.attributes);
+    });
   }
 
   apimap.meta = order(apimap.meta);
