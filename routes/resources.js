@@ -9,7 +9,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
 
   this.list = function (request, response, next) {
-    return new Implementation.ResourcesGetter(model, opts, request.query)
+    var params = request.query;
+    var fields = params.fields;
+
+    return new Implementation.ResourcesGetter(model, opts, params)
       .perform()
       .then(function (results) {
         var count = results[0];
@@ -21,7 +24,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records,
           integrator,
           opts,
-          { count: count }
+          { count: count },
+          fields
         ).perform();
       })
       .then(function (records) {
