@@ -37,15 +37,8 @@ function ResourceDeserializer(Implementation, model, params,
     return P
       .each(smartFields, function (field) {
         // WARNING: The Smart Fields setters may override other changes.
-        if (_.isFunction(field.set.then)) {
-          return field.set(attributes, attributes[field.field])
-            .then(function (newAttributes) {
-              attributes = newAttributes;
-              return attributes;
-            });
-        } else {
-          attributes = field.set(attributes, attributes[field.field]);
-          return attributes;
+        if (field.field in attributes) {
+          return field.set(attributes, attributes[field.field]);
         }
       })
       .then(function () {
