@@ -106,7 +106,7 @@ exports.init = function (Implementation, dependencies) {
   }
 
   // CORS
-  var allowedOrigins = ['localhost:4200', '*.forestadmin.com'];
+  var allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
 
   if (process.env.CORS_ORIGINS) {
     allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(','));
