@@ -47,8 +47,6 @@ function SmartFieldsValuesInjector(record, modelName, modelsFieldsFilter) {
 
   this.perform = function () {
     return P.each(schema.fields, function (field) {
-      console.log('field.field: ', field.field);
-
       if (isFilteredField(modelName, field.field)) {
         return;
       }

@@ -31,8 +31,6 @@ function CSVExporter(params, response, modelName, recordsExporter) {
 
     var modelsFieldsFilter = new FieldsParamsDeserializer(params.fields).perform();
 
-    console.log('modelsFieldsFilter: ', modelsFieldsFilter);
-
     return recordsExporter
       .perform(function (records) {
         return P
