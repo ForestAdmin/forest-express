@@ -16,7 +16,7 @@ function ApimapSorter(apimap) {
 
   _.each(apimap.data, function (data) {
     data.attributes = sortObjectKeys(data.attributes);
-    data.fields = _.sortBy(apimap.fields, ['field', 'type']);
+    data.attributes.fields = _.sortBy(data.attributes.fields, ['field', 'type']);
   });
 
   if (apimap.included) {
