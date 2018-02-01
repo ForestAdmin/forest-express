@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Collections - Do not compute every smart field on collection list and csv export.
 
 ## RELEASE 2.2.2 - 2018-02-01
 ### Fixed
