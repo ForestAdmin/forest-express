@@ -4,7 +4,7 @@ var P = require('bluebird');
 var logger = require('../services/logger');
 var Schemas = require('../generators/schemas');
 
-function SmartFieldsValuesInjector(record, modelName, modelsFieldsFilter) {
+function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
   var schema = Schemas.schemas[modelName];
 
   function setSmartFieldValue(record, field, modelName) {
@@ -39,20 +39,20 @@ function SmartFieldsValuesInjector(record, modelName, modelsFieldsFilter) {
     }
   }
 
-  function isFilteredField(modelName, fieldName) {
-    return modelsFieldsFilter &&
-      modelsFieldsFilter[modelName] &&
-      modelsFieldsFilter[modelName].indexOf(fieldName) === -1;
+  function isNotRequestedField(modelName, fieldName) {
+    return fieldsPerModel &&
+      fieldsPerModel[modelName] &&
+      fieldsPerModel[modelName].indexOf(fieldName) === -1;
   }
 
   this.perform = function () {
     return P.each(schema.fields, function (field) {
-      if (isFilteredField(modelName, field.field)) {
-        return;
-      }
-
       if (!record[field.field]) {
         if (field.get || field.value) {
+          if (isNotRequestedField(modelName, field.field)) {
+            return;
+          }
+
           return setSmartFieldValue(record, field, modelName);
         } else if (_.isArray(field.type)) {
           record[field.field] = [];
@@ -64,7 +64,7 @@ function SmartFieldsValuesInjector(record, modelName, modelsFieldsFilter) {
 
         if (schemaAssociation && !_.isArray(field.type)) {
           return P.each(schemaAssociation.fields, function (fieldAssociation) {
-            if (isFilteredField(field.field, fieldAssociation.field)) {
+            if (isNotRequestedField(field.field, fieldAssociation.field)) {
               return;
             }
 

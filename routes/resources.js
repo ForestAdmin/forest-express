@@ -4,14 +4,14 @@ var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var CSVExporter = require('../services/csv-exporter');
-var FieldsParamsDeserializer = require('../deserializers/fields-params');
+var ParamsFieldsDeserializer = require('../deserializers/params-fields');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
 
   this.list = function (request, response, next) {
     var params = request.query;
-    var modelsFieldsFilter = new FieldsParamsDeserializer(params.fields).perform();
+    var fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return new Implementation.ResourcesGetter(model, opts, params)
       .perform()
@@ -26,7 +26,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           integrator,
           opts,
           { count: count },
-          modelsFieldsFilter
+          fieldsPerModel
         ).perform();
       })
       .then(function (records) {

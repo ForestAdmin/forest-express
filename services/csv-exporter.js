@@ -3,7 +3,7 @@ var P = require('bluebird');
 var moment = require('moment');
 var stringify = require('csv-stringify');
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
-var FieldsParamsDeserializer = require('../deserializers/fields-params');
+var ParamsFieldsDeserializer = require('../deserializers/params-fields');
 
 // NOTICE: Prevent bad date formatting into timestamps.
 var CSV_OPTIONS = {
@@ -29,13 +29,13 @@ function CSVExporter(params, response, modelName, recordsExporter) {
     var CSVAttributes = params.fields[modelName].split(',');
     response.write(CSVHeader);
 
-    var modelsFieldsFilter = new FieldsParamsDeserializer(params.fields).perform();
+    var fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return recordsExporter
       .perform(function (records) {
         return P
           .map(records, function (record) {
-            return new SmartFieldsValuesInjector(record, modelName, modelsFieldsFilter).perform();
+            return new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform();
           })
           .then(function (records) {
             return new P(function (resolve) {
