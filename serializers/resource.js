@@ -7,7 +7,8 @@ var SmartFieldsValuesInjector = require('../services/smart-fields-values-injecto
 var Schemas = require('../generators/schemas');
 var logger = require('../services/logger');
 
-function ResourceSerializer(Implementation, model, records, integrator, opts, meta, fields) {
+function ResourceSerializer(Implementation, model, records, integrator, opts, meta,
+  modelsFieldsFilter) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
@@ -161,10 +162,10 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
     return new P(function (resolve) {
       if (_.isArray(records)) {
         resolve(P.map(records, function (record) {
-          return new SmartFieldsValuesInjector(record, modelName, fields).perform();
+          return new SmartFieldsValuesInjector(record, modelName, modelsFieldsFilter).perform();
         }));
       } else {
-        resolve(new SmartFieldsValuesInjector(records, modelName, fields).perform());
+        resolve(new SmartFieldsValuesInjector(records, modelName, modelsFieldsFilter).perform());
       }
     })
       .then(function () {
