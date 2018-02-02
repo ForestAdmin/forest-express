@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Changed
-- Collections - Do not compute every smart field on collection list and csv export.
+- Smart Fields - Compute only the necessary Smart Fields values for list views and CSV exports.
 
 ## RELEASE 2.2.2 - 2018-02-01
 ### Fixed
