@@ -15,8 +15,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        return new ResourceSerializer(Implementation, model, records,
-          integrator, opts, { count: count }).perform();
+        return new ResourceSerializer(
+          Implementation,
+          model,
+          records,
+          integrator,
+          opts,
+          { count: count }
+        ).perform();
       })
       .then(function (records) {
         response.send(records);
