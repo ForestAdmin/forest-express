@@ -36,8 +36,8 @@ describe('Service > Apimap Sorter', () => {
         name: 'guests',
       },
     }, {
-      id: 'animals',
       type: 'collections',
+      id: 'animals',
       attributes: {
         fields: [
           { field: 'id', type: 'Number' },
@@ -102,7 +102,25 @@ describe('Service > Apimap Sorter', () => {
   it('should sort the data section', () => {
     expect(sortedApimap.data.map(a => a.id))
       .to.include.ordered.members(['animals', 'guests', 'users']);
-  })
+  });
+
+  it('should sort the data properties', () => {
+    const data0Keys = Object.keys(sortedApimap.data[0]);
+    const data1Keys = Object.keys(sortedApimap.data[1]);
+    const data2Keys = Object.keys(sortedApimap.data[2]);
+
+    expect(data0Keys[0]).eq('type');
+    expect(data0Keys[1]).eq('id');
+    expect(data0Keys[2]).eq('attributes');
+
+    expect(data1Keys[0]).eq('type');
+    expect(data1Keys[1]).eq('id');
+    expect(data1Keys[2]).eq('attributes');
+
+    expect(data2Keys[0]).eq('type');
+    expect(data2Keys[1]).eq('id');
+    expect(data2Keys[2]).eq('attributes');
+  });
 
   it('should sort the data attributes', () => {
     expect(Object.keys(sortedApimap.data[0].attributes))
@@ -111,7 +129,7 @@ describe('Service > Apimap Sorter', () => {
       .to.include.ordered.members(['fields', 'name']);
     expect(Object.keys(sortedApimap.data[2].attributes))
       .to.include.ordered.members(['fields', 'name']);
-  })
+  });
 
   it('should sort the data fields', () => {
     expect(sortedApimap.data[0].attributes.fields.map(f => f.field))
@@ -123,15 +141,15 @@ describe('Service > Apimap Sorter', () => {
         'createdAt', 'email', 'firstName',
         'id', 'lastName', 'name', 'updatedAt', 'url'
       ]);
-  })
+  });
 
   it('should sort the included section', () => {
     expect(sortedApimap.included.map(i => i.id))
       .to.include.ordered.members(['animals.ban', 'users.import']);
-  })
+  });
 
   it('should sort the meta section', () => {
     expect(Object.keys(sortedApimap.meta))
       .to.include.ordered.members(['liana', 'liana_version']);
-  })
+  });
 })
