@@ -49,8 +49,8 @@ describe('API > Google OAuth2 Login', () => {
 
   before(() => {
     const dependencies = {
-      GoogleAuthorizationFinder: function (renderingId, googleAccessToken, envSecret) {
-        googleServiceData = { renderingId, googleAccessToken, envSecret };
+      GoogleAuthorizationFinder: function (renderingId, forestToken, envSecret) {
+        googleServiceData = { renderingId, forestToken, envSecret };
 
         this.perform = function perform() {
           return P.resolve({
@@ -75,14 +75,14 @@ describe('API > Google OAuth2 Login', () => {
     it('should return a valid jwt token', (done) => {
       request(app)
         .post('/forest/sessions-google')
-        .send({ renderingId: 1, accessToken: 'google-access-token' })
+        .send({ renderingId: 1, forestToken: 'google-access-token' })
         .expect(200)
         .end((error, response) => {
           expect(error).to.be.null;
 
           expect(googleServiceData).to.containSubset({
             renderingId: 1,
-            googleAccessToken: 'google-access-token',
+            forestToken: 'google-access-token',
             envSecret,
           });
 

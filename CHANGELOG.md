@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Authentication - Fix google sessions test.
 
 ## RELEASE 2.3.0 - 2018-02-02
 ### Changed
