@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
+- Search - Prevent the records search to crash if no fields parameter is sent by the client.
 - Tests - Fix Google session creation test.
 
 ## RELEASE 2.3.0 - 2018-02-02
