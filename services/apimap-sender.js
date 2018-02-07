@@ -8,7 +8,7 @@ function ApimapSender(envSecret, apimap) {
   this.perform = function() {
     var urlService = new ServiceUrlGetter().perform();
 
-    apimap = ApimapSorter(apimap);
+    apimap = new ApimapSorter(apimap).perform();
 
     request
       .post(urlService + '/forest/apimaps')

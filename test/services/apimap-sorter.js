@@ -48,7 +48,7 @@ describe('Service > Apimap Sorter', function () {
       id: 'animals',
       attributes: {
         fields: [
-          { 'is-filterable': false, field: 'id', 'is-sortable': false, type: 'Number' },
+          { 'is-sortable': false, field: 'id', 'is-filterable': false,  type: 'Number' },
           { type: 'Date', field: 'createdAt' },
           { field: 'updatedAt', type: 'Date' },
         ],
@@ -109,7 +109,7 @@ describe('Service > Apimap Sorter', function () {
     }],
   };
 
-  var apimapSorted = new ApimapSorter(apimap);
+  var apimapSorted = new ApimapSorter(apimap).perform();
 
   it('should sort the apimap sections', function () {
     expect(Object.keys(apimapSorted))
@@ -161,9 +161,9 @@ describe('Service > Apimap Sorter', function () {
 
   it('should sort the included actions and segments objects values', function () {
     expect(Object.keys(apimapSorted.included[0]))
-      .to.include.ordered.members(['type', 'id', 'attributes', 'link']);
+      .to.include.ordered.members(['type', 'id', 'attributes', 'links']);
     expect(Object.keys(apimapSorted.included[1]))
-      .to.include.ordered.members(['type', 'id', 'attributes', 'link']);
+      .to.include.ordered.members(['type', 'id', 'attributes', 'links']);
     expect(Object.keys(apimapSorted.included[2]))
       .to.include.ordered.members(['type', 'id', 'attributes']);
     expect(Object.keys(apimapSorted.included[3]))
@@ -187,7 +187,7 @@ describe('Service > Apimap Sorter', function () {
   });
 
   it('should sort the included action fields values', function () {
-    expect(Object.keys(apimapSorted.included[1].attributes.fields[0]))
+    expect(Object.keys(apimapSorted.included[1].attributes.fields[1]))
       .to.include.ordered.members(['field', 'type', 'defaultValue', 'description', 'isRequired']);
   });
 
