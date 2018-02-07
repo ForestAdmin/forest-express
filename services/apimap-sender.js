@@ -1,11 +1,14 @@
 'use strict';
 var request = require('superagent');
 var ServiceUrlGetter = require('./service-url-getter');
+var ApimapSorter = require('./apimap-sorter');
 var logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
   this.perform = function() {
     var urlService = new ServiceUrlGetter().perform();
+
+    apimap = new ApimapSorter(apimap).perform();
 
     request
       .post(urlService + '/forest/apimaps')

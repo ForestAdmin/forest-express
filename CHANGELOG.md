@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Apimap - Prevent random sorting collections and useless updates.
+
 ### Fixed
 - Search - Prevent the records search to crash if no fields parameter is sent by the client.
 - Tests - Fix Google session creation test.
