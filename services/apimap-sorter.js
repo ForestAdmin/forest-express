@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('lodash');
+var logger = require('../services/logger');
 
 function ApimapSorter(apimap) {
   function sortArrayOfObjects(array) {
@@ -60,36 +61,43 @@ function ApimapSorter(apimap) {
   }
 
   this.perform = function() {
-    apimap = reorderKeysBasic(apimap);
-    apimap.data = sortArrayOfObjects(apimap.data);
+    try {
+      apimap = reorderKeysBasic(apimap);
+      apimap.data = sortArrayOfObjects(apimap.data);
 
-    apimap.data = apimap.data.map(function (collection) {
-      collection = reorderKeysChild(collection);
-      collection.attributes = reorderKeysCollection(collection.attributes);
-      collection.attributes.fields = sortArrayOfFields(collection.attributes.fields);
-      collection.attributes.fields = collection.attributes.fields
-        .map(function (field) { return reorderKeysField(field); });
-
-      return collection;
-    });
-
-    if (apimap.included) {
-      apimap.included = sortArrayOfObjects(apimap.included);
-
-      apimap.included = apimap.included.map(function (include) {
-        include = reorderKeysChild(include);
-        include.attributes = reorderKeysCollection(include.attributes);
-        include.attributes.fields = sortArrayOfFields(include.attributes.fields);
-        include.attributes.fields = include.attributes.fields
-          .map(function (field) { return reorderKeysField(field); });
-        return include;
+      apimap.data = apimap.data.map(function (collection) {
+        collection = reorderKeysChild(collection);
+        collection.attributes = reorderKeysCollection(collection.attributes);
+        if (collection.attributes.fields) {
+          collection.attributes.fields = sortArrayOfFields(collection.attributes.fields);
+          collection.attributes.fields = collection.attributes.fields
+            .map(function (field) { return reorderKeysField(field); });
+        }
+        return collection;
       });
+
+      if (apimap.included) {
+        apimap.included = sortArrayOfObjects(apimap.included);
+
+        apimap.included = apimap.included.map(function (include) {
+          include = reorderKeysChild(include);
+          include.attributes = reorderKeysCollection(include.attributes);
+          if (include.attributes.fields) {
+            include.attributes.fields = sortArrayOfFields(include.attributes.fields);
+            include.attributes.fields = include.attributes.fields
+              .map(function (field) { return reorderKeysField(field); });
+          }
+          return include;
+        });
+      }
+
+      apimap.meta = reorderKeysBasic(apimap.meta);
+
+      return apimap;
+    } catch (error) {
+      logger.warn('An Apimap reordering issue occured:', error);
+      return apimap;
     }
-
-    // NOTICE: Order keys in meta
-    apimap.meta = reorderKeysBasic(apimap.meta);
-
-    return apimap;
   };
 }
 
