@@ -14,7 +14,7 @@ function ApimapSorter(apimap) {
   function reorderKeysBasic(object) {
     var objectReordered = {};
 
-    _.each(_.sortBy(Object.keys(object)), function(key) {
+    _.each(_.sortBy(Object.keys(object)), function (key) {
       objectReordered[key] = object[key];
     });
 
@@ -60,7 +60,7 @@ function ApimapSorter(apimap) {
     return Object.assign(fieldReorderedStart, field);
   }
 
-  this.perform = function() {
+  this.perform = function () {
     try {
       apimap = reorderKeysBasic(apimap);
       apimap.data = sortArrayOfObjects(apimap.data);
