@@ -323,6 +323,14 @@ exports.collection = function (name, opts) {
     if (!Schemas.schemas[name].segments) { Schemas.schemas[name].segments = []; }
 
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
+
+    // NOTICE: Set a position to the Smart Actions fields.
+    _.each(Schemas.schemas[name].actions, function (action) {
+      _.each(action.fields, function (field, position) {
+        field.position = position;
+      });
+    });
+
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
     // NOTICE: Smart Field definition case
