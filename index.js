@@ -253,8 +253,8 @@ exports.init = function (Implementation, dependencies) {
             },
             actions: {
               ref: 'id',
-              attributes: ['name', 'endpoint', 'redirect', 'download', 'global',
-                'httpMethod', 'fields']
+              attributes: ['name', 'endpoint', 'redirect', 'download', 'global', 'type',
+                'httpMethod', 'fields'] // TODO: Remove global attribute when we remove the deprecation warning.
             },
             segments: {
               ref: 'id',
@@ -324,8 +324,19 @@ exports.collection = function (name, opts) {
 
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
 
-    // NOTICE: Set a position to the Smart Actions fields.
     _.each(Schemas.schemas[name].actions, function (action) {
+      if (action.global) {
+        logger.warn('DEPRECATION WARNING: Smart Action "global" option is now deprecated. ' +
+          'Please set "type: \'global\'" instead of "global: true" for the "' + action.name +
+          '" Smart Action.');
+      }
+
+      if (action.type && !_.includes(['bulk', 'global', 'single'], action.type)) {
+        logger.warn('Please set a valid Smart Action type ("bulk", "global" or "single") for the "' +
+          action.name + '" Smart Action.');
+      }
+
+      // NOTICE: Set a position to the Smart Actions fields.
       _.each(action.fields, function (field, position) {
         field.position = position;
       });
