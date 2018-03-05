@@ -38,7 +38,7 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  function ErrorQueryColumnsName(result, keyNames) {
+  function getErrorQueryColumnsName(result, keyNames) {
     var message = 'The result columns must be named ' + keyNames + ' instead of \'' +
       Object.keys(result).join('\', \'') + '\'.';
     logger.error('Live Query error: ' + message);
@@ -53,8 +53,8 @@ module.exports = function (app, model, Implementation, opts) {
         case 'Value':
           if (result.length) {
             var resultLine = result[0];
-            if (!resultLine.value) {
-              throw ErrorQueryColumnsName(resultLine, '\'value\'');
+            if (resultLine.value === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\'');
             } else {
               result = {
                 countCurrent: resultLine.value,
@@ -66,8 +66,8 @@ module.exports = function (app, model, Implementation, opts) {
         case 'Pie':
           if (result.length) {
             result.forEach(function (resultLine) {
-              if (!resultLine.value || !resultLine.key) {
-                throw ErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              if (resultLine.value === undefined || resultLine.key === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
               }
             });
           }
@@ -75,8 +75,8 @@ module.exports = function (app, model, Implementation, opts) {
         case 'Line':
           if (result.length) {
             result.forEach(function (resultLine) {
-              if (!resultLine.value || !resultLine.key) {
-                throw ErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              if (resultLine.value === undefined || resultLine.key === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
               }
             });
           }

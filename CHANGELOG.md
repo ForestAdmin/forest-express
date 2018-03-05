@@ -1,9 +1,11 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Live Query - Fix charts generation for values equal to 0 or null.
 
 ## RELEASE 2.5.0 - 2018-03-01
-### Added
+### Added
 - Smart Actions - Users can define Smart Actions only available in a record detail.
 
 ## RELEASE 2.4.1 - 2018-02-28
