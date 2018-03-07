@@ -28,7 +28,11 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
             .then(function (result) {
               record[field.field] = result;
             })
-            .catch(function () { return; });
+            .catch(function (error) {
+              logger.warn('Cannot set the ' + field.field + ' value because of an unexpected ' +
+                'error: ' + error);
+              return;
+            });
         } else {
           record[field.field] = value;
         }
