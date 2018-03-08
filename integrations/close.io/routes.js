@@ -56,17 +56,20 @@ module.exports = function (app, model, Implementation, opts) {
       }, next);
   }
 
-  function customerLead(req, res, next) {
-    new CloseioCustomerLeadGetter(Implementation, _.extend(req.query,
-      req.params), opts, integrationInfo)
+  function customerLead(request, response) {
+    new CloseioCustomerLeadGetter(Implementation, _.extend(request.query, request.params),
+      opts, integrationInfo)
       .perform()
       .then(function (lead) {
         if (!lead) { throw { status: 404, message: 'not_found' }; }
         return new CloseioLeadsSerializer(lead, modelName);
       })
       .then(function (lead) {
-        res.send(lead);
-      }, next);
+        response.send(lead);
+      })
+      .catch(function () {
+        response.status(204).send();
+      });
   }
 
   function closeioLeadEmail(req, res, next) {
