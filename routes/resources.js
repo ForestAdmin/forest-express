@@ -92,19 +92,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       });
   };
 
-  this.updateEmbedded = function (request, response, next) {
-    new ResourceDeserializer(Implementation, model, request.body, false)
-      .perform()
-      .then(function (record) {
-        return new Implementation.EmbeddedResourceUpdater(model, request.params, record)
-          .perform();
-      })
-      .then(function () {
-        response.status(204).send();
-      })
-      .catch(next);
-  };
-
   this.remove = function (request, response, next) {
     new Implementation.ResourceRemover(model, request.params)
       .perform()
@@ -123,8 +110,6 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       auth.ensureAuthenticated, this.get);
     app.post(path.generate(modelName, opts), auth.ensureAuthenticated,
       this.create);
-    app.put(path.generate(modelName + '/:recordId/relationships/:recordIndex', opts),
-      auth.ensureAuthenticated, this.updateEmbedded);
     app.put(path.generate(modelName + '/:recordId', opts),
       auth.ensureAuthenticated, this.update);
     app.delete(path.generate(modelName + '/:recordId', opts),
