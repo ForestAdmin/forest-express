@@ -253,7 +253,7 @@ exports.init = function (Implementation, dependencies) {
             },
             actions: {
               ref: 'id',
-              attributes: ['name', 'endpoint', 'redirect', 'download', 'global', 'type',
+              attributes: ['name', 'baseUrl', 'endpoint', 'redirect', 'download', 'global', 'type',
                 'httpMethod', 'fields'] // TODO: Remove global attribute when we remove the deprecation warning.
             },
             segments: {
