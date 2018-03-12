@@ -116,7 +116,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
   function updateEmbeddedDocument(association) {
     return function (request, response, next) {
-      new ResourceDeserializer(Implementation, model, request.body, false)
+      return new ResourceDeserializer(Implementation, model, request.body, false)
         .perform()
         .then(function (record) {
           return new Implementation
