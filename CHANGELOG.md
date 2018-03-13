@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- MongoDB HasMany - Allow documents embedded to an array to be editable.
+
 ### Changed
 - Security - Fix low impact vulnerabilities.
 

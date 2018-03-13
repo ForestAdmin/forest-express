@@ -6,6 +6,7 @@ var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var Schemas = require('../generators/schemas');
 var CSVExporter = require('../services/csv-exporter');
+var ResourceDeserializer = require('../deserializers/resource');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -113,6 +114,22 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .catch(next);
   }
 
+  function updateEmbeddedDocument(association) {
+    return function (request, response, next) {
+      return new ResourceDeserializer(Implementation, model, request.body, false)
+        .perform()
+        .then(function (record) {
+          return new Implementation
+            .EmbeddedDocumentUpdater(model, request.params, association, record)
+            .perform();
+        })
+        .then(function () {
+          response.status(204).send();
+        })
+        .catch(next);
+    };
+  }
+
   this.perform = function () {
     // NOTICE: HasMany associations routes
     _.each(SchemaUtil.getHasManyAssociations(schema), function (association) {
@@ -122,6 +139,13 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         association.field, opts), auth.ensureAuthenticated, index);
       app.post(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, add);
+      // NOTICE: This route only works for embedded has many
+      app.put(
+        path.generate(
+          modelName + '/:recordId/relationships/' +  association.field + '/:recordIndex', opts),
+        auth.ensureAuthenticated,
+        updateEmbeddedDocument(association.field)
+      );
       app.delete(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, remove);
     });
