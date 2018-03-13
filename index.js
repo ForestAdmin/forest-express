@@ -19,7 +19,6 @@ var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var logger = require('./services/logger');
 var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
-var codeSyntaxInspector = require('./utils/code-syntax-inspector');
 var ApimapSender = require('./services/apimap-sender');
 
 var jwtAuthenticator;
@@ -33,7 +32,7 @@ function getModels(Implementation) {
   return _.values(models);
 }
 
-function requireAllModels(Implementation, modelsDir, displayMessage) {
+function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
     return readdirAsync(modelsDir)
       .each(function (file) {
@@ -44,25 +43,15 @@ function requireAllModels(Implementation, modelsDir, displayMessage) {
             }
           }
         } catch (error) {
-          if (displayMessage) {
-            logger.error('Cannot read your model in the file ' + file +
-              ' for the following reason: ', error);
-          }
+          logger.error('Cannot read your model in the file ' + file +
+            ' for the following reason: ', error);
         }
       })
       .then(function () {
         return getModels(Implementation);
       })
       .catch(function (error) {
-        if (displayMessage) {
-          if (error.code === 'ENOENT') {
-            logger.error('Your Forest modelsDir option you configured does ' +
-              'not seem to be an existing directory.');
-          } else {
-            logger.error('Cannot read your models for the following reason: ' +
-              error.message, error);
-          }
-        }
+        logger.error('Cannot read your models for the following reason: ' + error.message, error);
         return P.resolve([]);
       });
   } else {
@@ -161,7 +150,7 @@ exports.init = function (Implementation, dependencies) {
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
-  requireAllModels(Implementation, absModelDirs, true)
+  requireAllModels(Implementation, absModelDirs)
     .then(function (models) {
       integrator = new Integrator(opts, Implementation);
 
@@ -171,22 +160,22 @@ exports.init = function (Implementation, dependencies) {
 
           if (opts.configDir) {
             directorySmartImplementation = path.resolve('.', opts.configDir);
+
+            if (!fs.existsSync(directorySmartImplementation)) {
+              logger.error('Your Forest modelsDir option you configured does not seem to be an existing directory.');
+              return P.resolve([]);
+            }
+
+            return requireAllModels(Implementation, directorySmartImplementation);
           } else {
             directorySmartImplementation = path.resolve('.') + '/forest';
-          }
 
-          return codeSyntaxInspector
-            .extractCodeSyntaxErrorInDirectoryFile(directorySmartImplementation)
-            .then(function (hasError) {
-              if (hasError) {
-                throw new Error();
-              } else {
-                // NOTICE: Do not display an error log if the forest/ directory
-                //         does not exist.
-                return requireAllModels(Implementation,
-                  directorySmartImplementation, false);
-              }
-            });
+            if (fs.existsSync(directorySmartImplementation)) {
+              return requireAllModels(Implementation, directorySmartImplementation);
+            } else {
+              return P.resolve([]);
+            }
+          }
         })
         .thenReturn(models);
     })
