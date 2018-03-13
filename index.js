@@ -160,21 +160,17 @@ exports.init = function (Implementation, dependencies) {
 
           if (opts.configDir) {
             directorySmartImplementation = path.resolve('.', opts.configDir);
-
-            if (!fs.existsSync(directorySmartImplementation)) {
-              logger.error('Your Forest modelsDir option you configured does not seem to be an existing directory.');
-              return P.resolve([]);
-            }
-
-            return requireAllModels(Implementation, directorySmartImplementation);
           } else {
             directorySmartImplementation = path.resolve('.') + '/forest';
+          }
 
-            if (fs.existsSync(directorySmartImplementation)) {
-              return requireAllModels(Implementation, directorySmartImplementation);
-            } else {
-              return P.resolve([]);
+          if (fs.existsSync(directorySmartImplementation)) {
+            return requireAllModels(Implementation, directorySmartImplementation);
+          } else {
+            if (opts.configDir) {
+              logger.error('The Forest modelsDir option you configured does not seem to be an existing directory.');
             }
+            return [];
           }
         })
         .thenReturn(models);
