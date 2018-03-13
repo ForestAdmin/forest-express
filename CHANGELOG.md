@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ## RELEASE 2.6.1 - 2018-03-13
+### Fixed
+- Smart Elements - Fix error swallowing on start.
 
 ## RELEASE 2.6.0 - 2018-03-13
 ### Added
