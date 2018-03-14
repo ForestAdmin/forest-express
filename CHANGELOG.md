@@ -4,7 +4,7 @@
 
 ## RELEASE 2.6.1 - 2018-03-13
 ### Fixed
-- Smart Elements - Fix error swallowing on start.
+- Smart Elements - Fix error swallowing on load and clean some useless code.
 
 ## RELEASE 2.6.0 - 2018-03-13
 ### Added
@@ -15,7 +15,6 @@
 
 ### Fixed
 - Technical - Use local packages for npm scripts.
-- Smart Elements - Fix error swallowing on load and clean some useless code.
 
 ## RELEASE 2.5.4 - 2018-03-12
 ### Added
