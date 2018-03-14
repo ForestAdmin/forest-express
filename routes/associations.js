@@ -83,7 +83,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function remove(request, response, next) {
-    var params = _.extend(request.params, getAssociation(request));
+    var params = _.extend(request.params, getAssociation(request), request.query);
     var data = request.body;
     var models = Implementation.getModels();
     var associationField = getAssociationField(params.associationName);
