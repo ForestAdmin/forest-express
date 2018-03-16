@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Collection - Merge collection configuration with model data on initialization.
 
 ## RELEASE 2.6.1 - 2018-03-13
 ### Fixed
