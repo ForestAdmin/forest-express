@@ -22,7 +22,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
           'in the getter implementation: ' + error);
       }
 
-      if (value) {
+      if (!_.isNil(value)) {
         if (_.isFunction(value.then)) {
           return value
             .then(function (result) {
