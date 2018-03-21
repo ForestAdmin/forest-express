@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.6.2 - 2018-03-21
 ### Fixed
 - Smart Fields - Boolean Smart Fields that return a "false" value are now properly sent though the API.
 
