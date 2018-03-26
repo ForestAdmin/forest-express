@@ -1,5 +1,6 @@
 'use strict';
 var P = require('bluebird');
+var _ = require('lodash');
 
 module.exports = {
   schemas: {},
@@ -15,7 +16,17 @@ module.exports = {
             return schema;
           })
           .then(function (schema) {
-            that.schemas[implementation.getModelName(model)] = schema;
+            var modelName = implementation.getModelName(model);
+
+            if (that.schemas[modelName]) {
+              var currentSchema = that.schemas[modelName];
+
+              schema.fields = _.concat(schema.fields || [], currentSchema.fields || []);
+              schema.actions = _.concat(schema.actions || [], currentSchema.actions || []);
+              schema.segments = _.concat(schema.segments || [], currentSchema.segments || []);
+            }
+
+            that.schemas[modelName] = schema;
           });
       });
   }
