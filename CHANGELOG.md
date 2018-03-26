@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Changed
-- Collection - Merge collection configuration with model data on initialization.
+- Collections - Allow collection customization before liana initialization.
 
 ## RELEASE 2.6.1 - 2018-03-13
 ### Fixed
