@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart Actions - Smart Action forms can now be prefilled with contextual values.
 
 ## RELEASE 2.6.3 - 2018-03-26
 ### Changed
