@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Authentication - Fix the missing email/name/teams information set in the token for user using Google SSO.
 
 ## RELEASE 2.6.3 - 2018-03-26
 ### Changed

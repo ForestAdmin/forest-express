@@ -15,8 +15,8 @@ function GoogleAuthorizationFinder(renderingId, forestToken, envSecret) {
         .set('forest-secret-key', envSecret)
         .set('forest-token', forestToken)
         .end(function (error, result) {
-          if (result.status === 200 && result.body && result.body.data) {
-            resolve(result.body.data);
+          if (result.status === 200 && result.body && result.body.data && result.body.data.attributes) {
+            resolve(result.body.data.attributes);
           } else {
             if (result.status === 0) {
               logger.error(errorMessages.SESSION.SERVER_DOWN);
