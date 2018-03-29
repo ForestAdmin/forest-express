@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
 var auth = require('./services/auth');
 var ResourcesRoutes = require('./routes/resources');
+var ActionsRoutes = require('./routes/actions');
 var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
 var SessionRoute = require('./routes/sessions');
@@ -185,8 +186,8 @@ exports.init = function (Implementation, dependencies) {
       resourcesRoute.perform();
       exports.ResourcesRoute[modelName] = resourcesRoute;
 
-      new AssociationsRoutes(app, model, Implementation, integrator, opts)
-        .perform();
+      new AssociationsRoutes(app, model, Implementation, integrator, opts).perform();
+      new ActionsRoutes(app, model, Implementation, integrator, opts).perform();
 
       new StatRoutes(app, model, Implementation, opts).perform();
     })
