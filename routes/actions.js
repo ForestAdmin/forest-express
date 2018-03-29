@@ -12,7 +12,7 @@ module.exports = function (app, model, Implementation, integrator, options) {
 
   function getFormValuesController (action) {
     return function (request, response) {
-      var values = action.values(request.body.data.attributes.values);
+      var values = action.values ? action.values(request.body.data.attributes.values) : {};
 
       if (_.isFunction(values.then)) {
         return values
@@ -36,11 +36,9 @@ module.exports = function (app, model, Implementation, integrator, options) {
   this.perform = function () {
     // NOTICE: HasMany associations routes
     _.each(schema.actions, function (action) {
-      if (action.values) {
-        var endpoint = action.endpoint || 'actions/' + Inflector.parameterize(action.name);
-        app.post(path.generate(endpoint + '/values', options), auth.ensureAuthenticated,
-          getFormValuesController(action));
-      }
+      var endpoint = action.endpoint || 'actions/' + Inflector.parameterize(action.name);
+      app.post(path.generate(endpoint + '/values', options), auth.ensureAuthenticated,
+        getFormValuesController(action));
     });
   };
 };
