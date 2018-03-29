@@ -4,6 +4,7 @@
 ### Added
 - Premium Security - Add IP Whitelist feature.
 - Premium Security - Users that won't use an authorized IP won't have access to the data.
+- IP Whitelist - Refresh IP Whitelist on liana when update on front.
 
 ## RELEASE 2.7.1 - 2018-03-30
 ### Fixed
