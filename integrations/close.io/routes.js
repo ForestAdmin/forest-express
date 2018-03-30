@@ -68,7 +68,7 @@ module.exports = function (app, model, Implementation, opts) {
         response.send(lead);
       })
       .catch(function () {
-        response.status(204).send();
+        response.send({ meta: {} });
       });
   }
 
