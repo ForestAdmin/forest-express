@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - Add babel.
 
 ## RELEASE 2.8.4 - 2018-05-11
 ### Fixed
