@@ -1,12 +1,12 @@
 const chai = require('chai');
 const chaiSubset = require('chai-subset');
-const request = require('supertest');
 const forestExpress = require('../..');
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const P = require('bluebird');
+const request = require('../helpers/request');
 
 const { expect } = chai;
 chai.use(chaiSubset);
