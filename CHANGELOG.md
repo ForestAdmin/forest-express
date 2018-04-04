@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Premium Security - Add IP Whitelist feature.
 
 ## RELEASE 2.7.1 - 2018-03-30
 ### Fixed
