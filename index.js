@@ -15,12 +15,14 @@ var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
 var SessionRoute = require('./routes/sessions');
 var ForestRoutes = require('./routes/forest');
+var IpWhitelistRoutes = require('./routes/ip-whitelist-rules');
 var Schemas = require('./generators/schemas');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var logger = require('./services/logger');
 var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var ApimapSender = require('./services/apimap-sender');
+var ipWhitelist = require('./services/ip-whitelist');
 
 var jwtAuthenticator;
 
@@ -87,6 +89,7 @@ exports.init = function (Implementation, dependencies) {
   var integrator;
 
   dependencies = dependencies || {};
+  auth.initAuth(opts);
 
   if (opts.secretKey) {
     logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
@@ -148,6 +151,7 @@ exports.init = function (Implementation, dependencies) {
   }
 
   new SessionRoute(app, opts, dependencies).perform();
+  new IpWhitelistRoutes(app, opts).perform();
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
@@ -260,6 +264,11 @@ exports.init = function (Implementation, dependencies) {
           new ApimapSender(opts.envSecret, apimap).perform();
         }
       }
+    })
+    .then(function () {
+      return ipWhitelist
+        .retrieve(opts.envSecret)
+        .catch(error => logger.error(error));
     })
     .catch(function (error) {
       logger.error('An error occured while computing the Forest apimap. Your ' +

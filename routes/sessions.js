@@ -1,12 +1,12 @@
 'use strict';
 /* jshint sub: true */
-var P = require('bluebird');
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var path = require('../services/path');
 var AllowedUsersFinder = require('../services/allowed-users-finder');
 var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
+var ipWhitelist = require('../services/ip-whitelist');
 var errorMessages = require('../utils/error-messages');
 
 module.exports = function (app, opts, dependencies) {
@@ -66,8 +66,8 @@ module.exports = function (app, opts, dependencies) {
     var renderingId = request.body.renderingId;
     var envSecret = opts.envSecret;
 
-    new AllowedUsersFinder(renderingId, envSecret)
-      .perform()
+    return ipWhitelist.retrieve(envSecret)
+      .then(function () { return new AllowedUsersFinder(renderingId, envSecret).perform(); })
       .then(function (allowedUsers) {
         if (allowedUsers.length === 0) {
           throw new Error(errorMessages.SESSION.NO_USERS);
@@ -96,9 +96,10 @@ module.exports = function (app, opts, dependencies) {
     var forestToken = request.body.forestToken;
     var envSecret = opts.envSecret;
 
-    P.try(function () {
-      return new GoogleAuthorizationFinder(renderingId, forestToken, envSecret).perform();
-    })
+    ipWhitelist.retrieve(envSecret)
+      .then(function () {
+        return new GoogleAuthorizationFinder(renderingId, forestToken, envSecret).perform();
+      })
       .then(function (user) {
         if (!user) { throw new Error(); }
         return user;
