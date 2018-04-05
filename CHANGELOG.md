@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Mixpanel Integration - Add an integration to display the last Mixpanel events.
 
 ## RELEASE 2.11.3 - 2018-06-27
 ### Changed

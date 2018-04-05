@@ -1,44 +1,48 @@
-const _ = require('lodash');
 const moment = require('moment');
 
-function MixpanelEventsGetter(Implementation, params, options) {
+function MixpanelEventsGetter(Implementation, params, options, integrationInfo) {
   const MixpanelExport = options.integrations.mixpanel.mixpanel;
   const panel = new MixpanelExport({
     'api_key': options.integrations.mixpanel.apiKey,
-    'api_secret': options.integrations.mixpanel.apiSecret,
+    'api_secret': options.integrations.mixpanel.apiSecret
   });
 
-  function getPageSize() {
-    if (params.page && params.page.size) {
-      return parseInt(params.page.size, 10);
-    } else {
-      return 5;
-    }
-  }
-
-  function getPageNumber() {
-    if (params.page && params.page.number) {
-      return parseInt(params.page.number, 10);
-    } else {
-      return 0;
-    }
-  }
-
   this.perform = function () {
-    var today = moment().format('YYYY-MM-DD');
-    var firstDayOfWeek = moment().startOf('week').format('YYYY-MM-DD');
+    const collectionFieldName = integrationInfo.field;
+    const collectionModel = integrationInfo.collection;
 
-    return panel
-      .export({
-        from_date: firstDayOfWeek,
-        to_date: today,
-        where: 'properties["id"] == "' + params.recordId + '"'
-      })
-      .then(function (result) {
-        var count = result.length;
-        result = _.reverse(result);
-        var resultSelection = _.chunk(result, getPageSize())[getPageNumber()];
-        return [count, resultSelection || []];
+    return Implementation.Mixpanel.getUser(collectionModel, params.recordId)
+      .then(function (user) {
+        const script = `function main() {
+          return People().filter(function (user) {
+            return user.properties.$email == '${user[collectionFieldName]}';
+          });
+        }`;
+        const fromDate = moment().subtract(6, 'months');
+        const toDate = moment();
+
+        return panel
+          .get('jql', {
+            script
+          })
+          .then(function (result) {
+            if (!result || !result[0]) { return { results: { events: [] } }; }
+
+            return panel
+              .get('stream/query', {
+                from_date: fromDate.format('YYYY-MM-DD'),
+                to_date: toDate.format('YYYY-MM-DD'),
+                distinct_ids: [result[0].distinct_id],
+                limit: 100
+              });
+          })
+          .then(function (result) {
+            if (result.error) {
+              throw { status: 500, message: result.error };
+            }
+
+            return result.results.events.reverse();
+          });
       });
   };
 }

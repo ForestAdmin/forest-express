@@ -1,83 +1,56 @@
 const _ = require('lodash');
-const moment = require('moment');
 
 const INTEGRATION_NAME = 'mixpanel';
 
-exports.createCollections = function (Implementation, apimap, schema, options) {
-  var collectionName = options.integrations.mixpanel.mapping.split('.')[0];
-  const collectionDisplayName = _.capitalize(collectionName);
+exports.createCollections = function (Implementation, apimap, collectionAndFieldName, options) {
+  const model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
+  const modelName = Implementation.getModelName(model);
+  const collectionDisplayName = _.capitalize(modelName);
+
+  const fields = [
+    { field: 'id', type: 'String', isFilterable: false },
+    { field: 'event', type: 'String', isFilterable: false },
+    { field: 'date', type: 'Date', isFilterable: false },
+    { field: 'city', type: 'String', isFilterable: false },
+    { field: 'region', type: 'String', isFilterable: false },
+    { field: 'country', type: 'String', isFilterable: false },
+    { field: 'timezone', type: 'String', isFilterable: false },
+    { field: 'os', type: 'String', isFilterable: false },
+    { field: 'osVersion', type: 'String', isFilterable: false },
+    { field: 'browser', type: 'String', isFilterable: false },
+    { field: 'browserVersion', type: 'String', isFilterable: false }
+  ];
+
+  if (options.integrations.mixpanel.customProperties) {
+    fields.push.apply(fields, options.integrations.mixpanel.customProperties.map(
+      function (prop) {
+        return {
+          field: prop,
+          type: 'String',
+          isFilterable: false
+        };
+      }));
+  }
 
   apimap.push({
-    name: `${collectionName}_mixpanel_events`,
-    displayName: `${collectionDisplayName} Events`,
+    name: modelName + '_mixpanel_events',
+    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+    nameOld: Implementation.getModelNameOld(model) + '_mixpanel_events',
+    displayName: collectionDisplayName + ' Events',
     icon: 'mixpanel',
-    isVirtual: true,
     integration: INTEGRATION_NAME,
+    isVirtual: true,
     isReadOnly: true,
     onlyForRelationships: true,
-    fields: [
-      { field: 'event', type: 'String', isFilterable: false },
-      { field: 'date', type: 'String', isFilterable: false },
-      { field: 'city', type: 'String', isFilterable: false },
-      { field: 'os', type: 'String', isFilterable: false },
-      { field: 'browser', type: 'String', isFilterable: false },
-      { field: 'browserVersion', type: 'String', isFilterable: false },
-      { field: 'id', type: 'String', isFilterable: false }
-    ]
-  });
-};
-
-exports.createSegments = function (Implementation, model, schema, options) {
-  if (!schema.segments) { schema.segments = []; }
-  var mappingSplit = options.integrations.mixpanel.mapping.split('.');
-  var collectionName = mappingSplit[0];
-  var fieldName = mappingSplit[1];
-
-  schema.segments.push({
-    id: collectionName + '.mixpanel_active',
-    name: 'Active this week',
-    where: function (params) {
-      var MixpanelExport = options.integrations.mixpanel.mixpanel;
-      var panel = new MixpanelExport({
-        'api_key': options.integrations.mixpanel.apiKey,
-        'api_secret': options.integrations.mixpanel.apiSecret,
-      });
-
-      // NOTICE: Handle timezones
-      var offsetHours = 0;
-      if (params && params.timezone) {
-        var offsetClient = parseInt(params.timezone, 10);
-        var offsetServer = moment().utcOffset() / 60;
-        offsetHours = offsetServer - offsetClient;
-      }
-
-      // NOTICE: Active the current week
-      var weekBeginning = moment().startOf('week').add(offsetHours, 'h').unix();
-
-      return panel
-        .engage({
-          selector: '(datetime(' + weekBeginning +
-            ') < properties["$last_seen"])'
-        })
-        .then(function (data) {
-          var where = {};
-          var results = data.results || [];
-          where[fieldName] = {
-            $in: results.map(function (result) {
-              return result.$distinct_id;
-            })
-          };
-
-          return where;
-        });
-    }
+    paginationType: 'cursor',
+    fields,
   });
 };
 
 exports.createFields = function (implementation, model, schemaFields) {
   schemaFields.push({
-    field: 'mixpanel_events_this_week',
-    displayName: 'Events this week',
+    field: 'mixpanel_last_events',
+    displayName: 'Last events',
     type: ['String'],
     reference: implementation.getModelName(model) + '_mixpanel_events.id',
     column: null,
