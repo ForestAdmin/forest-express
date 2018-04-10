@@ -21,6 +21,8 @@ var logger = require('./services/logger');
 var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var ApimapSender = require('./services/apimap-sender');
+var ipWhitelist = require('./services/ip-whitelist');
+var ipAuthorizer = require('./middlewares/ip-whitelist');
 
 var jwtAuthenticator;
 
@@ -147,6 +149,8 @@ exports.init = function (Implementation, dependencies) {
     }
   }
 
+  app.all('*', ipAuthorizer(opts.envSecret));
+
   new SessionRoute(app, opts, dependencies).perform();
 
   // Init
@@ -260,6 +264,11 @@ exports.init = function (Implementation, dependencies) {
           new ApimapSender(opts.envSecret, apimap).perform();
         }
       }
+    })
+    .then(function () {
+      return ipWhitelist
+        .retrieve(opts.envSecret)
+        .catch(error => logger.error(error));
     })
     .catch(function (error) {
       logger.error('An error occured while computing the Forest apimap. Your ' +

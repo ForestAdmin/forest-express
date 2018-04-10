@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - Premium Security - Add IP Whitelist feature.
+- Premium Security - Users that won't use an authorized IP won't have access to the data.
 
 ## RELEASE 2.7.1 - 2018-03-30
 ### Fixed
