@@ -150,9 +150,8 @@ exports.init = function (Implementation, dependencies) {
     }
   }
 
-  app.all('*', ipAuthorizer(opts.envSecret));
-
   new SessionRoute(app, opts, dependencies).perform();
+  app.all('*', ipAuthorizer(opts.envSecret));
   new IpWhitelistRoutes(app, opts).perform();
 
   // Init
