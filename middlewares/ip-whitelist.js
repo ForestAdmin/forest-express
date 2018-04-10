@@ -12,7 +12,7 @@ function createIpAuthorizer(environmentSecret) {
         .then(() => {
           ipWhitelistService.isIpValid(ip)
             ? next()
-            : next(httpError(403, 'IP address rejected'));
+            : next(httpError(403, 'IP address rejected (' + ip + ')'));
         })
         .catch((error) => {
           logger.error(error);
@@ -21,7 +21,7 @@ function createIpAuthorizer(environmentSecret) {
     }
 
     if (!ipWhitelistService.isIpValid(ip)) {
-      return next(httpError(403, 'IP address rejected'));
+      return next(httpError(403, 'IP address rejected (' + ip + ')'));
     }
 
     return next();
