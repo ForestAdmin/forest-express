@@ -341,6 +341,7 @@ exports.collection = function (name, opts) {
   } else {
     // NOTICE: Smart Collection definition case
     opts.name = name;
+    opts.idField = 'id';
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
     opts.fields = getFields(opts);
