@@ -23,7 +23,6 @@ var Integrator = require('./integrations');
 var errorHandler = require('./services/error-handler');
 var ApimapSender = require('./services/apimap-sender');
 var ipWhitelist = require('./services/ip-whitelist');
-var ipAuthorizer = require('./middlewares/ip-whitelist');
 
 var jwtAuthenticator;
 
@@ -90,6 +89,7 @@ exports.init = function (Implementation, dependencies) {
   var integrator;
 
   dependencies = dependencies || {};
+  auth.initAuth(opts);
 
   if (opts.secretKey) {
     logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
@@ -151,7 +151,6 @@ exports.init = function (Implementation, dependencies) {
   }
 
   new SessionRoute(app, opts, dependencies).perform();
-  app.all('*', ipAuthorizer(opts.envSecret));
   new IpWhitelistRoutes(app, opts).perform();
 
   // Init

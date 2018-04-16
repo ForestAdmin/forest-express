@@ -25,6 +25,7 @@
     "bcryptjs": "2.4.3",
     "bluebird": "3.3.4",
     "body-parser": "1.18.2",
+    "compose-middleware": "4.0.0",
     "cors": "2.8.4",
     "csv-stringify": "1.0.4",
     "express": "4.16.2",
