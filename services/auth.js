@@ -1,8 +1,16 @@
 'use strict';
 var error = require('./error');
 var logger = require('./logger');
+var createIpAuthorizer = require('../middlewares/ip-whitelist');
+var compose = require('compose-middleware').compose;
 
 var ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
+
+var ipAuthorizer;
+
+function initAuth(options) {
+  ipAuthorizer = createIpAuthorizer(options.envSecret);
+}
 
 function ensureAuthenticated(request, response, next) {
   if (request.user) {
@@ -34,5 +42,15 @@ function authenticate(request, response, next, authenticator) {
 }
 
 exports.allowedUsers = [];
-exports.ensureAuthenticated = ensureAuthenticated;
+exports.ensureAuthenticated = compose([
+  ensureAuthenticated,
+  function (request, response, next) {
+    if (!ipAuthorizer) {
+      return logger.error('"ensureAuthenticated" middleware must be called after "liana.init" function');
+    }
+
+    ipAuthorizer(request, response, next);
+  }
+]);
 exports.authenticate = authenticate;
+exports.initAuth = initAuth;
