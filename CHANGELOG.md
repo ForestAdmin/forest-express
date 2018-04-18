@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- IP Whitelist - Request IP whitelist refresh if an IP looks invalid with the current IP whitelist.
 
 ## RELEASE 2.8.0 - 2018-04-17
 ### Added
@@ -8,7 +10,7 @@
 
 ## RELEASE 2.7.2 - 2018-04-12
 ### Fixed
-- Smart Relationships - Make the Smart BelongsTo work when it references a Smart Collection record. 
+- Smart Relationships - Make the Smart BelongsTo work when it references a Smart Collection record.
 
 ## RELEASE 2.7.1 - 2018-03-30
 ### Fixed
