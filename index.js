@@ -15,7 +15,6 @@ var AssociationsRoutes = require('./routes/associations');
 var StatRoutes = require('./routes/stats');
 var SessionRoute = require('./routes/sessions');
 var ForestRoutes = require('./routes/forest');
-var IpWhitelistRoutes = require('./routes/ip-whitelist-rules');
 var Schemas = require('./generators/schemas');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var logger = require('./services/logger');
@@ -151,7 +150,6 @@ exports.init = function (Implementation, dependencies) {
   }
 
   new SessionRoute(app, opts, dependencies).perform();
-  new IpWhitelistRoutes(app, opts).perform();
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;

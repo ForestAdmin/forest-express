@@ -6,26 +6,26 @@ function createIpAuthorizer(environmentSecret) {
   return function ipAuthorizer(request, response, next) {
     const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
 
-    if (!ipWhitelistService.isIpWhitelistRetrieved()) {
-      return ipWhitelistService
-        .retrieve(environmentSecret)
-        .then(() => {
-          ipWhitelistService.isIpValid(ip)
-            ? next()
-            : next(httpError(403, 'IP address rejected (' + ip + ')'));
-        })
-        .catch((error) => {
-          logger.error(error);
-          next(httpError(403, 'IP whitelist not retrieved'));
-        });
-    }
-
-    if (!ipWhitelistService.isIpValid(ip)) {
-      return next(httpError(403, 'IP address rejected (' + ip + ')'));
+    if (!ipWhitelistService.isIpWhitelistRetrieved() || !ipWhitelistService.isIpValid(ip)) {
+      return retrieveWhitelist(environmentSecret, ip, next);
     }
 
     return next();
   };
+}
+
+function retrieveWhitelist(environmentSecret, ip, next) {
+  return ipWhitelistService
+    .retrieve(environmentSecret)
+    .then(() => {
+      ipWhitelistService.isIpValid(ip)
+        ? next()
+        : next(httpError(403, 'IP address rejected (' + ip + ')'));
+    })
+    .catch((error) => {
+      logger.error(error);
+      next(httpError(403, 'IP whitelist not retrieved'));
+    });
 }
 
 module.exports = createIpAuthorizer;

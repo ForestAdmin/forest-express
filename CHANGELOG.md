@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- IP Whitelist - Request IP whitelist refresh if an IP looks invalid with the current IP whitelist.
 
 ## RELEASE 2.8.1 - 2018-04-25
 ### Fixed
