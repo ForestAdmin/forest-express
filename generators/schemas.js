@@ -24,6 +24,7 @@ module.exports = {
               schema.fields = _.concat(schema.fields || [], currentSchema.fields || []);
               schema.actions = _.concat(schema.actions || [], currentSchema.actions || []);
               schema.segments = _.concat(schema.segments || [], currentSchema.segments || []);
+              schema.searchFields = _.concat(schema.searchFields || [], currentSchema.searchFields || []);
             }
 
             that.schemas[modelName] = schema;
