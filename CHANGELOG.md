@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.8.4 - 2018-05-11
 ### Fixed
 - Stripe Integration - Improve global error handling if the stripe id is missing or incorrect in the database.
 
