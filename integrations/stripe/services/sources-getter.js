@@ -1,5 +1,6 @@
 'use strict';
 var P = require('bluebird');
+var logger = require('../../../services/logger');
 
 function SourcesGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
@@ -54,6 +55,10 @@ function SourcesGetter(Implementation, params, opts, integrationInfo) {
           object: params.object
         };
 
+        if (!customer[collectionFieldName]) {
+          return P.reject();
+        }
+
         return getSources(customer[collectionFieldName], query)
           .spread(function (count, sources) {
             return P
@@ -73,9 +78,13 @@ function SourcesGetter(Implementation, params, opts, integrationInfo) {
               .then(function (sources) {
                 return [count, sources];
               });
+          })
+          .catch(function (error) {
+            logger.warn('Stripe sources retrieval issue:', error);
+            return P.resolve([0, []]);
           });
       }, function () {
-        return new P(function (resolve) { resolve([0, []]); });
+        return P.resolve([0, []]);
       });
   };
 }

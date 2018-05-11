@@ -1,5 +1,6 @@
 'use strict';
 var P = require('bluebird');
+var logger = require('../../../services/logger');
 
 function InvoicesGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
@@ -53,33 +54,40 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
           'include[]': 'total_count'
         };
 
-        if (customer) { query.customer = customer[collectionFieldName]; }
+        if (customer && !!customer[collectionFieldName]) {
+          query.customer = customer[collectionFieldName];
+        } else {
+          return P.reject();
+        }
 
         return getInvoices(query)
           .spread(function (count, invoices) {
-              return P
-                .map(invoices, function (invoice) {
-                  if (customer) {
-                    invoice.customer = customer;
-                  } else {
-                    return Implementation.Stripe.getCustomerByUserField(
-                      collectionModel, collectionFieldName, invoice.customer)
-                      .then(function (customer) {
-                        invoice.customer = customer;
-                        return invoice;
-                      });
-                  }
-                  return invoice;
-                })
-                .then(function (invoices) {
-                  return [count, invoices];
-                });
-            });
+            return P
+              .map(invoices, function (invoice) {
+                if (customer) {
+                  invoice.customer = customer;
+                } else {
+                  return Implementation.Stripe.getCustomerByUserField(
+                    collectionModel, collectionFieldName, invoice.customer)
+                    .then(function (customer) {
+                      invoice.customer = customer;
+                      return invoice;
+                    });
+                }
+                return invoice;
+              })
+              .then(function (invoices) {
+                return [count, invoices];
+              });
+          })
+          .catch(function (error) {
+            logger.warn('Stripe invoices retrieval issue:', error);
+            return P.resolve([0, []]);
+          });
       }, function () {
-        return new P(function (resolve) { resolve([0, []]); });
+        return P.resolve([0, []]);
       });
   };
 }
 
 module.exports = InvoicesGetter;
-

@@ -1,5 +1,6 @@
 'use strict';
 var P = require('bluebird');
+var logger = require('../../../services/logger');
 
 function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
   var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
@@ -53,7 +54,11 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
           'include[]': 'total_count'
         };
 
-        if (customer) { query.customer = customer[collectionFieldName]; }
+        if (customer && !!customer[collectionFieldName]) {
+          query.customer = customer[collectionFieldName];
+        } else {
+          return P.reject();
+        }
 
         return getSubscriptions(query)
           .spread(function (count, subscriptions) {
@@ -74,9 +79,13 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
               .then(function (subscriptions) {
                 return [count, subscriptions];
               });
+          })
+          .catch(function (error) {
+            logger.warn('Stripe subscriptions retrieval issue:', error);
+            return P.resolve([0, []]);
           });
       }, function () {
-        return new P(function (resolve) { resolve([0, []]); });
+        return P.resolve([0, []]);
       });
   };
 }
