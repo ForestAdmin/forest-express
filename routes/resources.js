@@ -19,13 +19,16 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
+        var meta = { count };
+
         return new ResourceSerializer(
           Implementation,
           model,
           records,
           integrator,
           opts,
-          { count: count },
+          meta,
+          params.search,
           fieldsPerModel
         ).perform();
       })
