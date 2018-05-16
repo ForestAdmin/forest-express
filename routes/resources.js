@@ -1,10 +1,12 @@
 'use strict';
+var _ = require('lodash');
 var auth = require('../services/auth');
 var path = require('../services/path');
 var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var CSVExporter = require('../services/csv-exporter');
 var ParamsFieldsDeserializer = require('../deserializers/params-fields');
+var SearchUtil = require('../utils/search');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -19,13 +21,25 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
+        var decorators = null;
+
+        if (params.search) {
+          var searchDecorator = SearchUtil.getSearchMatchFields(params.search, records);
+          if (!_.isEmpty(searchDecorator)) {
+            decorators = searchDecorator;
+          }
+        }
+
         return new ResourceSerializer(
           Implementation,
           model,
           records,
           integrator,
           opts,
-          { count: count },
+          {
+            count: count,
+            decorators: decorators,
+          },
           fieldsPerModel
         ).perform();
       })
