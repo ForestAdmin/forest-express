@@ -42,8 +42,17 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        return new ResourceSerializer(Implementation, associationModel,
-          records, integrator, opts, { count: count }).perform();
+        var meta = { count };
+
+        return new ResourceSerializer(
+          Implementation,
+          associationModel,
+          records,
+          integrator,
+          opts,
+          meta,
+          params.search
+        ).perform();
       })
       .then(function (records) { response.send(records); })
       .catch(next);

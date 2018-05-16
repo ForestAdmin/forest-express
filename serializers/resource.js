@@ -6,9 +6,10 @@ var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 var Schemas = require('../generators/schemas');
 var logger = require('../services/logger');
+var RecordsDecorator = require('../services/records-decorator');
 
 function ResourceSerializer(Implementation, model, records, integrator, opts, meta,
-  fieldsPerModel) {
+  searchValue, fieldsPerModel) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
@@ -170,6 +171,18 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
     })
       .then(function () {
         return new JSONAPISerializer(schema.name, records, serializationOptions);
+      })
+      .then(function (results) {
+        if (searchValue) {
+          var decoratorsSearch = RecordsDecorator.decorateForSearch(results, searchValue);
+          if (!_.isEmpty(decoratorsSearch)) {
+            if (!results.meta) {
+              results.meta = {};
+            }
+            results.meta.decorators = decoratorsSearch;
+          }
+        }
+        return results;
       });
   };
 }
