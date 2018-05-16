@@ -6,7 +6,7 @@ var ResourceSerializer = require('../serializers/resource');
 var ResourceDeserializer = require('../deserializers/resource');
 var CSVExporter = require('../services/csv-exporter');
 var ParamsFieldsDeserializer = require('../deserializers/params-fields');
-var SearchUtil = require('../utils/search');
+var RecordsDecorator = require('../services/records-decorator');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -21,12 +21,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var count = results[0];
         var records = results[1];
 
-        var decorators = null;
+        var meta = {
+          count: count,
+        };
 
         if (params.search) {
-          var searchDecorator = SearchUtil.getSearchMatchFields(params.search, records);
-          if (!_.isEmpty(searchDecorator)) {
-            decorators = searchDecorator;
+          var decoratorsSearch = RecordsDecorator.decorateForSearch(records, params.search);
+          if (!_.isEmpty(decoratorsSearch)) {
+            meta.decorators = decoratorsSearch;
           }
         }
 
@@ -36,10 +38,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records,
           integrator,
           opts,
-          {
-            count: count,
-            decorators: decorators,
-          },
+          meta,
           fieldsPerModel
         ).perform();
       })
