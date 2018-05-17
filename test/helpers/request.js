@@ -1,6 +1,6 @@
 const request = require('supertest');
 const nock = require('nock');
-const ServiceUrlGetter = require('../../services/service-url-getter');
+const ServiceUrlGetter = require('../../src/services/service-url-getter');
 
 const urlService = new ServiceUrlGetter().perform();
 
