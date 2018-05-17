@@ -26,6 +26,7 @@ function retrieve(environmentSecret) {
           ipWhitelistRules = result.body.data.attributes.rules;
         } else {
           if (result.status === 0) {
+            // TODO: reject ?
             P.reject(errorMessages.IP_WHITELIST.SERVER_DOWN);
           } else if (result.status === 404 || result.status === 422) {
             P.reject(errorMessages.IP_WHITELIST.SECRET_NOT_FOUND);
