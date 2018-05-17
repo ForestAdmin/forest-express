@@ -25,6 +25,8 @@ var ipWhitelist = require('./services/ip-whitelist');
 
 var jwtAuthenticator;
 
+console.log('~=[,,_,,]=3');
+
 function getModels(Implementation) {
   var models = Implementation.getModels();
   _.each(models, function (model, modelName) {

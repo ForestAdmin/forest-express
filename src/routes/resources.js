@@ -10,6 +10,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
 
   this.list = function (request, response, next) {
+    console.log('list');
+
     var params = request.query;
     var fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
@@ -45,6 +47,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.exportCSV = function (request, response, next) {
+    console.log('exortCSV');
+
     var params = request.query;
     var recordsExporter = new Implementation.RecordsExporter(model, opts,
       params);
@@ -54,6 +58,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.get = function (request, response, next) {
+    console.log('get');
     return new Implementation.ResourceGetter(model, request.params)
       .perform()
       .then(function (record) {
@@ -67,6 +72,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.create = function (request, response, next) {
+    console.log('create');
     new ResourceDeserializer(Implementation, model, request.body, true, {
       omitNullAttributes: true
     }).perform()
@@ -84,6 +90,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.update = function (request, response, next) {
+    console.log('update');
     new ResourceDeserializer(Implementation, model, request.body, false)
       .perform()
       .then(function (record) {
@@ -102,6 +109,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   };
 
   this.remove = function (request, response, next) {
+    console.log('remove');
     new Implementation.ResourceRemover(model, request.params)
       .perform()
       .then(function () {
