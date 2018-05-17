@@ -2,7 +2,7 @@
 /* global describe, it */
 var chai = require('chai');
 var chaiSubset = require('chai-subset');
-var ApimapSorter = require('../../services/apimap-sorter');
+var ApimapSorter = require('../../src/services/apimap-sorter');
 
 var expect = chai.expect;
 chai.use(chaiSubset);
