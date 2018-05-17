@@ -1,9 +1,17 @@
-function createCheckListPermission(environmentSecret) {
-  return function checkListPermission(request, response, next) {
+const PermissionsChecker = require('../services/permissions-checker');
+const httpError = require('http-errors');
+const logger = require('../services/logger');
 
-
-    return next();
+function createCheckPermissionList(environmentSecret, collectionName) {
+  return function checkPermissionList(request, response, next) {
+    return new PermissionsChecker(environmentSecret, collectionName, 'list')
+      .perform()
+      .then(next)
+      .catch((error) => {
+        logger.error(error);
+        next(httpError(403));
+      });
   };
 }
 
-module.exports = createIpAuthorizer;
+module.exports = { createCheckPermissionList };
