@@ -2,6 +2,10 @@
 var P = require('bluebird');
 var _ = require('lodash');
 
+function isArray(object) {
+  return object && _.isArray(object);
+}
+
 module.exports = {
   schemas: {},
   perform: function (implementation, integrator, models, opts) {
@@ -24,7 +28,11 @@ module.exports = {
               schema.fields = _.concat(schema.fields || [], currentSchema.fields || []);
               schema.actions = _.concat(schema.actions || [], currentSchema.actions || []);
               schema.segments = _.concat(schema.segments || [], currentSchema.segments || []);
-              schema.searchFields = _.concat(schema.searchFields || [], currentSchema.searchFields || []);
+
+              // NOTICE: Set this value only if searchFields property as been declared somewhere.
+              if (isArray(schema.searchFields) || isArray(currentSchema.searchFields)) {
+                schema.searchFields = _.concat(schema.searchFields || [], currentSchema.searchFields || []);
+              }
             }
 
             that.schemas[modelName] = schema;
