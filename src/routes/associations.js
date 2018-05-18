@@ -39,9 +39,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       params)
       .perform()
       .then(function (results) {
-        var count = results[0];
-        var decorators = results[1];
-        var records = results[2];
+        var records = results[0];
+        var count = results[1];
+        var decorators = results[2];
 
         var meta = {
           count: count
