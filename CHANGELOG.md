@@ -4,6 +4,10 @@
 ### Added
 - Technical - Add babel.
 
+## RELEASE 2.8.5 - 2018-05-18
+### Fixed
+- Search - Fix potential broken search on collections that have been customized before the liana.init call.
+
 ## RELEASE 2.8.4 - 2018-05-11
 ### Fixed
 - Stripe Integration - Improve global error handling if the stripe id is missing or incorrect in the database.
