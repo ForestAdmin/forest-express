@@ -39,8 +39,17 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       params)
       .perform()
       .then(function (results) {
-        var meta = results[0];
-        var records = results[1];
+        var count = results[0];
+        var decorators = results[1];
+        var records = results[2];
+
+        var meta = {
+          count: count
+        };
+
+        if (decorators) {
+          meta.decorators = decorators;
+        }
 
         return new ResourceSerializer(
           Implementation,
