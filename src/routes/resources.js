@@ -16,7 +16,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return new Implementation.ResourcesGetter(model, opts, params)
       .perform()
       .then(function (results) {
-        var count = results[0];
+        var meta = results[0];
         var records = results[1];
 
         return new ResourceSerializer(
@@ -25,7 +25,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records,
           integrator,
           opts,
-          { count: count },
+          meta,
           fieldsPerModel
         ).perform();
       })
