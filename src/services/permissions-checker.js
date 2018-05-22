@@ -1,7 +1,5 @@
 const P = require('bluebird');
-const request = require('superagent');
-const ServiceUrlGetter = require('./service-url-getter');
-const errorMessages = require('../utils/error-messages');
+const ForestServerRequester = require('./forest-server-requester');
 
 let permissions;
 
@@ -15,31 +13,14 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
   }
 
   function retrievePermissions() {
-    const urlService = new ServiceUrlGetter().perform();
-
-    return new P((resolve, reject) => {
-      request
-        .get(urlService + '/liana/v1/permissions')
-        .set('forest-secret-key', environmentSecret)
-        .end(function (error, result) {
-          if (error) {
-            return reject(error);
-          }
-
-          if (result.status === 200 && result.body) {
-            permissions = result.body;
-          } else {
-            if (result.status === 0) {
-              return reject(errorMessages.SERVER_TRANSACTION.SERVER_DOWN);
-            } else if (result.status === 404 || result.status === 422) {
-              return reject(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND);
-            } else {
-              return reject(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error);
-            }
-          }
-          resolve();
-        });
-    });
+    return new ForestServerRequester()
+      .perform(environmentSecret, '/liana/v1/permissions')
+      .then((responseBody) => {
+        permissions = responseBody;
+      })
+      .catch((error) => {
+        return P.reject(`Permissions: ${error}`);
+      });
   }
 
   this.perform = () => {

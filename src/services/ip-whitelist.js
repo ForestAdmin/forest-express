@@ -1,40 +1,23 @@
-const request = require('superagent');
 const errorMessages = require('../utils/error-messages');
-const ServiceUrlGetter = require('./service-url-getter');
 const ipUtil = require('ip-utils');
 const P = require('bluebird');
 const _ = require('lodash');
+const ForestServerRequester = require('./forest-server-requester');
 
 let ipWhitelistRules = null;
 let useIpWhitelist = true;
 
 function retrieve(environmentSecret) {
-  var urlService = new ServiceUrlGetter().perform();
-
-  return new P(function (resolve, reject) {
-    request
-      .get(urlService + '/liana/v1/ip-whitelist-rules')
-      .set('forest-secret-key', environmentSecret)
-      .end(function (error, result) {
-        if (error) {
-          return reject(error);
-        }
-
-        if (result.status === 200 && result.body && result.body.data) {
-          useIpWhitelist = result.body.data.attributes.use_ip_whitelist;
-          ipWhitelistRules = result.body.data.attributes.rules;
-        } else {
-          if (result.status === 0) {
-            reject(errorMessages.SERVER_TRANSACTION.SERVER_DOWN);
-          } else if (result.status === 404 || result.status === 422) {
-            reject(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND);
-          } else {
-            reject(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error);
-          }
-        }
-        resolve();
-      });
-  });
+  return new ForestServerRequester()
+    .perform(environmentSecret, '/liana/v1/ip-whitelist-rules')
+    .then((responseBody) => {
+      if (responseBody.data) {
+        useIpWhitelist = responseBody.data.attributes.use_ip_whitelist;
+        ipWhitelistRules = responseBody.data.attributes.rules;
+      } else {
+        return P.reject(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`);
+      }
+    });
 }
 
 function isIpWhitelistRetrieved() {
