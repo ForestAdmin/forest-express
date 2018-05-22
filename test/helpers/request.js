@@ -6,7 +6,7 @@ const urlService = new ServiceUrlGetter().perform();
 
 nock(urlService)
   .persist()
-  .get('/liana/ip-whitelist-rules')
+  .get('/liana/v1/ip-whitelist-rules')
   .reply(200, {
     data: {
       type: 'ip-whitelist-rules',
