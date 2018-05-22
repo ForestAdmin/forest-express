@@ -60,4 +60,8 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
   };
 }
 
+PermissionChecker.cleanCache = () => {
+  permissions = null;
+};
+
 module.exports = PermissionChecker;
