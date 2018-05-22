@@ -26,7 +26,6 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
             return reject(error);
           }
 
-          // TODO: JSON API?
           if (result.status === 200 && result.body) {
             permissions = result.body;
           } else {
