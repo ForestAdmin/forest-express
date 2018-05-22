@@ -29,7 +29,8 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
         return retrievePermissions()
           .then(() => isAllowed()
             ? resolve()
-            : reject(new Error(`'${permissionName}' access forbidden on ${collectionName}`)));
+            : reject(new Error(`'${permissionName}' access forbidden on ${collectionName}`)))
+          .catch(reject);
       }
 
       return resolve();
