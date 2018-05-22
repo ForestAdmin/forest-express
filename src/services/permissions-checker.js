@@ -7,9 +7,6 @@ let permissions;
 
 function PermissionChecker(environmentSecret, collectionName, permissionName) {
   function isAllowed() {
-    console.log('isAllowed: ');
-    console.log(JSON.stringify(permissions, null, 2));
-
     if (!permissions || !permissions[collectionName] || !permissions[collectionName].permissions) {
       return false;
     }
@@ -22,7 +19,7 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
 
     return new P((resolve, reject) => {
       request
-        .get(urlService + '/liana/permissions')
+        .get(urlService + '/liana/v1/permissions')
         .set('forest-secret-key', environmentSecret)
         .end(function (error, result) {
           if (error) {
