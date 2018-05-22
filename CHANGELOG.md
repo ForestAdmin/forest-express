@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## RELEASE 2.8.6 - 2018-05-22
+## RELEASE 2.9.0 - 2018-05-22
 ### Added
 - Technical - Add babel.
 - Search - Display highlighted matches on table view when searching.
