@@ -13,7 +13,7 @@ function retrieve(environmentSecret) {
 
   return new P(function (resolve) {
     request
-      .get(urlService + '/liana/ip-whitelist-rules')
+      .get(urlService + '/liana/v1/ip-whitelist-rules')
       .set('forest-secret-key', environmentSecret)
       .end(function (error, result) {
         if (error) {
