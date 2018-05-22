@@ -12,13 +12,13 @@ var useIpWhitelist = true;
 function retrieve(environmentSecret) {
   var urlService = new ServiceUrlGetter().perform();
 
-  return new P(function (resolve) {
+  return new P(function (resolve, reject) {
     request
       .get(urlService + '/liana/v1/ip-whitelist-rules')
       .set('forest-secret-key', environmentSecret)
       .end(function (error, result) {
         if (error) {
-          return P.reject(error);
+          return reject(error);
         }
 
         if (result.status === 200 && result.body && result.body.data) {
@@ -26,12 +26,11 @@ function retrieve(environmentSecret) {
           ipWhitelistRules = result.body.data.attributes.rules;
         } else {
           if (result.status === 0) {
-            // TODO: reject ?
-            P.reject(errorMessages.SERVER_TRANSACTION.SERVER_DOWN);
+            reject(errorMessages.SERVER_TRANSACTION.SERVER_DOWN);
           } else if (result.status === 404 || result.status === 422) {
-            P.reject(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND);
+            reject(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND);
           } else {
-            P.reject(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error);
+            reject(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error);
           }
         }
         resolve();
