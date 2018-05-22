@@ -27,11 +27,11 @@ function retrieve(environmentSecret) {
         } else {
           if (result.status === 0) {
             // TODO: reject ?
-            P.reject(errorMessages.IP_WHITELIST.SERVER_DOWN);
+            P.reject(errorMessages.SERVER_TRANSACTION.SERVER_DOWN);
           } else if (result.status === 404 || result.status === 422) {
-            P.reject(errorMessages.IP_WHITELIST.SECRET_NOT_FOUND);
+            P.reject(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND);
           } else {
-            P.reject(errorMessages.IP_WHITELIST.UNEXPECTED, error);
+            P.reject(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error);
           }
         }
         resolve();

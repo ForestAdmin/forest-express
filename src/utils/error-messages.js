@@ -13,7 +13,7 @@ exports.CONFIGURATION = {
   AUTH_SECRET_MISSING: 'Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initializer?',
 };
 
-exports.IP_WHITELIST = {
+exports.SERVER_TRANSACTION = {
   SERVER_DOWN: 'Cannot retrieve the list of whitelisted IPs. Forest API seems to be down right now.',
   SECRET_NOT_FOUND: 'Cannot retrieve the list of whitelisted IPs. Can you check that you properly copied the Forest envSecret in the Liana initializer?',
   UNEXPECTED: 'Cannot retrieve the list of whitelisted IPs. An error occured in Forest API.',

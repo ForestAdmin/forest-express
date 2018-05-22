@@ -31,14 +31,11 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
             permissions = result.body;
           } else {
             if (result.status === 0) {
-              // TODO: change IP_WHITELIST
-              return reject(errorMessages.IP_WHITELIST.SERVER_DOWN);
+              return reject(errorMessages.SERVER_TRANSACTION.SERVER_DOWN);
             } else if (result.status === 404 || result.status === 422) {
-              // TODO: change IP_WHITELIST
-              return reject(errorMessages.IP_WHITELIST.SECRET_NOT_FOUND);
+              return reject(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND);
             } else {
-              // TODO: change IP_WHITELIST
-              return reject(errorMessages.IP_WHITELIST.UNEXPECTED, error);
+              return reject(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error);
             }
           }
           resolve();
