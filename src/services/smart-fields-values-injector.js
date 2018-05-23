@@ -6,8 +6,20 @@ var Schemas = require('../generators/schemas');
 
 function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
   var schema = Schemas.schemas[modelName];
+  var smartFieldsSearched = [];
+
+  this.getFieldsSearched = function () {
+    return smartFieldsSearched;
+  };
 
   function setSmartFieldValue(record, field, modelName) {
+
+    function pushSmartFieldsSearched(field) {
+      if (field.type === 'String') {
+        smartFieldsSearched.push(field.columnName);
+      }
+    }
+
     try {
       var value;
       if (field.value) {
@@ -27,6 +39,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
           return value
             .then(function (result) {
               record[field.field] = result;
+              pushSmartFieldsSearched(field);
             })
             .catch(function (error) {
               logger.warn('Cannot set the ' + field.field + ' value because of an unexpected ' +
@@ -35,6 +48,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
             });
         } else {
           record[field.field] = value;
+          pushSmartFieldsSearched(field);
         }
       }
     } catch (error) {
