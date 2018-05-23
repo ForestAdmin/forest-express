@@ -2,11 +2,12 @@ const P = require('bluebird');
 const ForestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
 
-const EXPIRATION_IN_SECONDS = process.env.PREMISSIONS_EXPIRATION || 3600;
 let permissions;
 let lastRetrieve;
 
-function PermissionChecker(environmentSecret, collectionName, permissionName) {
+function PermissionsChecker(environmentSecret, collectionName, permissionName) {
+  const EXPIRATION_IN_SECONDS = process.env.PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
+
   function isAllowed() {
     if (!permissions || !permissions[collectionName] || !permissions[collectionName].permissions) {
       return false;
@@ -20,6 +21,7 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
       .perform(environmentSecret, '/liana/v1/permissions')
       .then((responseBody) => {
         permissions = responseBody;
+        lastRetrieve = moment();
       })
       .catch((error) => {
         return P.reject(`Permissions: ${error}`);
@@ -61,8 +63,20 @@ function PermissionChecker(environmentSecret, collectionName, permissionName) {
   };
 }
 
-PermissionChecker.cleanCache = () => {
+PermissionsChecker.cleanCache = () => {
   permissions = null;
 };
 
-module.exports = PermissionChecker;
+PermissionsChecker.resetExpiration = () => {
+  lastRetrieve = null;
+};
+
+PermissionsChecker.getLastRetrieveTime = () => {
+  return lastRetrieve;
+};
+
+PermissionsChecker.getPermissions = () => {
+  return permissions;
+};
+
+module.exports = PermissionsChecker;
