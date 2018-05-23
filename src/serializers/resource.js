@@ -161,29 +161,21 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
 
     return new P(function (resolve) {
       if (_.isArray(records)) {
+        var smartFieldsValuesInjector;
         resolve(P.map(records, function (record) {
-          var smartFieldsValuesInjector =
+          smartFieldsValuesInjector =
             new SmartFieldsValuesInjector(record, modelName, fieldsPerModel);
 
-          return smartFieldsValuesInjector.perform()
-            .then(function (result) {
-              if (fieldsSearched) {
-                fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
-              }
-              return result;
-            });
-        }));
-      } else {
-        var smartFieldsValuesInjector =
-          new SmartFieldsValuesInjector(records, modelName, fieldsPerModel);
-
-        resolve(smartFieldsValuesInjector.perform()
-          .then(function (result) {
+          return smartFieldsValuesInjector.perform();
+        })
+          .then(function(result) {
             if (fieldsSearched) {
               fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
             }
             return result;
           }));
+      } else {
+        resolve(new SmartFieldsValuesInjector(records, modelName, fieldsPerModel).perform());
       }
     })
       .then(function () {
