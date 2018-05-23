@@ -16,7 +16,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
 
     function pushSmartFieldsSearched(field) {
       if (field.type === 'String') {
-        smartFieldsSearched.push(field.columnName);
+        smartFieldsSearched.push(field.field);
       }
     }
 

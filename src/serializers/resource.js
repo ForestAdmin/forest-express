@@ -167,7 +167,9 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
 
           return smartFieldsValuesInjector.perform()
             .then(function (result) {
-              fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
+              if (fieldsSearched) {
+                fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
+              }
               return result;
             });
         }));
@@ -177,7 +179,9 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
 
         resolve(smartFieldsValuesInjector.perform()
           .then(function (result) {
-            fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
+            if (fieldsSearched) {
+              fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
+            }
             return result;
           }));
       }
