@@ -4,6 +4,7 @@
 ### Added
 - Technical - Add babel.
 - Permissions - Add the base of the permissions feature.
+- Permissions - Handle the permissions 'show', 'create', 'update', 'delete', 'export'.
 
 ## RELEASE 2.9.0 - 2018-05-22
 ### Added
