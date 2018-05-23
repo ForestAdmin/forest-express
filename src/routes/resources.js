@@ -4,7 +4,7 @@ const ResourceSerializer = require('../serializers/resource');
 const ResourceDeserializer = require('../deserializers/resource');
 const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
-const { createCheckPermissionList } = require('../middlewares/permissions');
+const { createCheckPermission } = require('../middlewares/permissions');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
@@ -110,20 +110,44 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .catch(next);
   };
 
-  const checkPermissionList = createCheckPermissionList(opts.envSecret, modelName);
+  const checkPermission = createCheckPermission(opts.envSecret, modelName);
 
   this.perform = function () {
-    app.get(path.generate(modelName, opts) + '.csv', auth.ensureAuthenticated,
-      this.exportCSV);
-    app.get(path.generate(modelName, opts), auth.ensureAuthenticated, checkPermissionList,
-      this.list);
-    app.get(path.generate(modelName + '/:recordId', opts),
-      auth.ensureAuthenticated, this.get);
-    app.post(path.generate(modelName, opts), auth.ensureAuthenticated,
-      this.create);
-    app.put(path.generate(modelName + '/:recordId', opts),
-      auth.ensureAuthenticated, this.update);
-    app.delete(path.generate(modelName + '/:recordId', opts),
-      auth.ensureAuthenticated, this.remove);
+    app.get(
+      path.generate(modelName, opts) + '.csv',
+      auth.ensureAuthenticated,
+      checkPermission('export'),
+      this.exportCSV
+    );
+    app.get(
+      path.generate(modelName, opts),
+      auth.ensureAuthenticated,
+      checkPermission('list'),
+      this.list
+    );
+    app.get(
+      path.generate(modelName + '/:recordId', opts),
+      auth.ensureAuthenticated,
+      checkPermission('show'),
+      this.get
+    );
+    app.post(
+      path.generate(modelName, opts),
+      auth.ensureAuthenticated,
+      checkPermission('create'),
+      this.create
+    );
+    app.put(
+      path.generate(modelName + '/:recordId', opts),
+      auth.ensureAuthenticated,
+      checkPermission('update'),
+      this.update
+    );
+    app.delete(
+      path.generate(modelName + '/:recordId', opts),
+      auth.ensureAuthenticated,
+      checkPermission('delete'),
+      this.remove
+    );
   };
 };
