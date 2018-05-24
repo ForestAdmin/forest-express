@@ -169,7 +169,7 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
             return smartFieldsValuesInjector.perform();
           })
           .then(function(result) {
-            if (fieldsSearched) {
+            if (fieldsSearched && smartFieldsValuesInjector) {
               fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsForHighlightedSearch());
             }
             return result;
