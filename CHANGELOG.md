@@ -2,11 +2,11 @@
 
 ## [Unreleased]
 ### Added
-- Technical - Add babel.
-- Permissions - Add the base of the permissions feature.
+- Permissions - Add a permission mechanism to protect the data accordingly to the UI configuration.
 
 ## RELEASE 2.9.0 - 2018-05-22
 ### Added
+- Technical - Add babel.
 - Search - Display highlighted matches on table view when searching.
 
 ## RELEASE 2.8.5 - 2018-05-18
