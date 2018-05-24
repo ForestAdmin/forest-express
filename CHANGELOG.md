@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.9.1 - 2018-05-24
 ### Changed
 - Search - Display highlighted match on smart fields.
 
