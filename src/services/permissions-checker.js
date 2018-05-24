@@ -6,7 +6,7 @@ let permissions;
 let lastRetrieve;
 
 function PermissionsChecker(environmentSecret, collectionName, permissionName) {
-  const EXPIRATION_IN_SECONDS = process.env.PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
+  const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isAllowed() {
     if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
@@ -18,7 +18,7 @@ function PermissionsChecker(environmentSecret, collectionName, permissionName) {
 
   function retrievePermissions() {
     return new ForestServerRequester()
-      .perform(environmentSecret, '/liana/v1/permissions')
+      .perform('/liana/v1/permissions', environmentSecret)
       .then((responseBody) => {
         permissions = responseBody;
         lastRetrieve = moment();

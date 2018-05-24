@@ -2,19 +2,12 @@ const P = require('bluebird');
 const request = require('superagent');
 const ServiceUrlGetter = require('./service-url-getter');
 const errorMessages = require('../utils/error-messages');
-const httpError = require('http-errors');
-const logger = require('../services/logger');
 
 function ForestServerRequester() {
-  this.perform = (environmentSecret, route) => {
+  this.perform = (route, environmentSecret) => {
     const urlService = new ServiceUrlGetter().perform();
 
     return new P((resolve, reject) => {
-      if (route && route.length && route[0] !== '/') {
-        logger.error('The route must start by "/"');
-        return reject(httpError(422));
-      }
-
       request
         .get(urlService + route)
         .set('forest-secret-key', environmentSecret)

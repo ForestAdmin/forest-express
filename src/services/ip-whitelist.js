@@ -9,7 +9,7 @@ let useIpWhitelist = true;
 
 function retrieve(environmentSecret) {
   return new ForestServerRequester()
-    .perform(environmentSecret, '/liana/v1/ip-whitelist-rules')
+    .perform('/liana/v1/ip-whitelist-rules', environmentSecret)
     .then((responseBody) => {
       if (responseBody.data) {
         useIpWhitelist = responseBody.data.attributes.use_ip_whitelist;
@@ -17,7 +17,8 @@ function retrieve(environmentSecret) {
       } else {
         return P.reject(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`);
       }
-    });
+    })
+    .catch(error => P.reject(`IP Whitelist: ${error}`));
 }
 
 function isIpWhitelistRetrieved() {

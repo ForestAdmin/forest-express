@@ -19,7 +19,7 @@ describe('Service > Permissions', () => {
           nockObj.get('/liana/v1/permissions')
             .reply(200, {
               Users: {
-                permissions: {
+                collection: {
                   list: true,
                 },
               },
@@ -42,7 +42,7 @@ describe('Service > Permissions', () => {
           nockObj.get('/liana/v1/permissions')
             .reply(200, {
               Users: {
-                permissions: {
+                collection: {
                   list: false,
                 },
               },
@@ -54,6 +54,27 @@ describe('Service > Permissions', () => {
             .perform()
             .then(() => done(new Error('fail')))
             .catch(() => done());
+        });
+      });
+
+      describe('check if it requests permissions after a denied access', () => {
+        before(() => {
+          nock.cleanAll();
+          nockObj.get('/liana/v1/permissions')
+            .reply(200, {
+              Users: {
+                collection: {
+                  list: true,
+                },
+              },
+            });
+        });
+
+        it('should return a resolved promise', (done) => {
+          new PermissionsChecker('envSecret', 'Users', 'list')
+            .perform()
+            .then(done)
+            .catch(done);
         });
       });
     });
@@ -92,7 +113,7 @@ describe('Service > Permissions', () => {
 
         const permissions = {
           Users: {
-            permissions: {
+            collection: {
               list: true,
             },
           },
@@ -117,7 +138,7 @@ describe('Service > Permissions', () => {
 
     describe('with permissions expired', () => {
       it('should re-retrieve the permissions', (done) => {
-        process.env.PERMISSIONS_EXPIRATION_IN_SECONDS = 1;
+        process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS = 1;
 
         const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime();
         const initialRetrievedPermissions = PermissionsChecker.getPermissions();
@@ -127,7 +148,7 @@ describe('Service > Permissions', () => {
 
         const permissions1 = {
           Users: {
-            permissions: {
+            collection: {
               list: true,
             },
           },
@@ -135,12 +156,12 @@ describe('Service > Permissions', () => {
 
         const permissions2 = {
           Users: {
-            permissions: {
+            collection: {
               list: true,
             },
           },
           Posts: {
-            permissions: {
+            collection: {
               list: false,
             }
           }
@@ -167,7 +188,7 @@ describe('Service > Permissions', () => {
                   const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime();
 
                   expect(secondRetrievedPermissions).to.deep.equal(permissions2);
-                  expect(secondLastRetrieve.valueOf() - firstLastRetrieve.valueOf() > 0).to.be.true;
+                  expect(secondLastRetrieve - firstLastRetrieve > 0).to.be.true;
 
                   done();
                 })
@@ -180,7 +201,7 @@ describe('Service > Permissions', () => {
 
     describe('with permissions not expired', () => {
       it('should not re-retrieve the permissions', (done) => {
-        process.env.PERMISSIONS_EXPIRATION_IN_SECONDS = 1000;
+        process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS = 1000;
 
         const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime();
         const initialRetrievedPermissions = PermissionsChecker.getPermissions();
@@ -190,7 +211,7 @@ describe('Service > Permissions', () => {
 
         const permissions1 = {
           Users: {
-            permissions: {
+            collection: {
               list: true,
             },
           },
@@ -198,12 +219,12 @@ describe('Service > Permissions', () => {
 
         const permissions2 = {
           Users: {
-            permissions: {
+            collection: {
               list: true,
             },
           },
           Posts: {
-            permissions: {
+            collection: {
               list: false,
             }
           }
