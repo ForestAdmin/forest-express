@@ -9,11 +9,11 @@ function PermissionsChecker(environmentSecret, collectionName, permissionName) {
   const EXPIRATION_IN_SECONDS = process.env.PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isAllowed() {
-    if (!permissions || !permissions[collectionName] || !permissions[collectionName].permissions) {
+    if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
       return false;
     }
 
-    return permissions[collectionName].permissions[permissionName];
+    return permissions[collectionName].collection[permissionName];
   }
 
   function retrievePermissions() {
