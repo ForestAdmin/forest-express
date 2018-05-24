@@ -3,6 +3,7 @@ const ipUtil = require('ip-utils');
 const P = require('bluebird');
 const _ = require('lodash');
 const ForestServerRequester = require('./forest-server-requester');
+const VError = require('verror');
 
 let ipWhitelistRules = null;
 let useIpWhitelist = true;
@@ -15,10 +16,10 @@ function retrieve(environmentSecret) {
         useIpWhitelist = responseBody.data.attributes.use_ip_whitelist;
         ipWhitelistRules = responseBody.data.attributes.rules;
       } else {
-        return P.reject(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`);
+        return P.reject(new Error(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`));
       }
     })
-    .catch(error => P.reject(`IP Whitelist: ${error}`));
+    .catch(error => P.reject(new VError(error, 'IP Whitelist error')));
 }
 
 function isIpWhitelistRetrieved() {

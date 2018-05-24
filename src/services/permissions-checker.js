@@ -1,6 +1,7 @@
 const P = require('bluebird');
 const ForestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
+const VError = require('verror');
 
 let permissions;
 let lastRetrieve;
@@ -24,7 +25,7 @@ function PermissionsChecker(environmentSecret, collectionName, permissionName) {
         lastRetrieve = moment();
       })
       .catch((error) => {
-        return P.reject(`Permissions: ${error}`);
+        return P.reject(new VError(error, 'Permissions error'));
       });
   }
 
