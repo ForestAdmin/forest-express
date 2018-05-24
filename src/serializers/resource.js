@@ -162,15 +162,15 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
     return new P(function (resolve) {
       if (_.isArray(records)) {
         var smartFieldsValuesInjector;
-        resolve(P.map(records, function (record) {
-          smartFieldsValuesInjector =
-            new SmartFieldsValuesInjector(record, modelName, fieldsPerModel);
-
-          return smartFieldsValuesInjector.perform();
-        })
+        resolve(P
+          .map(records, function (record) {
+            smartFieldsValuesInjector =
+              new SmartFieldsValuesInjector(record, modelName, fieldsPerModel);
+            return smartFieldsValuesInjector.perform();
+          })
           .then(function(result) {
             if (fieldsSearched) {
-              fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsSearched());
+              fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsForHighlightedSearch());
             }
             return result;
           }));
