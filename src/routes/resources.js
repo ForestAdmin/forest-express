@@ -17,15 +17,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .then(function (results) {
         var records = results[0];
         var count = results[1];
-        var decorators = results[2];
+        var fieldsSearched = results[2];
 
         var meta = {
           count: count
         };
-
-        if (decorators) {
-          meta.decorators = decorators;
-        }
 
         return new ResourceSerializer(
           Implementation,
@@ -34,6 +30,8 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           integrator,
           opts,
           meta,
+          fieldsSearched,
+          params.search,
           fieldsPerModel
         ).perform();
       })

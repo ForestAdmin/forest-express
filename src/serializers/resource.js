@@ -8,7 +8,7 @@ var Schemas = require('../generators/schemas');
 var logger = require('../services/logger');
 
 function ResourceSerializer(Implementation, model, records, integrator, opts, meta,
-  fieldsPerModel) {
+  fieldsSearched, searchValue, fieldsPerModel) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
@@ -161,13 +161,36 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
 
     return new P(function (resolve) {
       if (_.isArray(records)) {
-        resolve(P.map(records, function (record) {
-          return new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform();
-        }));
+        var smartFieldsValuesInjector;
+        resolve(P
+          .map(records, function (record) {
+            smartFieldsValuesInjector =
+              new SmartFieldsValuesInjector(record, modelName, fieldsPerModel);
+            return smartFieldsValuesInjector.perform();
+          })
+          .then(function(result) {
+            if (fieldsSearched && smartFieldsValuesInjector) {
+              fieldsSearched = fieldsSearched.concat(smartFieldsValuesInjector.getFieldsForHighlightedSearch());
+            }
+            return result;
+          }));
       } else {
         resolve(new SmartFieldsValuesInjector(records, modelName, fieldsPerModel).perform());
       }
     })
+      .then(function () {
+        var decorators = null;
+        if (searchValue) {
+          decorators = Implementation.RecordsDecorator.decorateForSearch(
+            records,
+            fieldsSearched,
+            searchValue
+          );
+          if (decorators) {
+            serializationOptions.meta.decorators = decorators;
+          }
+        }
+      })
       .then(function () {
         return new JSONAPISerializer(schema.name, records, serializationOptions);
       });
