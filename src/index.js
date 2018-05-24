@@ -1,4 +1,3 @@
-'use strict';
 var P = require('bluebird');
 var _ = require('lodash');
 var express = require('express');

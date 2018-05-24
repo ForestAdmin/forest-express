@@ -1,13 +1,12 @@
-'use strict';
-var request = require('superagent');
-var errorMessages = require('../utils/error-messages');
-var ServiceUrlGetter = require('./service-url-getter');
-var ipUtil = require('ip-utils');
-var P = require('bluebird');
-var _ = require('lodash');
+const request = require('superagent');
+const errorMessages = require('../utils/error-messages');
+const ServiceUrlGetter = require('./service-url-getter');
+const ipUtil = require('ip-utils');
+const P = require('bluebird');
+const _ = require('lodash');
 
-var ipWhitelistRules = null;
-var useIpWhitelist = true;
+let ipWhitelistRules = null;
+let useIpWhitelist = true;
 
 function retrieve(environmentSecret) {
   var urlService = new ServiceUrlGetter().perform();

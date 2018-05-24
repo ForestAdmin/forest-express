@@ -1,10 +1,9 @@
-'use strict';
-var auth = require('../services/auth');
-var path = require('../services/path');
-var ResourceSerializer = require('../serializers/resource');
-var ResourceDeserializer = require('../deserializers/resource');
-var CSVExporter = require('../services/csv-exporter');
-var ParamsFieldsDeserializer = require('../deserializers/params-fields');
+const auth = require('../services/auth');
+const path = require('../services/path');
+const ResourceSerializer = require('../serializers/resource');
+const ResourceDeserializer = require('../deserializers/resource');
+const CSVExporter = require('../services/csv-exporter');
+const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
