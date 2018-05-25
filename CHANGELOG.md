@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- DateOnly Fields - Fix potential bad values for projects using Sequelize 4+.
 
 ## RELEASE 2.10.0 - 2018-05-25
 ### Added
