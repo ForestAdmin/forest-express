@@ -8,8 +8,8 @@ const BRANCH_MASTER = 'master';
 const BRANCH_DEVEL = 'devel';
 
 let numberToIncrement = 'patch';
-if (process.argv && process.argv[3]) {
-  const option = process.argv[3].replace('--', '');
+if (process.argv && process.argv[2]) {
+  const option = process.argv[2].replace('--', '');
   if (['major', 'minor', 'patch'].indexOf(option) !== -1) {
     numberToIncrement = option;
   }
