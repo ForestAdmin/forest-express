@@ -23,7 +23,7 @@ function retrieveWhitelist(environmentSecret, ip, next) {
         : next(httpError(403, 'IP address rejected (' + ip + ')'));
     })
     .catch((error) => {
-      logger.error(error);
+      logger.error(error.message);
       next(httpError(403, 'IP whitelist not retrieved'));
     });
 }
