@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Charts - Add the 'Leaderboard' chart type.
 
 ## RELEASE 2.10.2 - 2018-05-31
 ### Added

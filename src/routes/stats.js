@@ -24,6 +24,10 @@ module.exports = function (app, model, Implementation, opts) {
       promise = new Implementation.LineStatGetter(model, request.body, opts)
         .perform();
       break;
+    case 'Leaderboard':
+      promise = new Implementation.LeaderboardStatGetter(model, request.body, opts)
+        .perform();
+      break;
     }
 
     if (!promise) {
@@ -64,6 +68,7 @@ module.exports = function (app, model, Implementation, opts) {
           }
           break;
         case 'Pie':
+        case 'Leaderboard':
           if (result.length) {
             result.forEach(function (resultLine) {
               if (resultLine.value === undefined || resultLine.key === undefined) {
