@@ -12,6 +12,7 @@ module.exports = function (app, model, Implementation, opts) {
     var promise = null;
 
     switch (request.body.type) {
+    case 'Objective':
     case 'Value':
       promise = new Implementation.ValueStatGetter(model, request.body, opts)
         .perform();
@@ -50,6 +51,20 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then(function (result) {
         switch (request.body.type) {
+        case 'Objective':
+          if (result.length) {
+            let resultLine = result[0];
+            if (resultLine.value === undefined || resultLine.objective === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
+            } else {
+              result = {
+                objective: resultLine.objective,
+                countCurrent: resultLine.value,
+                countPrevious: resultLine.previous
+              };
+            }
+          }
+          break;
         case 'Value':
           if (result.length) {
             var resultLine = result[0];
