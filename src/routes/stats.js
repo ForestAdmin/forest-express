@@ -24,7 +24,8 @@ module.exports = function (app, model, Implementation, opts) {
       return _.find(models, model => Implementation.getModelName(model) === relatedModelName);
     }
 
-    const { type } = request.body;
+    let { type } = request.body;
+    if (type === 'Objective') { type = 'Value'; }
 
     if (type === 'Leaderboard') {
       const schema = Schemas.schemas[model.name];
@@ -100,6 +101,19 @@ module.exports = function (app, model, Implementation, opts) {
               },
             };
           });
+          break;
+        case 'Objective':
+          if (result.length) {
+            let resultLine = result[0];
+            if (resultLine.value === undefined || resultLine.objective === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
+            } else {
+              result = {
+                objective: resultLine.objective,
+                value: resultLine.value,
+              };
+            }
+          }
           break;
         }
 
