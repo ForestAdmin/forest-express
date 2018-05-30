@@ -108,7 +108,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .catch(next);
   };
 
-  const checkPermission = createCheckPermission(opts.envSecret, modelName);
+  const {
+    checkPermission,
+    checkListAndSearchToEditPermission,
+  } = createCheckPermission(opts.envSecret, modelName);
 
   this.perform = function () {
     app.get(
@@ -120,7 +123,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     app.get(
       path.generate(modelName, opts),
       auth.ensureAuthenticated,
-      checkPermission('list'),
+      checkListAndSearchToEditPermission,
       this.list
     );
     app.get(
