@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Charts - Add the 'Objective' chart type.
 
 ## RELEASE 2.10.1 - 2018-05-31
 ### Fixed
