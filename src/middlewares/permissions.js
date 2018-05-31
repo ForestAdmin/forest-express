@@ -3,7 +3,7 @@ const httpError = require('http-errors');
 const logger = require('../services/logger');
 
 function createCheckPermission(environmentSecret, collectionName) {
-  return function checkPermission(permissionName) {
+  function checkPermission(permissionName) {
     return (request, response, next) => {
       return new PermissionsChecker(environmentSecret, collectionName, permissionName)
         .perform()
@@ -13,6 +13,24 @@ function createCheckPermission(environmentSecret, collectionName) {
           next(httpError(403));
         });
     };
+  }
+
+  function checkPermissionListAndSearch(request, response, next) {
+    const { searchToEdit } = request.query;
+    const permissionName = searchToEdit ? 'searchToEdit' : 'list';
+
+    return new PermissionsChecker(environmentSecret, collectionName, permissionName)
+      .perform()
+      .then(next)
+      .catch((error) => {
+        logger.error(error.message);
+        next(httpError(403));
+      });
+  }
+
+  return {
+    checkPermission,
+    checkPermissionListAndSearch,
   };
 }
 
