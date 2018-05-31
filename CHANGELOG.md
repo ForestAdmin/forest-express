@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.10.2 - 2018-05-31
 ### Added
 - Permissions - Allow search on belongs_to when relation collection is hidden.
 
