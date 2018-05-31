@@ -60,7 +60,6 @@ module.exports = function (app, model, Implementation, opts) {
               result = {
                 objective: resultLine.objective,
                 countCurrent: resultLine.value,
-                countPrevious: resultLine.previous
               };
             }
           }
