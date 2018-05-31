@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Actions - Fix form values prefill on Smart Actions having a custom endpoint.
 
 ## RELEASE 2.10.0 - 2018-05-25
 ### Added

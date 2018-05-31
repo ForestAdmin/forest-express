@@ -34,11 +34,18 @@ module.exports = function (app, model, Implementation, integrator, options) {
   }
 
   this.perform = function () {
-    // NOTICE: HasMany associations routes
-    _.each(schema.actions, function (action) {
-      var endpoint = action.endpoint || 'actions/' + Inflector.parameterize(action.name);
-      app.post(path.generate(endpoint + '/values', options), auth.ensureAuthenticated,
-        getFormValuesController(action));
+    _.each(schema.actions, (action) => {
+      if (action.values) {
+        let route;
+
+        if (action.endpoint) {
+          route = path.generateForSmartActionCustomEndpoint(`${action.endpoint}/values`, options);
+        } else {
+          route = path.generate(`actions/${Inflector.parameterize(action.name)}/values`, options);
+        }
+
+        app.post(route, auth.ensureAuthenticated, getFormValuesController(action));
+      }
     });
   };
 };
