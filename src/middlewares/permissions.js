@@ -15,7 +15,7 @@ function createCheckPermission(environmentSecret, collectionName) {
     };
   }
 
-  function checkListAndSearchToEditPermission(request, response, next) {
+  function checkPermissionListAndSearch(request, response, next) {
     const { searchToEdit } = request.query;
     const permissionName = searchToEdit ? 'searchToEdit' : 'list';
 
@@ -30,7 +30,7 @@ function createCheckPermission(environmentSecret, collectionName) {
 
   return {
     checkPermission,
-    checkListAndSearchToEditPermission,
+    checkPermissionListAndSearch,
   };
 }
 
