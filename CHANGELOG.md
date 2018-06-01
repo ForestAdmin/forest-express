@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Charts - Add the 'Objective' chart type.
+- Charts - Users can create "Objective" charts.
 
 ## RELEASE 2.10.1 - 2018-05-31
 ### Fixed
