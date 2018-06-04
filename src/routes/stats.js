@@ -1,15 +1,24 @@
 'use strict';
+var _ = require('lodash');
 var auth = require('../services/auth');
 var logger = require('../services/logger');
 var error = require('../services/error');
 var path = require('../services/path');
 var StatSerializer = require('../serializers/stat');
+var Schemas = require('../generators/schemas');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
 
   this.get = function (request, response, next) {
     var promise = null;
+
+    function getAssociationField(schema, associationName) {
+      var field = _.find(schema.fields, { field: associationName });
+      if (field && field.reference) {
+        return field.reference.split('.')[0];
+      }
+    }
 
     switch (request.body.type) {
     case 'Value':
@@ -24,10 +33,20 @@ module.exports = function (app, model, Implementation, opts) {
       promise = new Implementation.LineStatGetter(model, request.body, opts)
         .perform();
       break;
-    case 'Leaderboard':
-      promise = new Implementation.LeaderboardStatGetter(model, request.body, opts)
+    case 'Leaderboard': {
+      var schema = Schemas.schemas[model.name];
+      var associationField = getAssociationField(schema, request.body.relationship);
+
+      var models = Implementation.getModels();
+
+      var relationshipModel = _.find(models, function (model) {
+        return Implementation.getModelName(model) === associationField;
+      });
+
+      promise = new Implementation.LeaderboardStatGetter(model, relationshipModel, request.body, opts)
         .perform();
       break;
+    }
     }
 
     if (!promise) {
