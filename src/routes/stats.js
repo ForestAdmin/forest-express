@@ -13,40 +13,27 @@ module.exports = function (app, model, Implementation, opts) {
   this.get = function (request, response, next) {
     var promise = null;
 
-    function getAssociationField(schema, associationName) {
-      var field = _.find(schema.fields, { field: associationName });
+    function getAssociationModel(schema, associationName) {
+      const field = _.find(schema.fields, { field: associationName });
+      let relatedModelName;
       if (field && field.reference) {
-        return field.reference.split('.')[0];
+        relatedModelName = field.reference.split('.')[0];
       }
+
+      const models = Implementation.getModels();
+      return _.find(models, model => Implementation.getModelName(model) === relatedModelName);
     }
 
-    switch (request.body.type) {
-    case 'Value':
-      promise = new Implementation.ValueStatGetter(model, request.body, opts)
-        .perform();
-      break;
-    case 'Pie':
-      promise = new Implementation.PieStatGetter(model, request.body, opts)
-        .perform();
-      break;
-    case 'Line':
-      promise = new Implementation.LineStatGetter(model, request.body, opts)
-        .perform();
-      break;
-    case 'Leaderboard': {
-      var schema = Schemas.schemas[model.name];
-      var associationField = getAssociationField(schema, request.body.relationship);
+    const { type } = request.body;
 
-      var models = Implementation.getModels();
+    if (type === 'Leaderboard') {
+      const schema = Schemas.schemas[model.name];
+      const modelRelationship = getAssociationModel(schema, request.body.relationship);
 
-      var relationshipModel = _.find(models, function (model) {
-        return Implementation.getModelName(model) === associationField;
-      });
-
-      promise = new Implementation.LeaderboardStatGetter(model, relationshipModel, request.body, opts)
-        .perform();
-      break;
-    }
+      promise = new Implementation
+        .LeaderboardStatGetter(model, modelRelationship, request.body, opts).perform();
+    } else {
+      promise = new Implementation[`${type}StatGetter`](model, request.body, opts).perform();
     }
 
     if (!promise) {
