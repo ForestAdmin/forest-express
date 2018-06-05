@@ -152,7 +152,7 @@ exports.init = function (Implementation, dependencies) {
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
-  requireAllModels(Implementation, absModelDirs)
+  var initChain = requireAllModels(Implementation, absModelDirs)
     .then(function (models) {
       integrator = new Integrator(opts, Implementation);
 
@@ -275,6 +275,12 @@ exports.init = function (Implementation, dependencies) {
 
   if (opts.expressParentApp) {
     opts.expressParentApp.use('/forest', app);
+  }
+
+  if (opts.callback) {
+    initChain.then(function () {
+      opts.callback(app);
+    });
   }
 
   return app;

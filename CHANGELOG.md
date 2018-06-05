@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - Add optional opts.callback on init.
 
 ## RELEASE 2.13.1 - 2018-08-06
 ### Fixed
