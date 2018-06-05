@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Charts - Add the 'Leaderboard' chart type.
+- Charts - Users can create "Leaderboard" charts.
 
 ## RELEASE 2.10.2 - 2018-05-31
 ### Added
