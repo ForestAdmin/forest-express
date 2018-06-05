@@ -1,9 +1,11 @@
 'use strict';
+var _ = require('lodash');
 var auth = require('../services/auth');
 var logger = require('../services/logger');
 var error = require('../services/error');
 var path = require('../services/path');
 var StatSerializer = require('../serializers/stat');
+var Schemas = require('../generators/schemas');
 
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
@@ -11,19 +13,27 @@ module.exports = function (app, model, Implementation, opts) {
   this.get = function (request, response, next) {
     var promise = null;
 
-    switch (request.body.type) {
-    case 'Value':
-      promise = new Implementation.ValueStatGetter(model, request.body, opts)
-        .perform();
-      break;
-    case 'Pie':
-      promise = new Implementation.PieStatGetter(model, request.body, opts)
-        .perform();
-      break;
-    case 'Line':
-      promise = new Implementation.LineStatGetter(model, request.body, opts)
-        .perform();
-      break;
+    function getAssociationModel(schema, associationName) {
+      const field = _.find(schema.fields, { field: associationName });
+      let relatedModelName;
+      if (field && field.reference) {
+        relatedModelName = field.reference.split('.')[0];
+      }
+
+      const models = Implementation.getModels();
+      return _.find(models, model => Implementation.getModelName(model) === relatedModelName);
+    }
+
+    const { type } = request.body;
+
+    if (type === 'Leaderboard') {
+      const schema = Schemas.schemas[model.name];
+      const modelRelationship = getAssociationModel(schema, request.body.relationship);
+
+      promise = new Implementation
+        .LeaderboardStatGetter(model, modelRelationship, request.body, opts).perform();
+    } else {
+      promise = new Implementation[`${type}StatGetter`](model, request.body, opts).perform();
     }
 
     if (!promise) {
@@ -64,6 +74,7 @@ module.exports = function (app, model, Implementation, opts) {
           }
           break;
         case 'Pie':
+        case 'Leaderboard':
           if (result.length) {
             result.forEach(function (resultLine) {
               if (resultLine.value === undefined || resultLine.key === undefined) {
