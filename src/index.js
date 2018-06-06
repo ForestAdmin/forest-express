@@ -230,7 +230,7 @@ exports.init = function (Implementation, dependencies) {
               'fields', 'actions', 'segments', 'onlyForRelationships',
               'isVirtual', 'integration', 'isReadOnly','isSearchable'],
             fields: {
-              attributes: ['field', 'displayName', 'type', 'enums',
+              attributes: ['field', 'displayName', 'type', 'relationship', 'enums',
                 'collection_name', 'reference', 'column', 'isFilterable',
                 'widget', 'integration', 'isReadOnly', 'isVirtual',
                 'isRequired', 'defaultValue', 'validations', 'isSortable']
