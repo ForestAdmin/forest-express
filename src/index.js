@@ -152,7 +152,7 @@ exports.init = function (Implementation, dependencies) {
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
-  var initChain = requireAllModels(Implementation, absModelDirs)
+  requireAllModels(Implementation, absModelDirs)
     .then(function (models) {
       integrator = new Integrator(opts, Implementation);
 
@@ -267,21 +267,24 @@ exports.init = function (Implementation, dependencies) {
         .retrieve(opts.envSecret)
         .catch(error => logger.error(error));
     })
+    .then(function() {
+      if (opts.expressParentApp) {
+        opts.expressParentApp.use('/forest', app);
+      }
+
+      if (opts.callback) {
+        opts.callback(null, app);
+      }
+    })
     .catch(function (error) {
       logger.error('An error occured while computing the Forest apimap. Your ' +
         'application apimap cannot be sent to Forest. Your Admin UI might ' +
         'not reflect your application models.', error);
-    });
 
-  if (opts.expressParentApp) {
-    opts.expressParentApp.use('/forest', app);
-  }
-
-  if (opts.callback) {
-    initChain.then(function () {
-      opts.callback(app);
+      if (opts.callback) {
+        opts.callback(error);
+      }
     });
-  }
 
   return app;
 };
