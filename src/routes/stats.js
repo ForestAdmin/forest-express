@@ -28,7 +28,7 @@ module.exports = function (app, model, Implementation, opts) {
 
     if (type === 'Leaderboard') {
       const schema = Schemas.schemas[model.name];
-      const modelRelationship = getAssociationModel(schema, request.body.relationship);
+      const modelRelationship = getAssociationModel(schema, request.body.relationship_field);
 
       promise = new Implementation
         .LeaderboardStatGetter(model, modelRelationship, request.body, opts).perform();
