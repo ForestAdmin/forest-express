@@ -4,6 +4,7 @@ const P = require('bluebird');
 const _ = require('lodash');
 const ForestServerRequester = require('./forest-server-requester');
 const VError = require('verror');
+const IpWhitelistDeserializer = require('../deserializers/ip-whitelist');
 
 let ipWhitelistRules = null;
 let useIpWhitelist = true;
@@ -13,11 +14,14 @@ function retrieve(environmentSecret) {
     .perform('/liana/v1/ip-whitelist-rules', environmentSecret)
     .then((responseBody) => {
       if (responseBody.data) {
-        useIpWhitelist = responseBody.data.attributes.use_ip_whitelist;
-        ipWhitelistRules = responseBody.data.attributes.rules;
+        return new IpWhitelistDeserializer(responseBody.data).perform();
       } else {
         return P.reject(new Error(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`));
       }
+    })
+    .then((ipWhitelistData) => {
+      useIpWhitelist = ipWhitelistData.useIpWhitelist;
+      ipWhitelistRules = ipWhitelistData.rules;
     })
     .catch(error => P.reject(new VError(error, 'IP Whitelist error')));
 }
