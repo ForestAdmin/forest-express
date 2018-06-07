@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.11.0 - 2018-06-07
 ### Added
 - Charts - Users can create "Leaderboard" charts.
 - Charts - Users can create "Objective" charts.
