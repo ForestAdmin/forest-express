@@ -7,6 +7,12 @@ var path = require('../services/path');
 var StatSerializer = require('../serializers/stat');
 var Schemas = require('../generators/schemas');
 
+const CHART_TYPE_VALUE = 'Value';
+const CHART_TYPE_PIE = 'Pie';
+const CHART_TYPE_LINE = 'Line';
+const CHART_TYPE_LEADERBOARD = 'Leaderboard';
+const CHART_TYPE_OBJECTIVE = 'Objective';
+
 module.exports = function (app, model, Implementation, opts) {
   var modelName = Implementation.getModelName(model);
 
@@ -24,9 +30,10 @@ module.exports = function (app, model, Implementation, opts) {
       return _.find(models, model => Implementation.getModelName(model) === relatedModelName);
     }
 
-    const { type } = request.body;
+    let { type } = request.body;
+    if (type === CHART_TYPE_OBJECTIVE) { type = CHART_TYPE_VALUE; }
 
-    if (type === 'Leaderboard') {
+    if (type === CHART_TYPE_LEADERBOARD) {
       const schema = Schemas.schemas[model.name];
       const modelRelationship = getAssociationModel(schema, request.body.relationship_field);
 
@@ -42,6 +49,12 @@ module.exports = function (app, model, Implementation, opts) {
 
     promise
       .then(function (stat) {
+        if (request.body.type === CHART_TYPE_OBJECTIVE) {
+          stat.value.value = stat.value.countCurrent;
+          delete stat.value.countCurrent;
+          delete stat.value.countPrevious;
+        }
+
         return new StatSerializer(stat).perform();
       })
       .then(function (stat) { response.send(stat); })
@@ -60,7 +73,7 @@ module.exports = function (app, model, Implementation, opts) {
       .perform()
       .then(function (result) {
         switch (request.body.type) {
-        case 'Value':
+        case CHART_TYPE_VALUE:
           if (result.length) {
             var resultLine = result[0];
             if (resultLine.value === undefined) {
@@ -73,8 +86,8 @@ module.exports = function (app, model, Implementation, opts) {
             }
           }
           break;
-        case 'Pie':
-        case 'Leaderboard':
+        case CHART_TYPE_PIE:
+        case CHART_TYPE_LEADERBOARD:
           if (result.length) {
             result.forEach(function (resultLine) {
               if (resultLine.value === undefined || resultLine.key === undefined) {
@@ -83,7 +96,7 @@ module.exports = function (app, model, Implementation, opts) {
             });
           }
           break;
-        case 'Line':
+        case CHART_TYPE_LINE:
           if (result.length) {
             result.forEach(function (resultLine) {
               if (resultLine.value === undefined || resultLine.key === undefined) {
@@ -100,6 +113,19 @@ module.exports = function (app, model, Implementation, opts) {
               },
             };
           });
+          break;
+        case CHART_TYPE_OBJECTIVE:
+          if (result.length) {
+            let resultLine = result[0];
+            if (resultLine.value === undefined || resultLine.objective === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
+            } else {
+              result = {
+                objective: resultLine.objective,
+                value: resultLine.value,
+              };
+            }
+          }
           break;
         }
 
