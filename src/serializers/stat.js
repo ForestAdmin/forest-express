@@ -7,7 +7,7 @@ function StatSerializer(stat) {
 
   this.perform = function () {
     return new JSONAPISerializer('stats', stat, {
-      attributes: ['value'],
+      attributes: ['value', 'objective'],
       keyForAttribute: function (key) { return key; }
     });
   };
