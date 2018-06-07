@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- IP Whitelist - Fix broken ip range of form 'x.x.x.x - x.x.x.x'.
 
 ## RELEASE 2.10.2 - 2018-05-31
 ### Added
