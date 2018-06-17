@@ -1,16 +1,19 @@
-'use strict';
-var _ = require('lodash');
-var P = require('bluebird');
-var moment = require('moment');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
-var Schemas = require('../generators/schemas');
-var logger = require('../services/logger');
+const _ = require('lodash');
+const P = require('bluebird');
+const moment = require('moment');
+const semver = require('semver');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
+const Schemas = require('../generators/schemas');
+const logger = require('../services/logger');
 
 function ResourceSerializer(Implementation, model, records, integrator, opts, meta,
   fieldsSearched, searchValue, fieldsPerModel) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
+
+  const needsDateOnlyFormating = Implementation.getLianaName() === 'forest-express-sequelize' &&
+    semver.lt(Implementation.getOrmVersion(), '4.0.0');
 
   var reservedWords = ['meta'];
   var fieldInfoDateonly = [];
@@ -27,7 +30,7 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
   }
 
   function detectFieldWithSpecialFormat(field, fieldReference) {
-    if (field.type === 'Dateonly') {
+    if (field.type === 'Dateonly' && needsDateOnlyFormating) {
       fieldInfoDateonly.push({ name: field.field, association: fieldReference });
     }
 
