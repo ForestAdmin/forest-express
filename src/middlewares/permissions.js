@@ -5,7 +5,9 @@ const logger = require('../services/logger');
 function createCheckPermission(environmentSecret, collectionName) {
   function checkPermission(permissionName) {
     return (request, response, next) => {
-      return new PermissionsChecker(environmentSecret, collectionName, permissionName)
+      const renderingId = request.user.relationships.renderings.data[0].id;
+
+      return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName)
         .perform()
         .then(next)
         .catch((error) => {
@@ -17,9 +19,10 @@ function createCheckPermission(environmentSecret, collectionName) {
 
   function checkPermissionListAndSearch(request, response, next) {
     const { searchToEdit } = request.query;
+    const renderingId = request.user.relationships.renderings.data[0].id;
     const permissionName = searchToEdit ? 'searchToEdit' : 'list';
 
-    return new PermissionsChecker(environmentSecret, collectionName, permissionName)
+    return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName)
       .perform()
       .then(next)
       .catch((error) => {
