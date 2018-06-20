@@ -1,5 +1,5 @@
 const P = require('bluebird');
-const request = require('superagent');
+const superagent = require('superagent');
 const ServiceUrlGetter = require('./service-url-getter');
 const errorMessages = require('../utils/error-messages');
 const VError = require('verror');
@@ -9,15 +9,15 @@ function ForestServerRequester() {
     const urlService = new ServiceUrlGetter().perform();
 
     return new P((resolve, reject) => {
-      const currentRequest = request
+      const request = superagent
         .get(urlService + route)
         .set('forest-secret-key', environmentSecret);
 
       if (queryParameters) {
-        currentRequest.query(queryParameters);
+        request.query(queryParameters);
       }
 
-      currentRequest.end(function (error, result) {
+      request.end(function (error, result) {
         if (error) {
           return reject(new VError(error, 'Forest server request error'));
         }

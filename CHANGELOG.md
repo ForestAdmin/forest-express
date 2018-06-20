@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Permissions - Fix permissions of the wrong team used for all others.
+- Permissions - Fix automated permission for projects having multiple teams.
 
 ## RELEASE 2.11.0 - 2018-06-07
 ### Added

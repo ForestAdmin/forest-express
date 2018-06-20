@@ -3,13 +3,14 @@ const ForestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
 const VError = require('verror');
 
-let permissionsList = {};
+let permissionsPerRendering = {};
 
 function PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isAllowed() {
-    const permissions = permissionsList[renderingId] && permissionsList[renderingId].data;
+    const permissions =
+      permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
 
     if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
       return false;
@@ -20,9 +21,9 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
 
   function retrievePermissions() {
     return new ForestServerRequester()
-      .perform('/liana/v1/permissions', environmentSecret, { renderingId })
+      .perform('/liana/v2/permissions', environmentSecret, { renderingId })
       .then((responseBody) => {
-        permissionsList[renderingId] = {
+        permissionsPerRendering[renderingId] = {
           data: responseBody,
           lastRetrieve: moment(),
         };
@@ -33,11 +34,12 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
   }
 
   function isPermissionExpired() {
-    if (!permissionsList[renderingId] || !permissionsList[renderingId].lastRetrieve) {
+    if (!permissionsPerRendering[renderingId] ||
+      !permissionsPerRendering[renderingId].lastRetrieve) {
       return true;
     }
 
-    const { lastRetrieve } = permissionsList[renderingId];
+    const { lastRetrieve } = permissionsPerRendering[renderingId];
     const currentTime = moment();
 
     if (!lastRetrieve) {
@@ -73,11 +75,12 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
 }
 
 PermissionsChecker.cleanCache = () => {
-  permissionsList = {};
+  permissionsPerRendering = {};
 };
 
 PermissionsChecker.resetExpiration = (renderingId) => {
-  const permissions = permissionsList[renderingId] && permissionsList[renderingId].data;
+  const permissions =
+    permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
 
   if (permissions) {
     permissions.lastRetrieve = null;
@@ -85,19 +88,19 @@ PermissionsChecker.resetExpiration = (renderingId) => {
 };
 
 PermissionsChecker.getLastRetrieveTime = (renderingId) => {
-  if (!permissionsList[renderingId]) {
+  if (!permissionsPerRendering[renderingId]) {
     return null;
   }
 
-  return permissionsList[renderingId].lastRetrieve;
+  return permissionsPerRendering[renderingId].lastRetrieve;
 };
 
 PermissionsChecker.getPermissions = (renderingId) => {
-  if (!permissionsList[renderingId]) {
+  if (!permissionsPerRendering[renderingId]) {
     return null;
   }
 
-  return permissionsList[renderingId].data;
+  return permissionsPerRendering[renderingId].data;
 };
 
 module.exports = PermissionsChecker;
