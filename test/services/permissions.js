@@ -16,7 +16,7 @@ describe('Service > Permissions', () => {
           PermissionsChecker.resetExpiration(1);
           PermissionsChecker.cleanCache();
           nock.cleanAll();
-          nockObj.get('/liana/v1/permissions?renderingId=1')
+          nockObj.get('/liana/v2/permissions?renderingId=1')
             .reply(200, {
               Users: {
                 collection: {
@@ -39,7 +39,7 @@ describe('Service > Permissions', () => {
           PermissionsChecker.resetExpiration(1);
           PermissionsChecker.cleanCache();
           nock.cleanAll();
-          nockObj.get('/liana/v1/permissions?renderingId=1')
+          nockObj.get('/liana/v2/permissions?renderingId=1')
             .reply(200, {
               Users: {
                 collection: {
@@ -60,7 +60,7 @@ describe('Service > Permissions', () => {
       describe('check if it requests permissions after a denied access', () => {
         before(() => {
           nock.cleanAll();
-          nockObj.get('/liana/v1/permissions?renderingId=1')
+          nockObj.get('/liana/v2/permissions?renderingId=1')
             .reply(200, {
               Users: {
                 collection: {
@@ -85,7 +85,7 @@ describe('Service > Permissions', () => {
           PermissionsChecker.resetExpiration(1);
           PermissionsChecker.cleanCache();
           nock.cleanAll();
-          nockObj.get('/liana/v1/permissions?renderingId=2')
+          nockObj.get('/liana/v2/permissions?renderingId=2')
             .reply(200, {
               Users: {
                 collection: {
@@ -109,7 +109,7 @@ describe('Service > Permissions', () => {
         PermissionsChecker.resetExpiration(1);
         PermissionsChecker.cleanCache();
         nock.cleanAll();
-        nockObj.get('/liana/v1/permissions?renderingId=1').reply(200, {});
+        nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {});
       });
 
       it('should return a rejected promise', (done) => {
@@ -144,7 +144,7 @@ describe('Service > Permissions', () => {
           },
         };
 
-        nockObj.get('/liana/v1/permissions?renderingId=1').reply(200, permissions);
+        nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions);
 
         new PermissionsChecker('envSecret', 1, 'Users', 'list')
           .perform()
@@ -192,7 +192,7 @@ describe('Service > Permissions', () => {
           }
         };
 
-        nockObj.get('/liana/v1/permissions?renderingId=1').reply(200, permissions1);
+        nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
 
         new PermissionsChecker('envSecret', 1, 'Users', 'list')
           .perform()
@@ -204,7 +204,7 @@ describe('Service > Permissions', () => {
             expect(firstLastRetrieve).to.be.not.null;
 
             setTimeout(() => {
-              nockObj.get('/liana/v1/permissions?renderingId=1').reply(200, permissions2);
+              nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
               new PermissionsChecker('envSecret', 1, 'Users', 'list')
                 .perform()
@@ -255,7 +255,7 @@ describe('Service > Permissions', () => {
           }
         };
 
-        nockObj.get('/liana/v1/permissions?renderingId=1').reply(200, permissions1);
+        nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
 
         new PermissionsChecker('envSecret', 1, 'Users', 'list')
           .perform()
@@ -266,7 +266,7 @@ describe('Service > Permissions', () => {
             expect(firstRetrievedPermissions).to.deep.equal(permissions1);
             expect(firstLastRetrieve).to.be.not.null;
 
-            nockObj.get('/liana/v1/permissions?renderingId=1').reply(200, permissions2);
+            nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
             new PermissionsChecker('envSecret', 1, 'Users', 'list')
               .perform()
