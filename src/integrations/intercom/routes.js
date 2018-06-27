@@ -7,19 +7,20 @@ var ConversationsGetter = require('./services/conversations-getter');
 var ConversationsSerializer = require('./serializers/intercom-conversations');
 var ConversationGetter = require('./services/conversation-getter');
 var ConversationSerializer = require('./serializers/intercom-conversation');
+var path = require('../../services/path');
 var auth = require('../../services/auth');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function (app, model, Implementation, options) {
   var modelName = Implementation.getModelName(model);
   var integrationInfo;
 
-  if (opts.integrations && opts.integrations.intercom) {
+  if (options.integrations && options.integrations.intercom) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
-      Implementation, opts.integrations.intercom).perform();
+      Implementation, options.integrations.intercom).perform();
   }
 
   this.getAttributes = function (request, response, next) {
-    new AttributesGetter(Implementation, _.extend(request.query, request.params), opts,
+    new AttributesGetter(Implementation, _.extend(request.query, request.params), options,
       integrationInfo)
       .perform()
       .then(function (attributes) {
@@ -32,7 +33,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.listConversations = function (request, response, next) {
-    new ConversationsGetter(Implementation, _.extend(request.query, request.params), opts,
+    new ConversationsGetter(Implementation, _.extend(request.query, request.params), options,
       integrationInfo)
       .perform()
       .spread(function (count, conversations) {
@@ -46,7 +47,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.getConversation = function (request, response, next) {
-    new ConversationGetter(Implementation, _.extend(request.query, request.params), opts)
+    new ConversationGetter(Implementation, _.extend(request.query, request.params), options)
       .perform()
       .then(function (conversation) {
         return new ConversationSerializer(conversation, modelName);
@@ -59,12 +60,21 @@ module.exports = function (app, model, Implementation, opts) {
 
   this.perform = function () {
     if (integrationInfo) {
-      app.get('/forest/' + modelName + '/:recordId/intercom_attributes',
-        auth.ensureAuthenticated, this.getAttributes);
-      app.get('/forest/' + modelName + '/:recordId/intercom_conversations',
-        auth.ensureAuthenticated, this.listConversations);
-      app.get('/forest/' + modelName + '_intercom_conversations/:conversationId',
-        auth.ensureAuthenticated, this.getConversation);
+      app.get(
+        path.generate(modelName + '/:recordId/intercom_attributes', options),
+        auth.ensureAuthenticated,
+        this.getAttributes
+      );
+      app.get(
+        path.generate(modelName + '/:recordId/intercom_conversations', options),
+        auth.ensureAuthenticated,
+        this.listConversations
+      );
+      app.get(
+        path.generate(modelName + '_intercom_conversations/:conversationId', options),
+        auth.ensureAuthenticated,
+        this.getConversation
+      );
     }
   };
 };

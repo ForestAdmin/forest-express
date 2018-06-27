@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var P = require('bluebird');
+var logger = require('../../../services/logger');
 
 function ConversationsGetter(Implementation, params, opts, collectionName) {
   var model = null;
@@ -100,7 +101,12 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
                   });
               });
           })
-          .catch(function () {
+          .catch(function (error) {
+            try {
+              logger.error('Cannot access to Intercom conversations:', error.body.errors[0].message);
+            } catch (error) {
+              logger.error('Cannot access to Intercom conversations:', error);
+            }
             return [0, []];
           });
       });
