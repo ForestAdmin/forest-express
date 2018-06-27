@@ -53,7 +53,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
       {
         field: 'geoloc',
         type: 'String',
-        widget: 'google map',
+        widget: 'map',
         isFilterable: false
       }
     ]
