@@ -2,8 +2,8 @@ const _ = require('lodash');
 const moment = require('moment');
 
 function MixpanelEventsGetter(Implementation, params, opts) {
-  var MixpanelExport = opts.integrations.mixpanel.mixpanel;
-  var panel = new MixpanelExport({
+  const MixpanelExport = opts.integrations.mixpanel.mixpanel;
+  const panel = new MixpanelExport({
     'api_key': opts.integrations.mixpanel.apiKey,
     'api_secret': opts.integrations.mixpanel.apiSecret
   });
