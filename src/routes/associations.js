@@ -26,7 +26,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     };
   }
 
-  function index(request, response, next) {
+  function list(request, response, next) {
     var association = getAssociation(request);
     var params = _.extend(request.query, request.params, association);
     var models = Implementation.getModels();
@@ -37,15 +37,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
     return new Implementation.HasManyGetter(model, associationModel, opts,
       params)
-      .perform()
+      .perform('list')
       .then(function (results) {
         var records = results[0];
-        var count = results[1];
-        var fieldsSearched = results[2];
-
-        var meta = {
-          count: count
-        };
+        var fieldsSearched = results[1];
 
         return new ResourceSerializer(
           Implementation,
@@ -53,12 +48,27 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records,
           integrator,
           opts,
-          meta,
           fieldsSearched,
           params.search
         ).perform();
       })
       .then(function (records) { response.send(records); })
+      .catch(next);
+  }
+
+  function count(request, response, next) {
+    var association = getAssociation(request);
+    var params = _.extend(request.query, request.params, association);
+    var models = Implementation.getModels();
+    var associationField = getAssociationField(params.associationName);
+    var associationModel = _.find(models, function (model) {
+      return Implementation.getModelName(model) === associationField;
+    });
+
+    return new Implementation.HasManyGetter(model, associationModel, opts,
+      params)
+      .perform('count')
+      .then(count => response.send({ count: count }))
       .catch(next);
   }
 
@@ -149,7 +159,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       app.get(path.generate(modelName + '/:recordId/relationships/' +
         association.field + '.csv', opts), auth.ensureAuthenticated, exportCSV);
       app.get(path.generate(modelName + '/:recordId/relationships/' +
-        association.field, opts), auth.ensureAuthenticated, index);
+        association.field, opts), auth.ensureAuthenticated, list);
+      app.get(path.generate(modelName + '/:recordId/relationships/' +
+        association.field + '/count', opts), auth.ensureAuthenticated, count);
       app.post(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, add);
       // NOTICE: This route only works for embedded has many
