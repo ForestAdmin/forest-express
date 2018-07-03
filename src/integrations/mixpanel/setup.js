@@ -8,8 +8,8 @@ exports.createCollections = function (Implementation, apimap, schema, opts) {
   const collectionDisplayName = _.capitalize(collectionName);
 
   apimap.push({
-    name: collectionName + '_mixpanel_events',
-    displayName: collectionDisplayName + ' Events',
+    name: `${collectionName}_mixpanel_events`,
+    displayName: `${collectionDisplayName} Events`,
     icon: 'mixpanel',
     isVirtual: true,
     integration: INTEGRATION_NAME,
