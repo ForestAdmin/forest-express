@@ -14,13 +14,13 @@ function MixpanelEventsSerializer(events, collectionName, meta) {
     return event;
   });
 
-  var type = collectionName + '_mixpanel_events';
+  const type = `${collectionName}_mixpanel_events`;
 
   return new JSONAPISerializer(type, events, {
     attributes: ['id', 'event', 'date', 'city', 'os', 'browser',
       'browserVersion'],
     keyForAttribute: function (key) { return key; },
-    meta: meta
+    meta,
   });
 }
 
