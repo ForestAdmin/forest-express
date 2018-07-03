@@ -1,11 +1,11 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-function MixpanelEventsGetter(Implementation, params, opts) {
-  const MixpanelExport = opts.integrations.mixpanel.mixpanel;
+function MixpanelEventsGetter(Implementation, params, options) {
+  const MixpanelExport = options.integrations.mixpanel.mixpanel;
   const panel = new MixpanelExport({
-    'api_key': opts.integrations.mixpanel.apiKey,
-    'api_secret': opts.integrations.mixpanel.apiSecret
+    'api_key': options.integrations.mixpanel.apiKey,
+    'api_secret': options.integrations.mixpanel.apiSecret,
   });
 
   function getPageSize() {

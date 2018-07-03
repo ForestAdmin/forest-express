@@ -5,20 +5,20 @@ const MixpanelEventsSerializer = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function (app, model, Implementation, options) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
-  if (opts.integrations && opts.integrations.mixpanel) {
+  if (options.integrations && options.integrations.mixpanel) {
     integrationInfo = new IntegrationInformationsGetter(modelName,
-      Implementation, opts.integrations.mixpanel).perform();
+      Implementation, options.integrations.mixpanel).perform();
   }
 
   this.mixpanelEvents = function (request, response, next) {
     new MixpanelEventsGetter(
       Implementation,
       _.extend(request.query, request.params),
-      opts,
+      options,
       integrationInfo
     )
       .perform()
@@ -30,7 +30,7 @@ module.exports = function (app, model, Implementation, opts) {
   };
 
   this.perform = function () {
-    app.get(path.generate(`${modelName}/:recordId/relationships/mixpanel_events_this_week`, opts),
+    app.get(path.generate(`${modelName}/:recordId/relationships/mixpanel_events_this_week`, options),
       auth.ensureAuthenticated, this.mixpanelEvents);
   };
 };

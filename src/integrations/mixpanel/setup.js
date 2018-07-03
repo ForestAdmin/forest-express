@@ -3,8 +3,8 @@ const moment = require('moment');
 
 const INTEGRATION_NAME = 'mixpanel';
 
-exports.createCollections = function (Implementation, apimap, schema, opts) {
-  var collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
+exports.createCollections = function (Implementation, apimap, schema, options) {
+  var collectionName = options.integrations.mixpanel.mapping.split('.')[0];
   const collectionDisplayName = _.capitalize(collectionName);
 
   apimap.push({
@@ -27,9 +27,9 @@ exports.createCollections = function (Implementation, apimap, schema, opts) {
   });
 };
 
-exports.createSegments = function (Implementation, model, schema, opts) {
+exports.createSegments = function (Implementation, model, schema, options) {
   if (!schema.segments) { schema.segments = []; }
-  var mappingSplit = opts.integrations.mixpanel.mapping.split('.');
+  var mappingSplit = options.integrations.mixpanel.mapping.split('.');
   var collectionName = mappingSplit[0];
   var fieldName = mappingSplit[1];
 
@@ -37,10 +37,10 @@ exports.createSegments = function (Implementation, model, schema, opts) {
     id: collectionName + '.mixpanel_active',
     name: 'Active this week',
     where: function (params) {
-      var MixpanelExport = opts.integrations.mixpanel.mixpanel;
+      var MixpanelExport = options.integrations.mixpanel.mixpanel;
       var panel = new MixpanelExport({
-        'api_key': opts.integrations.mixpanel.apiKey,
-        'api_secret': opts.integrations.mixpanel.apiSecret
+        'api_key': options.integrations.mixpanel.apiKey,
+        'api_secret': options.integrations.mixpanel.apiSecret,
       });
 
       // NOTICE: Handle timezones

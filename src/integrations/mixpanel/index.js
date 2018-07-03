@@ -3,27 +3,27 @@ const logger = require('../../services/logger');
 const Setup = require('./setup');
 const Routes = require('./routes');
 
-function Checker(opts, Implementation) {
+function Checker(options, Implementation) {
   let integrationValid = false;
 
   function hasIntegration() {
-    return opts.integrations && opts.integrations.mixpanel;
+    return options.integrations && options.integrations.mixpanel;
   }
 
   function isProperlyIntegrated() {
-    return opts.integrations.mixpanel.apiKey &&
-      opts.integrations.mixpanel.apiSecret &&
-      opts.integrations.mixpanel.mapping && opts.integrations.mixpanel.mixpanel;
+    return options.integrations.mixpanel.apiKey &&
+      options.integrations.mixpanel.apiSecret &&
+      options.integrations.mixpanel.mapping && options.integrations.mixpanel.mixpanel;
   }
 
   function isMappingValid() {
     const models = Implementation.getModels();
-    var collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
+    var collectionName = options.integrations.mixpanel.mapping.split('.')[0];
     var mappingValid = !!models[collectionName];
 
     if (!mappingValid) {
       logger.error('Cannot find some Mixpanel integration mapping values (' +
-        opts.integrations.mixpanel.mapping + ') among the project models:\n' +
+        options.integrations.mixpanel.mapping + ') among the project models:\n' +
         _.keys(models).join(', '));
     }
 
@@ -49,29 +49,29 @@ function Checker(opts, Implementation) {
   this.defineRoutes = function (app, model) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(opts.integrations.mixpanel, model)) {
-      new Routes(app, model, Implementation, opts).perform();
+    if (integrationCollectionMatch(options.integrations.mixpanel, model)) {
+      new Routes(app, model, Implementation, options).perform();
     }
   };
 
   this.defineCollections = function (model, schema) {
     if (!integrationValid) { return; }
 
-    Setup.createCollections(Implementation, model, schema, opts);
+    Setup.createCollections(Implementation, model, schema, options);
   };
 
   this.defineSegments = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(opts.integrations.mixpanel, model)) {
-      Setup.createSegments(Implementation, model, schema, opts);
+    if (integrationCollectionMatch(options.integrations.mixpanel, model)) {
+      Setup.createSegments(Implementation, model, schema, options);
     }
   };
 
   this.defineFields = function (model, schema) {
     if (!integrationValid) { return; }
 
-    if (integrationCollectionMatch(opts.integrations.mixpanel, model)) {
+    if (integrationCollectionMatch(options.integrations.mixpanel, model)) {
       Setup.createFields(Implementation, model, schema.fields);
     }
   };
