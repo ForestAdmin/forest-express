@@ -1,7 +1,5 @@
-'use strict';
-/* jshint camelcase: false */
-var _ = require('lodash');
-var moment = require('moment');
+const _ = require('lodash');
+const moment = require('moment');
 
 function MixpanelEventsGetter(Implementation, params, opts) {
   var MixpanelExport = opts.integrations.mixpanel.mixpanel;

@@ -1,13 +1,11 @@
-'use strict';
-/* jshint camelcase: false */
-var _ = require('lodash');
-var moment = require('moment');
+const _ = require('lodash');
+const moment = require('moment');
 
-var INTEGRATION_NAME = 'mixpanel';
+const INTEGRATION_NAME = 'mixpanel';
 
 exports.createCollections = function (Implementation, apimap, schema, opts) {
   var collectionName = opts.integrations.mixpanel.mapping.split('.')[0];
-  var collectionDisplayName = _.capitalize(collectionName);
+  const collectionDisplayName = _.capitalize(collectionName);
 
   apimap.push({
     name: collectionName + '_mixpanel_events',
@@ -84,6 +82,6 @@ exports.createFields = function (implementation, model, schemaFields) {
     reference: implementation.getModelName(model) + '_mixpanel_events.id',
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 };
