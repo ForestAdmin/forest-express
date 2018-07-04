@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('lodash');
+var nodePath = require('path');
 var SchemaUtil = require('../utils/schema');
 var auth = require('../services/auth');
 var path = require('../services/path');
@@ -23,7 +24,9 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     const pathSplit = request.route.path.split('/');
     let associationName = pathSplit[pathSplit.length - 1];
 
-    if (['.csv', 'count'].includes(associationName)) {
+    if (nodePath.extname(associationName) === '.csv') {
+      associationName = nodePath.basename(associationName, '.csv');
+    } else if (associationName === 'count') {
       associationName = pathSplit[pathSplit.length - 2];
     }
 
