@@ -14,7 +14,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return new Implementation.ResourcesGetter(model, opts, params)
-      .perform('list')
+      .perform()
       .then(function (results) {
         const records = results[0];
         const fieldsSearched = results[1];
@@ -40,7 +40,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     const params = request.query;
 
     return new Implementation.ResourcesGetter(model, opts, params)
-      .perform('count')
+      .count()
       .then(count => response.send({ count: count }))
       .catch(next);
   };

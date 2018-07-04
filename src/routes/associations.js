@@ -43,7 +43,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
     return new Implementation.HasManyGetter(model, associationModel, opts,
       params)
-      .perform('list')
+      .perform()
       .then(function (results) {
         var records = results[0];
         var fieldsSearched = results[1];
@@ -73,7 +73,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
     return new Implementation.HasManyGetter(model, associationModel, opts,
       params)
-      .perform('count')
+      .count()
       .then(count => response.send({ count: count }))
       .catch(next);
   }
