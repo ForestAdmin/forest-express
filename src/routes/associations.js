@@ -20,9 +20,15 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function getAssociation(request) {
+    const pathSplit = request.route.path.split('/');
+    let associationName = pathSplit[pathSplit.length - 1];
+
+    if (['.csv', 'count'].includes(associationName)) {
+      associationName = pathSplit[pathSplit.length - 2];
+    }
+
     return {
-      associationName:
-         _.first(_.last(request.route.path.split('/')).split('.csv'))
+      associationName: associationName
     };
   }
 
