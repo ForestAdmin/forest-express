@@ -5,7 +5,7 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
   const MixpanelExport = options.integrations.mixpanel.mixpanel;
   const panel = new MixpanelExport({
     'api_key': options.integrations.mixpanel.apiKey,
-    'api_secret': options.integrations.mixpanel.apiSecret
+    'api_secret': options.integrations.mixpanel.apiSecret,
   });
 
   this.perform = function () {

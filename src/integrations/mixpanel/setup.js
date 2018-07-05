@@ -8,36 +8,36 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
   const collectionDisplayName = _.capitalize(modelName);
 
   const fields = [
-    { field: 'id', type: 'String', isFilterable: false },
-    { field: 'event', type: 'String', isFilterable: false },
-    { field: 'date', type: 'Date', isFilterable: false },
-    { field: 'city', type: 'String', isFilterable: false },
-    { field: 'region', type: 'String', isFilterable: false },
-    { field: 'country', type: 'String', isFilterable: false },
-    { field: 'timezone', type: 'String', isFilterable: false },
-    { field: 'os', type: 'String', isFilterable: false },
-    { field: 'osVersion', type: 'String', isFilterable: false },
-    { field: 'browser', type: 'String', isFilterable: false },
-    { field: 'browserVersion', type: 'String', isFilterable: false }
+    { field: 'id', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'event', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'date', type: 'Date', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'city', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'region', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'country', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'timezone', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'os', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'osVersion', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'browser', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    { field: 'browserVersion', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
   ];
 
   if (options.integrations.mixpanel.customProperties) {
     fields.push.apply(fields, options.integrations.mixpanel.customProperties.map(
-      function (prop) {
-        return {
-          field: prop,
-          type: 'String',
-          isFilterable: false
-        };
-      }));
+      propertyName => ({
+        field: propertyName,
+        type: 'String',
+        isVirtual: true,
+        isFilterable: false,
+        isSortable: false,
+      })));
   }
 
   apimap.push({
-    name: modelName + '_mixpanel_events',
-    displayName: collectionDisplayName + ' Events',
+    name: `${modelName}_mixpanel_events`,
+    displayName: `${collectionDisplayName} Events`,
     icon: 'mixpanel',
-    integration: INTEGRATION_NAME,
     isVirtual: true,
+    integration: INTEGRATION_NAME,
     isReadOnly: true,
     onlyForRelationships: true,
     paginationType: 'cursor',
@@ -52,7 +52,6 @@ exports.createFields = function (implementation, model, schemaFields) {
     type: ['String'],
     reference: implementation.getModelName(model) + '_mixpanel_events.id',
     column: null,
-    isFilterable: false,
     integration: INTEGRATION_NAME,
   });
 };

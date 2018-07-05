@@ -4,7 +4,7 @@ const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function MixpanelEventsSerializer(events, collectionName, meta, options) {
   events = events.map(function (event) {
-    const specialPropertiesMap = {
+    const MAP_PROPERTIES = {
       $city: 'city',
       $region: 'region',
       $timezone: 'timezone',
@@ -14,14 +14,14 @@ function MixpanelEventsSerializer(events, collectionName, meta, options) {
       time: 'date'
     };
 
-    Object.keys(event.properties).forEach(function (prop) {
-      if (specialPropertiesMap[prop]) {
-        event[specialPropertiesMap[prop]] = event.properties[prop];
+    Object.keys(event.properties).forEach(function (propertyName) {
+      if (MAP_PROPERTIES[propertyName]) {
+        event[MAP_PROPERTIES[propertyName]] = event.properties[propertyName];
       } else {
-        event[prop] = event.properties[prop];
+        event[propertyName] = event.properties[propertyName];
       }
 
-      delete event.properties[prop];
+      delete event.properties[propertyName];
     });
 
     event.id = uuidV1();
@@ -30,15 +30,16 @@ function MixpanelEventsSerializer(events, collectionName, meta, options) {
     return event;
   });
 
-  const type = collectionName + '_mixpanel_events';
-  const attrs = ['id', 'event', 'date', 'city', 'region', 'country', 'os', 'osVersion', 'browser'];
+  const type = `${collectionName}_mixpanel_events`;
+  const attributes = ['id', 'event', 'date', 'city', 'region', 'country', 'os', 'osVersion',
+    'browser'];
 
   if (options.integrations.mixpanel.customProperties) {
-    attrs.push.apply(attrs, options.integrations.mixpanel.customProperties);
+    attributes.push.apply(attributes, options.integrations.mixpanel.customProperties);
   }
 
   return new JSONAPISerializer(type, events, {
-    attributes: attrs,
+    attributes,
     keyForAttribute: function (key) { return key; },
     meta,
   });

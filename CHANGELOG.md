@@ -1,8 +1,9 @@
 # Change Log
 
 ## [Unreleased]
-### Added
-- Mixpanel Integration - Add an integration to display the last Mixpanel events.
+### Changed
+- Mixpanel Integration - Change the integration to display the last 100 Mixpanel events of a "user" record.
+- Mixpanel Integration - Remove the Mixpanel integration pre-defined segments.
 
 ## RELEASE 2.11.3 - 2018-06-27
 ### Changed
