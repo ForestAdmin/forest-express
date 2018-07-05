@@ -1,4 +1,5 @@
 const moment = require('moment');
+const logger = require('../../../services/logger');
 
 function MixpanelEventsGetter(Implementation, params, options, integrationInfo) {
   const MixpanelExport = options.integrations.mixpanel.mixpanel;
@@ -38,7 +39,8 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
           })
           .then(function (result) {
             if (result.error) {
-              throw { status: 500, message: result.error };
+              logger.error('Cannot retrieve mixpanel events: ', result.error);
+              return [];
             }
 
             return result.results.events.reverse();

@@ -34,8 +34,6 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
 
   apimap.push({
     name: modelName + '_mixpanel_events',
-    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_mixpanel_events',
     displayName: collectionDisplayName + ' Events',
     icon: 'mixpanel',
     integration: INTEGRATION_NAME,
