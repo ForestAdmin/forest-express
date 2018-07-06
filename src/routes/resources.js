@@ -130,7 +130,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       this.list
     );
     app.get(
-      path.generate(modelName+ '/count', opts),
+      path.generate(`${modelName}/count`, opts),
       auth.ensureAuthenticated,
       checkPermissionListAndSearch,
       this.count

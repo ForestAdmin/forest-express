@@ -146,7 +146,7 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, fi
       keyForAttribute: function (key) { return key; },
       typeForAttribute: function (attribute) {
         return typeForAttributes[attribute] || attribute;
-      }
+      },
     };
 
     getAttributesFor(serializationOptions, schema.fields);
@@ -188,8 +188,7 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, fi
             searchValue
           );
           if (decorators) {
-            serializationOptions.meta = {};
-            serializationOptions.meta.decorators = decorators;
+            serializationOptions.meta = { decorators };
           }
         }
       })

@@ -30,9 +30,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       associationName = pathSplit[pathSplit.length - 2];
     }
 
-    return {
-      associationName: associationName
-    };
+    return { associationName };
   }
 
   function list(request, response, next) {
@@ -66,16 +64,15 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function count(request, response, next) {
-    var association = getAssociation(request);
-    var params = _.extend(request.query, request.params, association);
-    var models = Implementation.getModels();
-    var associationField = getAssociationField(params.associationName);
-    var associationModel = _.find(models, function (model) {
+    const association = getAssociation(request);
+    const params = _.extend(request.query, request.params, association);
+    const models = Implementation.getModels();
+    const associationField = getAssociationField(params.associationName);
+    const associationModel = _.find(models, function (model) {
       return Implementation.getModelName(model) === associationField;
     });
 
-    return new Implementation.HasManyGetter(model, associationModel, opts,
-      params)
+    return new Implementation.HasManyGetter(model, associationModel, opts, params)
       .count()
       .then(count => response.send({ count: count }))
       .catch(next);
@@ -169,8 +166,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         association.field + '.csv', opts), auth.ensureAuthenticated, exportCSV);
       app.get(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, list);
-      app.get(path.generate(modelName + '/:recordId/relationships/' +
-        association.field + '/count', opts), auth.ensureAuthenticated, count);
+      app.get(
+        path.generate(`${modelName}/:recordId/relationships/${association.field}/count`, opts),
+        auth.ensureAuthenticated,
+        count
+      );
       app.post(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, add);
       // NOTICE: This route only works for embedded has many
