@@ -10,17 +10,17 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   var modelName = Implementation.getModelName(model);
 
   this.list = function (request, response, next) {
-    var params = request.query;
-    var fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
+    const params = request.query;
+    const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return new Implementation.ResourcesGetter(model, opts, params)
       .perform()
       .then(function (results) {
-        var records = results[0];
-        var count = results[1];
-        var fieldsSearched = results[2];
+        const records = results[0];
+        const count = results[1];
+        const fieldsSearched = results[2];
 
-        var meta = {
+        const meta = {
           count: count
         };
 
