@@ -22,7 +22,9 @@
   },
   "main": "dist/index.js",
   "dependencies": {
+    "base32-encode": "1.1.0",
     "bcryptjs": "2.4.3",
+    "bitwise-xor": "0.0.0",
     "bluebird": "3.3.4",
     "body-parser": "1.18.2",
     "compose-middleware": "4.0.0",

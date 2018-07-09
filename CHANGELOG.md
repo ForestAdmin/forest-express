@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Authentication - Add two factor authentication using time-based one-time password.
 
 ## RELEASE 2.13.1 - 2018-08-06
 ### Fixed
