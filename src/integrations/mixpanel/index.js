@@ -18,8 +18,13 @@ function Checker(options, Implementation) {
 
   function isMappingValid() {
     const models = Implementation.getModels();
-    var collectionName = options.integrations.mixpanel.mapping.split('.')[0];
-    var mappingValid = !!models[collectionName];
+    let mappingValid = true;
+    _.map(options.integrations.mixpanel.mapping, function (mappingValue) {
+      const collectionName = mappingValue.split('.')[0];
+      if (!models[collectionName]) {
+        mappingValid = false;
+      }
+    });
 
     if (!mappingValid) {
       logger.error('Cannot find some Mixpanel integration mapping values (' +
@@ -30,17 +35,29 @@ function Checker(options, Implementation) {
     return mappingValid;
   }
 
+  function stringToArray(value) {
+    return _.isString(value) ? [value] : value;
+  }
+
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
     const models = Implementation.getModels();
-    var collectionName = integration.mapping.split('.')[0];
-    return models[collectionName] === model;
+
+    const collectionModelNames = _.map(integration.mapping, function (mappingValue) {
+      const collectionName = mappingValue.split('.')[0];
+      if (models[collectionName]) {
+        return Implementation.getModelName(models[collectionName]);
+      }
+    });
+
+    return collectionModelNames.indexOf(Implementation.getModelName(model)) > -1;
   }
 
   if (hasIntegration()) {
-    if (isProperlyIntegrated() && isMappingValid()) {
-      integrationValid = true;
+    if (isProperlyIntegrated()) {
+      options.integrations.mixpanel.mapping = stringToArray(options.integrations.mixpanel.mapping);
+      integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Mixpanel integration.');
     }
@@ -54,18 +71,13 @@ function Checker(options, Implementation) {
     }
   };
 
-  this.defineCollections = function (model, schema) {
+  this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
-    Setup.createCollections(Implementation, model, schema, options);
-  };
-
-  this.defineSegments = function (model, schema) {
-    if (!integrationValid) { return; }
-
-    if (integrationCollectionMatch(options.integrations.mixpanel, model)) {
-      Setup.createSegments(Implementation, model, schema, options);
-    }
+    _.each(options.integrations.mixpanel.mapping,
+      function (collectionAndFieldName) {
+        Setup.createCollections(Implementation, collections, collectionAndFieldName, options);
+      });
   };
 
   this.defineFields = function (model, schema) {

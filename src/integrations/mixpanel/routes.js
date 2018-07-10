@@ -14,6 +14,14 @@ module.exports = function (app, model, Implementation, options) {
       Implementation, options.integrations.mixpanel).perform();
   }
 
+  if (integrationInfo) {
+    const integrationValues = integrationInfo.split('.');
+    integrationInfo = {
+      collection: Implementation.getModels()[integrationValues[0]],
+      field: integrationValues[1]
+    };
+  }
+
   this.mixpanelEvents = function (request, response, next) {
     new MixpanelEventsGetter(
       Implementation,
@@ -22,15 +30,15 @@ module.exports = function (app, model, Implementation, options) {
       integrationInfo
     )
       .perform()
-      .spread(function (count, events) {
-        return new MixpanelEventsSerializer(events, modelName, { count: count });
+      .then(function (events) {
+        return new MixpanelEventsSerializer(events, modelName, { }, options);
       })
       .then(function (events) { response.send(events); })
       .catch(next);
   };
 
   this.perform = function () {
-    app.get(path.generate(`${modelName}/:recordId/relationships/mixpanel_events_this_week`, options),
+    app.get(path.generate(`${modelName}/:recordId/relationships/mixpanel_last_events`, options),
       auth.ensureAuthenticated, this.mixpanelEvents);
   };
 };
