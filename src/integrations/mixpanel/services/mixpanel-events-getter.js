@@ -19,7 +19,10 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
             return user.properties.$email == '${user[collectionFieldName]}';
           });
         }`;
-        const fromDate = moment().subtract(6, 'months');
+
+        // NOTICE: The mixpanel's API doesn't allow to retrieve events that are
+        // more than 60 days old.
+        const fromDate = moment().subtract(60, 'days');
         const toDate = moment();
 
         return panel
