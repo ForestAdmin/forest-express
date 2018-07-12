@@ -33,17 +33,22 @@ module.exports = function (app, model, Implementation, integrator, opts) {
     return { associationName };
   }
 
-  function list(request, response, next) {
-    var association = getAssociation(request);
-    var params = _.extend(request.query, request.params, association);
-    var models = Implementation.getModels();
-    var associationField = getAssociationField(params.associationName);
-    var associationModel = _.find(models, function (model) {
+  function getContext(request) {
+    const association = getAssociation(request);
+    const params = _.extend(request.query, request.params, association);
+    const models = Implementation.getModels();
+    const associationField = getAssociationField(params.associationName);
+    const associationModel = _.find(models, function (model) {
       return Implementation.getModelName(model) === associationField;
     });
 
-    return new Implementation.HasManyGetter(model, associationModel, opts,
-      params)
+    return { params, associationModel };
+  }
+
+  function list(request, response, next) {
+    const { params, associationModel } = getContext(request);
+
+    return new Implementation.HasManyGetter(model, associationModel, opts, params)
       .perform()
       .then(function (results) {
         var records = results[0];
@@ -64,13 +69,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function count(request, response, next) {
-    const association = getAssociation(request);
-    const params = _.extend(request.query, request.params, association);
-    const models = Implementation.getModels();
-    const associationField = getAssociationField(params.associationName);
-    const associationModel = _.find(models, function (model) {
-      return Implementation.getModelName(model) === associationField;
-    });
+    const { params, associationModel } = getContext(request);
 
     return new Implementation.HasManyGetter(model, associationModel, opts, params)
       .count()
@@ -79,13 +78,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function exportCSV (request, response, next) {
-    var association = getAssociation(request);
-    var params = _.extend(request.query, request.params, association);
-    var models = Implementation.getModels();
-    var associationField = getAssociationField(params.associationName);
-    var associationModel = _.find(models, function (model) {
-      return Implementation.getModelName(model) === associationField;
-    });
+    const { params, associationModel } = getContext(request);
 
     var recordsExporter = new Implementation.RecordsExporter(model, opts,
       params, associationModel);
