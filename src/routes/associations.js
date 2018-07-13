@@ -54,15 +54,13 @@ module.exports = function (app, model, Implementation, integrator, opts) {
         var records = results[0];
         var fieldsSearched = results[1];
 
-        const meta = null;
-
         return new ResourceSerializer(
           Implementation,
           associationModel,
           records,
           integrator,
           opts,
-          meta,
+          null,
           fieldsSearched,
           params.search
         ).perform();
