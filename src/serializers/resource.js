@@ -7,7 +7,8 @@ const SmartFieldsValuesInjector = require('../services/smart-fields-values-injec
 const Schemas = require('../generators/schemas');
 const logger = require('../services/logger');
 
-function ResourceSerializer(Implementation, model, records, integrator, opts, fieldsSearched,searchValue, fieldsPerModel) {
+function ResourceSerializer(Implementation, model, records, integrator, opts, meta,
+  fieldsSearched, searchValue, fieldsPerModel) {
   var modelName = Implementation.getModelName(model);
   var schema = Schemas.schemas[modelName];
 
@@ -147,6 +148,7 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, fi
       typeForAttribute: function (attribute) {
         return typeForAttributes[attribute] || attribute;
       },
+      meta: meta
     };
 
     getAttributesFor(serializationOptions, schema.fields);
