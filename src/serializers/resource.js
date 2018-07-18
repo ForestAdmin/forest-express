@@ -190,7 +190,7 @@ function ResourceSerializer(Implementation, model, records, integrator, opts, me
             searchValue
           );
           if (decorators) {
-            serializationOptions.meta.decorators = decorators;
+            serializationOptions.meta = { decorators };
           }
         }
       })

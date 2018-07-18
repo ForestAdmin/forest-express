@@ -17,12 +17,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .perform()
       .then(function (results) {
         const records = results[0];
-        const count = results[1];
-        const fieldsSearched = results[2];
-
-        const meta = {
-          count: count
-        };
+        const fieldsSearched = results[1];
 
         return new ResourceSerializer(
           Implementation,
@@ -30,7 +25,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records,
           integrator,
           opts,
-          meta,
+          null,
           fieldsSearched,
           params.search,
           fieldsPerModel
@@ -39,6 +34,15 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .then(function (records) {
         response.send(records);
       })
+      .catch(next);
+  };
+
+  this.count = function (request, response, next) {
+    const params = request.query;
+
+    return new Implementation.ResourcesGetter(model, opts, params)
+      .count()
+      .then(count => response.send({ count: count }))
       .catch(next);
   };
 
@@ -125,6 +129,12 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       auth.ensureAuthenticated,
       checkPermissionListAndSearch,
       this.list
+    );
+    app.get(
+      path.generate(`${modelName}/count`, opts),
+      auth.ensureAuthenticated,
+      checkPermissionListAndSearch,
+      this.count
     );
     app.get(
       path.generate(modelName + '/:recordId', opts),

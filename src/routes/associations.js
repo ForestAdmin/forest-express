@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('lodash');
+var nodePath = require('path');
 var SchemaUtil = require('../utils/schema');
 var auth = require('../services/auth');
 var path = require('../services/path');
@@ -20,32 +21,38 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   }
 
   function getAssociation(request) {
-    return {
-      associationName:
-         _.first(_.last(request.route.path.split('/')).split('.csv'))
-    };
+    const pathSplit = request.route.path.split('/');
+    let associationName = pathSplit[pathSplit.length - 1];
+
+    if (nodePath.extname(associationName) === '.csv') {
+      associationName = nodePath.basename(associationName, '.csv');
+    } else if (associationName === 'count') {
+      associationName = pathSplit[pathSplit.length - 2];
+    }
+
+    return { associationName };
   }
 
-  function index(request, response, next) {
-    var association = getAssociation(request);
-    var params = _.extend(request.query, request.params, association);
-    var models = Implementation.getModels();
-    var associationField = getAssociationField(params.associationName);
-    var associationModel = _.find(models, function (model) {
+  function getContext(request) {
+    const association = getAssociation(request);
+    const params = _.extend(request.query, request.params, association);
+    const models = Implementation.getModels();
+    const associationField = getAssociationField(params.associationName);
+    const associationModel = _.find(models, function (model) {
       return Implementation.getModelName(model) === associationField;
     });
 
-    return new Implementation.HasManyGetter(model, associationModel, opts,
-      params)
+    return { params, associationModel };
+  }
+
+  function list(request, response, next) {
+    const { params, associationModel } = getContext(request);
+
+    return new Implementation.HasManyGetter(model, associationModel, opts, params)
       .perform()
       .then(function (results) {
         var records = results[0];
-        var count = results[1];
-        var fieldsSearched = results[2];
-
-        var meta = {
-          count: count
-        };
+        var fieldsSearched = results[1];
 
         return new ResourceSerializer(
           Implementation,
@@ -53,7 +60,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           records,
           integrator,
           opts,
-          meta,
+          null,
           fieldsSearched,
           params.search
         ).perform();
@@ -62,14 +69,17 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       .catch(next);
   }
 
+  function count(request, response, next) {
+    const { params, associationModel } = getContext(request);
+
+    return new Implementation.HasManyGetter(model, associationModel, opts, params)
+      .count()
+      .then(count => response.send({ count: count }))
+      .catch(next);
+  }
+
   function exportCSV (request, response, next) {
-    var association = getAssociation(request);
-    var params = _.extend(request.query, request.params, association);
-    var models = Implementation.getModels();
-    var associationField = getAssociationField(params.associationName);
-    var associationModel = _.find(models, function (model) {
-      return Implementation.getModelName(model) === associationField;
-    });
+    const { params, associationModel } = getContext(request);
 
     var recordsExporter = new Implementation.RecordsExporter(model, opts,
       params, associationModel);
@@ -149,7 +159,12 @@ module.exports = function (app, model, Implementation, integrator, opts) {
       app.get(path.generate(modelName + '/:recordId/relationships/' +
         association.field + '.csv', opts), auth.ensureAuthenticated, exportCSV);
       app.get(path.generate(modelName + '/:recordId/relationships/' +
-        association.field, opts), auth.ensureAuthenticated, index);
+        association.field, opts), auth.ensureAuthenticated, list);
+      app.get(
+        path.generate(`${modelName}/:recordId/relationships/${association.field}/count`, opts),
+        auth.ensureAuthenticated,
+        count
+      );
       app.post(path.generate(modelName + '/:recordId/relationships/' +
         association.field, opts), auth.ensureAuthenticated, add);
       // NOTICE: This route only works for embedded has many
