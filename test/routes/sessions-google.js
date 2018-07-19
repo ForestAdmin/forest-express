@@ -1,47 +1,15 @@
 const chai = require('chai');
 const chaiSubset = require('chai-subset');
-const forestExpress = require('../..');
-const express = require('express');
-const bodyParser = require('body-parser');
-const jwt = require('express-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const P = require('bluebird');
 const request = require('../helpers/request');
+const createServer = require('../helpers/create-server.js');
 
 const { expect } = chai;
 chai.use(chaiSubset);
 
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
-
-function createServer(dependencies) {
-  const app = express();
-
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: false }));
-
-  app.use(jwt({
-    secret: 'jwt-secret',
-    credentialsRequired: false,
-  }));
-
-  const implementation = {
-    opts: {
-      envSecret,
-      authSecret,
-    },
-  };
-
-  implementation.getModels = () => {};
-  implementation.getLianaName = () => {};
-  implementation.getLianaVersion = () => {};
-  implementation.getOrmVersion = () => {};
-  implementation.getDatabaseType = () => {};
-
-  app.use(forestExpress.init(implementation, dependencies));
-
-  return app;
-}
 
 describe('API > Google OAuth2 Login', () => {
   let app;
@@ -68,7 +36,7 @@ describe('API > Google OAuth2 Login', () => {
       }
     };
 
-    app = createServer(dependencies);
+    app = createServer(envSecret, authSecret, dependencies);
   });
 
   describe('POST /forest/sessions-google', () => {
