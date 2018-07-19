@@ -6,6 +6,7 @@ const nock = require('nock');
 const ServiceUrlGetter = require('../../src/services/service-url-getter');
 const UserSecretCreator = require('../../src/services/user-secret-creator');
 const createServer = require('../helpers/create-server.js');
+const otplib = require('otplib');
 
 const { expect } = chai;
 chai.use(chaiSubset);
@@ -31,7 +32,7 @@ describe('API > Sessions', () => {
   describe('POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
       it('should return a valid jwt', (done) => {
-        nockObj.get('/liana/v1/renderings/1/authorization')
+        nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
           .reply(200, {
             data: {
               type: 'users',
@@ -116,133 +117,283 @@ describe('API > Sessions', () => {
     });
 
     describe('with 2FA enabled but not active', () => {
-      it('should return the "user secret"', (done) => {
-        const twoFactorAuthenticationSecret = '00000000000000000000';
-        process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
+      describe('with no token and registration "false"', () => {
+        it('should return the "user secret"', (done) => {
+          const twoFactorAuthenticationSecret = '00000000000000000000';
+          process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
 
-        nockObj.get('/liana/v1/renderings/1/authorization')
-          .reply(200, {
-            data: {
-              type: 'users',
-              id: '123',
-              attributes: {
-                first_name: 'user',
-                last_name: 'last',
-                email: 'user@email.com',
-                teams: [
-                  {
-                    id: 3,
-                    name: 'Operations',
-                    renderings: [
-                      {
-                        id: 1,
-                        environmentId: 2,
-                        teamId: 3,
-                        environment: {
-                          id: 2,
+          nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+            .reply(200, {
+              data: {
+                type: 'users',
+                id: '123',
+                attributes: {
+                  first_name: 'user',
+                  last_name: 'last',
+                  email: 'user@email.com',
+                  teams: [
+                    {
+                      id: 3,
+                      name: 'Operations',
+                      renderings: [
+                        {
+                          id: 1,
+                          environmentId: 2,
+                          teamId: 3,
+                          environment: {
+                            id: 2,
+                          },
                         },
-                      },
-                    ],
-                  },
-                ],
-                two_factor_authentication_enabled: true,
-                two_factor_authentication_active: false,
-                two_factor_authentication_secret: twoFactorAuthenticationSecret,
+                      ],
+                    },
+                  ],
+                  two_factor_authentication_enabled: true,
+                  two_factor_authentication_active: false,
+                  two_factor_authentication_secret: twoFactorAuthenticationSecret,
+                },
               },
-            },
-          });
+            });
 
-        request(app)
-          .post('/forest/sessions')
-          .send({
-            renderingId: 1,
-            email: 'user@email.com',
-            password: 'user-password',
-          })
-          .expect(200)
-          .end((error, response) => {
-            expect(error).to.be.null;
+          request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
+            })
+            .expect(200)
+            .end((error, response) => {
+              expect(error).to.be.null;
 
-            const {
+              const {
+                token,
+                twoFactorAuthenticationEnabled,
+                userSecret,
+              } = response.body;
+
+              const expectedUserSecret =
+                new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+
+              expect(token).to.be.undefined;
+              expect(twoFactorAuthenticationEnabled).to.be.true;
+              expect(userSecret).to.equal(expectedUserSecret);
+
+              done();
+            });
+        });
+      });
+
+      describe('with no token and registration "true"', () => {
+        it('should return a 401', (done) => {
+          request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
+              registration: true,
+            })
+            .expect(401)
+            .end(() => done());
+        });
+      });
+
+      describe('with a token', () => {
+        it('should return a jwt token', (done) => {
+          const twoFactorAuthenticationSecret = '00000000000000000000';
+          process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
+
+          nockObj.get('/liana/v1/renderings/1/authorization?registration=true')
+            .reply(200, {
+              data: {
+                type: 'users',
+                id: '123',
+                attributes: {
+                  first_name: 'user',
+                  last_name: 'last',
+                  email: 'user@email.com',
+                  teams: [
+                    {
+                      id: 3,
+                      name: 'Operations',
+                      renderings: [
+                        {
+                          id: 1,
+                          environmentId: 2,
+                          teamId: 3,
+                          environment: {
+                            id: 2,
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                  two_factor_authentication_enabled: true,
+                  two_factor_authentication_active: false,
+                  two_factor_authentication_secret: twoFactorAuthenticationSecret,
+                },
+              },
+            });
+
+          nockObj.post('/liana/v1/projects/1/two-factor-registration-confirm').reply(200);
+
+          const expectedUserSecret =
+            new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+
+          const token = otplib.authenticator.generate(expectedUserSecret);
+
+          request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              projectId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
               token,
-              twoFactorAuthenticationEnabled,
-              userSecret,
-            } = response.body;
+              registration: true,
+            })
+            .expect(200)
+            .end((error, response) => {
+              expect(error).to.be.null;
 
-            const expectedUserSecret =
-              new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+              const { token } = response.body;
 
-            expect(token).to.be.undefined;
-            expect(twoFactorAuthenticationEnabled).to.be.true;
-            expect(userSecret).to.equal(expectedUserSecret);
-
-            done();
-          });
+              expect(token).not.to.be.undefined;
+              done();
+            });
+        });
       });
     });
 
-    describe('with 2FA enabled but not active', () => {
-      it('should return the "twoFactorAuthenticationEnabled" set to "true"', (done) => {
-        nockObj.get('/liana/v1/renderings/1/authorization')
-          .reply(200, {
-            data: {
-              type: 'users',
-              id: '123',
-              attributes: {
-                first_name: 'user',
-                last_name: 'last',
-                email: 'user@email.com',
-                teams: [
-                  {
-                    id: 3,
-                    name: 'Operations',
-                    renderings: [
-                      {
-                        id: 1,
-                        environmentId: 2,
-                        teamId: 3,
-                        environment: {
-                          id: 2,
+    describe('with 2FA enabled and active', () => {
+      describe('with no token and registration "false"', () => {
+        it('should return the "twoFactorAuthenticationEnabled" set to "true"', (done) => {
+          nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+            .reply(200, {
+              data: {
+                type: 'users',
+                id: '123',
+                attributes: {
+                  first_name: 'user',
+                  last_name: 'last',
+                  email: 'user@email.com',
+                  teams: [
+                    {
+                      id: 3,
+                      name: 'Operations',
+                      renderings: [
+                        {
+                          id: 1,
+                          environmentId: 2,
+                          teamId: 3,
+                          environment: {
+                            id: 2,
+                          },
                         },
-                      },
-                    ],
-                  },
-                ],
-                two_factor_authentication_enabled: true,
-                two_factor_authentication_active: true,
+                      ],
+                    },
+                  ],
+                  two_factor_authentication_enabled: true,
+                  two_factor_authentication_active: true,
+                },
               },
-            },
-          });
+            });
 
-        request(app)
-          .post('/forest/sessions')
-          .send({
-            renderingId: 1,
-            email: 'user@email.com',
-            password: 'user-password',
-          })
-          .expect(200)
-          .end((error, response) => {
-            expect(error).to.be.null;
+          request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
+            })
+            .expect(200)
+            .end((error, response) => {
+              expect(error).to.be.null;
 
-            const {
+              const {
+                token,
+                twoFactorAuthenticationEnabled,
+                userSecret,
+              } = response.body;
+
+              expect(token).to.be.undefined;
+              expect(userSecret).to.be.undefined;
+              expect(twoFactorAuthenticationEnabled).to.be.true;
+
+              done();
+            });
+        });
+      });
+
+      describe('with a token', () => {
+        it('should return a jwt token', (done) => {
+          const twoFactorAuthenticationSecret = '00000000000000000000';
+          process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
+
+          nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+            .reply(200, {
+              data: {
+                type: 'users',
+                id: '123',
+                attributes: {
+                  first_name: 'user',
+                  last_name: 'last',
+                  email: 'user@email.com',
+                  teams: [
+                    {
+                      id: 3,
+                      name: 'Operations',
+                      renderings: [
+                        {
+                          id: 1,
+                          environmentId: 2,
+                          teamId: 3,
+                          environment: {
+                            id: 2,
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                  two_factor_authentication_enabled: true,
+                  two_factor_authentication_active: true,
+                  two_factor_authentication_secret: twoFactorAuthenticationSecret,
+                },
+              },
+            });
+
+          nockObj.post('/liana/v1/projects/1/two-factor-registration-confirm').reply(200);
+
+          const expectedUserSecret =
+            new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+
+          const token = otplib.authenticator.generate(expectedUserSecret);
+
+          request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              projectId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
               token,
-              twoFactorAuthenticationEnabled,
-              userSecret,
-            } = response.body;
+            })
+            .expect(200)
+            .end((error, response) => {
+              expect(error).to.be.null;
 
-            expect(token).to.be.undefined;
-            expect(userSecret).to.be.undefined;
-            expect(twoFactorAuthenticationEnabled).to.be.true;
+              const { token } = response.body;
 
-            done();
-          });
+              expect(token).not.to.be.undefined;
+              done();
+            });
+        });
       });
     });
 
     describe('with a "FOREST_2FA_SECRET_SALT" with a length different than 20', () => {
       it('should return a 401', (done) => {
-        nockObj.get('/liana/v1/renderings/1/authorization')
+        nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
           .reply(200, {
             data: {
               type: 'users',

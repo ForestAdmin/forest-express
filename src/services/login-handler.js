@@ -2,6 +2,8 @@ const logger = require('../services/logger.js');
 const jwt = require('jsonwebtoken');
 const UserSecretCreator = require('./user-secret-creator');
 const AuthorizationFinder = require('./authorization-finder');
+const otplib = require('otplib');
+const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
 let GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 
 function LoginHandler({
@@ -10,6 +12,9 @@ function LoginHandler({
   authData,
   useGoogleAuthentication,
   authSecret,
+  isRegistration,
+  projectId,
+  twoFactorToken,
   dependencies
 }) {
   if (dependencies.GoogleAuthorizationFinder) {
@@ -17,6 +22,14 @@ function LoginHandler({
   }
 
   const { forestToken, email, password } = authData;
+
+  function isTwoFactorTokenValid(user, twoFactorToken) {
+    const twoFactorAuthenticationSecret = user.two_factor_authentication_secret;
+    const userSecret = new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT)
+      .perform();
+
+    return otplib.authenticator.verify({ token: twoFactorToken, secret: userSecret });
+  }
 
   function getTwoFactorResponse(user) {
     const twoFactorSecretSalt = process.env.FOREST_2FA_SECRET_SALT;
@@ -70,16 +83,45 @@ function LoginHandler({
   }
 
   this.perform = async () => {
-    const user = useGoogleAuthentication
-      ? await new GoogleAuthorizationFinder(renderingId, forestToken, envSecret).perform()
-      : await new AuthorizationFinder(renderingId, email, password, envSecret).perform();
+    let user;
+
+    if (useGoogleAuthentication) {
+      user = await new GoogleAuthorizationFinder(
+        renderingId,
+        forestToken,
+        envSecret,
+        isRegistration,
+      ).perform();
+    } else {
+      user = await new AuthorizationFinder(
+        renderingId,
+        email,
+        password,
+        envSecret,
+        isRegistration,
+      ).perform();
+    }
 
     if (!user) {
       throw new Error();
     }
 
     if (user.two_factor_authentication_enabled) {
-      return getTwoFactorResponse(user);
+      if (twoFactorToken) {
+        if (isTwoFactorTokenValid(user, twoFactorToken)) {
+          await new TwoFactorRegistrationConfirmer({
+            projectId,
+            envSecret,
+            useGoogleAuthentication,
+            email,
+            forestToken,
+          }).perform();
+          return { token: createToken(user, renderingId) };
+        }
+        throw new Error();
+      } else {
+        return getTwoFactorResponse(user);
+      }
     }
 
     return { token: createToken(user, renderingId) };

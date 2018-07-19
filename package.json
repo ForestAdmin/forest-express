@@ -38,6 +38,7 @@
     "jsonwebtoken": "8.1.1",
     "lodash": "4.10.0",
     "moment": "2.19.4",
+    "otplib": "10.0.0",
     "superagent": "3.7.0",
     "useragent": "2.1.13",
     "uuid": "3.0.1",
