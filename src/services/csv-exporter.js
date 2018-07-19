@@ -1,9 +1,8 @@
-'use strict';
-var P = require('bluebird');
-var moment = require('moment');
-var stringify = require('csv-stringify');
-var SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
-var ParamsFieldsDeserializer = require('../deserializers/params-fields');
+const P = require('bluebird');
+const moment = require('moment');
+const stringify = require('csv-stringify');
+const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
+const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 
 // NOTICE: Prevent bad date formatting into timestamps.
 var CSV_OPTIONS = {

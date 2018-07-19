@@ -1,7 +1,6 @@
-'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
-var INTEGRATION_NAME = 'stripe';
+const INTEGRATION_NAME = 'stripe';
 
 exports.createCollections = function (Implementation, apimap, collectionAndFieldName) {
   // jshint camelcase: false

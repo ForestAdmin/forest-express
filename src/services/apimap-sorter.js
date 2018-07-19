@@ -1,6 +1,5 @@
-'use strict';
-var _ = require('lodash');
-var logger = require('../services/logger');
+const _ = require('lodash');
+const logger = require('../services/logger');
 
 function ApimapSorter(apimap) {
   function sortArrayOfObjects(array) {

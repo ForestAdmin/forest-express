@@ -7,7 +7,7 @@ const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const { createCheckPermission } = require('../middlewares/permissions');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
-  var modelName = Implementation.getModelName(model);
+  const modelName = Implementation.getModelName(model);
 
   this.list = function (request, response, next) {
     const params = request.query;

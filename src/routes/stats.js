@@ -1,11 +1,10 @@
-'use strict';
-var _ = require('lodash');
-var auth = require('../services/auth');
-var logger = require('../services/logger');
-var error = require('../services/error');
-var path = require('../services/path');
-var StatSerializer = require('../serializers/stat');
-var Schemas = require('../generators/schemas');
+const _ = require('lodash');
+const auth = require('../services/auth');
+const logger = require('../services/logger');
+const error = require('../services/error');
+const path = require('../services/path');
+const StatSerializer = require('../serializers/stat');
+const Schemas = require('../generators/schemas');
 
 const CHART_TYPE_VALUE = 'Value';
 const CHART_TYPE_PIE = 'Pie';
@@ -14,10 +13,10 @@ const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
 module.exports = function (app, model, Implementation, opts) {
-  var modelName = Implementation.getModelName(model);
+  const modelName = Implementation.getModelName(model);
 
   this.get = function (request, response, next) {
-    var promise = null;
+    let promise = null;
 
     function getAssociationModel(schema, associationName) {
       const field = _.find(schema.fields, { field: associationName });

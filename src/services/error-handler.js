@@ -1,5 +1,4 @@
-'use strict';
-var logger = require('./logger');
+const logger = require('./logger');
 
 exports.catchIfAny = function (error, request, response, next) {
   if (error) {

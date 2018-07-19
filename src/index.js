@@ -1,31 +1,31 @@
-var P = require('bluebird');
-var _ = require('lodash');
-var express = require('express');
-var path = require('path');
-var fs = require('fs');
-var readdirAsync = P.promisify(fs.readdir);
-var cors = require('cors');
-var bodyParser = require('body-parser');
-var jwt = require('express-jwt');
-var auth = require('./services/auth');
-var ResourcesRoutes = require('./routes/resources');
-var ActionsRoutes = require('./routes/actions');
-var AssociationsRoutes = require('./routes/associations');
-var StatRoutes = require('./routes/stats');
-var SessionRoute = require('./routes/sessions');
-var ForestRoutes = require('./routes/forest');
-var Schemas = require('./generators/schemas');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var logger = require('./services/logger');
-var Integrator = require('./integrations');
-var errorHandler = require('./services/error-handler');
-var ApimapSender = require('./services/apimap-sender');
-var ipWhitelist = require('./services/ip-whitelist');
+const P = require('bluebird');
+const _ = require('lodash');
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const readdirAsync = P.promisify(fs.readdir);
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const jwt = require('express-jwt');
+const auth = require('./services/auth');
+const ResourcesRoutes = require('./routes/resources');
+const ActionsRoutes = require('./routes/actions');
+const AssociationsRoutes = require('./routes/associations');
+const StatRoutes = require('./routes/stats');
+const SessionRoute = require('./routes/sessions');
+const ForestRoutes = require('./routes/forest');
+const Schemas = require('./generators/schemas');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const logger = require('./services/logger');
+const Integrator = require('./integrations');
+const errorHandler = require('./services/error-handler');
+let ApimapSender = require('./services/apimap-sender');
+const ipWhitelist = require('./services/ip-whitelist');
 
-var jwtAuthenticator;
+let jwtAuthenticator;
 
 function getModels(Implementation) {
-  var models = Implementation.getModels();
+  const models = Implementation.getModels();
   _.each(models, function (model, modelName) {
     model.modelName = modelName;
   });
@@ -82,9 +82,9 @@ exports.ensureAuthenticated = function (request, response, next) {
 };
 
 exports.init = function (Implementation, dependencies) {
-  var opts = Implementation.opts;
-  var app = express();
-  var integrator;
+  const opts = Implementation.opts;
+  const app = express();
+  let integrator;
 
   dependencies = dependencies || {};
   auth.initAuth(opts);
@@ -97,7 +97,7 @@ exports.init = function (Implementation, dependencies) {
   }
 
   // CORS
-  var allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
+  let allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
 
   if (process.env.CORS_ORIGINS) {
     allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(','));

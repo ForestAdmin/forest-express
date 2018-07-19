@@ -1,20 +1,19 @@
-'use strict';
-var _ = require('lodash');
-var nodePath = require('path');
-var SchemaUtil = require('../utils/schema');
-var auth = require('../services/auth');
-var path = require('../services/path');
-var ResourceSerializer = require('../serializers/resource');
-var Schemas = require('../generators/schemas');
-var CSVExporter = require('../services/csv-exporter');
-var ResourceDeserializer = require('../deserializers/resource');
+const _ = require('lodash');
+const nodePath = require('path');
+const SchemaUtil = require('../utils/schema');
+const auth = require('../services/auth');
+const path = require('../services/path');
+const ResourceSerializer = require('../serializers/resource');
+const Schemas = require('../generators/schemas');
+const CSVExporter = require('../services/csv-exporter');
+const ResourceDeserializer = require('../deserializers/resource');
 
 module.exports = function (app, model, Implementation, integrator, opts) {
-  var modelName = Implementation.getModelName(model);
-  var schema = Schemas.schemas[modelName];
+  const modelName = Implementation.getModelName(model);
+  const schema = Schemas.schemas[modelName];
 
   function getAssociationField(associationName) {
-    var field = _.find(schema.fields, { field: associationName });
+    const field = _.find(schema.fields, { field: associationName });
     if (field && field.reference) {
       return field.reference.split('.')[0];
     }

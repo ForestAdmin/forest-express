@@ -1,14 +1,13 @@
-'use strict';
-var P = require('bluebird');
-var request = require('superagent');
-var logger = require('./logger');
-var ServiceUrlGetter = require('./service-url-getter');
-var errorMessages = require('../utils/error-messages');
+const P = require('bluebird');
+const request = require('superagent');
+const logger = require('./logger');
+const ServiceUrlGetter = require('./service-url-getter');
+const errorMessages = require('../utils/error-messages');
 
 function GoogleAuthorizationFinder(renderingId, forestToken, envSecret) {
   this.perform = function () {
     return new P(function (resolve, reject) {
-      var forestUrl = new ServiceUrlGetter().perform();
+      const forestUrl = new ServiceUrlGetter().perform();
 
       request
         .get(forestUrl + '/forest/renderings/' + renderingId + '/google-authorization')

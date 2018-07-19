@@ -1,5 +1,4 @@
-'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
 exports.getBelongsToAssociations = function (schema) {
   return _.filter(schema.fields, function (field) {

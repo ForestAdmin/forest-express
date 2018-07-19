@@ -1,8 +1,7 @@
-'use strict';
-var _ = require('lodash');
-var P = require('bluebird');
-var logger = require('../services/logger');
-var Schemas = require('../generators/schemas');
+const _ = require('lodash');
+const P = require('bluebird');
+const logger = require('../services/logger');
+const Schemas = require('../generators/schemas');
 
 function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
   var schema = Schemas.schemas[modelName];

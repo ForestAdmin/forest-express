@@ -1,13 +1,13 @@
 'use strict';
 /* jshint sub: true */
-var _ = require('lodash');
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
-var path = require('../services/path');
-var AllowedUsersFinder = require('../services/allowed-users-finder');
-var GoogleAuthorizationFinder = require('../services/google-authorization-finder');
-var ipWhitelist = require('../services/ip-whitelist');
-var errorMessages = require('../utils/error-messages');
+const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const path = require('../services/path');
+const AllowedUsersFinder = require('../services/allowed-users-finder');
+let GoogleAuthorizationFinder = require('../services/google-authorization-finder');
+const ipWhitelist = require('../services/ip-whitelist');
+const errorMessages = require('../utils/error-messages');
 
 module.exports = function (app, opts, dependencies) {
   if (dependencies.GoogleAuthorizationFinder) {
@@ -47,14 +47,14 @@ module.exports = function (app, opts, dependencies) {
 
   function sendToken(response, renderingId) {
     return function (user) {
-      var token = createToken(user, renderingId);
+      const token = createToken(user, renderingId);
       response.send({ token: token });
     };
   }
 
   function formatAndSendError(response) {
     return function (error) {
-      var body;
+      let body;
       if (error && error.message) {
         body = { errors: [{ detail: error.message }] };
       }
@@ -63,8 +63,8 @@ module.exports = function (app, opts, dependencies) {
   }
 
   function loginWithPassword(request, response) {
-    var renderingId = request.body.renderingId;
-    var envSecret = opts.envSecret;
+    const renderingId = request.body.renderingId;
+    const envSecret = opts.envSecret;
 
     return ipWhitelist.retrieve(envSecret)
       .then(function () { return new AllowedUsersFinder(renderingId, envSecret).perform(); })
@@ -73,7 +73,7 @@ module.exports = function (app, opts, dependencies) {
           throw new Error(errorMessages.SESSION.NO_USERS);
         }
 
-        var user = _.find(allowedUsers, function (allowedUser) {
+        const user = _.find(allowedUsers, function (allowedUser) {
           return allowedUser.email === request.body.email;
         });
 
@@ -92,9 +92,9 @@ module.exports = function (app, opts, dependencies) {
   }
 
   function loginWithGoogle(request, response) {
-    var renderingId = request.body.renderingId;
-    var forestToken = request.body.forestToken;
-    var envSecret = opts.envSecret;
+    const renderingId = request.body.renderingId;
+    const forestToken = request.body.forestToken;
+    const envSecret = opts.envSecret;
 
     ipWhitelist.retrieve(envSecret)
       .then(function () {

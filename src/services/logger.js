@@ -1,7 +1,6 @@
-'use strict';
-var winston = require('winston');
+const winston = require('winston');
 
-var CONFIG = {
+const CONFIG = {
   levels: {
     error: 0,
     debug: 1,
@@ -22,13 +21,13 @@ var CONFIG = {
   }
 };
 
-var TITLE = '[forest] 🌳🌳🌳  ';
+const TITLE = '[forest] 🌳🌳🌳  ';
 
 module.exports = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({
       formatter: function (options) {
-        var message = TITLE + options.message;
+        let message = TITLE + options.message;
 
         if (options.meta && options.meta.stack) {
           message += '\n' + options.meta.stack;

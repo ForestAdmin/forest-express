@@ -1,7 +1,6 @@
-'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
-var INTEGRATION_NAME = 'close.io';
+const INTEGRATION_NAME = 'close.io';
 
 exports.createCollections = function (Implementation, apimap,
   collectionAndFieldName) {

@@ -1,14 +1,13 @@
-'use strict';
-var _ = require('lodash');
-var Inflector = require('inflected');
-var auth = require('../services/auth');
-var path = require('../services/path');
-var logger = require('../services/logger');
-var Schemas = require('../generators/schemas');
+const _ = require('lodash');
+const Inflector = require('inflected');
+const auth = require('../services/auth');
+const path = require('../services/path');
+const logger = require('../services/logger');
+const Schemas = require('../generators/schemas');
 
 module.exports = function (app, model, Implementation, integrator, options) {
-  var modelName = Implementation.getModelName(model);
-  var schema = Schemas.schemas[modelName];
+  const modelName = Implementation.getModelName(model);
+  const schema = Schemas.schemas[modelName];
 
   function getFormValuesController (action) {
     return function (request, response) {

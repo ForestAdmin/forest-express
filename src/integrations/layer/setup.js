@@ -1,7 +1,6 @@
-'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
-var INTEGRATION_NAME = 'layer';
+const INTEGRATION_NAME = 'layer';
 
 exports.createCollections = function (Implementation, apimap,
   collectionAndFieldName) {

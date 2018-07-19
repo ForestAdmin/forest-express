@@ -1,7 +1,6 @@
-'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
-var INTEGRATION_NAME = 'intercom';
+const INTEGRATION_NAME = 'intercom';
 
 exports.createCollections = function (Implementation, apimap, collectionName) {
 

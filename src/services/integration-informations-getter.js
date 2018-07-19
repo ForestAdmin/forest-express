@@ -1,14 +1,13 @@
-'use strict';
-var _ = require('lodash');
+const _ = require('lodash');
 
 function IntegrationInformationsGetter(modelName, Implementation, integration) {
   this.perform = function () {
-    var models = Implementation.getModels();
-    var value = null;
+    const models = Implementation.getModels();
+    let value = null;
 
     _.each(integration.mapping,
       function (mappingValue) {
-        var collectionName = mappingValue.split('.')[0];
+        const collectionName = mappingValue.split('.')[0];
         if (models[collectionName] && Implementation
           .getModelName(models[collectionName]) === modelName) {
           value = mappingValue;

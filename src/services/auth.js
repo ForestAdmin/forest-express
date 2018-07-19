@@ -1,12 +1,11 @@
-'use strict';
-var error = require('./error');
-var logger = require('./logger');
-var createIpAuthorizer = require('../middlewares/ip-whitelist');
-var compose = require('compose-middleware').compose;
+const error = require('./error');
+const logger = require('./logger');
+const createIpAuthorizer = require('../middlewares/ip-whitelist');
+const compose = require('compose-middleware').compose;
 
-var ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
+const ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
 
-var ipAuthorizer;
+let ipAuthorizer;
 
 function initAuth(options) {
   ipAuthorizer = createIpAuthorizer(options.envSecret);

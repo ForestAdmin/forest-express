@@ -1,5 +1,3 @@
-'use strict';
-
 function ParamsFieldsDeserializer(paramsFields) {
   this.perform = function () {
     if (paramsFields) {

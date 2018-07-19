@@ -1,5 +1,3 @@
-'use strict';
-
 exports.SESSION = {
   NO_USERS: 'Forest cannot retrieve any users for the project you\'re trying to unlock.',
   SECRET_AND_RENDERINGID_INCONSISTENT: 'Cannot retrieve the project you\'re trying to unlock. The envSecret and renderingId seems to be missing or inconsistent.',

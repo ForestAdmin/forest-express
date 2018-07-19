@@ -1,5 +1,3 @@
-'use strict';
-
 exports.Unauthorized = function (message) {
   this.name = 'Unauthorized';
   this.status = 401;

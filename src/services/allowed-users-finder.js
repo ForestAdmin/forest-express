@@ -1,15 +1,14 @@
-'use strict';
-var P = require('bluebird');
-var request = require('superagent');
-var ServiceUrlGetter = require('./service-url-getter');
+const P = require('bluebird');
+const request = require('superagent');
+const ServiceUrlGetter = require('./service-url-getter');
 var allowedUsers = require('./auth').allowedUsers;
-var logger = require('./logger');
-var errorMessages = require('../utils/error-messages');
+const logger = require('./logger');
+const errorMessages = require('../utils/error-messages');
 
 function AllowedUsersFinder(renderingId, environmentSecret) {
   this.perform = function () {
     return new P(function (resolve) {
-      var urlService = new ServiceUrlGetter().perform();
+      const urlService = new ServiceUrlGetter().perform();
 
       request
         .get(urlService + '/forest/renderings/' + renderingId + '/allowed-users')
@@ -18,7 +17,7 @@ function AllowedUsersFinder(renderingId, environmentSecret) {
           allowedUsers = [];
           if (result.status === 200 && result.body && result.body.data) {
             result.body.data.forEach(function (userData) {
-              var user = userData.attributes;
+              const user = userData.attributes;
               user.id = userData.id;
               allowedUsers.push(user);
             });

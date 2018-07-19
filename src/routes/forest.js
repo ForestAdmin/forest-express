@@ -1,10 +1,9 @@
-'use strict';
-var path = require('../services/path');
+const path = require('../services/path');
 
-module.exports = function (app, opts) {
+module.exports = function (app, options) {
   this.perform = function () {
-    app.get(path.generate('', opts), function (req, res) {
-      res.status(204).send();
+    app.get(path.generate('', options), function (request, response) {
+      response.status(204).send();
     });
   };
 };

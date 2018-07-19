@@ -1,6 +1,6 @@
-var ipWhitelistService = require('../services/ip-whitelist');
-var httpError = require('http-errors');
-var logger = require('../services/logger');
+const ipWhitelistService = require('../services/ip-whitelist');
+const httpError = require('http-errors');
+const logger = require('../services/logger');
 
 function createIpAuthorizer(environmentSecret) {
   return function ipAuthorizer(request, response, next) {

@@ -1,6 +1,5 @@
-'use strict';
-var P = require('bluebird');
-var _ = require('lodash');
+const P = require('bluebird');
+const _ = require('lodash');
 
 function isArray(object) {
   return object && _.isArray(object);
@@ -9,7 +8,7 @@ function isArray(object) {
 module.exports = {
   schemas: {},
   perform: function (implementation, integrator, models, opts) {
-    var that = this;
+    const that = this;
     return P
       .each(models, function (model) {
         return new implementation.SchemaAdapter(model, opts)
