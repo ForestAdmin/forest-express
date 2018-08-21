@@ -22,12 +22,12 @@ function LoginHandler({
     const twoFactorSecretSalt = process.env.FOREST_2FA_SECRET_SALT;
 
     if (twoFactorSecretSalt === undefined) {
-      logger.error('Cannot use the two factor authentication because the environment variable "FOREST_2FA_SECRET_SALT" is not set.');
+      logger.error('Cannot use the two factor authentication because the FOREST_2FA_SECRET_SALT environment variable is not set.');
       throw new Error();
     }
 
     if (twoFactorSecretSalt.length !== 20) {
-      logger.error('The environment variable "FOREST_2FA_SECRET_SALT" must be 20 characters long.');
+      logger.error('The FOREST_2FA_SECRET_SALT environment variable must be 20 characters long.');
       logger.error('You can generate it using this command: `$ openssl rand -hex 10`');
       throw new Error();
     }
