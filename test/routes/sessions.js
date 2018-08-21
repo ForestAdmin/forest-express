@@ -240,7 +240,7 @@ describe('API > Sessions', () => {
       });
     });
 
-    describe('with a "FOREST_2FA_SECRET_SALT" with a length different than 20', () => {
+    describe('with a FOREST_2FA_SECRET_SALT with a length different than 20', () => {
       it('should return a 401', (done) => {
         nockObj.get('/liana/v1/renderings/1/authorization')
           .reply(200, {
