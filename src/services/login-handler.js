@@ -12,7 +12,7 @@ function LoginHandler({
   authData,
   useGoogleAuthentication,
   authSecret,
-  isRegistration,
+  twoFactorRegistration,
   projectId,
   twoFactorToken,
   dependencies
@@ -35,14 +35,14 @@ function LoginHandler({
     const TWO_FACTOR_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
     if (TWO_FACTOR_SECRET_SALT === undefined) {
-      logger.error('Cannot use the two factor authentication because the FOREST_2FA_SECRET_SALT environment variable is not set.');
-      throw new Error();
+      logger.error('Cannot use the two factor authentication because the environment variable "FOREST_2FA_SECRET_SALT" is not set.');
+      throw new Error('Invalid 2FA configuration, please ask more information to your admin');
     }
 
     if (TWO_FACTOR_SECRET_SALT.length !== 20) {
       logger.error('The FOREST_2FA_SECRET_SALT environment variable must be 20 characters long.');
       logger.error('You can generate it using this command: `$ openssl rand -hex 10`');
-      throw new Error();
+      throw new Error('Invalid 2FA configuration, please ask more information to your admin');
     }
 
     if (user.two_factor_authentication_active) {
@@ -90,7 +90,7 @@ function LoginHandler({
         renderingId,
         forestToken,
         envSecret,
-        isRegistration,
+        twoFactorRegistration,
       ).perform();
     } else {
       user = await new AuthorizationFinder(
@@ -98,7 +98,7 @@ function LoginHandler({
         email,
         password,
         envSecret,
-        isRegistration,
+        twoFactorRegistration,
       ).perform();
     }
 
@@ -118,7 +118,7 @@ function LoginHandler({
           }).perform();
           return { token: createToken(user, renderingId) };
         }
-        throw new Error();
+        throw new Error('Your token is invalid, please try again.');
       } else {
         return getTwoFactorResponse(user);
       }

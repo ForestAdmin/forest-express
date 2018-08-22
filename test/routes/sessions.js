@@ -32,7 +32,7 @@ describe('API > Sessions', () => {
   describe('POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
       it('should return a valid jwt', (done) => {
-        nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+        nockObj.get('/liana/v2/renderings/1/authorization')
           .reply(200, {
             data: {
               type: 'users',
@@ -117,12 +117,12 @@ describe('API > Sessions', () => {
     });
 
     describe('with 2FA enabled but not active', () => {
-      describe('with no token and registration "false"', () => {
+      describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "user secret"', (done) => {
           const twoFactorAuthenticationSecret = '00000000000000000000';
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
 
-          nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+          nockObj.get('/liana/v2/renderings/1/authorization')
             .reply(200, {
               data: {
                 type: 'users',
@@ -183,7 +183,7 @@ describe('API > Sessions', () => {
         });
       });
 
-      describe('with no token and registration "true"', () => {
+      describe('with no token and "twoFactorRegistration" "true"', () => {
         it('should return a 401', (done) => {
           request(app)
             .post('/forest/sessions')
@@ -191,7 +191,7 @@ describe('API > Sessions', () => {
               renderingId: 1,
               email: 'user@email.com',
               password: 'user-password',
-              registration: true,
+              twoFactorRegistration: true,
             })
             .expect(401)
             .end(() => done());
@@ -203,7 +203,7 @@ describe('API > Sessions', () => {
           const twoFactorAuthenticationSecret = '00000000000000000000';
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
 
-          nockObj.get('/liana/v1/renderings/1/authorization?registration=true')
+          nockObj.get('/liana/v2/renderings/1/authorization?two-factor-registration=true')
             .reply(200, {
               data: {
                 type: 'users',
@@ -235,7 +235,7 @@ describe('API > Sessions', () => {
               },
             });
 
-          nockObj.post('/liana/v1/projects/1/two-factor-registration-confirm').reply(200);
+          nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
           const expectedUserSecret =
             new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
@@ -250,7 +250,7 @@ describe('API > Sessions', () => {
               email: 'user@email.com',
               password: 'user-password',
               token,
-              registration: true,
+              twoFactorRegistration: true,
             })
             .expect(200)
             .end((error, response) => {
@@ -266,9 +266,9 @@ describe('API > Sessions', () => {
     });
 
     describe('with 2FA enabled and active', () => {
-      describe('with no token and registration "false"', () => {
+      describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "twoFactorAuthenticationEnabled" set to "true"', (done) => {
-          nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+          nockObj.get('/liana/v2/renderings/1/authorization')
             .reply(200, {
               data: {
                 type: 'users',
@@ -330,7 +330,7 @@ describe('API > Sessions', () => {
           const twoFactorAuthenticationSecret = '00000000000000000000';
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
 
-          nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+          nockObj.get('/liana/v2/renderings/1/authorization')
             .reply(200, {
               data: {
                 type: 'users',
@@ -362,7 +362,7 @@ describe('API > Sessions', () => {
               },
             });
 
-          nockObj.post('/liana/v1/projects/1/two-factor-registration-confirm').reply(200);
+          nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
           const expectedUserSecret =
             new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
@@ -393,7 +393,7 @@ describe('API > Sessions', () => {
 
     describe('with a FOREST_2FA_SECRET_SALT with a length different than 20', () => {
       it('should return a 401', (done) => {
-        nockObj.get('/liana/v1/renderings/1/authorization?registration=false')
+        nockObj.get('/liana/v2/renderings/1/authorization')
           .reply(200, {
             data: {
               type: 'users',

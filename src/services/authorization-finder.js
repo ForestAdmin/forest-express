@@ -4,13 +4,18 @@ const ServiceUrlGetter = require('./service-url-getter');
 const ServerResponseHandler = require('./server-response-handler');
 const logger = require('./logger');
 
-function AuthorizationFinder(renderingId, email, password, envSecret, isRegistration) {
+function AuthorizationFinder(renderingId, email, password, envSecret, twoFactorRegistration) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       const forestUrl = new ServiceUrlGetter().perform();
+      let url = `${forestUrl}/liana/v2/renderings/${renderingId}/authorization`;
+
+      if (twoFactorRegistration) {
+        url += `?two-factor-registration=${twoFactorRegistration}`;
+      }
 
       request
-        .get(`${forestUrl}/liana/v1/renderings/${renderingId}/authorization?registration=${isRegistration}`)
+        .get(url)
         .set('forest-secret-key', envSecret)
         .set('email', email)
         .set('password', password)
