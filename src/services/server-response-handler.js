@@ -5,7 +5,8 @@ const P = require('bluebird');
 function ServerResponseHandler(error, result) {
   this.perform = () => {
     return P.try(() => {
-      if (result.status === 200 && result.body && result.body.data && result.body.data.attributes) {
+      if (result && result.status === 200 && result.body && result.body.data &&
+        result.body.data.attributes) {
         return result.body.data;
       } else {
         if (result.status === 0) {

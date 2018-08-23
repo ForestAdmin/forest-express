@@ -22,8 +22,20 @@ module.exports = function (app, opts, dependencies) {
     return response.status(401).send(body);
   }
 
-  async function processLogin({ useGoogleAuthentication, renderingId, authData, response }) {
+  async function processLogin({
+    useGoogleAuthentication,
+    renderingId,
+    authData,
+    response,
+    isRegistration,
+    projectId,
+    twoFactorToken,
+  }) {
     try {
+      if (isRegistration && !twoFactorToken) {
+        throw new Error();
+      }
+
       await ipWhitelist.retrieve(envSecret);
 
       const responseData = await new LoginHandler({
@@ -32,6 +44,9 @@ module.exports = function (app, opts, dependencies) {
         authData,
         useGoogleAuthentication,
         authSecret,
+        isRegistration,
+        projectId,
+        twoFactorToken,
         dependencies,
       }).perform();
 
@@ -42,26 +57,32 @@ module.exports = function (app, opts, dependencies) {
   }
 
   function loginWithPassword(request, response) {
-    const renderingId = request.body.renderingId;
-    const { email, password } = request.body;
+    const { email, password, renderingId, projectId, token: twoFactorToken } = request.body;
+    const isRegistration = !!request.body.registration;
 
     processLogin({
       useGoogleAuthentication: false,
       renderingId,
       authData: { email, password },
       response,
+      isRegistration,
+      projectId,
+      twoFactorToken,
     });
   }
 
   function loginWithGoogle(request, response) {
-    const renderingId = request.body.renderingId;
-    const forestToken = request.body.forestToken;
+    const { forestToken, renderingId, projectId, token: twoFactorToken } = request.body;
+    const isRegistration = !!request.body.registration;
 
     processLogin({
       useGoogleAuthentication: true,
       renderingId,
       authData: { forestToken },
       response,
+      isRegistration,
+      projectId,
+      twoFactorToken,
     });
   }
 
