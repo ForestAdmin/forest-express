@@ -27,12 +27,12 @@ module.exports = function (app, opts, dependencies) {
     renderingId,
     authData,
     response,
-    isRegistration,
+    twoFactorRegistration,
     projectId,
     twoFactorToken,
   }) {
     try {
-      if (isRegistration && !twoFactorToken) {
+      if (twoFactorRegistration && !twoFactorToken) {
         throw new Error();
       }
 
@@ -44,7 +44,7 @@ module.exports = function (app, opts, dependencies) {
         authData,
         useGoogleAuthentication,
         authSecret,
-        isRegistration,
+        twoFactorRegistration,
         projectId,
         twoFactorToken,
         dependencies,
@@ -58,14 +58,14 @@ module.exports = function (app, opts, dependencies) {
 
   function loginWithPassword(request, response) {
     const { email, password, renderingId, projectId, token: twoFactorToken } = request.body;
-    const isRegistration = !!request.body.registration;
+    const twoFactorRegistration = !!request.body.twoFactorRegistration;
 
     processLogin({
       useGoogleAuthentication: false,
       renderingId,
       authData: { email, password },
       response,
-      isRegistration,
+      twoFactorRegistration,
       projectId,
       twoFactorToken,
     });
@@ -73,14 +73,14 @@ module.exports = function (app, opts, dependencies) {
 
   function loginWithGoogle(request, response) {
     const { forestToken, renderingId, projectId, token: twoFactorToken } = request.body;
-    const isRegistration = !!request.body.registration;
+    const twoFactorRegistration = !!request.body.twoFactorRegistration;
 
     processLogin({
       useGoogleAuthentication: true,
       renderingId,
       authData: { forestToken },
       response,
-      isRegistration,
+      twoFactorRegistration,
       projectId,
       twoFactorToken,
     });

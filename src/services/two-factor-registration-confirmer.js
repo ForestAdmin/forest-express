@@ -22,7 +22,7 @@ function TwoFactorRegistrationConfirmer({
       }
 
       request
-        .post(`${forestUrl}/liana/v1/projects/${projectId}/two-factor-registration-confirm`)
+        .post(`${forestUrl}/liana/v2/projects/${projectId}/two-factor-registration-confirm`)
         .send(bodyData)
         .set('forest-secret-key', envSecret)
         .end((error) => {
