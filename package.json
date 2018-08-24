@@ -22,7 +22,9 @@
   },
   "main": "dist/index.js",
   "dependencies": {
+    "base32-encode": "1.1.0",
     "bcryptjs": "2.4.3",
+    "bitwise-xor": "0.0.0",
     "bluebird": "3.3.4",
     "body-parser": "1.18.2",
     "compose-middleware": "4.0.0",
@@ -36,6 +38,7 @@
     "jsonwebtoken": "8.1.1",
     "lodash": "4.10.0",
     "moment": "2.19.4",
+    "otplib": "10.0.0",
     "superagent": "3.7.0",
     "useragent": "2.1.13",
     "uuid": "3.0.1",
