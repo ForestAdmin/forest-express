@@ -5,7 +5,6 @@
 ## RELEASE 2.14.0 - 2018-08-24
 ### Added
 - Authentication - Add two factor authentication using time-based one-time password.
-- Authentication - Add two factor authentication login and registration validation on first login.
 
 ## RELEASE 2.13.1 - 2018-08-06
 ### Fixed
