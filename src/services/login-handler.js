@@ -36,6 +36,7 @@ function LoginHandler({
 
     if (TWO_FACTOR_SECRET_SALT === undefined) {
       logger.error('Cannot use the two factor authentication because the environment variable "FOREST_2FA_SECRET_SALT" is not set.');
+      logger.error('You can generate it using this command: `$ openssl rand -hex 10`');
       throw new Error('Invalid 2FA configuration, please ask more information to your admin');
     }
 

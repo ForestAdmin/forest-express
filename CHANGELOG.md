@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Authentication - Improve the log message when 2FA secret key is not set.
 
 ## RELEASE 2.14.1 - 2018-08-29
 ### Fixed
