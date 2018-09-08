@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'intercom';
 
@@ -7,7 +8,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
   var collectionDisplayName = _.capitalize(collectionName);
   var model = Implementation.getModels()[collectionName];
   // jshint camelcase: false
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: Implementation.getModelName(model) + '_intercom_conversations',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_intercom_conversations',
@@ -26,7 +27,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
     ]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: Implementation.getModelName(model) + '_intercom_attributes',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_intercom_attributes',

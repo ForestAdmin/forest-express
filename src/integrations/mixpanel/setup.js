@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'mixpanel';
 
@@ -32,7 +33,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
       })));
   }
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: `${modelName}_mixpanel_events`,
     displayName: `${collectionDisplayName} Events`,
     icon: 'mixpanel',

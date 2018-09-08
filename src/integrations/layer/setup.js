@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'layer';
 
@@ -11,7 +12,7 @@ exports.createCollections = function (Implementation, apimap,
   var referenceName = Implementation.getModelName(model) + '.id';
   var collectionDisplayName = _.capitalize(collectionName);
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: Implementation.getModelName(model) + '_layer_conversations',
     displayName: collectionDisplayName + ' Conversations',
     icon: 'layer',
@@ -45,7 +46,7 @@ exports.createCollections = function (Implementation, apimap,
     ]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: Implementation.getModelName(model) + '_layer_messages',
     displayName: collectionDisplayName + ' Messages',
     icon: 'layer',

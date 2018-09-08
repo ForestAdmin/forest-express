@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'close.io';
 
@@ -8,7 +9,7 @@ exports.createCollections = function (Implementation, apimap,
   var collectionDisplayName = _.capitalize(collectionName);
 
   // jshint camelcase: false
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: collectionName + '_closeio_leads',
     displayName: collectionDisplayName + ' Leads',
     icon: 'closeio',
@@ -29,7 +30,7 @@ exports.createCollections = function (Implementation, apimap,
     ]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: collectionName + '_closeio_emails',
     displayName: collectionDisplayName + ' Conversations',
     icon: 'closeio',

@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'stripe';
 
@@ -9,7 +10,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
   var referenceName = modelName + '.id';
   var collectionDisplayName = _.capitalize(modelName);
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: modelName + '_stripe_payments',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_stripe_payments',
@@ -41,7 +42,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     }]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: modelName + '_stripe_invoices',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_stripe_invoices',
@@ -76,7 +77,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     ]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: modelName + '_stripe_cards',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_stripe_cards',
@@ -112,7 +113,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     ]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: modelName + '_stripe_subscriptions',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_stripe_subscriptions',
@@ -146,7 +147,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     ]
   });
 
-  apimap.push({
+  pushIntoApimap(apimap, {
     name: modelName + '_stripe_bank_accounts',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     nameOld: Implementation.getModelNameOld(model) + '_stripe_bank_accounts',
