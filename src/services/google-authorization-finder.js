@@ -9,6 +9,7 @@ function GoogleAuthorizationFinder(renderingId, forestToken, environmentSecret, 
       url += `?two-factor-registration=${twoFactorRegistration}`;
     }
 
+<<<<<<< HEAD
     return forestServerRequester
       .perform(url, environmentSecret, null, { 'forest-token': forestToken })
       .then(result => result.data.attributes)
@@ -16,6 +17,26 @@ function GoogleAuthorizationFinder(renderingId, forestToken, environmentSecret, 
         logger.error(error);
         throw new Error();
       });
+=======
+      request
+        .get(url)
+        .set('forest-secret-key', environmentSecret)
+        .set('forest-token', forestToken)
+        .end(function (error, result) {
+          new ServerResponseHandler(error, result)
+            .perform()
+            .then((data) => {
+              const user = data.attributes;
+              user.id = data.id;
+              resolve(user);
+            })
+            .catch(() => {
+              logger.error(error);
+              reject(new Error());
+            });
+        });
+    });
+>>>>>>> [-] Authentication - Fix an empty user id attribut in the JWT tokens
   };
 }
 
