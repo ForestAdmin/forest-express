@@ -21,7 +21,11 @@ function GoogleAuthorizationFinder(renderingId, forestToken, environmentSecret, 
         .end(function (error, result) {
           new ServerResponseHandler(error, result)
             .perform()
-            .then((data) => resolve(data.attributes))
+            .then((data) => {
+              const user = data.attributes;
+              user.id = data.id;
+              resolve(user);
+            })
             .catch(() => {
               logger.error(error);
               reject(new Error());
