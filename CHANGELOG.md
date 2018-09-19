@@ -4,6 +4,9 @@
 ### Changed
 - Authentication - Improve the log message when 2FA secret key is not set.
 
+### Fixed
+- Technical - Make the tests run on the non-transpiled sources.
+
 ## RELEASE 2.15.0 - 2018-09-08
 ### Added
 - Integrations - Developers can add Smart Actions to Integration Collections.
