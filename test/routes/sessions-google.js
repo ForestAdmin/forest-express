@@ -17,8 +17,8 @@ describe('API > Google OAuth2 Login', () => {
 
   before(() => {
     const dependencies = {
-      GoogleAuthorizationFinder: function (renderingId, forestToken, envSecret) {
-        googleServiceData = { renderingId, forestToken, envSecret };
+      AuthorizationFinder: function (renderingId, envSecret, twoFactorRegistration, email, password, forestToken) {
+        googleServiceData = { renderingId, envSecret, twoFactorRegistration, email, password, forestToken };
 
         this.perform = function perform() {
           return P.resolve({
@@ -50,8 +50,8 @@ describe('API > Google OAuth2 Login', () => {
 
           expect(googleServiceData).to.containSubset({
             renderingId: 1,
-            forestToken: 'google-access-token',
             envSecret,
+            forestToken: 'google-access-token',
           });
 
           const { token } = response.body;
