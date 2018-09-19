@@ -18,8 +18,9 @@ describe('API > Google OAuth2 Login', () => {
   let sandbox;
 
   before(() => {
-    sandbox = sinon.createSandbox();
-    const forestServerRequester = require('../../src/services/forest-server-requester');
+    const dependencies = {
+      AuthorizationFinder: function (renderingId, envSecret, twoFactorRegistration, email, password, forestToken) {
+        googleServiceData = { renderingId, envSecret, twoFactorRegistration, email, password, forestToken };
 
     app = createServer(envSecret, authSecret);
 
@@ -74,6 +75,12 @@ describe('API > Google OAuth2 Login', () => {
         .expect(200)
         .end((error, response) => {
           expect(error).to.be.null;
+
+          expect(googleServiceData).to.containSubset({
+            renderingId: 1,
+            envSecret,
+            forestToken: 'google-access-token',
+          });
 
           const { token } = response.body;
           const decodedJWT = jsonwebtoken.verify(token, authSecret);
