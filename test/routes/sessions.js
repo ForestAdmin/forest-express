@@ -46,24 +46,15 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user@email.com', password: 'user-password' },
-    ).resolves({
-      data: {
-        id: '125',
-        type: 'users',
-        attributes: {
+    ).returns({
+      then: () => {
+        return P.resolve({
+          id: '123',
           email: 'user@email.com',
           first_name: 'user',
           last_name: 'last',
           teams: ['Operations'],
-        },
-      },
-      relationships: {
-        renderings: {
-          data: [{
-            id: 1,
-            type: 'renderings',
-          }]
-        }
+        });
       },
     });
 
@@ -72,27 +63,18 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user2@email.com', password: 'user2-password' },
-    ).resolves({
-      data: {
-        id: '126',
-        type: 'users',
-        attributes: {
-          email: 'user2@email.com',
+    ).returns({
+      then: () => {
+        return P.resolve({
+          id: '124',
           first_name: 'user2',
           last_name: 'last',
+          email: 'user2@email.com',
           teams: ['Operations'],
           two_factor_authentication_enabled: true,
           two_factor_authentication_active: false,
           two_factor_authentication_secret: twoFactorAuthenticationSecret,
-        },
-      },
-      relationships: {
-        renderings: {
-          data: [{
-            id: 1,
-            type: 'renderings',
-          }]
-        }
+        });
       },
     });
 
@@ -101,27 +83,18 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user3@email.com', password: 'user3-password' },
-    ).resolves({
-      data: {
-        id: '127',
-        type: 'users',
-        attributes: {
-          email: 'user@email.com',
+    ).returns({
+      then: () => {
+        return P.resolve({
+          id: '124',
           first_name: 'user3',
           last_name: 'last',
+          email: 'user3@email.com',
           teams: ['Operations'],
           two_factor_authentication_enabled: true,
           two_factor_authentication_active: false,
           two_factor_authentication_secret: twoFactorAuthenticationSecret,
-        },
-      },
-      relationships: {
-        renderings: {
-          data: [{
-            id: 1,
-            type: 'renderings',
-          }]
-        }
+        });
       },
     });
 
@@ -130,26 +103,17 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user4@email.com', password: 'user4-password' },
-    ).resolves({
-      data: {
-        id: '128',
-        type: 'users',
-        attributes: {
-          email: 'user4@email.com',
+    ).returns({
+      then: () => {
+        return P.resolve({
+          id: '124',
           first_name: 'user4',
           last_name: 'last',
+          email: 'user4@email.com',
           teams: ['Operations'],
           two_factor_authentication_enabled: true,
           two_factor_authentication_active: true,
-        },
-      },
-      relationships: {
-        renderings: {
-          data: [{
-            id: 1,
-            type: 'renderings',
-          }]
-        }
+        });
       },
     });
   });
@@ -161,20 +125,6 @@ describe('API > Sessions', () => {
   describe('POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
       it('should return a valid jwt', (done) => {
-        nockObj.get('/liana/v2/renderings/1/authorization')
-          .reply(200, {
-            data: {
-              type: 'users',
-              id: '123',
-              attributes: {
-                first_name: 'user',
-                last_name: 'last',
-                email: 'user@email.com',
-                teams: ['Operations'],
-              },
-            },
-          });
-
         request(app)
           .post('/forest/sessions')
           .send({
@@ -267,24 +217,6 @@ describe('API > Sessions', () => {
       describe('with a token', () => {
         it('should return a jwt token', (done) => {
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
-
-          nockObj.get('/liana/v2/renderings/1/authorization?two-factor-registration=true')
-            .reply(200, {
-              data: {
-                type: 'users',
-                id: '123',
-                attributes: {
-                  first_name: 'user',
-                  last_name: 'last',
-                  email: 'user@email.com',
-                  teams: ['Operations'],
-                  two_factor_authentication_enabled: true,
-                  two_factor_authentication_active: false,
-                  two_factor_authentication_secret: twoFactorAuthenticationSecret,
-                },
-              },
-            });
-
           nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
           const expectedUserSecret =
@@ -318,22 +250,6 @@ describe('API > Sessions', () => {
     describe('with 2FA enabled and active', () => {
       describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "twoFactorAuthenticationEnabled" set to "true"', (done) => {
-          nockObj.get('/liana/v2/renderings/1/authorization')
-            .reply(200, {
-              data: {
-                type: 'users',
-                id: '123',
-                attributes: {
-                  first_name: 'user',
-                  last_name: 'last',
-                  email: 'user@email.com',
-                  teams: ['Operations'],
-                  two_factor_authentication_enabled: true,
-                  two_factor_authentication_active: true,
-                },
-              },
-            });
-
           request(app)
             .post('/forest/sessions')
             .send({
@@ -363,24 +279,6 @@ describe('API > Sessions', () => {
       describe('with a token', () => {
         it('should return a jwt token', (done) => {
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
-
-          nockObj.get('/liana/v2/renderings/1/authorization')
-            .reply(200, {
-              data: {
-                type: 'users',
-                id: '123',
-                attributes: {
-                  first_name: 'user',
-                  last_name: 'last',
-                  email: 'user@email.com',
-                  teams: ['Operations'],
-                  two_factor_authentication_enabled: true,
-                  two_factor_authentication_active: true,
-                  two_factor_authentication_secret: twoFactorAuthenticationSecret,
-                },
-              },
-            });
-
           nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
           const expectedUserSecret =
@@ -412,22 +310,6 @@ describe('API > Sessions', () => {
 
     describe('with a FOREST_2FA_SECRET_SALT with a length different than 20', () => {
       it('should return a 401', (done) => {
-        nockObj.get('/liana/v2/renderings/1/authorization')
-          .reply(200, {
-            data: {
-              type: 'users',
-              id: '123',
-              attributes: {
-                first_name: 'user',
-                last_name: 'last',
-                email: 'user@email.com',
-                teams: ['Operations'],
-                two_factor_authentication_enabled: true,
-                two_factor_authentication_active: true,
-              },
-            },
-          });
-
         request(app)
           .post('/forest/sessions')
           .send({

@@ -4,7 +4,7 @@ const ServiceUrlGetter = require('./service-url-getter');
 const errorMessages = require('../utils/error-messages');
 const VError = require('verror');
 
-function perform(route, environmentSecret, queryParameters, headers) {
+function perform (route, environmentSecret, queryParameters, headers) {
   const urlService = new ServiceUrlGetter().perform();
 
   return new P((resolve, reject) => {
@@ -30,10 +30,8 @@ function perform(route, environmentSecret, queryParameters, headers) {
       } else {
         if (result.status === 0) {
           return reject(new Error(errorMessages.SERVER_TRANSACTION.SERVER_DOWN));
-        } else if (result.status === 404) {
+        } else if (result.status === 404 || result.status === 422) {
           return reject(new Error(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND));
-        } else if (result.status === 422) {
-          return reject(new Error(errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT));
         } else {
           return reject(new Error(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error));
         }
@@ -42,6 +40,4 @@ function perform(route, environmentSecret, queryParameters, headers) {
   });
 }
 
-module.exports = {
-  perform,
-};
+module.exports.perform = perform;
