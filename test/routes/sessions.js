@@ -41,22 +41,7 @@ describe('API > Sessions', () => {
                 first_name: 'user',
                 last_name: 'last',
                 email: 'user@email.com',
-                teams: [
-                  {
-                    id: 3,
-                    name: 'Operations',
-                    renderings: [
-                      {
-                        id: 1,
-                        environmentId: 2,
-                        teamId: 3,
-                        environment: {
-                          id: 2,
-                        },
-                      },
-                    ],
-                  },
-                ],
+                teams: ['Operations'],
               },
             },
           });
@@ -82,22 +67,7 @@ describe('API > Sessions', () => {
                 email: 'user@email.com',
                 first_name: 'user',
                 last_name: 'last',
-                teams: [
-                  {
-                    id: 3,
-                    name: 'Operations',
-                    renderings: [
-                      {
-                        id: 1,
-                        environmentId: 2,
-                        teamId: 3,
-                        environment: {
-                          id: 2,
-                        },
-                      },
-                    ],
-                  },
-                ],
+                teams: ['Operations'],
               },
               relationships: {
                 renderings: {
@@ -212,22 +182,7 @@ describe('API > Sessions', () => {
                   first_name: 'user',
                   last_name: 'last',
                   email: 'user@email.com',
-                  teams: [
-                    {
-                      id: 3,
-                      name: 'Operations',
-                      renderings: [
-                        {
-                          id: 1,
-                          environmentId: 2,
-                          teamId: 3,
-                          environment: {
-                            id: 2,
-                          },
-                        },
-                      ],
-                    },
-                  ],
+                  teams: ['Operations'],
                   two_factor_authentication_enabled: true,
                   two_factor_authentication_active: false,
                   two_factor_authentication_secret: twoFactorAuthenticationSecret,
@@ -277,22 +232,7 @@ describe('API > Sessions', () => {
                   first_name: 'user',
                   last_name: 'last',
                   email: 'user@email.com',
-                  teams: [
-                    {
-                      id: 3,
-                      name: 'Operations',
-                      renderings: [
-                        {
-                          id: 1,
-                          environmentId: 2,
-                          teamId: 3,
-                          environment: {
-                            id: 2,
-                          },
-                        },
-                      ],
-                    },
-                  ],
+                  teams: ['Operations'],
                   two_factor_authentication_enabled: true,
                   two_factor_authentication_active: true,
                 },
@@ -339,22 +279,7 @@ describe('API > Sessions', () => {
                   first_name: 'user',
                   last_name: 'last',
                   email: 'user@email.com',
-                  teams: [
-                    {
-                      id: 3,
-                      name: 'Operations',
-                      renderings: [
-                        {
-                          id: 1,
-                          environmentId: 2,
-                          teamId: 3,
-                          environment: {
-                            id: 2,
-                          },
-                        },
-                      ],
-                    },
-                  ],
+                  teams: ['Operations'],
                   two_factor_authentication_enabled: true,
                   two_factor_authentication_active: true,
                   two_factor_authentication_secret: twoFactorAuthenticationSecret,
@@ -402,22 +327,7 @@ describe('API > Sessions', () => {
                 first_name: 'user',
                 last_name: 'last',
                 email: 'user@email.com',
-                teams: [
-                  {
-                    id: 3,
-                    name: 'Operations',
-                    renderings: [
-                      {
-                        id: 1,
-                        environmentId: 2,
-                        teamId: 3,
-                        environment: {
-                          id: 2,
-                        },
-                      },
-                    ],
-                  },
-                ],
+                teams: ['Operations'],
                 two_factor_authentication_enabled: true,
                 two_factor_authentication_active: true,
               },
