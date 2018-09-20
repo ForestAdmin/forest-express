@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 
-module.exports = function createServer(envSecret, authSecret, dependencies) {
+module.exports = function createServer(envSecret, authSecret) {
   const app = express();
 
   app.use(bodyParser.json());
@@ -27,7 +27,7 @@ module.exports = function createServer(envSecret, authSecret, dependencies) {
   implementation.getOrmVersion = () => {};
   implementation.getDatabaseType = () => {};
 
-  app.use(forestExpress.init(implementation, dependencies));
+  app.use(forestExpress.init(implementation));
 
   return app;
 };

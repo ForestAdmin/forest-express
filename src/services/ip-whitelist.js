@@ -2,7 +2,7 @@ const errorMessages = require('../utils/error-messages');
 const ipUtil = require('ip-utils');
 const P = require('bluebird');
 const _ = require('lodash');
-const ForestServerRequester = require('./forest-server-requester');
+const forestServerRequester = require('./forest-server-requester');
 const VError = require('verror');
 const IpWhitelistDeserializer = require('../deserializers/ip-whitelist');
 
@@ -10,7 +10,7 @@ let ipWhitelistRules = null;
 let useIpWhitelist = true;
 
 function retrieve(environmentSecret) {
-  return new ForestServerRequester()
+  return forestServerRequester
     .perform('/liana/v1/ip-whitelist-rules', environmentSecret)
     .then((responseBody) => {
       if (responseBody.data) {

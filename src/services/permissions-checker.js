@@ -1,5 +1,5 @@
 const P = require('bluebird');
-const ForestServerRequester = require('./forest-server-requester');
+const forestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
 const VError = require('verror');
 
@@ -20,7 +20,7 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
   }
 
   function retrievePermissions() {
-    return new ForestServerRequester()
+    return forestServerRequester
       .perform('/liana/v2/permissions', environmentSecret, { renderingId })
       .then((responseBody) => {
         permissionsPerRendering[renderingId] = {

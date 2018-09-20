@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const UserSecretCreator = require('./user-secret-creator');
 const otplib = require('otplib');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
+const AuthorizationFinder = require('./authorization-finder');
 
 function LoginHandler({
   renderingId,
@@ -13,13 +14,7 @@ function LoginHandler({
   twoFactorRegistration,
   projectId,
   twoFactorToken,
-  dependencies
 }) {
-  let AuthorizationFinder = require('./authorization-finder');
-  if (dependencies.AuthorizationFinder) {
-    AuthorizationFinder = dependencies.AuthorizationFinder;
-  }
-
   const { forestToken, email, password } = authData;
 
   function isTwoFactorTokenValid(user, twoFactorToken) {
