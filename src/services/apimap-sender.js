@@ -4,7 +4,7 @@ const ApimapSorter = require('./apimap-sorter');
 const logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
-  this.perform = function() {
+  this.perform = function () {
     var urlService = new ServiceUrlGetter().perform();
 
     apimap = new ApimapSorter(apimap).perform();

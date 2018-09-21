@@ -3,7 +3,7 @@ const chaiSubset = require('chai-subset');
 const jsonwebtoken = require('jsonwebtoken');
 const P = require('bluebird');
 const request = require('../helpers/request');
-const createServer = require('../helpers/create-server.js');
+const createServer = require('../helpers/create-server');
 
 const { expect } = chai;
 chai.use(chaiSubset);

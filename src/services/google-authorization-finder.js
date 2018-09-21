@@ -4,7 +4,7 @@ const ServiceUrlGetter = require('./service-url-getter');
 const ServerResponseHandler = require('./server-response-handler');
 const logger = require('./logger');
 
-function GoogleAuthorizationFinder(renderingId, forestToken, envSecret, twoFactorRegistration) {
+function GoogleAuthorizationFinder(renderingId, forestToken, environmentSecret, twoFactorRegistration) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       const forestUrl = new ServiceUrlGetter().perform();
@@ -16,7 +16,7 @@ function GoogleAuthorizationFinder(renderingId, forestToken, envSecret, twoFacto
 
       request
         .get(url)
-        .set('forest-secret-key', envSecret)
+        .set('forest-secret-key', environmentSecret)
         .set('forest-token', forestToken)
         .end(function (error, result) {
           new ServerResponseHandler(error, result)

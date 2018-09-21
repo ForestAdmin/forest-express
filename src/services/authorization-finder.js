@@ -4,7 +4,7 @@ const ServiceUrlGetter = require('./service-url-getter');
 const ServerResponseHandler = require('./server-response-handler');
 const logger = require('./logger');
 
-function AuthorizationFinder(renderingId, email, password, envSecret, twoFactorRegistration) {
+function AuthorizationFinder(renderingId, email, password, environmentSecret, twoFactorRegistration) {
   this.perform = function () {
     return new P(function (resolve, reject) {
       const forestUrl = new ServiceUrlGetter().perform();
@@ -16,7 +16,7 @@ function AuthorizationFinder(renderingId, email, password, envSecret, twoFactorR
 
       request
         .get(url)
-        .set('forest-secret-key', envSecret)
+        .set('forest-secret-key', environmentSecret)
         .set('email', email)
         .set('password', password)
         .end((error, result) => {
