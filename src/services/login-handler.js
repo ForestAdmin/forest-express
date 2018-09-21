@@ -1,9 +1,9 @@
 const logger = require('../services/logger.js');
 const jwt = require('jsonwebtoken');
 const UserSecretCreator = require('./user-secret-creator');
+const AuthorizationFinder = require('./authorization-finder');
 const otplib = require('otplib');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
-const AuthorizationFinder = require('./authorization-finder');
 
 function LoginHandler({
   renderingId,

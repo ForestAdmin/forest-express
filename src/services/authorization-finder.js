@@ -3,13 +3,18 @@ const logger = require('./logger');
 
 function AuthorizationFinder(renderingId, environmentSecret, twoFactorRegistration, email, password, forestToken) {
   this.perform = function () {
-    let url = `/liana/v2/renderings/${renderingId}/authorization`;
-    let headers = { 'email': email, 'password': password };
+    let pathEnd;
+    let headers;
 
-    if (!email && !password && forestToken) {
-      url = `/liana/v2/renderings/${renderingId}/google-authorization`;
+    if (email && password) {
+      pathEnd = 'authorization';
+      headers = { email, password };
+    } else if (forestToken) {
+      pathEnd = 'google-authorization';
       headers = { 'forest-token': forestToken };
     }
+
+    let url = `/liana/v2/renderings/${renderingId}/${pathEnd}`;
 
     if (twoFactorRegistration) {
       url += `?two-factor-registration=${twoFactorRegistration}`;
