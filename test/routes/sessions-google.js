@@ -40,15 +40,24 @@ describe('API > Google OAuth2 Login', () => {
       envSecret,
       null,
       { 'forest-token': googleAccessToken },
-    ).returns({
-      then: () => {
-        return P.resolve({
-          id: '654',
+    ).resolves({
+      data: {
+        id: '654',
+        type: 'users',
+        attributes: {
           email: 'user@email.com',
           first_name: 'FirstName',
           last_name: 'LastName',
           teams: ['Operations'],
-        });
+        },
+      },
+      relationships: {
+        renderings: {
+          data: [{
+            id: 1,
+            type: 'renderings',
+          }],
+        }
       },
     });
   });
