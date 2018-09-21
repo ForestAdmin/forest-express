@@ -40,15 +40,27 @@ describe('API > Google OAuth2 Login', () => {
       envSecret,
       null,
       { 'forest-token': googleAccessToken },
-    ).returns({
-      then: () => {
-        return P.resolve({
+    ).resolves({
+      status: 200,
+      body: {
+        data: {
           id: '654',
-          email: 'user@email.com',
-          first_name: 'FirstName',
-          last_name: 'LastName',
-          teams: ['Operations'],
-        });
+          type: 'users',
+          attributes: {
+            email: 'user@email.com',
+            first_name: 'FirstName',
+            last_name: 'LastName',
+            teams: ['Operations'],
+          },
+        },
+        relationships: {
+          renderings: {
+            data: [{
+              id: 1,
+              type: 'renderings',
+            }]
+          }
+        },
       },
     });
   });
@@ -70,7 +82,6 @@ describe('API > Google OAuth2 Login', () => {
           const decodedJWT = jsonwebtoken.verify(token, authSecret);
 
           expect(decodedJWT).to.containSubset({
-            id: '654',
             type: 'users',
             data: {
               email: 'user@email.com',

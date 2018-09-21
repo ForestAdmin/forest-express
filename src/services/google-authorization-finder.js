@@ -12,18 +12,19 @@ function GoogleAuthorizationFinder(renderingId, forestToken, environmentSecret, 
 
     return forestServerRequester
       .perform(url, environmentSecret, null, { 'forest-token': forestToken })
-      .then((result) => {
-        return new ServerResponseHandler(null, result)
-          .perform()
-          .then((data) => data.attributes);
-      })
-      .catch((error) => {
-        logger.error(error);
-        return new ServerResponseHandler(error)
-          .perform()
-          .then(() => { throw new Error(); });
-      });
+      .then(result => handleResponse(null, result))
+      .catch(error => handleResponse(error));
   };
+
+  function handleResponse(error, result) {
+    return new ServerResponseHandler(error, result)
+      .perform()
+      .then((data) => data.attributes)
+      .catch(() => {
+        logger.error(error);
+        throw new Error();
+      });
+  }
 }
 
 module.exports = GoogleAuthorizationFinder;

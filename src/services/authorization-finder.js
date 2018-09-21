@@ -12,22 +12,23 @@ function AuthorizationFinder(renderingId, email, password, environmentSecret, tw
 
     return forestServerRequester
       .perform(url, environmentSecret, null, { email, password })
-      .then((result) => {
-        return new ServerResponseHandler(null, result)
-          .perform()
-          .then((data) => {
-            const user = data.attributes;
-            user.id = data.id;
-            return user;
-          });
-      })
-      .catch((error) => {
-        logger.error(error);
-        return new ServerResponseHandler(error)
-          .perform()
-          .then(() => { throw new Error(); });
-      });
+      .then(result => handleResponse(null, result))
+      .catch(error => handleResponse(error));
   };
+
+  function handleResponse(error, result) {
+    return new ServerResponseHandler(error, result)
+      .perform()
+      .then((data) => {
+        const user = data.attributes;
+        user.id = data.id;
+        return user;
+      })
+      .catch(() => {
+        logger.error(error);
+        throw new Error();
+      });
+  }
 }
 
 module.exports = AuthorizationFinder;

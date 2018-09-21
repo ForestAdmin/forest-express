@@ -46,15 +46,27 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user@email.com', password: 'user-password' },
-    ).returns({
-      then: () => {
-        return P.resolve({
-          id: '123',
-          email: 'user@email.com',
-          first_name: 'user',
-          last_name: 'last',
-          teams: ['Operations'],
-        });
+    ).resolves({
+      status: 200,
+      body: {
+        data: {
+          id: '125',
+          type: 'users',
+          attributes: {
+            email: 'user@email.com',
+            first_name: 'user',
+            last_name: 'last',
+            teams: ['Operations'],
+          },
+        },
+        relationships: {
+          renderings: {
+            data: [{
+              id: 1,
+              type: 'renderings',
+            }]
+          }
+        },
       },
     });
 
@@ -63,18 +75,30 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user2@email.com', password: 'user2-password' },
-    ).returns({
-      then: () => {
-        return P.resolve({
-          id: '124',
-          first_name: 'user2',
-          last_name: 'last',
-          email: 'user2@email.com',
-          teams: ['Operations'],
-          two_factor_authentication_enabled: true,
-          two_factor_authentication_active: false,
-          two_factor_authentication_secret: twoFactorAuthenticationSecret,
-        });
+    ).resolves({
+      status: 200,
+      body: {
+        data: {
+          id: '126',
+          type: 'users',
+          attributes: {
+            email: 'user2@email.com',
+            first_name: 'user2',
+            last_name: 'last',
+            teams: ['Operations'],
+            two_factor_authentication_enabled: true,
+            two_factor_authentication_active: false,
+            two_factor_authentication_secret: twoFactorAuthenticationSecret,
+          },
+        },
+        relationships: {
+          renderings: {
+            data: [{
+              id: 1,
+              type: 'renderings',
+            }]
+          }
+        },
       },
     });
 
@@ -83,18 +107,30 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user3@email.com', password: 'user3-password' },
-    ).returns({
-      then: () => {
-        return P.resolve({
-          id: '124',
-          first_name: 'user3',
-          last_name: 'last',
-          email: 'user3@email.com',
-          teams: ['Operations'],
-          two_factor_authentication_enabled: true,
-          two_factor_authentication_active: false,
-          two_factor_authentication_secret: twoFactorAuthenticationSecret,
-        });
+    ).resolves({
+      status: 200,
+      body: {
+        data: {
+          id: '127',
+          type: 'users',
+          attributes: {
+            email: 'user@email.com',
+            first_name: 'user3',
+            last_name: 'last',
+            teams: ['Operations'],
+            two_factor_authentication_enabled: true,
+            two_factor_authentication_active: false,
+            two_factor_authentication_secret: twoFactorAuthenticationSecret,
+          },
+        },
+        relationships: {
+          renderings: {
+            data: [{
+              id: 1,
+              type: 'renderings',
+            }]
+          }
+        },
       },
     });
 
@@ -103,17 +139,29 @@ describe('API > Sessions', () => {
       envSecret,
       null,
       { email: 'user4@email.com', password: 'user4-password' },
-    ).returns({
-      then: () => {
-        return P.resolve({
-          id: '124',
-          first_name: 'user4',
-          last_name: 'last',
-          email: 'user4@email.com',
-          teams: ['Operations'],
-          two_factor_authentication_enabled: true,
-          two_factor_authentication_active: true,
-        });
+    ).resolves({
+      status: 200,
+      body: {
+        data: {
+          id: '128',
+          type: 'users',
+          attributes: {
+            email: 'user4@email.com',
+            first_name: 'user4',
+            last_name: 'last',
+            teams: ['Operations'],
+            two_factor_authentication_enabled: true,
+            two_factor_authentication_active: true,
+          },
+        },
+        relationships: {
+          renderings: {
+            data: [{
+              id: 1,
+              type: 'renderings',
+            }]
+          }
+        },
       },
     });
   });
@@ -140,7 +188,7 @@ describe('API > Sessions', () => {
             const decodedJWT = jsonwebtoken.verify(token, authSecret);
 
             expect(decodedJWT).to.containSubset({
-              id: '123',
+              id: '125',
               type: 'users',
               data: {
                 email: 'user@email.com',
