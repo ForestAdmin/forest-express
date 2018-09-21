@@ -1,0 +1,4 @@
+[
+  ".eslint-bin/lint-regitered-files.js",
+  ".eslint-bin/pre-commit-hook.js"
+]
