@@ -40,4 +40,6 @@ function perform(route, environmentSecret, queryParameters, headers) {
   });
 }
 
-module.exports.perform = perform;
+module.exports = {
+  perform,
+};
