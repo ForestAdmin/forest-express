@@ -1,5 +1,4 @@
 const forestServerRequester = require('./forest-server-requester');
-const ServerResponseHandler = require('./server-response-handler');
 const logger = require('./logger');
 
 function AuthorizationFinder(renderingId, email, password, environmentSecret, twoFactorRegistration) {
@@ -12,23 +11,16 @@ function AuthorizationFinder(renderingId, email, password, environmentSecret, tw
 
     return forestServerRequester
       .perform(url, environmentSecret, null, { email, password })
-      .then(result => handleResponse(null, result))
-      .catch(error => handleResponse(error));
-  };
-
-  function handleResponse(error, result) {
-    return new ServerResponseHandler(error, result)
-      .perform()
-      .then((data) => {
-        const user = data.attributes;
-        user.id = data.id;
+      .then((result) => {
+        const user = result.data.attributes;
+        user.id = result.data.id;
         return user;
       })
-      .catch(() => {
+      .catch((error) => {
         logger.error(error);
         throw new Error();
       });
-  }
+  };
 }
 
 module.exports = AuthorizationFinder;

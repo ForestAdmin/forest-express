@@ -41,26 +41,23 @@ describe('API > Google OAuth2 Login', () => {
       null,
       { 'forest-token': googleAccessToken },
     ).resolves({
-      status: 200,
-      body: {
-        data: {
-          id: '654',
-          type: 'users',
-          attributes: {
-            email: 'user@email.com',
-            first_name: 'FirstName',
-            last_name: 'LastName',
-            teams: ['Operations'],
-          },
+      data: {
+        id: '654',
+        type: 'users',
+        attributes: {
+          email: 'user@email.com',
+          first_name: 'FirstName',
+          last_name: 'LastName',
+          teams: ['Operations'],
         },
-        relationships: {
-          renderings: {
-            data: [{
-              id: 1,
-              type: 'renderings',
-            }],
-          }
-        },
+      },
+      relationships: {
+        renderings: {
+          data: [{
+            id: 1,
+            type: 'renderings',
+          }],
+        }
       },
     });
   });
