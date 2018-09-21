@@ -4,7 +4,6 @@ const UserSecretCreator = require('./user-secret-creator');
 const AuthorizationFinder = require('./authorization-finder');
 const otplib = require('otplib');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
-const GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 
 function LoginHandler({
   renderingId,
@@ -78,21 +77,22 @@ function LoginHandler({
 
   this.perform = async () => {
     let user;
-
     if (useGoogleAuthentication) {
-      user = await new GoogleAuthorizationFinder(
+      user = await new AuthorizationFinder(
         renderingId,
-        forestToken,
         envSecret,
         twoFactorRegistration,
+        null,
+        null,
+        forestToken,
       ).perform();
     } else {
       user = await new AuthorizationFinder(
         renderingId,
-        email,
-        password,
         envSecret,
         twoFactorRegistration,
+        email,
+        password,
       ).perform();
     }
 
