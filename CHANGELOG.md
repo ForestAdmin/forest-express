@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Changed
 - Authentication - Improve the log message when 2FA secret key is not set.
+- Technical - Use stubs instead of object dependencies for test purposes.
 
 ### Fixed
 - Technical - Make the tests run on the non-transpiled sources.

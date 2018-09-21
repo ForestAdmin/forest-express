@@ -81,12 +81,11 @@ exports.ensureAuthenticated = function (request, response, next) {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-exports.init = function (Implementation, dependencies) {
+exports.init = function (Implementation) {
   const opts = Implementation.opts;
   const app = express();
   let integrator;
 
-  dependencies = dependencies || {};
   auth.initAuth(opts);
 
   if (opts.secretKey) {
@@ -148,7 +147,7 @@ exports.init = function (Implementation, dependencies) {
     }
   }
 
-  new SessionRoute(app, opts, dependencies).perform();
+  new SessionRoute(app, opts).perform();
 
   // Init
   var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
@@ -255,9 +254,6 @@ exports.init = function (Implementation, dependencies) {
             }
           });
 
-          if (dependencies.ApimapSender) {
-            ApimapSender = dependencies.ApimapSender;
-          }
           new ApimapSender(opts.envSecret, apimap).perform();
         }
       }

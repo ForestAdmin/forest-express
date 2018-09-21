@@ -3,7 +3,7 @@ const ipWhitelist = require('../services/ip-whitelist');
 const errorMessages = require('../utils/error-messages');
 const LoginHandler = require('../services/login-handler');
 
-module.exports = function (app, opts, dependencies) {
+module.exports = function (app, opts) {
   const { authSecret, envSecret } = opts;
 
   function checkAuthSecret(request, response, next) {
@@ -47,7 +47,6 @@ module.exports = function (app, opts, dependencies) {
         twoFactorRegistration,
         projectId,
         twoFactorToken,
-        dependencies,
       }).perform();
 
       response.send(responseData);

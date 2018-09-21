@@ -4,7 +4,7 @@ const UserSecretCreator = require('./user-secret-creator');
 const AuthorizationFinder = require('./authorization-finder');
 const otplib = require('otplib');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
-let GoogleAuthorizationFinder = require('../services/google-authorization-finder');
+const GoogleAuthorizationFinder = require('../services/google-authorization-finder');
 
 function LoginHandler({
   renderingId,
@@ -15,12 +15,7 @@ function LoginHandler({
   twoFactorRegistration,
   projectId,
   twoFactorToken,
-  dependencies
 }) {
-  if (dependencies.GoogleAuthorizationFinder) {
-    GoogleAuthorizationFinder = dependencies.GoogleAuthorizationFinder;
-  }
-
   const { forestToken, email, password } = authData;
 
   function isTwoFactorTokenValid(user, twoFactorToken) {
