@@ -4,7 +4,7 @@ const ServiceUrlGetter = require('./service-url-getter');
 const errorMessages = require('../utils/error-messages');
 const VError = require('verror');
 
-function perform (route, environmentSecret, queryParameters, headers) {
+function perform(route, environmentSecret, queryParameters, headers) {
   const urlService = new ServiceUrlGetter().perform();
 
   return new P((resolve, reject) => {

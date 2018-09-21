@@ -3,10 +3,10 @@
 ## [Unreleased]
 ### Changed
 - Authentication - Improve the log message when 2FA secret key is not set.
+- Technical - Use stubs instead of object dependencies for test purposes.
 
 ### Fixed
 - Technical - Make the tests run on the non-transpiled sources.
-- Authentication - Fix an empty user id attribut in the JWT tokens.
 
 ## RELEASE 2.15.0 - 2018-09-08
 ### Added

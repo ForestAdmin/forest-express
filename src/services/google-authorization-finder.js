@@ -2,24 +2,20 @@ const forestServerRequester = require('./forest-server-requester');
 const ServerResponseHandler = require('./server-response-handler');
 const logger = require('./logger');
 
-function AuthorizationFinder(renderingId, email, password, environmentSecret, twoFactorRegistration) {
+function GoogleAuthorizationFinder(renderingId, forestToken, environmentSecret, twoFactorRegistration) {
   this.perform = function () {
-    let url = `/liana/v2/renderings/${renderingId}/authorization`;
+    let url = `/liana/v2/renderings/${renderingId}/google-authorization`;
 
     if (twoFactorRegistration) {
       url += `?two-factor-registration=${twoFactorRegistration}`;
     }
 
     return forestServerRequester
-      .perform(url, environmentSecret, null, { email, password })
+      .perform(url, environmentSecret, null, { 'forest-token': forestToken })
       .then((result) => {
         return new ServerResponseHandler(null, result)
           .perform()
-          .then((data) => {
-            const user = data.attributes;
-            user.id = data.id;
-            return user;
-          });
+          .then((data) => data.attributes);
       })
       .catch((error) => {
         logger.error(error);
@@ -30,4 +26,4 @@ function AuthorizationFinder(renderingId, email, password, environmentSecret, tw
   };
 }
 
-module.exports = AuthorizationFinder;
+module.exports = GoogleAuthorizationFinder;
