@@ -58,7 +58,7 @@ describe('API > Google OAuth2 Login', () => {
             data: [{
               id: 1,
               type: 'renderings',
-            }]
+            }],
           }
         },
       },
@@ -82,6 +82,7 @@ describe('API > Google OAuth2 Login', () => {
           const decodedJWT = jsonwebtoken.verify(token, authSecret);
 
           expect(decodedJWT).to.containSubset({
+            id: '654',
             type: 'users',
             data: {
               email: 'user@email.com',
@@ -90,7 +91,12 @@ describe('API > Google OAuth2 Login', () => {
               teams: ['Operations'] ,
             },
             relationships: {
-              renderings: { data: [] },
+              renderings: {
+                data: [{
+                  id: 1,
+                  type: 'renderings',
+                }],
+              },
             },
           });
 
