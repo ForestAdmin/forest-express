@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.15.1 - 2018-09-24
 ### Changed
 - Authentication - Improve the log message when 2FA secret key is not set.
 - Technical - Use stubs instead of object dependencies for test purposes.
