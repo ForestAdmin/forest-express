@@ -232,7 +232,7 @@ exports.init = function (Implementation) {
               attributes: ['field', 'displayName', 'type', 'relationship', 'enums',
                 'collection_name', 'reference', 'column', 'isFilterable',
                 'widget', 'integration', 'isReadOnly', 'isVirtual',
-                'isRequired', 'defaultValue', 'validations', 'isSortable']
+                'isRequired', 'defaultValue', 'validations', 'isSortable', 'primaryKey']
             },
             validations: {
               attributes: ['type', 'value', 'message']

@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Collections - Send the primary key information in the apimap.
 
 ## RELEASE 2.15.1 - 2018-09-24
 ### Changed
