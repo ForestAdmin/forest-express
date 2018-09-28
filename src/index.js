@@ -78,7 +78,13 @@ exports.logger = logger;
 exports.ResourcesRoute = {};
 
 exports.ensureAuthenticated = function (request, response, next) {
-  auth.authenticate(request, response, next, jwtAuthenticator);
+  logger.warn(`DEPRECATION WARNING: The use of ensureAuthenticated
+  is deprecated. Please use ensureAccess instead.`);
+  auth.lianaEnsureAuthenticated(request, response, next, jwtAuthenticator);
+};
+
+exports.ensureAccess = function (request, response, next) {
+  auth.lianaEnsureAccess(request, response, next, jwtAuthenticator);
 };
 
 exports.init = function (Implementation) {

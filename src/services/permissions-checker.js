@@ -2,13 +2,14 @@ const P = require('bluebird');
 const forestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
 const VError = require('verror');
+const _ = require('lodash');
 
 let permissionsPerRendering = {};
 
-function PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName) {
+function PermissionsChecker(environmentSecret, renderingId, collectionName, smartActionName, permissionName) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
-  function isAllowed() {
+  function isCollectionAllowed() {
     const permissions =
       permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
 
@@ -16,7 +17,28 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
       return false;
     }
 
+    if (permissionName === 'execute'
+        && (permissions[collectionName].collection.list
+        || permissions[collectionName].collection.show)) {
+      return true;
+    }
+
     return permissions[collectionName].collection[permissionName];
+  }
+
+  function isSmartActionAllowed() {
+    const permissions =
+      permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
+
+    if (!permissions
+      || !permissions[collectionName]
+      || !permissions[collectionName].smartActions) {
+      return false;
+    }
+
+    const smartActionPermission = _.find(permissions[collectionName].smartActions, function(object) { return object[smartActionName]; });
+
+    return smartActionPermission[smartActionName][permissionName];
   }
 
   function retrievePermissions() {
@@ -51,26 +73,32 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
     return elapsedSeconds >= EXPIRATION_IN_SECONDS;
   }
 
-  function retrievePermissionsAndCheckAllowed(resolve, reject) {
-    return retrievePermissions()
-      .then(() => isAllowed()
-        ? resolve()
-        : reject(new Error(`'${permissionName}' access forbidden on ${collectionName}`)))
-      .catch(reject);
+  async function retrievePermissionsAndCheckAllowed() {
+    await retrievePermissions();
+
+    const collectionAllowed = await isCollectionAllowed();
+
+    if (!collectionAllowed) {
+      throw new Error(`'${permissionName}' access forbidden on collection ${collectionName}`);
+    }
+
+    if (smartActionName) {
+      const smartActionAllowed = await isSmartActionAllowed();
+      if (!smartActionAllowed) {
+        throw new Error(`'${permissionName}' access forbidden on smart action ${smartActionName} on ${collectionName}`);
+      }
+    }
   }
 
-  this.perform = () => {
-    return new P((resolve, reject) => {
-      if (isPermissionExpired()) {
-        return retrievePermissionsAndCheckAllowed(resolve, reject);
-      }
+  this.perform = async () => {
+    if (isPermissionExpired()) {
+      return retrievePermissionsAndCheckAllowed();
+    }
 
-      if (!isAllowed(collectionName, permissionName)) {
-        return retrievePermissionsAndCheckAllowed(resolve, reject);
-      }
-
-      return resolve();
-    });
+    if (!isCollectionAllowed(collectionName, permissionName)
+      || (smartActionName && !isSmartActionAllowed(collectionName, smartActionName, permissionName))) {
+      return retrievePermissionsAndCheckAllowed();
+    }
   };
 }
 

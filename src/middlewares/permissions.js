@@ -4,12 +4,12 @@ const logger = require('../services/logger');
 
 const getRenderingFromUser = user => user.relationships.renderings.data[0].id;
 
-function createCheckPermission(environmentSecret, collectionName) {
+function createCheckPermission(environmentSecret, collectionName, smartActionName) {
   function checkPermission(permissionName) {
     return (request, response, next) => {
       const renderingId = getRenderingFromUser(request.user);
 
-      return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName)
+      return new PermissionsChecker(environmentSecret, renderingId, collectionName, smartActionName, permissionName)
         .perform()
         .then(next)
         .catch((error) => {
@@ -24,7 +24,7 @@ function createCheckPermission(environmentSecret, collectionName) {
     const renderingId = getRenderingFromUser(request.user);
     const permissionName = searchToEdit ? 'searchToEdit' : 'list';
 
-    return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName)
+    return new PermissionsChecker(environmentSecret, renderingId, collectionName, smartActionName, permissionName)
       .perform()
       .then(next)
       .catch((error) => {

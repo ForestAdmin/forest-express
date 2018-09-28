@@ -27,7 +27,7 @@ describe('Service > Permissions', () => {
         });
 
         it('should return a resolved promise', (done) => {
-          new PermissionsChecker('envSecret', 1, 'Users', 'list')
+          new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
             .perform()
             .then(done)
             .catch(done);
@@ -50,7 +50,7 @@ describe('Service > Permissions', () => {
         });
 
         it('should return a rejected promise', (done) => {
-          new PermissionsChecker('envSecret', 1, 'Users', 'list')
+          new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
             .perform()
             .then(() => done(new Error('fail')))
             .catch(() => done());
@@ -71,7 +71,35 @@ describe('Service > Permissions', () => {
         });
 
         it('should return a resolved promise', (done) => {
-          new PermissionsChecker('envSecret', 1, 'Users', 'list')
+          new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
+            .perform()
+            .then(done)
+            .catch(done);
+        });
+      });
+
+      describe('with the "list" permission on smart actions', () => {
+        before(() => {
+          PermissionsChecker.resetExpiration(1);
+          PermissionsChecker.cleanCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v2/permissions?renderingId=1')
+            .reply(200, {
+              Users: {
+                collection: {
+                  list: true,
+                },
+                smartActions: [{
+                  'my-smart-action': {
+                    execute: true,
+                  }
+                }]
+              },
+            });
+        });
+
+        it('should return a resolved promise', (done) => {
+          new PermissionsChecker('envSecret', 1, 'Users', 'my-smart-action', 'execute')
             .perform()
             .then(done)
             .catch(done);
@@ -96,7 +124,7 @@ describe('Service > Permissions', () => {
         });
 
         it('should return a resolved promise', (done) => {
-          new PermissionsChecker('envSecret', 2, 'Users', 'list')
+          new PermissionsChecker('envSecret', 2, 'Users', null, 'list')
             .perform()
             .then(done)
             .catch(done);
@@ -113,7 +141,7 @@ describe('Service > Permissions', () => {
       });
 
       it('should return a rejected promise', (done) => {
-        new PermissionsChecker('envSecret', 1, 'Users', 'list')
+        new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
           .perform()
           .then(() => done(new Error('fail')))
           .catch(() => done());
@@ -146,7 +174,7 @@ describe('Service > Permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions);
 
-        new PermissionsChecker('envSecret', 1, 'Users', 'list')
+        new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
           .perform()
           .then(() => {
             retrievedPermissions = PermissionsChecker.getPermissions(1);
@@ -194,7 +222,7 @@ describe('Service > Permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
 
-        new PermissionsChecker('envSecret', 1, 'Users', 'list')
+        new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
           .perform()
           .then(() => {
             const firstRetrievedPermissions = PermissionsChecker.getPermissions(1);
@@ -206,7 +234,7 @@ describe('Service > Permissions', () => {
             setTimeout(() => {
               nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
-              new PermissionsChecker('envSecret', 1, 'Users', 'list')
+              new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
                 .perform()
                 .then(() => {
                   const secondRetrievedPermissions = PermissionsChecker.getPermissions(1);
@@ -257,7 +285,7 @@ describe('Service > Permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
 
-        new PermissionsChecker('envSecret', 1, 'Users', 'list')
+        new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
           .perform()
           .then(() => {
             const firstRetrievedPermissions = PermissionsChecker.getPermissions(1);
@@ -268,7 +296,7 @@ describe('Service > Permissions', () => {
 
             nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
-            new PermissionsChecker('envSecret', 1, 'Users', 'list')
+            new PermissionsChecker('envSecret', 1, 'Users', null, 'list')
               .perform()
               .then(() => {
                 const secondRetrievedPermissions = PermissionsChecker.getPermissions(1);
