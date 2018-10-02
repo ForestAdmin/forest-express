@@ -17,9 +17,7 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, smar
       return false;
     }
 
-    if (permissionName === 'execute'
-        && (permissions[collectionName].collection.list
-        || permissions[collectionName].collection.show)) {
+    if (permissionName === 'execute') {
       return true;
     }
 
