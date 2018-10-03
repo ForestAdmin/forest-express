@@ -31,8 +31,8 @@ function checkIpAccess(request, response, next) {
 
 function checkSmartActionPermission(request, response, next) {
   const modelName = request.body.data.attributes.collection_name;
-  const smartActionName = request.originalUrl.substring(request.originalUrl.lastIndexOf('/') + 1, request.originalUrl.length);
-  const { checkPermission } = createCheckPermission(envSecret, modelName, smartActionName);
+  const smartActionId = request.body.data.attributes.smart_action_id;
+  const { checkPermission } = createCheckPermission(envSecret, modelName, smartActionId);
   return checkPermission('execute')(request, response, next);
 }
 

@@ -2,11 +2,10 @@ const P = require('bluebird');
 const forestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
 const VError = require('verror');
-const _ = require('lodash');
 
 let permissionsPerRendering = {};
 
-function PermissionsChecker(environmentSecret, renderingId, collectionName, smartActionName, permissionName) {
+function PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName, smartActionId, endpoint) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isCollectionAllowed() {
@@ -30,13 +29,18 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, smar
 
     if (!permissions
       || !permissions[collectionName]
-      || !permissions[collectionName].smartActions) {
+      || !permissions[collectionName].smartActions
+      || !permissions[collectionName].smartActions[smartActionId]
+      || !permissions[collectionName].smartActions[smartActionId].endpoint) {
       return false;
     }
 
-    const smartActionPermission = _.find(permissions[collectionName].smartActions, function(object) { return object[smartActionName]; });
+    if (permissions[collectionName].smartActions[smartActionId].endpoint !== endpoint) {
+      // NOTICE: The user tries to call the wrong smart action route
+      return false;
+    }
 
-    return smartActionPermission[smartActionName][permissionName];
+    return permissions[collectionName].smartActions[smartActionId][permissionName];
   }
 
   function retrievePermissions() {
@@ -77,13 +81,13 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, smar
     const collectionAllowed = await isCollectionAllowed();
 
     if (!collectionAllowed) {
-      throw new Error(`'${permissionName}' access forbidden on collection ${collectionName}`);
+      throw new Error(`'${permissionName}' access forbidden on collection '${collectionName}'`);
     }
 
-    if (smartActionName) {
+    if (smartActionId) {
       const smartActionAllowed = await isSmartActionAllowed();
       if (!smartActionAllowed) {
-        throw new Error(`'${permissionName}' access forbidden on smart action ${smartActionName} on ${collectionName}`);
+        throw new Error(`Smart action '${smartActionId}' execution forbidden on collection '${collectionName}'`);
       }
     }
   }
@@ -94,7 +98,7 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, smar
     }
 
     if (!isCollectionAllowed(collectionName, permissionName)
-      || (smartActionName && !isSmartActionAllowed(collectionName, smartActionName, permissionName))) {
+      || (smartActionId && !isSmartActionAllowed(collectionName, smartActionId, permissionName))) {
       return retrievePermissionsAndCheckAllowed();
     }
   };
