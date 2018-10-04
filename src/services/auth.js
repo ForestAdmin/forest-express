@@ -3,6 +3,7 @@ const logger = require('./logger');
 const createIpAuthorizer = require('../middlewares/ip-whitelist');
 const { createCheckPermission } = require('../middlewares/permissions');
 const compose = require('compose-middleware').compose;
+const ErrorSender = require('../services/error-sender');
 
 const ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
 
@@ -30,15 +31,25 @@ function checkIpAccess(request, response, next) {
 }
 
 function checkSmartActionPermission(request, response, next) {
-  const modelName = request.body.data.attributes.collection_name;
-  const smartActionId = request.body.data.attributes.smart_action_id;
+  const body = request.method === 'GET' ? request.query : request.body;
+  if (!body
+    || !body.data
+    || !body.data.attributes
+    || !body.data.attributes.collection_name
+    || !body.data.attributes.smart_action_id) {
+    return new ErrorSender(response, 'Smart action access forbidden, invalid input')
+      .sendForbidden();
+  }
+
+  const modelName = body.data.attributes.collection_name;
+  const smartActionId = body.data.attributes.smart_action_id;
   const { checkPermission } = createCheckPermission(envSecret, modelName, smartActionId);
   return checkPermission('execute')(request, response, next);
 }
 
 const ensureAuthenticated = compose([checkUser, checkIpAccess]);
 
-const ensureAccess = compose([checkUser, checkIpAccess, checkSmartActionPermission]);
+const ensureSmartActionAccess = compose([checkUser, checkIpAccess, checkSmartActionPermission]);
 
 function lianaEnsureAuthenticated(request, response, next, authenticator) {
   if (request.user) {
@@ -61,10 +72,10 @@ function lianaEnsureAuthenticated(request, response, next, authenticator) {
   }
 }
 
-function lianaEnsureAccess(request, response, next, authenticator) {
+function lianaEnsureSmartActionAccess(request, response, next, authenticator) {
   if (request.user) {
     // NOTICE: User already authentified by the liana authentication middleware.
-    return ensureAccess(request, response, next);
+    return ensureSmartActionAccess(request, response, next);
   } else {
     if (!authenticator) {
       logger.error('The Liana has not been initialized to enable the authentication.');
@@ -82,8 +93,10 @@ function lianaEnsureAccess(request, response, next, authenticator) {
   }
 }
 
-exports.allowedUsers = [];
-exports.ensureAuthenticated = ensureAuthenticated;
-exports.lianaEnsureAccess = lianaEnsureAccess;
-exports.lianaEnsureAuthenticated = lianaEnsureAuthenticated;
-exports.initAuth = initAuth;
+
+module.exports = {
+  ensureAuthenticated,
+  lianaEnsureSmartActionAccess,
+  lianaEnsureAuthenticated,
+  initAuth,
+};

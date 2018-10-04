@@ -13,23 +13,37 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
       permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
 
     if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
-      return false;
+      return {
+        allowed: false,
+        error: `'${permissionName}' access forbidden on collection '${collectionName}'`,
+      };
     }
 
     if (permissionName === 'execute') {
-      return true;
+      const isAllowed = isSmartActionAllowed();
+      return isAllowed
+        ? { allowed: true }
+        : {
+          allowed: false,
+          error: `Smart action '${getActionName()}' execution forbidden on collection '${collectionName}'`,
+        };
     }
 
-    return permissions[collectionName].collection[permissionName];
+    const isAllowed = permissions[collectionName].collection[permissionName];
+    if (!isAllowed) {
+      return {
+        allowed: false,
+        error: `'${permissionName}' access forbidden on collection '${collectionName}'`,
+      };
+    }
+
+    return { allowed: true };
   }
 
   function isSmartActionAllowed() {
-    const permissions =
-      permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
+    const permissions = permissionsPerRendering[renderingId].data;
 
-    if (!permissions
-      || !permissions[collectionName]
-      || !permissions[collectionName].smartActions
+    if (!permissions[collectionName].smartActions
       || !permissions[collectionName].smartActions[smartActionId]
       || !permissions[collectionName].smartActions[smartActionId].endpoint) {
       return false;
@@ -40,7 +54,7 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
       return false;
     }
 
-    return permissions[collectionName].smartActions[smartActionId][permissionName];
+    return permissions[collectionName].smartActions[smartActionId].execute;
   }
 
   function retrievePermissions() {
@@ -75,20 +89,28 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
     return elapsedSeconds >= EXPIRATION_IN_SECONDS;
   }
 
+  function getActionName() {
+    const permissions =
+      permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
+
+    if (!permissions
+      || !permissions[collectionName]
+      || !permissions[collectionName].smartActions
+      || !permissions[collectionName].smartActions[smartActionId]
+      || !permissions[collectionName].smartActions[smartActionId].name) {
+      return endpoint;
+    }
+
+    return permissions[collectionName].smartActions[smartActionId].name;
+  }
+
   async function retrievePermissionsAndCheckAllowed() {
     await retrievePermissions();
 
-    const collectionAllowed = await isCollectionAllowed();
+    const { allowed, error } = await isCollectionAllowed();
 
-    if (!collectionAllowed) {
-      throw new Error(`'${permissionName}' access forbidden on collection '${collectionName}'`);
-    }
-
-    if (smartActionId) {
-      const smartActionAllowed = await isSmartActionAllowed();
-      if (!smartActionAllowed) {
-        throw new Error(`Smart action '${smartActionId}' execution forbidden on collection '${collectionName}'`);
-      }
+    if (!allowed) {
+      throw new Error(error);
     }
   }
 
@@ -97,8 +119,7 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
       return retrievePermissionsAndCheckAllowed();
     }
 
-    if (!isCollectionAllowed(collectionName, permissionName)
-      || (smartActionId && !isSmartActionAllowed(collectionName, smartActionId, permissionName))) {
+    if (!isCollectionAllowed()) {
       return retrievePermissionsAndCheckAllowed();
     }
   };

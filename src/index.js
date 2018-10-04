@@ -78,13 +78,11 @@ exports.logger = logger;
 exports.ResourcesRoute = {};
 
 exports.ensureAuthenticated = function (request, response, next) {
-  logger.warn(`DEPRECATION WARNING: The use of ensureAuthenticated
-  is deprecated. Please use ensureAccess instead.`);
   auth.lianaEnsureAuthenticated(request, response, next, jwtAuthenticator);
 };
 
-exports.ensureAccess = function (request, response, next) {
-  auth.lianaEnsureAccess(request, response, next, jwtAuthenticator);
+exports.ensureSmartActionAccess = function (request, response, next) {
+  auth.lianaEnsureSmartActionAccess(request, response, next, jwtAuthenticator);
 };
 
 exports.init = function (Implementation) {
@@ -95,8 +93,7 @@ exports.init = function (Implementation) {
   auth.initAuth(opts);
 
   if (opts.secretKey) {
-    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
-    'is deprecated. Please use envSecret and authSecret instead.');
+    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options is deprecated. Please use envSecret and authSecret instead.');
     opts.envSecret = opts.secretKey;
     opts.authSecret = opts.authKey;
   }
@@ -132,13 +129,11 @@ exports.init = function (Implementation) {
       }
     });
   } else {
-    logger.error('Your Forest authSecret seems to be missing. Can you check ' +
-      'that you properly set a Forest authSecret in the Forest initializer?');
+    logger.error('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initializer?');
   }
 
   if (!opts.envSecret) {
-    logger.error('Your Forest envSecret seems to be missing. Can you check ' +
-      'that you properly set a Forest envSecret in the Forest initializer?');
+    logger.error('Your Forest envSecret seems to be missing. Can you check that you properly set a Forest envSecret in the Forest initializer?');
   }
 
   if (jwtAuthenticator) {
@@ -205,9 +200,7 @@ exports.init = function (Implementation) {
     })
     .then(function () {
       if (opts.envSecret && opts.envSecret.length !== 64) {
-        logger.error('Your envSecret does not seem to be correct. Can you ' +
-          'check on Forest that you copied it properly in the Forest ' +
-          'initialization?');
+        logger.error('Your envSecret does not seem to be correct. Can you check on Forest that you copied it properly in the Forest initialization?');
       } else {
         if (opts.envSecret) {
           var collections = _.values(Schemas.schemas);
