@@ -5,7 +5,14 @@ const VError = require('verror');
 
 let permissionsPerRendering = {};
 
-function PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName, smartActionId, endpoint) {
+function PermissionsChecker(
+  environmentSecret,
+  renderingId,
+  collectionName,
+  permissionName,
+  smartActionId = null,
+  endpoint = null,
+) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isCollectionAllowed() {

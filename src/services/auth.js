@@ -43,8 +43,8 @@ function checkSmartActionPermission(request, response, next) {
 
   const modelName = body.data.attributes.collection_name;
   const smartActionId = body.data.attributes.smart_action_id;
-  const { checkPermission } = createCheckPermission(envSecret, modelName, smartActionId);
-  return checkPermission('execute')(request, response, next);
+  const { checkPermission } = createCheckPermission(envSecret, modelName);
+  return checkPermission('execute', smartActionId)(request, response, next);
 }
 
 const ensureAuthenticated = compose([checkUser, checkIpAccess]);
