@@ -11,11 +11,12 @@ function PermissionsChecker(
   collectionName,
   permissionName,
   smartActionId = null,
+  httpMethod = null,
   endpoint = null,
 ) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
-  function isCollectionAllowed() {
+  function isAllowed() {
     const permissions =
       permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
 
@@ -52,11 +53,13 @@ function PermissionsChecker(
 
     if (!permissions[collectionName].smartActions
       || !permissions[collectionName].smartActions[smartActionId]
+      || !permissions[collectionName].smartActions[smartActionId].httpMethod
       || !permissions[collectionName].smartActions[smartActionId].endpoint) {
       return false;
     }
 
-    if (permissions[collectionName].smartActions[smartActionId].endpoint !== endpoint) {
+    if (permissions[collectionName].smartActions[smartActionId].httpMethod !== httpMethod
+        || permissions[collectionName].smartActions[smartActionId].endpoint !== endpoint) {
       // NOTICE: The user tries to call the wrong smart action route
       return false;
     }
@@ -114,7 +117,7 @@ function PermissionsChecker(
   async function retrievePermissionsAndCheckAllowed() {
     await retrievePermissions();
 
-    const { allowed, error } = await isCollectionAllowed();
+    const { allowed, error } = await isAllowed();
 
     if (!allowed) {
       throw new Error(error);
@@ -126,7 +129,7 @@ function PermissionsChecker(
       return retrievePermissionsAndCheckAllowed();
     }
 
-    if (!isCollectionAllowed()) {
+    if (!isAllowed()) {
       return retrievePermissionsAndCheckAllowed();
     }
   };

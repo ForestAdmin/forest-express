@@ -8,9 +8,18 @@ function createCheckPermission(environmentSecret, collectionName) {
   function checkPermission(permissionName, smartActionId = null) {
     return (request, response, next) => {
       const renderingId = getRenderingFromUser(request.user);
+      const httpMethod = request.method;
       const endpoint = request.originalUrl;
 
-      return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName, smartActionId, endpoint)
+      return new PermissionsChecker(
+        environmentSecret,
+        renderingId,
+        collectionName,
+        permissionName,
+        smartActionId,
+        httpMethod,
+        endpoint
+      )
         .perform()
         .then(next)
         .catch((error) => {
