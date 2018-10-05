@@ -10,6 +10,7 @@ function createCheckPermission(environmentSecret, collectionName) {
       const renderingId = getRenderingFromUser(request.user);
       const httpMethod = request.method;
       const endpoint = request.originalUrl;
+      const userId = Number(request.user.id);
 
       return new PermissionsChecker(
         environmentSecret,
@@ -19,6 +20,7 @@ function createCheckPermission(environmentSecret, collectionName) {
         smartActionId,
         httpMethod,
         endpoint,
+        userId
       )
         .perform()
         .then(next)

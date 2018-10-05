@@ -13,6 +13,7 @@ function PermissionsChecker(
   smartActionId = null,
   httpMethod = null,
   endpoint = null,
+  userId = null,
 ) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
@@ -61,6 +62,14 @@ function PermissionsChecker(
     if (permissions[collectionName].smartActions[smartActionId].httpMethod !== httpMethod
         || permissions[collectionName].smartActions[smartActionId].endpoint !== endpoint) {
       // NOTICE: The user tries to call the wrong smart action route
+      return false;
+    }
+
+
+    if (permissions[collectionName].smartActions[smartActionId].users
+      && permissions[collectionName].smartActions[smartActionId].users.length
+      && !permissions[collectionName].smartActions[smartActionId].users.includes(userId)) {
+      // NOTICE: The user is not in the smart action access list
       return false;
     }
 
