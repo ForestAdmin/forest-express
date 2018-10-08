@@ -50,30 +50,36 @@ function PermissionsChecker(
   }
 
   function isSmartActionAllowed() {
-    const permissions = permissionsPerRendering[renderingId].data;
+    const permissions =
+      permissionsPerRendering[renderingId].data[collectionName].smartActions;
 
-    if (!permissions[collectionName].smartActions
-      || !permissions[collectionName].smartActions[smartActionId]
-      || !permissions[collectionName].smartActions[smartActionId].httpMethod
-      || !permissions[collectionName].smartActions[smartActionId].endpoint) {
+    if (!permissions) {
       return false;
     }
 
-    if (permissions[collectionName].smartActions[smartActionId].httpMethod !== httpMethod
-        || permissions[collectionName].smartActions[smartActionId].endpoint !== endpoint) {
+    const smartActionPermission = permissions[smartActionId];
+
+    if (!smartActionPermission
+      || !smartActionPermission.httpMethod
+      || !smartActionPermission.endpoint) {
+      return false;
+    }
+
+    if (smartActionPermission.httpMethod !== httpMethod
+        || smartActionPermission.endpoint !== endpoint) {
       // NOTICE: The user tries to call the wrong smart action route
       return false;
     }
 
 
-    if (permissions[collectionName].smartActions[smartActionId].users
-      && permissions[collectionName].smartActions[smartActionId].users.length
-      && !permissions[collectionName].smartActions[smartActionId].users.includes(userId)) {
+    if (smartActionPermission.users
+      && smartActionPermission.users.length
+      && !smartActionPermission.users.includes(userId)) {
       // NOTICE: The user is not in the smart action access list
       return false;
     }
 
-    return permissions[collectionName].smartActions[smartActionId].execute;
+    return smartActionPermission.execute;
   }
 
   function retrievePermissions() {
