@@ -13,12 +13,12 @@ function ErrorSender(response,  error) {
   this.getErrorObject = () => {
     if (typeof error === 'string') {
       return {
-        title: error,
+        detail: error,
       };
     }
 
     return {
-      title: error.message,
+      detail: error.message,
     };
   };
 }

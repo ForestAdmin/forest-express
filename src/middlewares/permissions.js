@@ -18,7 +18,7 @@ function createCheckPermission(environmentSecret, collectionName) {
         permissionName,
         smartActionId,
         httpMethod,
-        endpoint
+        endpoint,
       )
         .perform()
         .then(next)

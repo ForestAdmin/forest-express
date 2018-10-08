@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Smart Actions - Check permission to protect access of smart actions.
+- Smart Actions - Only allow smart action execution if it is visible.
 
 ## RELEASE 2.15.1 - 2018-09-24
 ### Changed

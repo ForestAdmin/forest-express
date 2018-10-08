@@ -88,7 +88,7 @@ function lianaEnsureSmartActionAccess(request, response, next, authenticator) {
         return next(new error.Unauthorized(ERROR_MESSAGE));
       }
 
-      return ensureAuthenticated(request, response, next);
+      return ensureSmartActionAccess(request, response, next);
     });
   }
 }
