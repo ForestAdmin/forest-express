@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Actions - Fix a possible crash with Stripe integration.
 
 ## RELEASE 2.15.1 - 2018-09-24
 ### Changed

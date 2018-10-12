@@ -6,6 +6,9 @@ exports.pushIntoApimap = function (apimap, collection) {
   });
 
   if (existingCollection.length) {
+    if (!collection.actions) {
+      collection.actions = [];
+    }
     collection.actions = collection.actions.concat(existingCollection[0].actions);
   }
 
