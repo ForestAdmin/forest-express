@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - Smart Actions - Only allow smart action execution if it is visible.
+- Smart Actions - Check if a user is allowed to execute a smart action.
 
 ## RELEASE 2.15.1 - 2018-09-24
 ### Changed
