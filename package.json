@@ -77,9 +77,11 @@
     "test": "./node_modules/mocha/bin/mocha test/** --require babel-core/register",
     "test:watch": "./node_modules/mocha/bin/mocha test/**/* deserializers/** generators/** integrations/** routes/** serializers/** services/** utils/** --require babel-core/register --watch",
     "detect-vulnerabilities": "./node_modules/nsp/bin/nsp check --output summary",
-    "lint": "./node_modules/eslint/bin/eslint.js src"
+    "lint": "./node_modules/eslint/bin/eslint.js src",
+    "lint:ci": "node ./.eslint-bin/lint-registered-files.js",
+    "pre-commit": "node ./.eslint-bin/pre-commit-hook.js"
   },
   "pre-commit": [
-    "lint"
+    "pre-commit"
   ]
 }
