@@ -79,10 +79,17 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-exports.init = (Implementation) => {
-  const { opts } = Implementation;
+let isAlreadyInit = false;
+exports.init = function (Implementation) {
+  const opts = Implementation.opts;
   const app = express();
   let integrator;
+
+  if (isAlreadyInit) {
+    return app;
+  }
+
+  isAlreadyInit = true;
 
   auth.initAuth(opts);
 

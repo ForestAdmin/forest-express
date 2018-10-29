@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Technical - Avoid apimap to have duplicate fields, segments and actions.
 
 ## RELEASE 2.15.2 - 2018-10-12
 ### Fixed
