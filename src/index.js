@@ -55,6 +55,7 @@ function requireAllModels(Implementation, modelsDir) {
         return P.resolve([]);
       });
   }
+
   // NOTICE: User didn't provide a modelsDir but may already have required
   // them manually so they might be available.
   return P.resolve(getModels(Implementation));
@@ -80,8 +81,8 @@ exports.ensureAuthenticated = (request, response, next) => {
 };
 
 let isAlreadyInit = false;
-exports.init = function (Implementation) {
-  const opts = Implementation.opts;
+exports.init = (Implementation) => {
+  const { opts } = Implementation;
   const app = express();
   let integrator;
 
