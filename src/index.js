@@ -88,7 +88,7 @@ exports.init = (Implementation) => {
   let integrator;
 
   if (alreadyInitialized) {
-    logger.warn('Forest init function called more than once, initialization bypassed this time.');
+    logger.warn('Forest init function called more than once. Only the first call has been processed.');
     return app;
   }
 
