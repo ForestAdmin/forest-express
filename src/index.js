@@ -80,17 +80,19 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-let isAlreadyInit = false;
+let alreadyInitialized = false;
+
 exports.init = (Implementation) => {
   const { opts } = Implementation;
   const app = express();
   let integrator;
 
-  if (isAlreadyInit) {
+  if (alreadyInitialized) {
+    logger.warn('Forest init function called more than once, initialization bypassed this time.');
     return app;
   }
 
-  isAlreadyInit = true;
+  alreadyInitialized = true;
 
   auth.initAuth(opts);
 
