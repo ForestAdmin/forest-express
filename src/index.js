@@ -3,7 +3,6 @@ const _ = require('lodash');
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const readdirAsync = P.promisify(fs.readdir);
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
@@ -19,14 +18,16 @@ const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const logger = require('./services/logger');
 const Integrator = require('./integrations');
 const errorHandler = require('./services/error-handler');
-let ApimapSender = require('./services/apimap-sender');
+const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
+
+const readdirAsync = P.promisify(fs.readdir);
 
 let jwtAuthenticator;
 
 function getModels(Implementation) {
   const models = Implementation.getModels();
-  _.each(models, function (model, modelName) {
+  _.each(models, (model, modelName) => {
     model.modelName = modelName;
   });
 
@@ -36,34 +37,31 @@ function getModels(Implementation) {
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
     return readdirAsync(modelsDir)
-      .each(function (file) {
+      .each((file) => {
         try {
           if (file.endsWith('.js') || (file.endsWith('.ts') && !file.endsWith('.d.ts'))) {
             if (fs.statSync(path.join(modelsDir, file)).isFile()) {
+              // eslint-disable-next-line
               require(path.join(modelsDir, file));
             }
           }
         } catch (error) {
-          logger.error('Cannot read your model in the file ' + file +
-            ' for the following reason: ', error);
+          logger.error(`Cannot read your model in the file ${file} for the following reason:`, error);
         }
       })
-      .then(function () {
-        return getModels(Implementation);
-      })
-      .catch(function (error) {
-        logger.error('Cannot read your models for the following reason: ' + error.message, error);
+      .then(() => getModels(Implementation))
+      .catch((error) => {
+        logger.error(`Cannot read your models for the following reason: ${error.message}`, error);
         return P.resolve([]);
       });
-  } else {
-    // NOTICE: User didn't provide a modelsDir but may already have required
-    // them manually so they might be available.
-    return P.resolve(getModels(Implementation));
   }
+  // NOTICE: User didn't provide a modelsDir but may already have required
+  // them manually so they might be available.
+  return P.resolve(getModels(Implementation));
 }
 
 function getFields(opts) {
-  return _.map(opts.fields, function (field) {
+  return _.map(opts.fields, (field) => {
     field.isVirtual = true;
     field.isFilterable = field.isFilterable || false;
     field.isSortable = field.isSortable || false;
@@ -77,12 +75,12 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
-exports.ensureAuthenticated = function (request, response, next) {
+exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-exports.init = function (Implementation) {
-  const opts = Implementation.opts;
+exports.init = (Implementation) => {
+  const { opts } = Implementation;
   const app = express();
   let integrator;
 
@@ -115,7 +113,7 @@ exports.init = function (Implementation) {
     jwtAuthenticator = jwt({
       secret: opts.authSecret,
       credentialsRequired: false,
-      getToken: function (request) {
+      getToken: (request) => {
         if (request.headers && request.headers.authorization &&
           request.headers.authorization.split(' ')[0] === 'Bearer') {
           return request.headers.authorization.split(' ')[1];
@@ -123,7 +121,7 @@ exports.init = function (Implementation) {
           return request.query.sessionToken;
         }
         return null;
-      }
+      },
     });
   } else {
     logger.error('Your Forest authSecret seems to be missing. Can you check ' +
@@ -150,39 +148,37 @@ exports.init = function (Implementation) {
   new SessionRoute(app, opts).perform();
 
   // Init
-  var absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
+  const absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
   requireAllModels(Implementation, absModelDirs)
-    .then(function (models) {
+    .then((models) => {
       integrator = new Integrator(opts, Implementation);
 
       return Schemas.perform(Implementation, integrator, models, opts)
-        .then(function () {
-          var directorySmartImplementation;
+        .then(() => {
+          let directorySmartImplementation;
 
           if (opts.configDir) {
             directorySmartImplementation = path.resolve('.', opts.configDir);
           } else {
-            directorySmartImplementation = path.resolve('.') + '/forest';
+            directorySmartImplementation = `${path.resolve('.')}/forest`;
           }
 
           if (fs.existsSync(directorySmartImplementation)) {
             return requireAllModels(Implementation, directorySmartImplementation);
-          } else {
-            if (opts.configDir) {
-              logger.error('The Forest modelsDir option you configured does not seem to be an existing directory.');
-            }
-            return [];
           }
+          if (opts.configDir) {
+            logger.error('The Forest modelsDir option you configured does not seem to be an existing directory.');
+          }
+          return [];
         })
         .thenReturn(models);
     })
-    .each(function (model) {
-      var modelName = Implementation.getModelName(model);
+    .each((model) => {
+      const modelName = Implementation.getModelName(model);
 
       integrator.defineRoutes(app, model, Implementation);
 
-      var resourcesRoute = new ResourcesRoutes(app, model, Implementation,
-        integrator, opts);
+      const resourcesRoute = new ResourcesRoutes(app, model, Implementation, integrator, opts);
       resourcesRoute.perform();
       exports.ResourcesRoute[modelName] = resourcesRoute;
 
@@ -191,79 +187,68 @@ exports.init = function (Implementation) {
 
       new StatRoutes(app, model, Implementation, opts).perform();
     })
-    .then(function () {
-      new ForestRoutes(app, opts).perform();
-    })
-    .then(function () {
-      app.use(errorHandler.catchIfAny);
-    })
-    .then(function () {
+    .then(() => new ForestRoutes(app, opts).perform())
+    .then(() => app.use(errorHandler.catchIfAny))
+    .then(() => {
       if (opts.envSecret && opts.envSecret.length !== 64) {
         logger.error('Your envSecret does not seem to be correct. Can you ' +
           'check on Forest that you copied it properly in the Forest ' +
           'initialization?');
-      } else {
-        if (opts.envSecret) {
-          var collections = _.values(Schemas.schemas);
-          integrator.defineCollections(collections);
+      } else if (opts.envSecret) {
+        const collections = _.values(Schemas.schemas);
+        integrator.defineCollections(collections);
 
-          // NOTICE: Check each Smart Action declaration to detect configuration
-          //         errors.
-          _.each(collections, function (collection) {
-            if (collection.actions) {
-              _.each(collection.actions, function (action) {
-                if (action.fields && !_.isArray(action.fields)) {
-                  logger.error('Cannot find the fields you defined for the ' +
-                    'Smart action "' + action.name + '" of your "' +
-                    collection.name + '" collection. The fields option must ' +
-                    'be an array.');
-                }
-              });
-            }
-          });
+        // NOTICE: Check each Smart Action declaration to detect configuration
+        //         errors.
+        _.each(collections, (collection) => {
+          if (collection.actions) {
+            _.each(collection.actions, (action) => {
+              if (action.fields && !_.isArray(action.fields)) {
+                logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
+              }
+            });
+          }
+        });
 
-          var apimap = new JSONAPISerializer('collections', collections, {
-            id: 'name',
-            // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-            attributes: ['name', 'nameOld', 'displayName', 'paginationType', 'icon',
-              'fields', 'actions', 'segments', 'onlyForRelationships',
-              'isVirtual', 'integration', 'isReadOnly','isSearchable'],
-            fields: {
-              attributes: ['field', 'displayName', 'type', 'relationship', 'enums',
-                'collection_name', 'reference', 'column', 'isFilterable',
-                'widget', 'integration', 'isReadOnly', 'isVirtual',
-                'isRequired', 'defaultValue', 'validations', 'isSortable']
-            },
-            validations: {
-              attributes: ['type', 'value', 'message']
-            },
-            actions: {
-              ref: 'id',
-              attributes: ['name', 'baseUrl', 'endpoint', 'redirect', 'download', 'global', 'type',
-                'httpMethod', 'fields'] // TODO: Remove global attribute when we remove the deprecation warning.
-            },
-            segments: {
-              ref: 'id',
-              attributes: ['name']
-            },
-            meta: {
-              'liana': Implementation.getLianaName(),
-              'liana_version': Implementation.getLianaVersion(),
-              'orm_version': Implementation.getOrmVersion(),
-              'database_type': Implementation.getDatabaseType(),
-            }
-          });
+        const apimap = new JSONAPISerializer('collections', collections, {
+          id: 'name',
+          // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+          attributes: ['name', 'nameOld', 'displayName', 'paginationType', 'icon',
+            'fields', 'actions', 'segments', 'onlyForRelationships',
+            'isVirtual', 'integration', 'isReadOnly', 'isSearchable'],
+          fields: {
+            attributes: ['field', 'displayName', 'type', 'relationship', 'enums',
+              'collection_name', 'reference', 'column', 'isFilterable',
+              'widget', 'integration', 'isReadOnly', 'isVirtual',
+              'isRequired', 'defaultValue', 'validations', 'isSortable'],
+          },
+          validations: {
+            attributes: ['type', 'value', 'message'],
+          },
+          actions: {
+            ref: 'id',
+            attributes: ['name', 'baseUrl', 'endpoint', 'redirect', 'download', 'global', 'type',
+              'httpMethod', 'fields'], // TODO: Remove global attribute when we remove the deprecation warning.
+          },
+          segments: {
+            ref: 'id',
+            attributes: ['name'],
+          },
+          meta: {
+            liana: Implementation.getLianaName(),
+            liana_version: Implementation.getLianaVersion(),
+            orm_version: Implementation.getOrmVersion(),
+            database_type: Implementation.getDatabaseType(),
+          },
+        });
 
-          new ApimapSender(opts.envSecret, apimap).perform();
-        }
+        new ApimapSender(opts.envSecret, apimap).perform();
       }
     })
-    .then(function () {
-      return ipWhitelist
-        .retrieve(opts.envSecret)
-        .catch(error => logger.error(error));
-    })
-    .catch(function (error) {
+    .then(() => ipWhitelist
+      .retrieve(opts.envSecret)
+      .catch(error => logger.error(error)))
+    .catch((error) => {
       logger.error('An error occured while computing the Forest apimap. Your ' +
         'application apimap cannot be sent to Forest. Your Admin UI might ' +
         'not reflect your application models.', error);
@@ -276,34 +261,30 @@ exports.init = function (Implementation) {
   return app;
 };
 
-exports.collection = function (name, opts) {
+exports.collection = (name, opts) => {
   if (_.isEmpty(Schemas.schemas) && opts.modelsDir) {
-    logger.error('Cannot customize your collection named "' + name +
-      '" properly. Did you call the "collection" method in the /forest ' +
-      'directory?');
+    logger.error(`Cannot customize your collection named "${name}" properly. Did you call the "collection" method in the /forest directory?`);
     return;
   }
 
-  var collection = _.find(Schemas.schemas, { name: name });
+  let collection = _.find(Schemas.schemas, { name });
 
   if (!collection) {
     collection = _.find(Schemas.schemas, { nameOld: name });
     if (collection) {
       name = collection.name;
-      logger.warn('DEPRECATION WARNING: Collection names are now based on the models ' +
-        'names. Please rename the collection "' + collection.nameOld + '" of your Forest ' +
-        'customisation in "' + collection.name + '".');
+      logger.warn(`DEPRECATION WARNING: Collection names are now based on the models names. Please rename the collection "${collection.nameOld}" of your Forest customisation in "${collection.name}".`);
     }
   }
 
   // NOTICE: Action ids are defined concatenating the collection name and the
   //         action name to prevent action id conflicts between collections.
-  _.each(opts.actions, function (action) {
-    action.id = name + '.' + action.name;
+  _.each(opts.actions, (action) => {
+    action.id = `${name}.${action.name}`;
   });
 
-  _.each(opts.segments, function (segment) {
-    segment.id = name + '.' + segment.name;
+  _.each(opts.segments, (segment) => {
+    segment.id = `${name}.${segment.name}`;
   });
 
   if (collection) {
@@ -315,8 +296,7 @@ exports.collection = function (name, opts) {
 
     // NOTICE: Smart Field definition case
     opts.fields = getFields(opts);
-    Schemas.schemas[name].fields = _.concat(opts.fields,
-      Schemas.schemas[name].fields);
+    Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
 
     if (opts.searchFields) {
       Schemas.schemas[name].searchFields = opts.searchFields;
@@ -332,20 +312,17 @@ exports.collection = function (name, opts) {
   }
 
   if (Schemas.schemas[name].actions) {
-    _.each(Schemas.schemas[name].actions, function (action) {
+    _.each(Schemas.schemas[name].actions, (action) => {
       if (action.global) {
-        logger.warn('DEPRECATION WARNING: Smart Action "global" option is now deprecated. ' +
-          'Please set "type: \'global\'" instead of "global: true" for the "' + action.name +
-          '" Smart Action.');
+        logger.warn(`DEPRECATION WARNING: Smart Action "global" option is now deprecated. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
       }
 
       if (action.type && !_.includes(['bulk', 'global', 'single'], action.type)) {
-        logger.warn('Please set a valid Smart Action type ("bulk", "global" or "single") for the "' +
-          action.name + '" Smart Action.');
+        logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
       }
 
       // NOTICE: Set a position to the Smart Actions fields.
-      _.each(action.fields, function (field, position) {
+      _.each(action.fields, (field, position) => {
         field.position = position;
       });
     });
