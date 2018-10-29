@@ -55,6 +55,7 @@ function requireAllModels(Implementation, modelsDir) {
         return P.resolve([]);
       });
   }
+
   // NOTICE: User didn't provide a modelsDir but may already have required
   // them manually so they might be available.
   return P.resolve(getModels(Implementation));
@@ -79,10 +80,19 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
+let alreadyInitialized = false;
+
 exports.init = (Implementation) => {
   const { opts } = Implementation;
   const app = express();
   let integrator;
+
+  if (alreadyInitialized) {
+    logger.warn('Forest init function called more than once. Only the first call has been processed.');
+    return app;
+  }
+
+  alreadyInitialized = true;
 
   auth.initAuth(opts);
 
