@@ -1,5 +1,5 @@
 const chai = require('chai');
-const PermissionsChecker= require('../../src/services/permissions-checker');
+const PermissionsChecker = require('../../src/services/permissions-checker');
 const nock = require('nock');
 const ServiceUrlGetter = require('../../src/services/service-url-getter');
 
@@ -188,8 +188,8 @@ describe('Service > Permissions', () => {
           Posts: {
             collection: {
               list: false,
-            }
-          }
+            },
+          },
         };
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
@@ -251,8 +251,8 @@ describe('Service > Permissions', () => {
           Posts: {
             collection: {
               list: false,
-            }
-          }
+            },
+          },
         };
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
