@@ -3,8 +3,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 
+let app;
+
 module.exports = function createServer(envSecret, authSecret) {
-  const app = express();
+  if (app) {
+    return app;
+  }
+
+  app = express();
 
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));

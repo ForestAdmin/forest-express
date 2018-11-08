@@ -4,6 +4,9 @@
   "src/deserializers/resource.js",
   "src/index.js",
   "src/services/apimap-fields-formater.js",
+  "test/helpers/create-server.js",
+  "test/routes/sessions-google.js",
+  "test/routes/sessions.js",
   "test/services/apimap-fields-formater.js",
   "test/services/apimap-sorter.js",
   "test/services/permissions.js"
