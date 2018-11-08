@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - Setup the continuous integrations configuration for Travis CI.
+
 ### Changed
 - Smart Fields - Display a warning to show Smart Fields declared without a field attribute.
 

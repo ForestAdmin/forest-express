@@ -1,0 +1,10 @@
+sudo: required
+
+language: node_js
+
+node_js:
+  - 6
+
+script:
+  - npm run lint:ci
+  - npm run test
