@@ -1,18 +1,14 @@
-'use strict';
-/* global describe, it */
-var chai = require('chai');
-var chaiSubset = require('chai-subset');
-var ApimapSorter = require('../../src/services/apimap-sorter');
+const chai = require('chai');
+const ApimapSorter = require('../../src/services/apimap-sorter');
 
-var expect = chai.expect;
-chai.use(chaiSubset);
+const { expect } = chai;
 
-describe('Service > Apimap Sorter', function () {
-  var apimap = {
+describe('Service > Apimap Sorter', () => {
+  const apimap = {
     meta: {
-      'orm_version': '4.34.9',
-      'liana_version': '1.5.24',
-      'database_type': 'postgresql',
+      orm_version: '4.34.9',
+      liana_version: '1.5.24',
+      database_type: 'postgresql',
       liana: 'forest-rails',
     },
     data: [{
@@ -48,7 +44,9 @@ describe('Service > Apimap Sorter', function () {
       id: 'animals',
       attributes: {
         fields: [
-          { 'is-sortable': false, field: 'id', 'is-filterable': false,  type: 'Number' },
+          {
+            'is-sortable': false, field: 'id', 'is-filterable': false, type: 'Number',
+          },
           { type: 'Date', field: 'createdAt' },
           { field: 'updatedAt', type: 'Date' },
         ],
@@ -57,17 +55,17 @@ describe('Service > Apimap Sorter', function () {
         'is-virtual': true,
       },
     }],
-    included:[{
+    included: [{
       id: 'users.Women',
       type: 'segments',
       attributes: {
-        name: 'Women'
-      }
+        name: 'Women',
+      },
     }, {
       id: 'users.import',
       type: 'actions',
       links: {
-        self: '/actions'
+        self: '/actions',
       },
       attributes: {
         name: 'import',
@@ -77,26 +75,26 @@ describe('Service > Apimap Sorter', function () {
             type: 'Boolean',
             field: 'Save',
             description: 'save the import file if true.',
-            defaultValue: 'true'
+            defaultValue: 'true',
           },
           {
             type: 'File',
-            field: 'File'
-          }
+            field: 'File',
+          },
         ],
-        'http-method': null
-      }
+        'http-method': null,
+      },
     }, {
       attributes: {
-        name: 'Men'
+        name: 'Men',
       },
       id: 'users.Men',
-      type: 'segments'
+      type: 'segments',
     }, {
       id: 'animals.ban',
       type: 'actions',
       links: {
-        self: '/actions'
+        self: '/actions',
       },
       attributes: {
         name: 'import',
@@ -104,24 +102,23 @@ describe('Service > Apimap Sorter', function () {
         download: null,
         endpoint: null,
         redirect: null,
-        'http-method': null
-      }
+        'http-method': null,
+      },
     }],
   };
 
-  var apimapSorted = new ApimapSorter(apimap).perform();
+  const apimapSorted = new ApimapSorter(apimap).perform();
 
-  it('should sort the apimap sections', function () {
-    expect(Object.keys(apimapSorted))
-      .to.include.ordered.members(['data', 'included', 'meta']);
+  it('should sort the apimap sections', () => {
+    expect(Object.keys(apimapSorted)).to.include.ordered.members(['data', 'included', 'meta']);
   });
 
-  it('should sort the data collections', function () {
-    expect(apimapSorted.data.map(function(collection) { return collection.id; }))
+  it('should sort the data collections', () => {
+    expect(apimapSorted.data.map(collection => collection.id))
       .to.include.ordered.members(['animals', 'guests', 'users']);
   });
 
-  it('should sort the data collection values', function () {
+  it('should sort the data collection values', () => {
     expect(Object.keys(apimapSorted.data[0]))
       .to.include.ordered.members(['type', 'id', 'attributes']);
     expect(Object.keys(apimapSorted.data[1]))
@@ -130,7 +127,7 @@ describe('Service > Apimap Sorter', function () {
       .to.include.ordered.members(['type', 'id', 'attributes']);
   });
 
-  it('should sort the data collections attributes values', function () {
+  it('should sort the data collections attributes values', () => {
     expect(Object.keys(apimapSorted.data[0].attributes))
       .to.include.ordered.members(['name', 'integration', 'is-virtual', 'fields']);
     expect(Object.keys(apimapSorted.data[1].attributes))
@@ -139,27 +136,27 @@ describe('Service > Apimap Sorter', function () {
       .to.include.ordered.members(['name', 'fields']);
   });
 
-  it('should sort the data collections attributes fields by name', function () {
-    expect(apimapSorted.data[0].attributes.fields.map(function(field) { return field.field; }))
+  it('should sort the data collections attributes fields by name', () => {
+    expect(apimapSorted.data[0].attributes.fields.map(field => field.field))
       .to.include.ordered.members(['createdAt', 'id', 'updatedAt']);
-    expect(apimapSorted.data[1].attributes.fields.map(function(field) { return field.field; }))
+    expect(apimapSorted.data[1].attributes.fields.map(field => field.field))
       .to.include.ordered.members(['createdAt', 'email', 'id', 'updatedAt']);
-    expect(apimapSorted.data[2].attributes.fields.map(function(field) { return field.field; }))
+    expect(apimapSorted.data[2].attributes.fields.map(field => field.field))
       .to.include.ordered.members(['createdAt', 'email', 'firstName',
         'id', 'lastName', 'name', 'updatedAt', 'url']);
   });
 
-  it('should sort the data collections attributes fields values', function () {
+  it('should sort the data collections attributes fields values', () => {
     expect(Object.keys(apimapSorted.data[0].attributes.fields[1]))
       .to.include.ordered.members(['field', 'type', 'is-filterable', 'is-sortable']);
   });
 
-  it('should sort the included actions and segments objects', function () {
-    expect(apimapSorted.included.map(function(object) { return object.id; }))
+  it('should sort the included actions and segments objects', () => {
+    expect(apimapSorted.included.map(object => object.id))
       .to.include.ordered.members(['animals.ban', 'users.import', 'users.Men', 'users.Women']);
   });
 
-  it('should sort the included actions and segments objects values', function () {
+  it('should sort the included actions and segments objects values', () => {
     expect(Object.keys(apimapSorted.included[0]))
       .to.include.ordered.members(['type', 'id', 'attributes', 'links']);
     expect(Object.keys(apimapSorted.included[1]))
@@ -170,7 +167,7 @@ describe('Service > Apimap Sorter', function () {
       .to.include.ordered.members(['type', 'id', 'attributes']);
   });
 
-  it('should sort the included actions and segments objects attributes values', function () {
+  it('should sort the included actions and segments objects attributes values', () => {
     expect(Object.keys(apimapSorted.included[0].attributes))
       .to.include.ordered.members(['name', 'download', 'endpoint', 'global', 'http-method', 'redirect']);
     expect(Object.keys(apimapSorted.included[1].attributes))
@@ -181,17 +178,17 @@ describe('Service > Apimap Sorter', function () {
       .to.include.ordered.members(['name']);
   });
 
-  it('should sort the included action attributes fields by name', function () {
-    expect(apimapSorted.included[1].attributes.fields.map(function(field) { return field.field; }))
+  it('should sort the included action attributes fields by name', () => {
+    expect(apimapSorted.included[1].attributes.fields.map(field => field.field))
       .to.include.ordered.members(['File', 'Save']);
   });
 
-  it('should sort the included action fields values', function () {
+  it('should sort the included action fields values', () => {
     expect(Object.keys(apimapSorted.included[1].attributes.fields[1]))
       .to.include.ordered.members(['field', 'type', 'defaultValue', 'description', 'isRequired']);
   });
 
-  it('should sort the meta values', function () {
+  it('should sort the meta values', () => {
     expect(Object.keys(apimapSorted.meta))
       .to.include.ordered.members(['database_type', 'liana', 'liana_version', 'orm_version']);
   });
