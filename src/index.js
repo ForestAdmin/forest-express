@@ -20,6 +20,7 @@ const Integrator = require('./integrations');
 const errorHandler = require('./services/error-handler');
 const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
+const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 
 const readdirAsync = P.promisify(fs.readdir);
 
@@ -59,17 +60,6 @@ function requireAllModels(Implementation, modelsDir) {
   // NOTICE: User didn't provide a modelsDir but may already have required
   // them manually so they might be available.
   return P.resolve(getModels(Implementation));
-}
-
-function getFields(opts) {
-  return _.map(opts.fields, (field) => {
-    field.isVirtual = true;
-    field.isFilterable = field.isFilterable || false;
-    field.isSortable = field.isSortable || false;
-    field.isReadOnly = !field.set;
-
-    return field;
-  });
 }
 
 exports.Schemas = Schemas;
@@ -305,7 +295,7 @@ exports.collection = (name, opts) => {
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
     // NOTICE: Smart Field definition case
-    opts.fields = getFields(opts);
+    opts.fields = new ApimapFieldsFormater(opts.fields, name).perform();
     Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
 
     if (opts.searchFields) {
@@ -317,7 +307,7 @@ exports.collection = (name, opts) => {
     opts.idField = 'id';
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
-    opts.fields = getFields(opts);
+    opts.fields = new ApimapFieldsFormater(opts.fields, name).perform();
     Schemas.schemas[name] = opts;
   }
 

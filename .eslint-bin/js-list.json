@@ -2,5 +2,9 @@
   ".eslint-bin/lint-regitered-files.js",
   ".eslint-bin/pre-commit-hook.js",
   "src/deserializers/resource.js",
-  "src/index.js"
+  "src/index.js",
+  "src/services/apimap-fields-formater.js",
+  "test/services/apimap-fields-formater.js",
+  "test/services/apimap-sorter.js",
+  "test/services/permissions.js"
 ]
