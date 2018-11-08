@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.15.4 - 2018-11-08
 ### Added
 - Technical - Setup the continuous integrations configuration for Travis CI.
 
