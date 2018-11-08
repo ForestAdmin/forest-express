@@ -25,6 +25,7 @@ describe('API > Sessions', () => {
 
   before(() => {
     sandbox = sinon.createSandbox();
+    // eslint-disable-next-line global-require
     const forestServerRequester = require('../../src/services/forest-server-requester');
 
     app = createServer(envSecret, authSecret);
@@ -62,8 +63,8 @@ describe('API > Sessions', () => {
           data: [{
             id: 1,
             type: 'renderings',
-          }]
-        }
+          }],
+        },
       },
     });
 
@@ -91,8 +92,8 @@ describe('API > Sessions', () => {
           data: [{
             id: 1,
             type: 'renderings',
-          }]
-        }
+          }],
+        },
       },
     });
 
@@ -120,8 +121,8 @@ describe('API > Sessions', () => {
           data: [{
             id: 1,
             type: 'renderings',
-          }]
-        }
+          }],
+        },
       },
     });
 
@@ -148,8 +149,8 @@ describe('API > Sessions', () => {
           data: [{
             id: 1,
             type: 'renderings',
-          }]
-        }
+          }],
+        },
       },
     });
   });
@@ -223,8 +224,10 @@ describe('API > Sessions', () => {
                 userSecret,
               } = response.body;
 
-              const expectedUserSecret =
-                new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+              const expectedUserSecret = new UserSecretCreator(
+                twoFactorAuthenticationSecret,
+                process.env.FOREST_2FA_SECRET_SALT,
+              ).perform();
 
               expect(token).to.be.undefined;
               expect(twoFactorAuthenticationEnabled).to.be.true;
@@ -255,8 +258,10 @@ describe('API > Sessions', () => {
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
           nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
-          const expectedUserSecret =
-            new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+          const expectedUserSecret = new UserSecretCreator(
+            twoFactorAuthenticationSecret,
+            process.env.FOREST_2FA_SECRET_SALT,
+          ).perform();
 
           const token = otplib.authenticator.generate(expectedUserSecret);
 
@@ -273,10 +278,7 @@ describe('API > Sessions', () => {
             .expect(200)
             .end((error, response) => {
               expect(error).to.be.null;
-
-              const { token } = response.body;
-
-              expect(token).not.to.be.undefined;
+              expect(response.body.token).not.to.be.undefined;
               done();
             });
         });
@@ -317,8 +319,10 @@ describe('API > Sessions', () => {
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
           nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
-          const expectedUserSecret =
-            new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT).perform();
+          const expectedUserSecret = new UserSecretCreator(
+            twoFactorAuthenticationSecret,
+            process.env.FOREST_2FA_SECRET_SALT,
+          ).perform();
 
           const token = otplib.authenticator.generate(expectedUserSecret);
 
@@ -334,10 +338,7 @@ describe('API > Sessions', () => {
             .expect(200)
             .end((error, response) => {
               expect(error).to.be.null;
-
-              const { token } = response.body;
-
-              expect(token).not.to.be.undefined;
+              expect(response.body.token).not.to.be.undefined;
               done();
             });
         });

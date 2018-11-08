@@ -19,6 +19,7 @@ describe('API > Google OAuth2 Login', () => {
 
   before(() => {
     sandbox = sinon.createSandbox();
+    // eslint-disable-next-line global-require
     const forestServerRequester = require('../../src/services/forest-server-requester');
 
     app = createServer(envSecret, authSecret);
@@ -57,7 +58,7 @@ describe('API > Google OAuth2 Login', () => {
             id: 1,
             type: 'renderings',
           }],
-        }
+        },
       },
     });
   });
@@ -85,7 +86,7 @@ describe('API > Google OAuth2 Login', () => {
               email: 'user@email.com',
               first_name: 'FirstName',
               last_name: 'LastName',
-              teams: ['Operations'] ,
+              teams: ['Operations'],
             },
             relationships: {
               renderings: {
