@@ -210,6 +210,9 @@ exports.init = (Implementation) => {
           }
         });
 
+        const filename = `${path.resolve('.')}/forestadmin.json`;
+        fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
+
         const apimap = new JSONAPISerializer('collections', collections, {
           id: 'name',
           // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
