@@ -210,8 +210,10 @@ exports.init = (Implementation) => {
           }
         });
 
-        const filename = `${path.resolve('.')}/forestadmin.json`;
-        fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
+        if (process.env.NODE_ENV !== 'production') {
+          const filename = `${path.resolve('.')}/forestadmin.json`;
+          fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
+        }
 
         const apimap = new JSONAPISerializer('collections', collections, {
           id: 'name',
