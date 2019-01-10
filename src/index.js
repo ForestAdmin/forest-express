@@ -211,7 +211,7 @@ exports.init = (Implementation) => {
         });
 
         if (process.env.NODE_ENV !== 'production') {
-          const filename = `${path.resolve('.')}/forestadmin.json`;
+          const filename = `${path.resolve('.')}/forestadmin-schema.json`;
           fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
         }
 

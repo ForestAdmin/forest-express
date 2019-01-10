@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Technical - On start, create a forestadmin.json file that contains the apimap definition.
+- Technical - On start, create a forestadmin-schema.json file that contains the apimap definition.
 
 ## RELEASE 2.15.4 - 2018-11-08
 ### Added
