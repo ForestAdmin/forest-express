@@ -1,27 +1,26 @@
-'use strict';
-var _ = require('lodash');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var Schemas = require('../../../generators/schemas');
+const _ = require('lodash');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const Schemas = require('../../../generators/schemas');
 
 function InvoicesSerializer(invoices, collectionName, meta) {
   function getCustomerAttributes() {
     if (!invoices.length) { return []; }
 
-    var schema = Schemas.schemas[collectionName];
+    const schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
     return _.map(schema.fields, 'field');
   }
 
   function format(invoice) {
     // jshint camelcase: false
-    invoice.date =  new Date(invoice.date * 1000);
+    invoice.date = new Date(invoice.date * 1000);
 
     if (invoice.period_start) {
-      invoice.period_start =  new Date(invoice.period_start * 1000);
+      invoice.period_start = new Date(invoice.period_start * 1000);
     }
 
     if (invoice.period_end) {
-      invoice.period_end =  new Date(invoice.period_end * 1000);
+      invoice.period_end = new Date(invoice.period_end * 1000);
     }
 
     if (invoice.subtotal) { invoice.subtotal /= 100; }
@@ -30,7 +29,7 @@ function InvoicesSerializer(invoices, collectionName, meta) {
     return invoice;
   }
 
-  var customerAttributes = getCustomerAttributes();
+  const customerAttributes = getCustomerAttributes();
 
   if (invoices.length) {
     invoices = invoices.map(format);
@@ -38,7 +37,7 @@ function InvoicesSerializer(invoices, collectionName, meta) {
     invoices = format(invoices);
   }
 
-  var type = collectionName + '_stripe_invoices';
+  const type = `${collectionName}_stripe_invoices`;
 
   return new JSONAPISerializer(type, invoices, {
     attributes: ['amount_due', 'attempt_count', 'attempted', 'closed',
@@ -47,14 +46,14 @@ function InvoicesSerializer(invoices, collectionName, meta) {
       'customer'],
     customer: {
       ref: Schemas.schemas[collectionName].idField,
-      attributes: customerAttributes
+      attributes: customerAttributes,
     },
-    keyForAttribute: function (key) { return key; },
-    typeForAttribute: function (attr) {
+    keyForAttribute: key => key,
+    typeForAttribute: (attr) => {
       if (attr === 'customer') { return collectionName; }
       return attr;
     },
-    meta: meta
+    meta,
   });
 }
 
