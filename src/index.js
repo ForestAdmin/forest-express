@@ -210,6 +210,11 @@ exports.init = (Implementation) => {
           }
         });
 
+        if (process.env.NODE_ENV !== 'production') {
+          const filename = `${path.resolve('.')}/forestadmin-schema.json`;
+          fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
+        }
+
         const apimap = new JSONAPISerializer('collections', collections, {
           id: 'name',
           // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
