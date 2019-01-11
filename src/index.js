@@ -195,7 +195,10 @@ exports.init = (Implementation) => {
           'check on Forest that you copied it properly in the Forest ' +
           'initialization?');
       } else if (opts.envSecret) {
-        const collections = _.values(Schemas.schemas);
+        const forestadminSchemaFilename = `${path.resolve('.')}/forestadmin-schema.json`;
+        const collections = process.env.NOD_ENV === 'production'
+          ? JSON.parse(fs.readFileSync(forestadminSchemaFilename))
+          : _.values(Schemas.schemas);
         integrator.defineCollections(collections);
 
         // NOTICE: Check each Smart Action declaration to detect configuration
@@ -213,6 +216,10 @@ exports.init = (Implementation) => {
         if (process.env.NODE_ENV !== 'production') {
           const filename = `${path.resolve('.')}/forestadmin-schema.json`;
           fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
+        }
+
+        if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY) {
+          return;
         }
 
         const apimap = new JSONAPISerializer('collections', collections, {
