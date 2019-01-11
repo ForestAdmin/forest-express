@@ -196,9 +196,25 @@ exports.init = (Implementation) => {
           'initialization?');
       } else if (opts.envSecret) {
         const forestadminSchemaFilename = `${path.resolve('.')}/forestadmin-schema.json`;
-        const collections = process.env.NOD_ENV === 'production'
-          ? JSON.parse(fs.readFileSync(forestadminSchemaFilename))
-          : _.values(Schemas.schemas);
+        let collections = [];
+        if (process.env.NOD_ENV === 'production') {
+          try {
+            const content = fs.readFileSync(forestadminSchemaFilename);
+            if (!content) {
+              logger.error('Your forestadmin-schema.json is empty, the apimap cannot be send');
+            } else {
+              collections = JSON.parse(content);
+            }
+          } catch (error) {
+            if (error.code === 'ENOENT') {
+              logger.error('forestadmin-schema.json does not exists, the apimap cannot be send');
+            } else {
+              logger.error('the content of forestadmin-schema.json is not a correct JSON, the apimap cannot be send');
+            }
+          }
+        } else {
+          collections = _.values(Schemas.schemas);
+        }
         integrator.defineCollections(collections);
 
         // NOTICE: Check each Smart Action declaration to detect configuration
