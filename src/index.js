@@ -338,8 +338,6 @@ exports.init = (Implementation) => {
           },
         });
 
-        console.log('APIMAP', JSON.stringify(apimap, null, 2));
-
         new ApimapSender(opts.envSecret, apimap).perform();
       }
     })
