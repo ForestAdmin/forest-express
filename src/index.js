@@ -197,7 +197,7 @@ exports.init = (Implementation) => {
       } else if (opts.envSecret) {
         const forestadminSchemaFilename = `${path.resolve('.')}/forestadmin-schema.json`;
         let collections = [];
-        if (process.env.NOD_ENV === 'production') {
+        if (process.env.NODE_ENV === 'production') {
           try {
             const content = fs.readFileSync(forestadminSchemaFilename);
             if (!content) {
@@ -262,7 +262,8 @@ exports.init = (Implementation) => {
           fs.writeFileSync(filename, JSON.stringify(forestAdminSchema, null, 2));
         }
 
-        if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY) {
+        if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
+          && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY)) {
           return;
         }
 
