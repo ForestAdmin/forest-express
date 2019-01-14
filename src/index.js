@@ -203,7 +203,7 @@ exports.init = (Implementation) => {
             if (!content) {
               logger.error('Your forestadmin-schema.json is empty, the apimap cannot be send');
             } else {
-              collections = JSON.parse(content);
+              collections = JSON.parse(content).collections;
             }
           } catch (error) {
             if (error.code === 'ENOENT') {
@@ -231,7 +231,16 @@ exports.init = (Implementation) => {
 
         if (process.env.NODE_ENV !== 'production') {
           const filename = `${path.resolve('.')}/forestadmin-schema.json`;
-          fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
+          const forestAdminSchema = {
+            collections,
+            meta: {
+              liana: Implementation.getLianaName(),
+              liana_version: Implementation.getLianaVersion(),
+              orm_version: Implementation.getOrmVersion(),
+              database_type: Implementation.getDatabaseType(),
+            },
+          };
+          fs.writeFileSync(filename, JSON.stringify(forestAdminSchema, null, 2));
         }
 
         if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY) {
