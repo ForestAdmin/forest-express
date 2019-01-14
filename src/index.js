@@ -270,34 +270,75 @@ exports.init = (Implementation) => {
         const apimap = new JSONAPISerializer('collections', collections, {
           id: 'name',
           // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-          attributes: ['name', 'nameOld', 'displayName', 'paginationType', 'icon',
-            'fields', 'actions', 'segments', 'onlyForRelationships',
-            'isVirtual', 'integration', 'isReadOnly', 'isSearchable'],
+          attributes: [
+            'actions',
+            'displayName',
+            'icon',
+            'integration',
+            'isReadOnly',
+            'isSearchable',
+            'isVirtual',
+            'name',
+            'nameOld',
+            'onlyForRelationships',
+            'paginationType',
+            'segments',
+          ],
           fields: {
-            attributes: ['field', 'displayName', 'type', 'relationship', 'enums',
-              'collection_name', 'reference', 'column', 'isFilterable',
-              'widget', 'integration', 'isReadOnly', 'isVirtual',
-              'isRequired', 'defaultValue', 'validations', 'isSortable'],
+            attributes: [
+              'collection_name',
+              'column',
+              'defaultValue',
+              'displayName',
+              'enums',
+              'field',
+              'integration',
+              'isFilterable',
+              'isReadOnly',
+              'isRequired',
+              'isSortable',
+              'isVirtual',
+              'reference',
+              'relationship',
+              'type',
+              'validations',
+              'widget',
+            ],
           },
           validations: {
-            attributes: ['type', 'value', 'message'],
+            attributes: [
+              'message',
+              'type',
+              'value',
+            ],
           },
           actions: {
             ref: 'id',
-            attributes: ['name', 'baseUrl', 'endpoint', 'redirect', 'download', 'global', 'type',
-              'httpMethod', 'fields'], // TODO: Remove global attribute when we remove the deprecation warning.
+            attributes: [
+              'baseUrl',
+              'download',
+              'endpoint',
+              'fields',
+              'global',
+              'httpMethod',
+              'name',
+              'redirect',
+              'type',
+            ], // TODO: Remove global attribute when we remove the deprecation warning.
           },
           segments: {
             ref: 'id',
             attributes: ['name'],
           },
           meta: {
+            database_type: Implementation.getDatabaseType(),
             liana: Implementation.getLianaName(),
             liana_version: Implementation.getLianaVersion(),
             orm_version: Implementation.getOrmVersion(),
-            database_type: Implementation.getDatabaseType(),
           },
         });
+
+        console.log('APIMAP', JSON.stringify(apimap, null, 2));
 
         new ApimapSender(opts.envSecret, apimap).perform();
       }
