@@ -230,6 +230,25 @@ exports.init = (Implementation) => {
         });
 
         if (process.env.NODE_ENV !== 'production') {
+          // NOTICE: Reorder the collections to make the diff null or minimal
+          collections = collections.map((collection) => {
+            const collectionReordered = {};
+            _.each(_.sortBy(Object.keys(collection)), (key) => {
+              collectionReordered[key] = collection[key];
+            });
+            collectionReordered.fields = collectionReordered.fields.map((field) => {
+              const fieldReordered = {};
+              _.each(_.sortBy(Object.keys(field)), (key) => {
+                fieldReordered[key] = field[key];
+              });
+              return fieldReordered;
+            });
+            collectionReordered.fields = _.sortBy(collectionReordered.fields, ['field', 'type']);
+            return collectionReordered;
+          });
+          collections.sort((collection1, collection2) =>
+            collection1.name.localeCompare(collection2.name));
+
           const filename = `${path.resolve('.')}/forestadmin-schema.json`;
           const forestAdminSchema = {
             collections,
