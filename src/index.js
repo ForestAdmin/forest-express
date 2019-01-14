@@ -253,10 +253,10 @@ exports.init = (Implementation) => {
           const forestAdminSchema = {
             collections,
             meta: {
+              database_type: Implementation.getDatabaseType(),
               liana: Implementation.getLianaName(),
               liana_version: Implementation.getLianaVersion(),
               orm_version: Implementation.getOrmVersion(),
-              database_type: Implementation.getDatabaseType(),
             },
           };
           fs.writeFileSync(filename, JSON.stringify(forestAdminSchema, null, 2));
