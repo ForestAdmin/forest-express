@@ -1,10 +1,9 @@
-'use strict';
-var P = require('bluebird');
-var logger = require('../../../services/logger');
+const P = require('bluebird');
+const logger = require('../../../services/logger');
+const dataUtil = require('../../../utils/data');
 
 function SourcesGetter(Implementation, params, opts, integrationInfo) {
-  var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  // jshint camelcase: false
+  const stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
 
   function hasPagination() {
     return params.page;
@@ -13,79 +12,83 @@ function SourcesGetter(Implementation, params, opts, integrationInfo) {
   function getLimit() {
     if (hasPagination()) {
       return params.page.size || 10;
-    } else {
-      return 10;
     }
+    return 10;
   }
 
   function getStartingAfter() {
     if (hasPagination() && params.starting_after) {
       return params.starting_after;
     }
+    return undefined;
   }
 
   function getEndingBefore() {
     if (hasPagination() && params.ending_before) {
       return params.ending_before;
     }
+    return undefined;
   }
 
   function getSources(customerId, query) {
-    return new P(function (resolve, reject) {
-      stripe.customers.listSources(customerId, query, function (error, sources) {
+    return new P((resolve, reject) => {
+      stripe.customers.listSources(customerId, query, (error, sources) => {
         if (error) { return reject(error); }
-        // jshint camelcase: false
-        resolve([sources.total_count, sources.data]);
+        return resolve([sources.total_count, sources.data]);
       });
     });
   }
 
-  this.perform = function () {
-    var collectionFieldName = integrationInfo.field;
-    var collectionModel = integrationInfo.collection;
+  this.perform = () => {
+    const {
+      collection: collectionModel,
+      field: collectionFieldName,
+      embeddedPath,
+    } = integrationInfo;
+    const fieldName = embeddedPath ? `${collectionFieldName}.${embeddedPath}` : collectionFieldName;
 
-    return Implementation.Stripe.getCustomer(collectionModel,
-      collectionFieldName, params.recordId)
-      .then(function (customer) {
-        var query = {
+    return Implementation.Stripe.getCustomer(collectionModel, collectionFieldName, params.recordId)
+      .then((customer) => {
+        const query = {
           limit: getLimit(),
           starting_after: getStartingAfter(),
           ending_before: getEndingBefore(),
           'include[]': 'total_count',
-          object: params.object
+          object: params.object,
         };
 
-        if (!customer[collectionFieldName]) {
-          return P.reject();
+        let customerId;
+        if (customer[collectionFieldName]) {
+          customerId = dataUtil.find(customer[collectionFieldName], embeddedPath);
         }
 
-        return getSources(customer[collectionFieldName], query)
-          .spread(function (count, sources) {
-            return P
-              .map(sources, function (source) {
+        if (customer && !customerId) { return P.resolve([0, []]); }
+
+        return getSources(customerId, query)
+          .spread((count, sources) =>
+            P
+              .map(sources, (source) => {
                 if (customer) {
                   source.customer = customer;
                 } else {
                   return Implementation.Stripe.getCustomerByUserField(
-                    collectionModel, collectionFieldName, source.customer)
-                    .then(function (customer) {
-                      source.customer = customer;
+                    collectionModel,
+                    fieldName,
+                    source.customer,
+                  )
+                    .then((customerFound) => {
+                      source.customer = customerFound;
                       return source;
                     });
                 }
                 return source;
               })
-              .then(function (sources) {
-                return [count, sources];
-              });
-          })
-          .catch(function (error) {
+              .then(sourcesData => [count, sourcesData]))
+          .catch((error) => {
             logger.warn('Stripe sources retrieval issue:', error);
             return P.resolve([0, []]);
           });
-      }, function () {
-        return P.resolve([0, []]);
-      });
+      }, () => P.resolve([0, []]));
   };
 }
 

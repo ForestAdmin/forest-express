@@ -1,31 +1,37 @@
-'use strict';
-var P = require('bluebird');
+const P = require('bluebird');
 
 function InvoicesGetter(Implementation, params, opts, integrationInfo) {
-  var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
-  var collectionModel = null;
+  const stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
+  let collectionModel = null;
 
   function getInvoice(invoiceId) {
-    return new P(function (resolve, reject) {
-      stripe.invoices.retrieve(invoiceId, function (error, invoice) {
+    return new P((resolve, reject) => {
+      stripe.invoices.retrieve(invoiceId, (error, invoice) => {
         if (error) { return reject(error); }
-        resolve(invoice);
+        return resolve(invoice);
       });
     });
   }
 
-  this.perform = function () {
-    var collectionFieldName = integrationInfo.field;
+  this.perform = () => {
     collectionModel = integrationInfo.collection;
+    const {
+      field: collectionFieldName,
+      embeddedPath,
+    } = integrationInfo;
+    const fieldName = embeddedPath ? `${collectionFieldName}.${embeddedPath}` : collectionFieldName;
+
     return getInvoice(params.invoiceId)
-      .then(function (invoice) {
-        return Implementation.Stripe.getCustomerByUserField(
-          collectionModel, collectionFieldName, invoice.customer)
-          .then(function (customer) {
+      .then(invoice =>
+        Implementation.Stripe.getCustomerByUserField(
+          collectionModel,
+          fieldName,
+          invoice.customer,
+        )
+          .then((customer) => {
             invoice.customer = customer;
             return invoice;
-          });
-      });
+          }));
   };
 }
 

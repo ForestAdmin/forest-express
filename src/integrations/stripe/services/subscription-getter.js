@@ -1,31 +1,36 @@
-'use strict';
-var P = require('bluebird');
+const P = require('bluebird');
 
 function SubscriptionGetter(Implementation, params, opts, integrationInfo) {
-  var stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
+  const stripe = opts.integrations.stripe.stripe(opts.integrations.stripe.apiKey);
 
   function getSubscription(subscriptionId) {
-    return new P(function (resolve, reject) {
-      stripe.subscriptions.retrieve(subscriptionId, function (error, subscription) {
+    return new P((resolve, reject) => {
+      stripe.subscriptions.retrieve(subscriptionId, (error, subscription) => {
         if (error) { return reject(error); }
-        resolve(subscription);
+        return resolve(subscription);
       });
     });
   }
 
-  this.perform = function () {
-    var collectionFieldName = integrationInfo.field;
-    var collectionModel = integrationInfo.collection;
+  this.perform = () => {
+    const {
+      collection: collectionModel,
+      field: collectionFieldName,
+      embeddedPath,
+    } = integrationInfo;
+    const fieldName = embeddedPath ? `${collectionFieldName}.${embeddedPath}` : collectionFieldName;
 
     return getSubscription(params.subscriptionId)
-      .then(function (subscription) {
-        return Implementation.Stripe.getCustomerByUserField(
-          collectionModel, collectionFieldName, subscription.customer)
-          .then(function (customer) {
+      .then(subscription =>
+        Implementation.Stripe.getCustomerByUserField(
+          collectionModel,
+          fieldName,
+          subscription.customer,
+        )
+          .then((customer) => {
             subscription.customer = customer;
             return subscription;
-          });
-      });
+          }));
   };
 }
 
