@@ -4,6 +4,10 @@
 ### Added
 - Technical - On start, create a forestadmin-schema.json file that contains the apimap definition.
 
+## RELEASE 2.16.0 - 2019-01-17
+### Added
+- Integrations - Developers can configure the Stripe integration to retrieve the customerId in an embedded document field.
+
 ## RELEASE 2.15.4 - 2018-11-08
 ### Added
 - Technical - Setup the continuous integrations configuration for Travis CI.
