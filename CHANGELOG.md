@@ -4,6 +4,10 @@
 ### Added
 - Technical - On start, create a forestadmin-schema.json file that contains the apimap definition.
 
+## RELEASE 2.16.1 - 2019-01-21
+### Fixed
+- Integrations - Fix Stripe integration on an embedded document field.
+
 ## RELEASE 2.16.0 - 2019-01-17
 ### Added
 - Integrations - Developers can configure the Stripe integration to retrieve the customerId in an embedded document field.

@@ -5,7 +5,7 @@ exports.find = (data, path) => {
       let value = data;
       // eslint-disable-next-line consistent-return
       keys.forEach((key) => {
-        if (key in value && data[key]) {
+        if (key in value && value[key]) {
           value = value[key];
         } else {
           value = null;
