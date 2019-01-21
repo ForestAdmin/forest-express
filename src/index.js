@@ -62,6 +62,58 @@ function requireAllModels(Implementation, modelsDir) {
   return P.resolve(getModels(Implementation));
 }
 
+function prettyPrintJson(json, indentation = '') {
+  let result = '';
+
+  if (_.isArray(json)) {
+    result += '[';
+    const isSmall = json.length < 3;
+    const isPrimaryValue = json.length && !_.isArray(json[0]) && !_.isObject(json[0]);
+
+    _.each(json, (item, index) => {
+      if (index === 0 && isPrimaryValue && !isSmall) {
+        result += `\n${indentation}  `;
+      } else if (index > 0 && isPrimaryValue && !isSmall) {
+        result += `,\n${indentation}  `;
+      } else if (index > 0) {
+        result += ', ';
+      }
+
+      result += prettyPrintJson(item, isPrimaryValue ? `${indentation}  ` : indentation);
+    });
+
+    if (isPrimaryValue && !isSmall) {
+      result += `\n${indentation}`;
+    }
+    result += ']';
+  } else if (_.isObject(json)) {
+    result += '{\n';
+
+    let isFirst = true;
+    Object.keys(json).forEach((key) => {
+      const value = json[key];
+      if (!isFirst) {
+        result += ',\n';
+      } else {
+        isFirst = false;
+      }
+
+      result += `${indentation}  "${key}": `;
+      result += prettyPrintJson(value, `${indentation}  `);
+    });
+
+    result += `\n${indentation}}`;
+  } else if (_.isNil(json)) {
+    result += 'null';
+  } else if (_.isString(json)) {
+    result += `"${json}"`;
+  } else {
+    result += `${json}`;
+  }
+
+  return result;
+}
+
 exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
@@ -190,156 +242,295 @@ exports.init = (Implementation) => {
     .then(() => new ForestRoutes(app, opts).perform())
     .then(() => app.use(errorHandler.catchIfAny))
     .then(() => {
-      if (opts.envSecret && opts.envSecret.length !== 64) {
+      if (!opts.envSecret) {
+        return;
+      }
+      if (opts.envSecret.length !== 64) {
         logger.error('Your envSecret does not seem to be correct. Can you ' +
           'check on Forest that you copied it properly in the Forest ' +
           'initialization?');
-      } else if (opts.envSecret) {
-        const forestadminSchemaFilename = `${path.resolve('.')}/forestadmin-schema.json`;
-        let collections = [];
-        if (process.env.NODE_ENV === 'production') {
-          try {
-            const content = fs.readFileSync(forestadminSchemaFilename);
-            if (!content) {
-              logger.error('Your forestadmin-schema.json is empty, the apimap cannot be send');
-            } else {
-              collections = JSON.parse(content).collections;
-            }
-          } catch (error) {
-            if (error.code === 'ENOENT') {
-              logger.error('forestadmin-schema.json does not exists, the apimap cannot be send');
-            } else {
-              logger.error('the content of forestadmin-schema.json is not a correct JSON, the apimap cannot be send');
-            }
-          }
-        } else {
-          collections = _.values(Schemas.schemas);
-        }
-        integrator.defineCollections(collections);
+        return;
+      }
 
-        // NOTICE: Check each Smart Action declaration to detect configuration
-        //         errors.
-        _.each(collections, (collection) => {
-          if (collection.actions) {
-            _.each(collection.actions, (action) => {
-              if (action.fields && !_.isArray(action.fields)) {
-                logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
-              }
-            });
-          }
-        });
-
-        if (process.env.NODE_ENV !== 'production') {
-          // NOTICE: Reorder the collections to make the diff null or minimal
-          collections = collections.map((collection) => {
-            const collectionReordered = {};
-            _.each(_.sortBy(Object.keys(collection)), (key) => {
-              collectionReordered[key] = collection[key];
-            });
-            collectionReordered.fields = collectionReordered.fields.map((field) => {
-              const fieldReordered = {};
-              _.each(_.sortBy(Object.keys(field)), (key) => {
-                fieldReordered[key] = field[key];
-              });
-              return fieldReordered;
-            });
-            collectionReordered.fields = _.sortBy(collectionReordered.fields, ['field', 'type']);
-            return collectionReordered;
-          });
-          collections.sort((collection1, collection2) =>
-            collection1.name.localeCompare(collection2.name));
-
-          const filename = `${path.resolve('.')}/forestadmin-schema.json`;
-          const forestAdminSchema = {
-            collections,
-            meta: {
-              database_type: Implementation.getDatabaseType(),
-              liana: Implementation.getLianaName(),
-              liana_version: Implementation.getLianaVersion(),
-              orm_version: Implementation.getOrmVersion(),
-            },
-          };
-          fs.writeFileSync(filename, JSON.stringify(forestAdminSchema, null, 2));
-        }
-
-        if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
-          && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY)) {
-          return;
-        }
-
-        const apimap = new JSONAPISerializer('collections', collections, {
-          id: 'name',
-          // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+      const serializerOptions = {
+        keyForAttribute: 'snake_case',
+        id: 'name',
+        // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
+        attributes: [
+          'name',
+          'nameOld',
+          'icon',
+          'integration',
+          'isReadOnly',
+          'isSearchable',
+          'isVirtual',
+          'onlyForRelationships',
+          'paginationType',
+          'fields',
+          'segments',
+          'actions',
+        ],
+        fields: {
           attributes: [
-            'actions',
-            'displayName',
-            'icon',
+            'field',
+            'type',
+            'column',
+            'defaultValue',
+            'enums',
             'integration',
+            'isFilterable',
             'isReadOnly',
-            'isSearchable',
+            'isRequired',
+            'isSortable',
             'isVirtual',
+            'reference',
+            'inverseOf',
+            'relationship',
+            'widget',
+            'validations',
+          ],
+        },
+        validations: {
+          attributes: [
+            'message',
+            'type',
+            'value',
+          ],
+        },
+        actions: {
+          ref: 'id',
+          attributes: [
             'name',
-            'nameOld',
-            'onlyForRelationships',
-            'paginationType',
-            'segments',
+            'type',
+            'baseUrl',
+            'endpoint',
+            'httpMethod',
+            'redirect',
+            'download',
+            'fields',
           ],
           fields: {
             attributes: [
-              'collection_name',
-              'column',
-              'defaultValue',
-              'displayName',
-              'enums',
               'field',
-              'integration',
-              'isFilterable',
-              'isReadOnly',
-              'isRequired',
-              'isSortable',
-              'isVirtual',
-              'reference',
-              'relationship',
               'type',
-              'validations',
+              'isRequired',
+              'defaultValue',
+              'description',
+              'reference',
+              'enums',
               'widget',
             ],
           },
-          validations: {
-            attributes: [
-              'message',
-              'type',
-              'value',
-            ],
-          },
-          actions: {
-            ref: 'id',
-            attributes: [
-              'baseUrl',
-              'download',
-              'endpoint',
-              'fields',
-              'global',
-              'httpMethod',
-              'name',
-              'redirect',
-              'type',
-            ], // TODO: Remove global attribute when we remove the deprecation warning.
-          },
-          segments: {
-            ref: 'id',
-            attributes: ['name'],
-          },
+        },
+        segments: {
+          ref: 'id',
+          attributes: ['name'],
+        },
+        meta: {
+          database_type: Implementation.getDatabaseType(),
+          liana: Implementation.getLianaName(),
+          liana_version: Implementation.getLianaVersion(),
+          orm_version: Implementation.getOrmVersion(),
+        },
+      };
+      const forestadminSchemaFilename = `${path.resolve('.')}/.forestadmin-schema.json`;
+      let collections = [];
+      if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
+        try {
+          const content = fs.readFileSync(forestadminSchemaFilename);
+          if (!content) {
+            logger.error('Your .forestadmin-schema.json is empty, the apimap cannot be send');
+          } else {
+            collections = JSON.parse(content).collections;
+            const setMissingAttributes = (object, oldObject, attributes) => {
+              Object.keys(oldObject).forEach((key) => {
+                if (attributes.includes(key)) {
+                  return;
+                }
+
+                object[key] = oldObject[key];
+              });
+            };
+            collections.forEach((collection) => {
+              const oldCollection = Schemas.schemas[collection.name];
+              if (oldCollection) { return; }
+              setMissingAttributes(collection, oldCollection, serializerOptions.attributes);
+
+              collection.fields.forEach((field) => {
+                const oldField = _.find(oldCollection.fields, { field: field.field });
+                if (!oldField) { return; }
+                setMissingAttributes(field, oldField, serializerOptions.fields.attributes);
+              });
+
+              collection.segments.forEach((segment) => {
+                const oldSegment = _.find(oldCollection.segments, { name: segment.name });
+                if (!oldSegment) { return; }
+                setMissingAttributes(segment, oldSegment, serializerOptions.segments.attributes);
+              });
+
+              collection.actions.forEach((action) => {
+                const oldAction = _.find(oldCollection.actions, { name: action.name });
+                if (!oldAction) { return; }
+                setMissingAttributes(action, oldAction, serializerOptions.actions.attributes);
+
+                action.fields.forEach((field) => {
+                  const oldField = _.find(oldAction.fields, { field: field.field });
+                  if (!oldField) { return; }
+                  setMissingAttributes(
+                    field,
+                    oldField,
+                    serializerOptions.actions.fields.attributes,
+                  );
+                });
+              });
+            });
+
+            // Schemas.schemas = collections;
+            Schemas.schemas = {};
+            collections.forEach((collection) => {
+              Schemas.schemas[collection.name] = collection;
+            });
+          }
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            logger.error('.forestadmin-schema.json does not exists, the apimap cannot be send');
+          } else {
+            logger.error('The content of .forestadmin-schema.json is not a correct JSON, the apimap cannot be send');
+          }
+        }
+      } else {
+        collections = _.values(Schemas.schemas);
+      }
+      integrator.defineCollections(collections);
+
+      // NOTICE: Check each Smart Action declaration to detect configuration
+      //         errors.
+      _.each(collections, (collection) => {
+        if (collection.actions) {
+          _.each(collection.actions, (action) => {
+            if (action.fields && !_.isArray(action.fields)) {
+              logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
+            }
+          });
+        }
+      });
+
+      if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+        // NOTICE: Reorder the collections to make the diff null or minimal
+        collections = collections.map((collection) => {
+          const collectionReordered = {};
+          const orderedCollectionKeys = _.sortBy(
+            Object.keys(collection),
+            key => serializerOptions.attributes.indexOf(key),
+          );
+          _.each(orderedCollectionKeys, (key) => {
+            if (serializerOptions.attributes.includes(key)) {
+              collectionReordered[key] = collection[key];
+            }
+          });
+
+          collectionReordered.fields = collectionReordered.fields || [];
+          collectionReordered.fields = collectionReordered.fields.map((field) => {
+            const fieldReordered = {};
+            const orderedFieldKeys = _.sortBy(
+              Object.keys(field),
+              key => serializerOptions.fields.attributes.indexOf(key),
+            );
+            _.each(orderedFieldKeys, (key) => {
+              if (serializerOptions.fields.attributes.includes(key)) {
+                fieldReordered[key] = field[key];
+              }
+            });
+
+            fieldReordered.validations = fieldReordered.validations || [];
+            fieldReordered.validations = fieldReordered.validations.map((validation) => {
+              const validationReordered = {};
+              const orderedValidationKeys = _.sortBy(
+                Object.keys(validation),
+                key => serializerOptions.validations.attributes.indexOf(key),
+              );
+              _.each(orderedValidationKeys, (key) => {
+                if (serializerOptions.validations.attributes.includes(key)) {
+                  validationReordered[key] = validation[key];
+                }
+              });
+              return validationReordered;
+            });
+            return fieldReordered;
+          });
+          collectionReordered.fields = _.sortBy(collectionReordered.fields, ['field', 'type']);
+
+          collectionReordered.segments = collectionReordered.segments || [];
+          collectionReordered.segments = collectionReordered.segments.map((segment) => {
+            const segmentReordered = {};
+            const orderedSegmentKeys = _.sortBy(
+              Object.keys(segment),
+              key => serializerOptions.segments.attributes.indexOf(key),
+            );
+            _.each(orderedSegmentKeys, (key) => {
+              if (serializerOptions.segments.attributes.includes(key)) {
+                segmentReordered[key] = segment[key];
+              }
+            });
+            return segmentReordered;
+          });
+          collectionReordered.segments = _.sortBy(collectionReordered.segments, ['name']);
+
+          collectionReordered.actions = collectionReordered.actions || [];
+          collectionReordered.actions = collectionReordered.actions.map((action) => {
+            const actionReordered = {};
+            const orderedActionKeys = _.sortBy(
+              Object.keys(action),
+              key => serializerOptions.actions.attributes.indexOf(key),
+            );
+            _.each(orderedActionKeys, (key) => {
+              if (serializerOptions.actions.attributes.includes(key)) {
+                actionReordered[key] = action[key];
+              }
+            });
+            actionReordered.fields = actionReordered.fields.map((field) => {
+              const fieldReordered = {};
+              const orderedFieldKeys = _.sortBy(
+                Object.keys(field),
+                key => serializerOptions.actions.fields.attributes.indexOf(key),
+              );
+              _.each(orderedFieldKeys, (key) => {
+                if (serializerOptions.actions.fields.attributes.includes(key)) {
+                  fieldReordered[key] = field[key];
+                }
+              });
+              return fieldReordered;
+            });
+            return actionReordered;
+          });
+          collectionReordered.actions = _.sortBy(collectionReordered.actions, ['name']);
+
+          return collectionReordered;
+        });
+        collections.sort((collection1, collection2) =>
+          collection1.name.localeCompare(collection2.name));
+
+        const filename = `${path.resolve('.')}/.forestadmin-schema.json`;
+        const forestAdminSchema = {
+          collections,
           meta: {
             database_type: Implementation.getDatabaseType(),
             liana: Implementation.getLianaName(),
             liana_version: Implementation.getLianaVersion(),
             orm_version: Implementation.getOrmVersion(),
           },
-        });
-
-        new ApimapSender(opts.envSecret, apimap).perform();
+        };
+        fs.writeFileSync(filename, prettyPrintJson(forestAdminSchema));
       }
+
+      if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
+        && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY)) {
+        return;
+      }
+
+      collections.forEach(Schemas.createIdsForRelationships);
+      const apimap = new JSONAPISerializer('collections', collections, serializerOptions);
+      new ApimapSender(opts.envSecret, apimap).perform();
     })
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
@@ -375,13 +566,8 @@ exports.collection = (name, opts) => {
 
   // NOTICE: Action ids are defined concatenating the collection name and the
   //         action name to prevent action id conflicts between collections.
-  _.each(opts.actions, (action) => {
-    action.id = `${name}.${action.name}`;
-  });
-
-  _.each(opts.segments, (segment) => {
-    segment.id = `${name}.${segment.name}`;
-  });
+  opts.name = name;
+  Schemas.createIdsForRelationships(opts);
 
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
@@ -399,7 +585,6 @@ exports.collection = (name, opts) => {
     }
   } else {
     // NOTICE: Smart Collection definition case
-    opts.name = name;
     opts.idField = 'id';
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
@@ -407,22 +592,7 @@ exports.collection = (name, opts) => {
     Schemas.schemas[name] = opts;
   }
 
-  if (Schemas.schemas[name].actions) {
-    _.each(Schemas.schemas[name].actions, (action) => {
-      if (action.global) {
-        logger.warn(`DEPRECATION WARNING: Smart Action "global" option is now deprecated. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
-      }
-
-      if (action.type && !_.includes(['bulk', 'global', 'single'], action.type)) {
-        logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
-      }
-
-      // NOTICE: Set a position to the Smart Actions fields.
-      _.each(action.fields, (field, position) => {
-        field.position = position;
-      });
-    });
-  }
+  Schemas.cleanCollection(Schemas.schemas[name]);
 };
 
 exports.logger = require('./services/logger');

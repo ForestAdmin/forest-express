@@ -4,6 +4,8 @@
   "src/deserializers/resource.js",
   "src/generators/schemas.js",
   "src/index.js",
+  "src/integrations/close.io/setup.js",
+  "src/integrations/layer/setup.js",
   "src/integrations/stripe/routes.js",
   "src/integrations/stripe/serializers/invoices.js",
   "src/integrations/stripe/services/invoice-getter.js",
