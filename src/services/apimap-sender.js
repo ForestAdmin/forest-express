@@ -4,16 +4,16 @@ const ApimapSorter = require('./apimap-sorter');
 const logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
-  this.perform = function () {
-    var urlService = new ServiceUrlGetter().perform();
+  this.perform = () => {
+    const urlService = new ServiceUrlGetter().perform();
 
     apimap = new ApimapSorter(apimap).perform();
 
     request
-      .post(urlService + '/forest/apimaps')
+      .post(`${urlService}/forest/apimaps`)
       .send(apimap)
       .set('forest-secret-key', envSecret)
-      .end(function (error, result) {
+      .end((error, result) => {
         if (result) {
           if ([200, 202, 204].indexOf(result.status) !== -1) {
             if (result.body && result.body.warning) {

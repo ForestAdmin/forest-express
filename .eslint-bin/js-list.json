@@ -16,6 +16,7 @@
   "src/integrations/stripe/services/subscription-getter.js",
   "src/integrations/stripe/services/subscriptions-getter.js",
   "src/services/apimap-fields-formater.js",
+  "src/services/apimap-sender.js",
   "src/utils/data.js",
   "test/helpers/create-server.js",
   "test/routes/sessions-google.js",
