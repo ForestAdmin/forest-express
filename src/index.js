@@ -7,6 +7,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const auth = require('./services/auth');
+const { prettyPrint } = require('./utils/json');
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
 const AssociationsRoutes = require('./routes/associations');
@@ -14,7 +15,7 @@ const StatRoutes = require('./routes/stats');
 const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
 const Schemas = require('./generators/schemas');
-const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const CollectionSerializer = require('./serializers/collection');
 const logger = require('./services/logger');
 const Integrator = require('./integrations');
 const errorHandler = require('./services/error-handler');
@@ -60,58 +61,6 @@ function requireAllModels(Implementation, modelsDir) {
   // NOTICE: User didn't provide a modelsDir but may already have required
   // them manually so they might be available.
   return P.resolve(getModels(Implementation));
-}
-
-function prettyPrintJson(json, indentation = '') {
-  let result = '';
-
-  if (_.isArray(json)) {
-    result += '[';
-    const isSmall = json.length < 3;
-    const isPrimaryValue = json.length && !_.isArray(json[0]) && !_.isObject(json[0]);
-
-    _.each(json, (item, index) => {
-      if (index === 0 && isPrimaryValue && !isSmall) {
-        result += `\n${indentation}  `;
-      } else if (index > 0 && isPrimaryValue && !isSmall) {
-        result += `,\n${indentation}  `;
-      } else if (index > 0) {
-        result += ', ';
-      }
-
-      result += prettyPrintJson(item, isPrimaryValue ? `${indentation}  ` : indentation);
-    });
-
-    if (isPrimaryValue && !isSmall) {
-      result += `\n${indentation}`;
-    }
-    result += ']';
-  } else if (_.isObject(json)) {
-    result += '{\n';
-
-    let isFirst = true;
-    Object.keys(json).forEach((key) => {
-      const value = json[key];
-      if (!isFirst) {
-        result += ',\n';
-      } else {
-        isFirst = false;
-      }
-
-      result += `${indentation}  "${key}": `;
-      result += prettyPrintJson(value, `${indentation}  `);
-    });
-
-    result += `\n${indentation}}`;
-  } else if (_.isNil(json)) {
-    result += 'null';
-  } else if (_.isString(json)) {
-    result += `"${json}"`;
-  } else {
-    result += `${json}`;
-  }
-
-  return result;
 }
 
 exports.Schemas = Schemas;
@@ -242,9 +191,8 @@ exports.init = (Implementation) => {
     .then(() => new ForestRoutes(app, opts).perform())
     .then(() => app.use(errorHandler.catchIfAny))
     .then(() => {
-      if (!opts.envSecret) {
-        return;
-      }
+      if (!opts.envSecret) { return; }
+
       if (opts.envSecret.length !== 64) {
         logger.error('Your envSecret does not seem to be correct. Can you ' +
           'check on Forest that you copied it properly in the Forest ' +
@@ -252,87 +200,9 @@ exports.init = (Implementation) => {
         return;
       }
 
-      const serializerOptions = {
-        keyForAttribute: 'snake_case',
-        id: 'name',
-        // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-        attributes: [
-          'name',
-          'nameOld',
-          'icon',
-          'integration',
-          'isReadOnly',
-          'isSearchable',
-          'isVirtual',
-          'onlyForRelationships',
-          'paginationType',
-          'fields',
-          'segments',
-          'actions',
-        ],
-        fields: {
-          attributes: [
-            'field',
-            'type',
-            'column',
-            'defaultValue',
-            'enums',
-            'integration',
-            'isFilterable',
-            'isReadOnly',
-            'isRequired',
-            'isSortable',
-            'isVirtual',
-            'reference',
-            'inverseOf',
-            'relationship',
-            'widget',
-            'validations',
-          ],
-        },
-        validations: {
-          attributes: [
-            'message',
-            'type',
-            'value',
-          ],
-        },
-        actions: {
-          ref: 'id',
-          attributes: [
-            'name',
-            'type',
-            'baseUrl',
-            'endpoint',
-            'httpMethod',
-            'redirect',
-            'download',
-            'fields',
-          ],
-          fields: {
-            attributes: [
-              'field',
-              'type',
-              'isRequired',
-              'defaultValue',
-              'description',
-              'reference',
-              'enums',
-              'widget',
-            ],
-          },
-        },
-        segments: {
-          ref: 'id',
-          attributes: ['name'],
-        },
-        meta: {
-          database_type: Implementation.getDatabaseType(),
-          liana: Implementation.getLianaName(),
-          liana_version: Implementation.getLianaVersion(),
-          orm_version: Implementation.getOrmVersion(),
-        },
-      };
+      const collectionsSerializer = new CollectionSerializer(Implementation);
+      const { options: serializerOptions } = collectionsSerializer;
+
       const forestadminSchemaFilename = `${path.resolve('.')}/.forestadmin-schema.json`;
       let collections = [];
       if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
@@ -488,6 +358,7 @@ exports.init = (Implementation) => {
                 actionReordered[key] = action[key];
               }
             });
+            actionReordered.fields = actionReordered.fields || [];
             actionReordered.fields = actionReordered.fields.map((field) => {
               const fieldReordered = {};
               const orderedFieldKeys = _.sortBy(
@@ -520,7 +391,7 @@ exports.init = (Implementation) => {
             orm_version: Implementation.getOrmVersion(),
           },
         };
-        fs.writeFileSync(filename, prettyPrintJson(forestAdminSchema));
+        fs.writeFileSync(filename, prettyPrint(forestAdminSchema));
       }
 
       if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
@@ -529,16 +400,16 @@ exports.init = (Implementation) => {
       }
 
       collections.forEach(Schemas.createIdsForRelationships);
-      const apimap = new JSONAPISerializer('collections', collections, serializerOptions);
+      const apimap = collectionsSerializer.perform(collections);
       new ApimapSender(opts.envSecret, apimap).perform();
     })
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
       .catch(error => logger.error(error)))
     .catch((error) => {
-      logger.error('An error occured while computing the Forest apimap. Your ' +
-        'application apimap cannot be sent to Forest. Your Admin UI might ' +
-        'not reflect your application models.', error);
+      logger.error('An error occured while computing the Forest schema. Your application schema ' +
+        'cannot be synchronized with Forest. Your admin panel might not reflect your application ' +
+        'models definition.', error);
     });
 
   if (opts.expressParentApp) {
