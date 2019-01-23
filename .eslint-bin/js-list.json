@@ -4,8 +4,6 @@
   "src/deserializers/resource.js",
   "src/generators/schemas.js",
   "src/index.js",
-  "src/integrations/close.io/setup.js",
-  "src/integrations/layer/setup.js",
   "src/integrations/stripe/routes.js",
   "src/integrations/stripe/serializers/invoices.js",
   "src/integrations/stripe/services/invoice-getter.js",
@@ -21,13 +19,11 @@
   "src/serializers/stat.js",
   "src/services/apimap-fields-formater.js",
   "src/services/apimap-sender.js",
-  "src/services/apimap-sorter.js",
   "src/utils/data.js",
   "src/utils/json.js",
   "test/helpers/create-server.js",
   "test/routes/sessions-google.js",
   "test/routes/sessions.js",
   "test/services/apimap-fields-formater.js",
-  "test/services/apimap-sorter.js",
   "test/services/permissions.js"
 ]
