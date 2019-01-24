@@ -92,16 +92,6 @@ const cleanCollection = (collection) => {
   collection.actions = cleanActions(collection.actions);
 };
 
-const createIdsForRelationships = (collection) => {
-  _.each(collection.actions, (action) => {
-    action.id = `${collection.name}.${action.name}`;
-  });
-
-  _.each(collection.segments, (segment) => {
-    segment.id = `${collection.name}.${segment.name}`;
-  });
-};
-
 module.exports = {
   schemas: {},
   perform(implementation, integrator, models, opts) {
@@ -142,5 +132,4 @@ module.exports = {
   cleanActions,
   cleanSegments,
   cleanFields,
-  createIdsForRelationships,
 };

@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function CollectionSerializer(Implementation) {
@@ -84,7 +85,21 @@ function CollectionSerializer(Implementation) {
   };
 
   this.options = options;
-  this.perform = collections => new JSONAPISerializer('collections', collections, options);
+  this.perform = (collections) => {
+    // NOTICE: Action ids are defined concatenating the collection name and the object name to
+    //         prevent object id conflicts between collections.
+    _.each(collections, (collection) => {
+      _.each(collection.actions, (action) => {
+        action.id = `${collection.name}.${action.name}`;
+      });
+
+      _.each(collection.segments, (segment) => {
+        segment.id = `${collection.name}.${segment.name}`;
+      });
+    });
+
+    return new JSONAPISerializer('collections', collections, options);
+  };
 }
 
 module.exports = CollectionSerializer;

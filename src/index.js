@@ -399,7 +399,6 @@ exports.init = (Implementation) => {
         return;
       }
 
-      collections.forEach(Schemas.createIdsForRelationships);
       const apimap = collectionsSerializer.perform(collections);
       new ApimapSender(opts.envSecret, apimap).perform();
     })
@@ -435,10 +434,7 @@ exports.collection = (name, opts) => {
     }
   }
 
-  // NOTICE: Action ids are defined concatenating the collection name and the
-  //         action name to prevent action id conflicts between collections.
   opts.name = name;
-  Schemas.createIdsForRelationships(opts);
 
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
