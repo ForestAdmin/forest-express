@@ -7,7 +7,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const auth = require('./services/auth');
-const { prettyPrint } = require('./utils/json');
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
 const AssociationsRoutes = require('./routes/associations');
@@ -15,19 +14,24 @@ const StatRoutes = require('./routes/stats');
 const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
 const Schemas = require('./generators/schemas');
-const CollectionSerializer = require('./serializers/collection');
+const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
 const Integrator = require('./integrations');
 const errorHandler = require('./services/error-handler');
 const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
+const SchemaFileUpdater = require('./services/schema-file-updater');
 const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 
 const readdirAsync = P.promisify(fs.readdir);
 
 let jwtAuthenticator;
 
+const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
+  || ['dev', 'development'].includes(process.env.NODE_ENV);
 const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
+const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
+  && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 
 function getModels(Implementation) {
   const models = Implementation.getModels();
@@ -196,86 +200,15 @@ exports.init = (Implementation) => {
       if (!opts.envSecret) { return; }
 
       if (opts.envSecret.length !== 64) {
-        logger.error('Your envSecret does not seem to be correct. Can you ' +
-          'check on Forest that you copied it properly in the Forest ' +
-          'initialization?');
+        logger.error('Your envSecret does not seem to be correct. Can you check on Forest that ' +
+          'you copied it properly in the Forest initialization?');
         return;
       }
 
-      const collectionsSerializer = new CollectionSerializer(Implementation);
-      const { options: serializerOptions } = collectionsSerializer;
-
-      let collections = [];
-      if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
-        try {
-          const content = fs.readFileSync(SCHEMA_FILENAME);
-          if (!content) {
-            logger.error('Your .forestadmin-schema.json is empty, the apimap cannot be send');
-          } else {
-            collections = JSON.parse(content).collections;
-            const setMissingAttributes = (object, oldObject, attributes) => {
-              Object.keys(oldObject).forEach((key) => {
-                if (attributes.includes(key)) {
-                  return;
-                }
-
-                object[key] = oldObject[key];
-              });
-            };
-            collections.forEach((collection) => {
-              const oldCollection = Schemas.schemas[collection.name];
-              if (oldCollection) { return; }
-              setMissingAttributes(collection, oldCollection, serializerOptions.attributes);
-
-              collection.fields.forEach((field) => {
-                const oldField = _.find(oldCollection.fields, { field: field.field });
-                if (!oldField) { return; }
-                setMissingAttributes(field, oldField, serializerOptions.fields.attributes);
-              });
-
-              collection.segments.forEach((segment) => {
-                const oldSegment = _.find(oldCollection.segments, { name: segment.name });
-                if (!oldSegment) { return; }
-                setMissingAttributes(segment, oldSegment, serializerOptions.segments.attributes);
-              });
-
-              collection.actions.forEach((action) => {
-                const oldAction = _.find(oldCollection.actions, { name: action.name });
-                if (!oldAction) { return; }
-                setMissingAttributes(action, oldAction, serializerOptions.actions.attributes);
-
-                action.fields.forEach((field) => {
-                  const oldField = _.find(oldAction.fields, { field: field.field });
-                  if (!oldField) { return; }
-                  setMissingAttributes(
-                    field,
-                    oldField,
-                    serializerOptions.actions.fields.attributes,
-                  );
-                });
-              });
-            });
-
-            // Schemas.schemas = collections;
-            Schemas.schemas = {};
-            collections.forEach((collection) => {
-              Schemas.schemas[collection.name] = collection;
-            });
-          }
-        } catch (error) {
-          if (error.code === 'ENOENT') {
-            logger.error('.forestadmin-schema.json does not exists, the apimap cannot be send');
-          } else {
-            logger.error('The content of .forestadmin-schema.json is not a correct JSON, the apimap cannot be send');
-          }
-        }
-      } else {
-        collections = _.values(Schemas.schemas);
-      }
+      const collections = _.values(Schemas.schemas);
       integrator.defineCollections(collections);
 
-      // NOTICE: Check each Smart Action declaration to detect configuration
-      //         errors.
+      // NOTICE: Check each Smart Action declaration to detect configuration errors.
       _.each(collections, (collection) => {
         if (collection.actions) {
           _.each(collection.actions, (action) => {
@@ -286,121 +219,95 @@ exports.init = (Implementation) => {
         }
       });
 
-      if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-        // NOTICE: Reorder the collections to make the diff null or minimal
-        collections = collections.map((collection) => {
-          const collectionReordered = {};
-          const orderedCollectionKeys = _.sortBy(
-            Object.keys(collection),
-            key => serializerOptions.attributes.indexOf(key),
-          );
-          _.each(orderedCollectionKeys, (key) => {
-            if (serializerOptions.attributes.includes(key)) {
-              collectionReordered[key] = collection[key];
-            }
-          });
+      const schemaSerializer = new SchemaSerializer();
+      const { options: serializerOptions } = schemaSerializer;
+      let collectionsSent;
+      let metaSent;
 
-          collectionReordered.fields = collectionReordered.fields || [];
-          collectionReordered.fields = collectionReordered.fields.map((field) => {
-            const fieldReordered = {};
-            const orderedFieldKeys = _.sortBy(
-              Object.keys(field),
-              key => serializerOptions.fields.attributes.indexOf(key),
-            );
-            _.each(orderedFieldKeys, (key) => {
-              if (serializerOptions.fields.attributes.includes(key)) {
-                fieldReordered[key] = field[key];
-              }
-            });
-
-            fieldReordered.validations = fieldReordered.validations || [];
-            fieldReordered.validations = fieldReordered.validations.map((validation) => {
-              const validationReordered = {};
-              const orderedValidationKeys = _.sortBy(
-                Object.keys(validation),
-                key => serializerOptions.validations.attributes.indexOf(key),
-              );
-              _.each(orderedValidationKeys, (key) => {
-                if (serializerOptions.validations.attributes.includes(key)) {
-                  validationReordered[key] = validation[key];
-                }
-              });
-              return validationReordered;
-            });
-            return fieldReordered;
-          });
-          collectionReordered.fields = _.sortBy(collectionReordered.fields, ['field', 'type']);
-
-          collectionReordered.segments = collectionReordered.segments || [];
-          collectionReordered.segments = collectionReordered.segments.map((segment) => {
-            const segmentReordered = {};
-            const orderedSegmentKeys = _.sortBy(
-              Object.keys(segment),
-              key => serializerOptions.segments.attributes.indexOf(key),
-            );
-            _.each(orderedSegmentKeys, (key) => {
-              if (serializerOptions.segments.attributes.includes(key)) {
-                segmentReordered[key] = segment[key];
-              }
-            });
-            return segmentReordered;
-          });
-          collectionReordered.segments = _.sortBy(collectionReordered.segments, ['name']);
-
-          collectionReordered.actions = collectionReordered.actions || [];
-          collectionReordered.actions = collectionReordered.actions.map((action) => {
-            const actionReordered = {};
-            const orderedActionKeys = _.sortBy(
-              Object.keys(action),
-              key => serializerOptions.actions.attributes.indexOf(key),
-            );
-            _.each(orderedActionKeys, (key) => {
-              if (serializerOptions.actions.attributes.includes(key)) {
-                actionReordered[key] = action[key];
-              }
-            });
-            actionReordered.fields = actionReordered.fields || [];
-            actionReordered.fields = actionReordered.fields.map((field) => {
-              const fieldReordered = {};
-              const orderedFieldKeys = _.sortBy(
-                Object.keys(field),
-                key => serializerOptions.actions.fields.attributes.indexOf(key),
-              );
-              _.each(orderedFieldKeys, (key) => {
-                if (serializerOptions.actions.fields.attributes.includes(key)) {
-                  fieldReordered[key] = field[key];
-                }
-              });
-              return fieldReordered;
-            });
-            return actionReordered;
-          });
-          collectionReordered.actions = _.sortBy(collectionReordered.actions, ['name']);
-
-          return collectionReordered;
-        });
-        collections.sort((collection1, collection2) =>
-          collection1.name.localeCompare(collection2.name));
-
-        const forestAdminSchema = {
-          collections,
-          meta: {
-            database_type: Implementation.getDatabaseType(),
-            liana: Implementation.getLianaName(),
-            liana_version: Implementation.getLianaVersion(),
-            orm_version: Implementation.getOrmVersion(),
-          },
+      if (ENVIRONMENT_DEVELOPMENT) {
+        collectionsSent = collections;
+        metaSent = {
+          database_type: Implementation.getDatabaseType(),
+          liana: Implementation.getLianaName(),
+          liana_version: Implementation.getLianaVersion(),
+          orm_version: Implementation.getOrmVersion(),
         };
-        fs.writeFileSync(SCHEMA_FILENAME, prettyPrint(forestAdminSchema));
+        new SchemaFileUpdater(SCHEMA_FILENAME, collectionsSent, metaSent, serializerOptions)
+          .perform();
+      } else {
+        try {
+          const content = fs.readFileSync(SCHEMA_FILENAME);
+          if (!content) {
+            logger.error('Your .forestadmin-schema.json is empty, the schema cannot be ' +
+              'synchronized with Forest Admin servers.');
+            return;
+          }
+          // TODO: Add warning to explain schema file differences compared to the codebase
+          //   collections = JSON.parse(content).collections;
+          //   const setMissingAttributes = (object, oldObject, attributes) => {
+          //     Object.keys(oldObject).forEach((key) => {
+          //       if (attributes.includes(key)) {
+          //         return;
+          //       }
+          //
+          //       object[key] = oldObject[key];
+          //     });
+          //   };
+          //   collections.forEach((collection) => {
+          //     const oldCollection = Schemas.schemas[collection.name];
+          //     if (oldCollection) { return; }
+          //     setMissingAttributes(collection, oldCollection, serializerOptions.attributes);
+          //
+          //     collection.fields.forEach((field) => {
+          //       const oldField = _.find(oldCollection.fields, { field: field.field });
+          //       if (!oldField) { return; }
+          //       setMissingAttributes(field, oldField, serializerOptions.fields.attributes);
+          //     });
+          //
+          //     collection.segments.forEach((segment) => {
+          //       const oldSegment = _.find(oldCollection.segments, { name: segment.name });
+          //       if (!oldSegment) { return; }
+          //       setMissingAttributes(segment, oldSegment, serializerOptions.segments.attributes);
+          //     });
+          //
+          //     collection.actions.forEach((action) => {
+          //       const oldAction = _.find(oldCollection.actions, { name: action.name });
+          //       if (!oldAction) { return; }
+          //       setMissingAttributes(action, oldAction, serializerOptions.actions.attributes);
+          //
+          //       action.fields.forEach((field) => {
+          //         const oldField = _.find(oldAction.fields, { field: field.field });
+          //         if (!oldField) { return; }
+          //         setMissingAttributes(
+          //           field,
+          //           oldField,
+          //           serializerOptions.actions.fields.attributes,
+          //         );
+          //       });
+          //     });
+          //   });
+          //
+          //   // Schemas.schemas = collections;
+          //   Schemas.schemas = {};
+          //   collections.forEach((collection) => {
+          //     Schemas.schemas[collection.name] = collection;
+          // });
+          collectionsSent = content.collection;
+          metaSent = content.meta;
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            logger.error('.forestadmin-schema.json does not exists, the apimap cannot be send');
+          } else {
+            logger.error('The content of .forestadmin-schema.json is not a correct JSON, the apimap cannot be send');
+          }
+          return;
+        }
       }
 
-      if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
-        && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY)) {
-        return;
-      }
+      if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
 
-      const apimap = collectionsSerializer.perform(collections);
-      new ApimapSender(opts.envSecret, apimap).perform();
+      const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
+      new ApimapSender(opts.envSecret, schemaSent).perform();
     })
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
@@ -457,8 +364,6 @@ exports.collection = (name, opts) => {
     opts.fields = new ApimapFieldsFormater(opts.fields, name).perform();
     Schemas.schemas[name] = opts;
   }
-
-  Schemas.cleanCollection(Schemas.schemas[name]);
 };
 
 exports.logger = require('./services/logger');

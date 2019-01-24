@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function CollectionSerializer(Implementation) {
+function SchemaSerializer() {
+  // WARNING: Attributes declaration order is important for .forestadmin-schema.json format.
   const options = {
-    keyForAttribute: 'snake_case',
     id: 'name',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
     attributes: [
@@ -76,16 +76,11 @@ function CollectionSerializer(Implementation) {
       ref: 'id',
       attributes: ['name'],
     },
-    meta: {
-      database_type: Implementation.getDatabaseType(),
-      liana: Implementation.getLianaName(),
-      liana_version: Implementation.getLianaVersion(),
-      orm_version: Implementation.getOrmVersion(),
-    },
+    keyForAttribute: 'snake_case',
   };
 
   this.options = options;
-  this.perform = (collections) => {
+  this.perform = (collections, meta) => {
     // NOTICE: Action ids are defined concatenating the collection name and the object name to
     //         prevent object id conflicts between collections.
     _.each(collections, (collection) => {
@@ -98,8 +93,10 @@ function CollectionSerializer(Implementation) {
       });
     });
 
+    options.meta = meta;
+
     return new JSONAPISerializer('collections', collections, options);
   };
 }
 
-module.exports = CollectionSerializer;
+module.exports = SchemaSerializer;
