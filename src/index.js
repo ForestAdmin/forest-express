@@ -434,8 +434,6 @@ exports.collection = (name, opts) => {
     }
   }
 
-  opts.name = name;
-
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
     if (!Schemas.schemas[name].segments) { Schemas.schemas[name].segments = []; }
@@ -452,6 +450,7 @@ exports.collection = (name, opts) => {
     }
   } else {
     // NOTICE: Smart Collection definition case
+    opts.name = name;
     opts.idField = 'id';
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
