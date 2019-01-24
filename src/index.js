@@ -27,6 +27,8 @@ const readdirAsync = P.promisify(fs.readdir);
 
 let jwtAuthenticator;
 
+const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
+
 function getModels(Implementation) {
   const models = Implementation.getModels();
   _.each(models, (model, modelName) => {
@@ -203,11 +205,10 @@ exports.init = (Implementation) => {
       const collectionsSerializer = new CollectionSerializer(Implementation);
       const { options: serializerOptions } = collectionsSerializer;
 
-      const forestadminSchemaFilename = `${path.resolve('.')}/.forestadmin-schema.json`;
       let collections = [];
       if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
         try {
-          const content = fs.readFileSync(forestadminSchemaFilename);
+          const content = fs.readFileSync(SCHEMA_FILENAME);
           if (!content) {
             logger.error('Your .forestadmin-schema.json is empty, the apimap cannot be send');
           } else {
@@ -381,7 +382,6 @@ exports.init = (Implementation) => {
         collections.sort((collection1, collection2) =>
           collection1.name.localeCompare(collection2.name));
 
-        const filename = `${path.resolve('.')}/.forestadmin-schema.json`;
         const forestAdminSchema = {
           collections,
           meta: {
@@ -391,7 +391,7 @@ exports.init = (Implementation) => {
             orm_version: Implementation.getOrmVersion(),
           },
         };
-        fs.writeFileSync(filename, prettyPrint(forestAdminSchema));
+        fs.writeFileSync(SCHEMA_FILENAME, prettyPrint(forestAdminSchema));
       }
 
       if (process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
