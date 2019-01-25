@@ -26,5 +26,11 @@ module.exports = {
         enforceForRenamedProperties: false,
       },
     ],
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        'devDependencies': [
+          'bin/*.js',
+        ]}]
   },
 };
