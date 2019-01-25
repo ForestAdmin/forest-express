@@ -7,17 +7,27 @@ const BRANCH_MASTER = 'master';
 const BRANCH_DEVEL = 'devel';
 
 let numberToIncrement = 'patch';
-if (process.argv && process.argv[2]) {
-  const option = process.argv[2].replace('--', '');
-  if (['major', 'minor', 'patch'].indexOf(option) !== -1) {
-    numberToIncrement = option;
+let prerelease;
+
+if (process.argv) {
+  if (process.argv[2]) {
+    const option = process.argv[2].replace('--', '');
+    if (['major', 'minor', 'patch'].includes(option)) {
+      numberToIncrement = option;
+    }
+  }
+  if (process.argv[3]) {
+    const option = process.argv[3].replace('--', '');
+    if (option === 'beta') {
+      prerelease = option;
+    }
   }
 }
 
 // VERSION
 const versionFile = fs.readFileSync('package.json').toString().split('\n');
 let version = versionFile[3].match(/\w*"version": "(.*)",/)[1];
-version = semver.inc(version, numberToIncrement);
+version = semver.inc(version, numberToIncrement, prerelease);
 versionFile[3] = `  "version": "${version}",`;
 fs.writeFileSync('package.json', versionFile.join('\n'));
 
@@ -42,4 +52,6 @@ simpleGit
   .pull((error) => { if (error) { console.log(error); } })
   .then(() => { console.log(`${BRANCH_MASTER} pull done.`); })
   .mergeFromTo(BRANCH_DEVEL, BRANCH_MASTER)
-  .push();
+  .push()
+  .addTag(version)
+  .checkout(BRANCH_DEVEL);
