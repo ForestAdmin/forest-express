@@ -14,17 +14,24 @@ const StatRoutes = require('./routes/stats');
 const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
 const Schemas = require('./generators/schemas');
-const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
 const Integrator = require('./integrations');
 const errorHandler = require('./services/error-handler');
 const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
+const SchemaFileUpdater = require('./services/schema-file-updater');
 const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 
 const readdirAsync = P.promisify(fs.readdir);
 
 let jwtAuthenticator;
+
+const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
+  || ['dev', 'development'].includes(process.env.NODE_ENV);
+const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
+const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
+  && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 
 function getModels(Implementation) {
   const models = Implementation.getModels();
@@ -190,73 +197,76 @@ exports.init = (Implementation) => {
     .then(() => new ForestRoutes(app, opts).perform())
     .then(() => app.use(errorHandler.catchIfAny))
     .then(() => {
-      if (opts.envSecret && opts.envSecret.length !== 64) {
-        logger.error('Your envSecret does not seem to be correct. Can you ' +
-          'check on Forest that you copied it properly in the Forest ' +
-          'initialization?');
-      } else if (opts.envSecret) {
-        const collections = _.values(Schemas.schemas);
-        integrator.defineCollections(collections);
+      if (!opts.envSecret) { return; }
 
-        // NOTICE: Check each Smart Action declaration to detect configuration
-        //         errors.
-        _.each(collections, (collection) => {
-          if (collection.actions) {
-            _.each(collection.actions, (action) => {
-              if (action.fields && !_.isArray(action.fields)) {
-                logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
-              }
-            });
-          }
-        });
-
-        if (process.env.NODE_ENV !== 'production') {
-          const filename = `${path.resolve('.')}/forestadmin-schema.json`;
-          fs.writeFileSync(filename, JSON.stringify(collections, null, 2));
-        }
-
-        const apimap = new JSONAPISerializer('collections', collections, {
-          id: 'name',
-          // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-          attributes: ['name', 'nameOld', 'displayName', 'paginationType', 'icon',
-            'fields', 'actions', 'segments', 'onlyForRelationships',
-            'isVirtual', 'integration', 'isReadOnly', 'isSearchable'],
-          fields: {
-            attributes: ['field', 'displayName', 'type', 'relationship', 'enums',
-              'collection_name', 'reference', 'column', 'isFilterable',
-              'widget', 'integration', 'isReadOnly', 'isVirtual',
-              'isRequired', 'defaultValue', 'validations', 'isSortable'],
-          },
-          validations: {
-            attributes: ['type', 'value', 'message'],
-          },
-          actions: {
-            ref: 'id',
-            attributes: ['name', 'baseUrl', 'endpoint', 'redirect', 'download', 'global', 'type',
-              'httpMethod', 'fields'], // TODO: Remove global attribute when we remove the deprecation warning.
-          },
-          segments: {
-            ref: 'id',
-            attributes: ['name'],
-          },
-          meta: {
-            liana: Implementation.getLianaName(),
-            liana_version: Implementation.getLianaVersion(),
-            orm_version: Implementation.getOrmVersion(),
-            database_type: Implementation.getDatabaseType(),
-          },
-        });
-
-        new ApimapSender(opts.envSecret, apimap).perform();
+      if (opts.envSecret.length !== 64) {
+        logger.error('Your envSecret does not seem to be correct. Can you check on Forest that ' +
+          'you copied it properly in the Forest initialization?');
+        return;
       }
+
+      const collections = _.values(Schemas.schemas);
+      integrator.defineCollections(collections);
+
+      // NOTICE: Check each Smart Action declaration to detect configuration errors.
+      _.each(collections, (collection) => {
+        if (collection.actions) {
+          _.each(collection.actions, (action) => {
+            if (action.fields && !_.isArray(action.fields)) {
+              logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
+            }
+          });
+        }
+      });
+
+      const schemaSerializer = new SchemaSerializer();
+      const { options: serializerOptions } = schemaSerializer;
+      let collectionsSent;
+      let metaSent;
+
+      if (ENVIRONMENT_DEVELOPMENT) {
+        collectionsSent = collections;
+        metaSent = {
+          database_type: Implementation.getDatabaseType(),
+          liana: Implementation.getLianaName(),
+          liana_version: Implementation.getLianaVersion(),
+          orm_version: Implementation.getOrmVersion(),
+        };
+        new SchemaFileUpdater(SCHEMA_FILENAME, collectionsSent, metaSent, serializerOptions)
+          .perform();
+      } else {
+        try {
+          const content = fs.readFileSync(SCHEMA_FILENAME);
+          if (!content) {
+            logger.error('The .forestadmin-schema.json file is empty.');
+            logger.error('The schema cannot be synchronized with Forest Admin servers.');
+            return;
+          }
+          collectionsSent = content.collection;
+          metaSent = content.meta;
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            logger.error('The .forestadmin-schema.json file does not exists.');
+          } else {
+            logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
+          }
+          logger.error('The schema cannot be synchronized with Forest Admin servers.');
+          return;
+        }
+      }
+
+      if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
+
+      const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
+      new ApimapSender(opts.envSecret, schemaSent).perform();
     })
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
       .catch(error => logger.error(error)))
     .catch((error) => {
-      logger.error('An error occured while computing the Forest apimap. Your ' +
-        'application apimap cannot be sent to Forest. Your Admin UI might ' +
-        'not reflect your application models.', error);
+      logger.error('An error occured while computing the Forest schema. Your application schema ' +
+        'cannot be synchronized with Forest. Your admin panel might not reflect your application ' +
+        'models definition.', error);
     });
 
   if (opts.expressParentApp) {
@@ -282,16 +292,6 @@ exports.collection = (name, opts) => {
     }
   }
 
-  // NOTICE: Action ids are defined concatenating the collection name and the
-  //         action name to prevent action id conflicts between collections.
-  _.each(opts.actions, (action) => {
-    action.id = `${name}.${action.name}`;
-  });
-
-  _.each(opts.segments, (segment) => {
-    segment.id = `${name}.${segment.name}`;
-  });
-
   if (collection) {
     if (!Schemas.schemas[name].actions) { Schemas.schemas[name].actions = []; }
     if (!Schemas.schemas[name].segments) { Schemas.schemas[name].segments = []; }
@@ -314,23 +314,6 @@ exports.collection = (name, opts) => {
     opts.isSearchable = !!opts.isSearchable;
     opts.fields = new ApimapFieldsFormater(opts.fields, name).perform();
     Schemas.schemas[name] = opts;
-  }
-
-  if (Schemas.schemas[name].actions) {
-    _.each(Schemas.schemas[name].actions, (action) => {
-      if (action.global) {
-        logger.warn(`DEPRECATION WARNING: Smart Action "global" option is now deprecated. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
-      }
-
-      if (action.type && !_.includes(['bulk', 'global', 'single'], action.type)) {
-        logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
-      }
-
-      // NOTICE: Set a position to the Smart Actions fields.
-      _.each(action.fields, (field, position) => {
-        field.position = position;
-      });
-    });
   }
 };
 
