@@ -18,6 +18,7 @@
   "src/serializers/stat.js",
   "src/services/apimap-fields-formater.js",
   "src/services/apimap-sender.js",
+  "src/services/apimap-sorter.js",
   "src/utils/data.js",
   "test/helpers/create-server.js",
   "test/routes/sessions-google.js",

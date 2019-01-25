@@ -11,9 +11,9 @@ function ApimapSorter(apimap) {
   }
 
   function reorderKeysBasic(object) {
-    var objectReordered = {};
+    const objectReordered = {};
 
-    _.each(_.sortBy(Object.keys(object)), function (key) {
+    _.each(_.sortBy(Object.keys(object)), (key) => {
       objectReordered[key] = object[key];
     });
 
@@ -21,7 +21,7 @@ function ApimapSorter(apimap) {
   }
 
   function reorderKeysChild(object) {
-    var objectReorderedStart = {
+    const objectReorderedStart = {
       type: object.type,
       id: object.id,
       attributes: object.attributes,
@@ -31,11 +31,11 @@ function ApimapSorter(apimap) {
   }
 
   function reorderKeysCollection(collection) {
-    var collectionReorderedStart = {
+    const collectionReorderedStart = {
       name: collection.name,
     };
 
-    var collectionReorderedEnd = collection.fields ? { fields: collection.fields } : {};
+    const collectionReorderedEnd = collection.fields ? { fields: collection.fields } : {};
 
     delete collection.name;
     delete collection.fields;
@@ -46,7 +46,7 @@ function ApimapSorter(apimap) {
   }
 
   function reorderKeysField(field) {
-    var fieldReorderedStart = {
+    const fieldReorderedStart = {
       field: field.field,
       type: field.type,
     };
@@ -59,18 +59,18 @@ function ApimapSorter(apimap) {
     return Object.assign(fieldReorderedStart, field);
   }
 
-  this.perform = function () {
+  this.perform = () => {
     try {
       apimap = reorderKeysBasic(apimap);
       apimap.data = sortArrayOfObjects(apimap.data);
 
-      apimap.data = apimap.data.map(function (collection) {
+      apimap.data = apimap.data.map((collection) => {
         collection = reorderKeysChild(collection);
         collection.attributes = reorderKeysCollection(collection.attributes);
         if (collection.attributes.fields) {
           collection.attributes.fields = sortArrayOfFields(collection.attributes.fields);
           collection.attributes.fields = collection.attributes.fields
-            .map(function (field) { return reorderKeysField(field); });
+            .map(field => reorderKeysField(field));
         }
         return collection;
       });
@@ -78,13 +78,13 @@ function ApimapSorter(apimap) {
       if (apimap.included) {
         apimap.included = sortArrayOfObjects(apimap.included);
 
-        apimap.included = apimap.included.map(function (include) {
+        apimap.included = apimap.included.map((include) => {
           include = reorderKeysChild(include);
           include.attributes = reorderKeysCollection(include.attributes);
           if (include.attributes.fields) {
             include.attributes.fields = sortArrayOfFields(include.attributes.fields);
             include.attributes.fields = include.attributes.fields
-              .map(function (field) { return reorderKeysField(field); });
+              .map(field => reorderKeysField(field));
           }
           return include;
         });
