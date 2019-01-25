@@ -27,5 +27,6 @@
   "test/routes/sessions-google.js",
   "test/routes/sessions.js",
   "test/services/apimap-fields-formater.js",
+  "test/services/apimap-sorter.js",
   "test/services/permissions.js"
 ]
