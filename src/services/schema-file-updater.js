@@ -19,7 +19,9 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
   };
 
   function setDefaultValueIfNecessary(object, property, value) {
-    object[property] = object[property] || value;
+    if (!Object.prototype.hasOwnProperty.call(object, property)) {
+      object[property] = value;
+    }
   }
 
   const cleanFields = (fields) => {

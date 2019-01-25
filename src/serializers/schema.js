@@ -76,7 +76,7 @@ function SchemaSerializer() {
       ref: 'id',
       attributes: ['name'],
     },
-    keyForAttribute: 'snake_case',
+    keyForAttribute: 'camelCase',
   };
 
   this.options = options;

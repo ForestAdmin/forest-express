@@ -242,56 +242,6 @@ exports.init = (Implementation) => {
               'synchronized with Forest Admin servers.');
             return;
           }
-          // TODO: Add warning to explain schema file differences compared to the codebase
-          //   collections = JSON.parse(content).collections;
-          //   const setMissingAttributes = (object, oldObject, attributes) => {
-          //     Object.keys(oldObject).forEach((key) => {
-          //       if (attributes.includes(key)) {
-          //         return;
-          //       }
-          //
-          //       object[key] = oldObject[key];
-          //     });
-          //   };
-          //   collections.forEach((collection) => {
-          //     const oldCollection = Schemas.schemas[collection.name];
-          //     if (oldCollection) { return; }
-          //     setMissingAttributes(collection, oldCollection, serializerOptions.attributes);
-          //
-          //     collection.fields.forEach((field) => {
-          //       const oldField = _.find(oldCollection.fields, { field: field.field });
-          //       if (!oldField) { return; }
-          //       setMissingAttributes(field, oldField, serializerOptions.fields.attributes);
-          //     });
-          //
-          //     collection.segments.forEach((segment) => {
-          //       const oldSegment = _.find(oldCollection.segments, { name: segment.name });
-          //       if (!oldSegment) { return; }
-          //       setMissingAttributes(segment, oldSegment, serializerOptions.segments.attributes);
-          //     });
-          //
-          //     collection.actions.forEach((action) => {
-          //       const oldAction = _.find(oldCollection.actions, { name: action.name });
-          //       if (!oldAction) { return; }
-          //       setMissingAttributes(action, oldAction, serializerOptions.actions.attributes);
-          //
-          //       action.fields.forEach((field) => {
-          //         const oldField = _.find(oldAction.fields, { field: field.field });
-          //         if (!oldField) { return; }
-          //         setMissingAttributes(
-          //           field,
-          //           oldField,
-          //           serializerOptions.actions.fields.attributes,
-          //         );
-          //       });
-          //     });
-          //   });
-          //
-          //   // Schemas.schemas = collections;
-          //   Schemas.schemas = {};
-          //   collections.forEach((collection) => {
-          //     Schemas.schemas[collection.name] = collection;
-          // });
           collectionsSent = content.collection;
           metaSent = content.meta;
         } catch (error) {
