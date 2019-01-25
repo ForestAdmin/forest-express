@@ -19,6 +19,7 @@
   "src/serializers/stat.js",
   "src/services/apimap-fields-formater.js",
   "src/services/apimap-sender.js",
+  "src/services/apimap-sorter.js",
   "src/services/schema-file-updater.js",
   "src/utils/data.js",
   "src/utils/json.js",

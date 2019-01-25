@@ -1,10 +1,13 @@
 const request = require('superagent');
 const ServiceUrlGetter = require('./service-url-getter');
+const ApimapSorter = require('./apimap-sorter');
 const logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
   this.perform = () => {
     const urlService = new ServiceUrlGetter().perform();
+
+    apimap = new ApimapSorter(apimap).perform();
 
     request
       .post(`${urlService}/forest/apimaps`)
