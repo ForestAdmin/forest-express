@@ -238,18 +238,19 @@ exports.init = (Implementation) => {
         try {
           const content = fs.readFileSync(SCHEMA_FILENAME);
           if (!content) {
-            logger.error('Your .forestadmin-schema.json is empty, the schema cannot be ' +
-              'synchronized with Forest Admin servers.');
+            logger.error('The .forestadmin-schema.json file is empty.');
+            logger.error('The schema cannot be synchronized with Forest Admin servers.');
             return;
           }
           collectionsSent = content.collection;
           metaSent = content.meta;
         } catch (error) {
           if (error.code === 'ENOENT') {
-            logger.error('.forestadmin-schema.json does not exists, the apimap cannot be send');
+            logger.error('The .forestadmin-schema.json file does not exists.');
           } else {
-            logger.error('The content of .forestadmin-schema.json is not a correct JSON, the apimap cannot be send');
+            logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
           }
+          logger.error('The schema cannot be synchronized with Forest Admin servers.');
           return;
         }
       }
