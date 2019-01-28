@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.0.0-beta.1 - 2019-01-28
 ### Added
 - Build - The deploy script now automatically publishes the package.
 
