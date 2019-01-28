@@ -1,7 +1,7 @@
 {
   "name": "forest-express",
   "description": "Official package for all Forest Express Lianas",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.0",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
     "Arnaud Besnier <arnaudibesnier@gmail.com>",
@@ -65,7 +65,7 @@
     "nsp": "2.8.1",
     "onchange": "4.0.0",
     "pre-commit": "1.2.2",
-    "semver": "5.3.0",
+    "semver": "5.6.0",
     "simple-git": "1.65.0",
     "sinon": "6.3.4",
     "supertest": "3.0.0"
