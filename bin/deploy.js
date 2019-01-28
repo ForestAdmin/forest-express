@@ -2,6 +2,7 @@ const moment = require('moment');
 const fs = require('fs');
 const simpleGit = require('simple-git')();
 const semver = require('semver');
+const { exec } = require('child_process');
 
 const BRANCH_MASTER = 'master';
 const BRANCH_DEVEL = 'devel';
@@ -27,7 +28,6 @@ if (process.argv) {
 const versionFile = fs.readFileSync('package.json').toString().split('\n');
 let version = versionFile[3].match(/\w*"version": "(.*)",/)[1];
 version = semver.inc(version, releaseType, prereleaseTag);
-
 versionFile[3] = `  "version": "${version}",`;
 const newVersionFile = versionFile.join('\n');
 
@@ -60,4 +60,13 @@ simpleGit
   .push()
   .addTag(tag)
   .push('origin', tag)
-  .checkout(BRANCH_DEVEL);
+  .checkout(BRANCH_DEVEL)
+  .then(() => {
+    let command = 'npm publish';
+    if (prereleaseTag) { command += ` --tag ${prereleaseTag}`; }
+    const processPublish = exec(command);
+
+    processPublish.on('exit', (code) => {
+      process.exit(code);
+    });
+  });

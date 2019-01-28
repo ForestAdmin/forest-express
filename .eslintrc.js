@@ -32,6 +32,8 @@ module.exports = {
         'devDependencies': [
           'bin/*.js',
           'test/**/*.js'
-        ]}]
+        ]
+      }
+    ]
   },
 };
