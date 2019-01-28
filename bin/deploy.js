@@ -44,7 +44,7 @@ simpleGit
   .checkout(BRANCH_DEVEL)
   .then(() => { console.log(`Starting pull on ${BRANCH_DEVEL}...`); })
   .pull((error) => { if (error) { console.log(error); } })
-  .then(() => { console.log(`${BRANCH_DEVEL} pull done.`); })
+  .then(() => { console.log(`Pull ${BRANCH_DEVEL} done.`); })
   .then(() => {
     fs.writeFileSync('package.json', newVersionFile);
     fs.writeFileSync('CHANGELOG.md', newChanges);
@@ -52,14 +52,16 @@ simpleGit
   .add(['CHANGELOG.md', 'package.json'])
   .commit(`Release ${version}`)
   .push()
+  .then(() => { console.log(`Commit Release on ${BRANCH_DEVEL} done.`); })
   .checkout(BRANCH_MASTER)
-  .then(() => { console.log(`Starting pull on ${BRANCH_MASTER}...`); })
   .pull((error) => { if (error) { console.log(error); } })
-  .then(() => { console.log(`${BRANCH_MASTER} pull done.`); })
+  .then(() => { console.log(`Pull ${BRANCH_MASTER} done.`); })
   .mergeFromTo(BRANCH_DEVEL, BRANCH_MASTER)
+  .then(() => { console.log(`Merge ${BRANCH_DEVEL} on ${BRANCH_MASTER} done.`); })
   .push()
   .addTag(tag)
   .push('origin', tag)
+  .then(() => { console.log(`Tag ${tag} on ${BRANCH_MASTER} done.`); })
   .checkout(BRANCH_DEVEL)
   .then(() => {
     const argumentsPublish = ['publish'];
@@ -71,6 +73,9 @@ simpleGit
     const processPublish = spawn('npm', argumentsPublish, { stdio: 'inherit', shell: true });
 
     processPublish.on('exit', (code) => {
+      if (code === 0) {
+        console.log('Publish on npm done.');
+      }
       process.exit(code);
     });
   });
