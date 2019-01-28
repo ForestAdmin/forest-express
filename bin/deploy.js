@@ -2,7 +2,6 @@ const moment = require('moment');
 const fs = require('fs');
 const simpleGit = require('simple-git')();
 const semver = require('semver');
-const { spawn } = require('child_process');
 
 const BRANCH_MASTER = 'master';
 const BRANCH_DEVEL = 'devel';
@@ -62,20 +61,4 @@ simpleGit
   .addTag(tag)
   .push('origin', tag)
   .then(() => { console.log(`Tag ${tag} on ${BRANCH_MASTER} done.`); })
-  .checkout(BRANCH_DEVEL)
-  .then(() => {
-    const argumentsPublish = ['publish'];
-    if (prereleaseTag) {
-      argumentsPublish.push('--tag');
-      argumentsPublish.push('beta');
-    }
-
-    const processPublish = spawn('npm', argumentsPublish, { stdio: 'inherit', shell: true });
-
-    processPublish.on('exit', (code) => {
-      if (code === 0) {
-        console.log('Publish on npm done.');
-      }
-      process.exit(code);
-    });
-  });
+  .checkout(BRANCH_DEVEL);
