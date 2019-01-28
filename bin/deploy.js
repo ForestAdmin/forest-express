@@ -49,12 +49,12 @@ simpleGit
   })
   .add(['CHANGELOG.md', 'package.json'])
   .commit(`Release ${version}`)
-  .addTag(`v${version}`)
   .push()
   .checkout(BRANCH_MASTER)
   .then(() => { console.log(`Starting pull on ${BRANCH_MASTER}...`); })
   .pull((error) => { if (error) { console.log(error); } })
   .then(() => { console.log(`${BRANCH_MASTER} pull done.`); })
   .mergeFromTo(BRANCH_DEVEL, BRANCH_MASTER)
+  .addTag(`v${version}`)
   .push()
   .checkout(BRANCH_DEVEL);
