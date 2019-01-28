@@ -38,6 +38,8 @@ const today = moment().format('YYYY-MM-DD');
 changes.splice(3, 0, `\n## RELEASE ${version} - ${today}`);
 const newChanges = changes.join('\n');
 
+const tag = `v${version}`;
+
 simpleGit
   .checkout(BRANCH_DEVEL)
   .then(() => { console.log(`Starting pull on ${BRANCH_DEVEL}...`); })
@@ -55,6 +57,7 @@ simpleGit
   .pull((error) => { if (error) { console.log(error); } })
   .then(() => { console.log(`${BRANCH_MASTER} pull done.`); })
   .mergeFromTo(BRANCH_DEVEL, BRANCH_MASTER)
-  .addTag(`v${version}`)
   .push()
+  .addTag(tag)
+  .push('origin', tag)
   .checkout(BRANCH_DEVEL);
