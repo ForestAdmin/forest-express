@@ -242,8 +242,9 @@ exports.init = (Implementation) => {
             logger.error('The schema cannot be synchronized with Forest Admin servers.');
             return;
           }
-          collectionsSent = content.collection;
-          metaSent = content.meta;
+          const contentParsed = JSON.parse(content.toString());
+          collectionsSent = contentParsed.collections;
+          metaSent = contentParsed.meta;
         } catch (error) {
           if (error.code === 'ENOENT') {
             logger.error('The .forestadmin-schema.json file does not exists.');
