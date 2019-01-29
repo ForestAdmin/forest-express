@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
+// NOTICE: If a modification is made here, don't forget to replicate it in the toolbelt.
 function SchemaSerializer() {
   // WARNING: Attributes declaration order is important for .forestadmin-schema.json format.
   const options = {
