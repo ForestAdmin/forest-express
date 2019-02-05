@@ -225,35 +225,34 @@ exports.init = (Implementation) => {
       let metaSent;
 
       if (ENVIRONMENT_DEVELOPMENT) {
-        collectionsSent = collections;
-        metaSent = {
+        const meta = {
           database_type: Implementation.getDatabaseType(),
           liana: Implementation.getLianaName(),
           liana_version: Implementation.getLianaVersion(),
           orm_version: Implementation.getOrmVersion(),
         };
-        new SchemaFileUpdater(SCHEMA_FILENAME, collectionsSent, metaSent, serializerOptions)
-          .perform();
-      } else {
-        try {
-          const content = fs.readFileSync(SCHEMA_FILENAME);
-          if (!content) {
-            logger.error('The .forestadmin-schema.json file is empty.');
-            logger.error('The schema cannot be synchronized with Forest Admin servers.');
-            return;
-          }
-          const contentParsed = JSON.parse(content.toString());
-          collectionsSent = contentParsed.collections;
-          metaSent = contentParsed.meta;
-        } catch (error) {
-          if (error.code === 'ENOENT') {
-            logger.error('The .forestadmin-schema.json file does not exists.');
-          } else {
-            logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
-          }
+        new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions).perform();
+      }
+
+      try {
+        const content = fs.readFileSync(SCHEMA_FILENAME);
+        if (!content) {
+          logger.error('The .forestadmin-schema.json file is empty.');
           logger.error('The schema cannot be synchronized with Forest Admin servers.');
           return;
         }
+
+        const contentParsed = JSON.parse(content.toString());
+        collectionsSent = contentParsed.collections;
+        metaSent = contentParsed.meta;
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          logger.error('The .forestadmin-schema.json file does not exists.');
+        } else {
+          logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
+        }
+        logger.error('The schema cannot be synchronized with Forest Admin servers.');
+        return;
       }
 
       if (DISABLE_AUTO_SCHEMA_APPLY) { return; }

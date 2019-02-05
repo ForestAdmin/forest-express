@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Move apimap sorter to the serializer.
+- Technical - In development environment, re-read the `.forestadmin-schema.json` after it is written to be sure to process the same version as with the toolbelt.
 
 ## RELEASE 3.0.0-beta.1 - 2019-01-28
 ### Fixed
