@@ -98,9 +98,9 @@ function SchemaSerializer() {
 
     options.meta = meta;
 
-    const serializedData = new JSONAPISerializer('collections', collections, options);
+    const schema = new JSONAPISerializer('collections', collections, options);
 
-    return new ApimapSorter(serializedData).perform();
+    return new ApimapSorter(schema).perform();
   };
 }
 
