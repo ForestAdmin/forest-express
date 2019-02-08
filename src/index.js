@@ -243,7 +243,6 @@ exports.init = (Implementation) => {
             logger.error('The schema cannot be synchronized with Forest Admin servers.');
             return;
           }
-
           const contentParsed = JSON.parse(content.toString());
           collectionsSent = contentParsed.collections;
           metaSent = contentParsed.meta;
