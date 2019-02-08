@@ -231,28 +231,31 @@ exports.init = (Implementation) => {
           liana_version: Implementation.getLianaVersion(),
           orm_version: Implementation.getOrmVersion(),
         };
-        new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions).perform();
-      }
+        const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
+          .perform();
+        collectionsSent = content.collections;
+        metaSent = content.meta;
+      } else {
+        try {
+          const content = fs.readFileSync(SCHEMA_FILENAME);
+          if (!content) {
+            logger.error('The .forestadmin-schema.json file is empty.');
+            logger.error('The schema cannot be synchronized with Forest Admin servers.');
+            return;
+          }
 
-      try {
-        const content = fs.readFileSync(SCHEMA_FILENAME);
-        if (!content) {
-          logger.error('The .forestadmin-schema.json file is empty.');
+          const contentParsed = JSON.parse(content.toString());
+          collectionsSent = contentParsed.collections;
+          metaSent = contentParsed.meta;
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            logger.error('The .forestadmin-schema.json file does not exists.');
+          } else {
+            logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
+          }
           logger.error('The schema cannot be synchronized with Forest Admin servers.');
           return;
         }
-
-        const contentParsed = JSON.parse(content.toString());
-        collectionsSent = contentParsed.collections;
-        metaSent = contentParsed.meta;
-      } catch (error) {
-        if (error.code === 'ENOENT') {
-          logger.error('The .forestadmin-schema.json file does not exists.');
-        } else {
-          logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
-        }
-        logger.error('The schema cannot be synchronized with Forest Admin servers.');
-        return;
       }
 
       if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
