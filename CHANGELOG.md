@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.0.0-beta.2 - 2019-02-08
 ### Changed
 - Technical - In development environment, ensure that the schema send has the exact same data and format like with the toolbelt.
 - Technical - Move apimap sorter to the serializer.
