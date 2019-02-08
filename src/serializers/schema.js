@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const ApimapSorter = require('../services/apimap-sorter');
 
 // NOTICE: If a modification is made here, don't forget to replicate it in the toolbelt.
 function SchemaSerializer() {
@@ -97,7 +98,9 @@ function SchemaSerializer() {
 
     options.meta = meta;
 
-    return new JSONAPISerializer('collections', collections, options);
+    const schema = new JSONAPISerializer('collections', collections, options);
+
+    return new ApimapSorter(schema).perform();
   };
 }
 

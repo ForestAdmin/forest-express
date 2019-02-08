@@ -225,15 +225,16 @@ exports.init = (Implementation) => {
       let metaSent;
 
       if (ENVIRONMENT_DEVELOPMENT) {
-        collectionsSent = collections;
-        metaSent = {
+        const meta = {
           database_type: Implementation.getDatabaseType(),
           liana: Implementation.getLianaName(),
           liana_version: Implementation.getLianaVersion(),
           orm_version: Implementation.getOrmVersion(),
         };
-        new SchemaFileUpdater(SCHEMA_FILENAME, collectionsSent, metaSent, serializerOptions)
+        const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
           .perform();
+        collectionsSent = content.collections;
+        metaSent = content.meta;
       } else {
         try {
           const content = fs.readFileSync(SCHEMA_FILENAME);

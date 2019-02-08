@@ -43,6 +43,14 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       setDefaultValueIfNecessary(field, 'enums', null);
       setDefaultValueIfNecessary(field, 'validations', null);
       setDefaultValueIfNecessary(field, 'integration', null);
+
+      field.validations = field.validations || [];
+      field.validations.forEach((validation) => {
+        if (validation.message === undefined) {
+          validation.message = null;
+        }
+        setDefaultValueIfNecessary(validation, 'value', null);
+      });
     });
 
     return fields;
@@ -119,7 +127,6 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       collectionFormatted.fields = collectionFormatted.fields.map((field) => {
         const fieldFormatted = formatObject(field, serializerOptions.fields.attributes);
 
-        fieldFormatted.validations = fieldFormatted.validations || [];
         fieldFormatted.validations = fieldFormatted.validations.map(validation =>
           formatObject(validation, serializerOptions.validations.attributes));
         return fieldFormatted;
@@ -146,7 +153,9 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     collections.sort((collection1, collection2) =>
       collection1.name.localeCompare(collection2.name));
 
-    fs.writeFileSync(filename, prettyPrint({ collections, meta }));
+    const schema = { collections, meta };
+    fs.writeFileSync(filename, prettyPrint(schema));
+    return schema;
   };
 }
 
