@@ -226,9 +226,15 @@ exports.init = (Implementation) => {
 
       if (ENVIRONMENT_DEVELOPMENT) {
         const meta = {
-          database_type: Implementation.getDatabaseType(),
           liana: Implementation.getLianaName(),
           liana_version: Implementation.getLianaVersion(),
+          engine: 'nodejs',
+          engine_version: process.versions && process.versions.node,
+          framework: Implementation.getFrameworkName(),
+          framework_version: Implementation.getFrameworkVersion(),
+          database_type: Implementation.getDatabaseType(),
+          database_version: Implementation.getDatabaseVersion(),
+          orm: Implementation.getOrmName(),
           orm_version: Implementation.getOrmVersion(),
         };
         const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
