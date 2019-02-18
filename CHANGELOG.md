@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Build - Republish the regular version on the latest tag.
+
 ## RELEASE 2.16.1 - 2019-01-21
 ### Fixed
 - Integrations - Fix Stripe integration on an embedded document field.
