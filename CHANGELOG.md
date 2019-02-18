@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 2.16.2 - 2019-02-18
 ### Fixed
 - Build - Republish the regular version on the latest tag.
 
