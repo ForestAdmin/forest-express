@@ -33,5 +33,6 @@
   "test/routes/sessions.js",
   "test/services/apimap-fields-formater.js",
   "test/services/apimap-sorter.js",
-  "test/services/permissions.js"
+  "test/services/permissions.js",
+  "test/utils/string.js"
 ]

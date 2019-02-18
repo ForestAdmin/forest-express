@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const Inflector = require('inflected');
+const { parameterize } = require('../utils/string');
 const auth = require('../services/auth');
 const path = require('../services/path');
 const logger = require('../services/logger');
@@ -37,7 +37,7 @@ module.exports = function actionRoutes(app, model, Implementation, integrator, o
         if (action.endpoint) {
           route = path.generateForSmartActionCustomEndpoint(`${action.endpoint}/values`, options);
         } else {
-          route = path.generate(`actions/${Inflector.parameterize(action.name)}/values`, options);
+          route = path.generate(`actions/${parameterize(action.name)}/values`, options);
         }
 
         app.post(route, auth.ensureAuthenticated, getFormValuesController(action));
