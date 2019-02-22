@@ -42,6 +42,25 @@ function getModels(Implementation) {
   return _.values(models);
 }
 
+function getFrameworkName() {
+  if (process.env.npm_package_dependencies_express) {
+    return 'express';
+  } else if (process.env.npm_package_dependencies_koa) {
+    return 'koa';
+  }
+  return null;
+}
+
+function getFrameworkVersion() {
+  const frameworkName = getFrameworkName();
+  if (frameworkName === 'express') {
+    return process.env.npm_package_dependencies_express;
+  } else if (frameworkName === 'koa') {
+    return process.env.npm_package_dependencies_koa;
+  }
+  return null;
+}
+
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
     return readdirAsync(modelsDir)
@@ -230,8 +249,8 @@ exports.init = (Implementation) => {
           liana_version: Implementation.getLianaVersion(),
           engine: 'nodejs',
           engine_version: process.versions && process.versions.node,
-          framework: Implementation.getFrameworkName(),
-          framework_version: Implementation.getFrameworkVersion(),
+          framework: getFrameworkName(),
+          framework_version: getFrameworkVersion(),
           database_type: Implementation.getDatabaseType(),
           database_version: Implementation.getDatabaseVersion(),
           orm: Implementation.getOrmName(),
