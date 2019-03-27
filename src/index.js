@@ -32,6 +32,7 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
+const REGEX_COOKIE_SESSION_TOKEN = /sessionToken=(.*);?/;
 
 function getModels(Implementation) {
   const models = Implementation.getModels();
@@ -121,11 +122,17 @@ exports.init = (Implementation) => {
       secret: opts.authSecret,
       credentialsRequired: false,
       getToken: (request) => {
-        if (request.headers && request.headers.authorization &&
-          request.headers.authorization.split(' ')[0] === 'Bearer') {
-          return request.headers.authorization.split(' ')[1];
-        } else if (request.query && request.query.sessionToken) {
-          return request.query.sessionToken;
+        if (request.headers) {
+          if (request.headers.authorization
+            && request.headers.authorization.split(' ')[0] === 'Bearer') {
+            return request.headers.authorization.split(' ')[1];
+          // NOTICE: Necessary for downloads authentication.
+          } else if (request.headers.cookie) {
+            const match = request.headers.cookie.match(REGEX_COOKIE_SESSION_TOKEN);
+            if (match && match[1]) {
+              return match[1];
+            }
+          }
         }
         return null;
       },
