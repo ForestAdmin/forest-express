@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.0.1 - 2019-03-28
 ### Fixed
 - Security - Fix implementation of session token passed in headers while downloading collections records.
 
