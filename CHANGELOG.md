@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Technical - Fix the latest built version.
 
 ## RELEASE 3.0.1 - 2019-03-28
 ### Fixed
