@@ -32,7 +32,7 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && Number(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const REGEX_COOKIE_SESSION_TOKEN = /sessionToken=(.*);?/;
+const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 
 function getModels(Implementation) {
   const models = Implementation.getModels();
@@ -111,6 +111,7 @@ exports.init = (Implementation) => {
   app.use(cors({
     origin: allowedOrigins,
     maxAge: 86400, // NOTICE: 1 day
+    credentials: true,
   }));
 
   // Mime type

@@ -49,6 +49,8 @@ module.exports = (app, opts) => {
         twoFactorToken,
       }).perform();
 
+      // NOTICE: Set a cookie to ensure secure authentication using export feature.
+      response.header('Set-Cookie', `forest_session_token=${responseData.token}`);
       response.send(responseData);
     } catch (error) {
       formatAndSendError(response, error);
