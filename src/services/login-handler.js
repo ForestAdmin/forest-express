@@ -19,7 +19,10 @@ function LoginHandler({
 
   function isTwoFactorTokenValid(user, twoFactorToken) {
     const twoFactorAuthenticationSecret = user.two_factor_authentication_secret;
-    const userSecret = new UserSecretCreator(twoFactorAuthenticationSecret, process.env.FOREST_2FA_SECRET_SALT)
+    const userSecret = new UserSecretCreator(
+      twoFactorAuthenticationSecret,
+      process.env.FOREST_2FA_SECRET_SALT,
+    )
       .perform();
 
     return otplib.authenticator.verify({ token: twoFactorToken, secret: userSecret });
@@ -40,16 +43,15 @@ function LoginHandler({
 
     if (user.two_factor_authentication_active) {
       return { twoFactorAuthenticationEnabled: true };
-    } else {
-      const twoFactorAuthenticationSecret = user.two_factor_authentication_secret;
-      const userSecret = new UserSecretCreator(twoFactorAuthenticationSecret, TWO_FACTOR_SECRET_SALT)
-        .perform();
-
-      return {
-        twoFactorAuthenticationEnabled: true,
-        userSecret,
-      };
     }
+    const twoFactorAuthenticationSecret = user.two_factor_authentication_secret;
+    const userSecret = new UserSecretCreator(twoFactorAuthenticationSecret, TWO_FACTOR_SECRET_SALT)
+      .perform();
+
+    return {
+      twoFactorAuthenticationEnabled: true,
+      userSecret,
+    };
   }
 
   function createToken(user, renderingId) {
@@ -60,18 +62,18 @@ function LoginHandler({
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
-        teams: user.teams
+        teams: user.teams,
       },
       relationships: {
         renderings: {
           data: [{
             type: 'renderings',
-            id: renderingId
-          }]
-        }
-      }
+            id: renderingId,
+          }],
+        },
+      },
     }, authSecret, {
-      expiresIn: '14 days'
+      expiresIn: '14 days',
     });
   }
 
