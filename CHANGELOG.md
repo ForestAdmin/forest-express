@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Do not use the authentication middleware for session creation routes.
 
 ## RELEASE 3.0.3 - 2019-03-29
 ### Fixed

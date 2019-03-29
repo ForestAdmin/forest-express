@@ -148,16 +148,16 @@ exports.init = (Implementation) => {
       'that you properly set a Forest envSecret in the Forest initializer?');
   }
 
+  const pathsPublic = [/^\/forest\/sessions.*$/];
+
   if (jwtAuthenticator) {
-    if (opts.expressParentApp) {
-      // NOTICE: Forest is a sub-app of the client application; so all routes are
-      //         protected with JWT.
-      app.use(jwtAuthenticator);
-    } else {
-      // NOTICE: Forest routes are part of the client app; only Forest routes
-      //         are protected with JWT.
-      app.use(jwtAuthenticator.unless({ path: /^((?!.*\/forest\/).)*$/ }));
+    if (!opts.expressParentApp) {
+      // NOTICE: If Forest is a sub-app of the client app; all private routes need authentication.
+      //         If Forest routes are part of the client app; only Forest private routes need
+      //         authentication. In this case we add another unless condition.
+      pathsPublic.push(/^((?!.*\/forest\/).)*$/);
     }
+    app.use(jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
   new SessionRoute(app, opts).perform();
