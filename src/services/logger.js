@@ -8,7 +8,7 @@ const CONFIG = {
     data: 3,
     info: 4,
     verbose: 5,
-    silly: 6
+    silly: 6,
   },
   colors: {
     error: 'red',
@@ -17,8 +17,8 @@ const CONFIG = {
     data: 'grey',
     info: 'green',
     verbose: 'cyan',
-    silly: 'magenta'
-  }
+    silly: 'magenta',
+  },
 };
 
 const TITLE = '[forest] 🌳🌳🌳  ';
@@ -26,17 +26,17 @@ const TITLE = '[forest] 🌳🌳🌳  ';
 module.exports = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({
-      formatter: function (options) {
+      formatter: (options) => {
         let message = TITLE + options.message;
 
         if (options.meta && options.meta.stack) {
-          message += '\n' + options.meta.stack;
+          message += `\n${options.meta.stack}`;
         }
 
         return winston.config.colorize(options.level, message);
-      }
-    })
+      },
+    }),
   ],
   levels: CONFIG.levels,
-  colors: CONFIG.colors
+  colors: CONFIG.colors,
 });
