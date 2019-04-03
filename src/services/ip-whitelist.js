@@ -15,9 +15,8 @@ function retrieve(environmentSecret) {
     .then((responseBody) => {
       if (responseBody.data) {
         return new IpWhitelistDeserializer(responseBody.data).perform();
-      } else {
-        return P.reject(new Error(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`));
       }
+      return P.reject(new Error(`IP Whitelist: ${errorMessages.SERVER_TRANSACTION.UNEXPECTED}`));
     })
     .then((ipWhitelistData) => {
       useIpWhitelist = ipWhitelistData.useIpWhitelist;
@@ -32,16 +31,14 @@ function isIpWhitelistRetrieved() {
 
 function isIpValid(ip) {
   if (useIpWhitelist) {
-    return _.some(ipWhitelistRules, function (rule) {
-      return ipUtil.isIpMatchesRule(ip, rule);
-    });
+    return _.some(ipWhitelistRules, rule => ipUtil.isIpMatchesRule(ip, rule));
   }
 
   return true;
 }
 
 module.exports = {
-  retrieve: retrieve,
-  isIpValid: isIpValid,
-  isIpWhitelistRetrieved: isIpWhitelistRetrieved,
+  retrieve,
+  isIpValid,
+  isIpWhitelistRetrieved,
 };
