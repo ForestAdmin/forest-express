@@ -272,7 +272,8 @@ exports.init = (Implementation) => {
     })
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
-      .catch(error => logger.error(error)))
+      // NOTICE: An error log (done by the service) is enough in case of retrieval error.
+      .catch(() => {}))
     .catch((error) => {
       logger.error('An error occured while computing the Forest schema. Your application schema ' +
         'cannot be synchronized with Forest. Your admin panel might not reflect your application ' +

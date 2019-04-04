@@ -1,6 +1,12 @@
 const ipWhitelistService = require('../services/ip-whitelist');
 const httpError = require('http-errors');
-const logger = require('../services/logger');
+
+function retrieveWhitelist(environmentSecret, ip, next) {
+  return ipWhitelistService
+    .retrieve(environmentSecret)
+    .then(() => (ipWhitelistService.isIpValid(ip) ? next() : next(httpError(403, `IP address rejected (${ip})`))))
+    .catch(() => next(httpError(403, 'IP whitelist not retrieved')));
+}
 
 function createIpAuthorizer(environmentSecret) {
   return function ipAuthorizer(request, response, next) {
@@ -12,20 +18,6 @@ function createIpAuthorizer(environmentSecret) {
 
     return next();
   };
-}
-
-function retrieveWhitelist(environmentSecret, ip, next) {
-  return ipWhitelistService
-    .retrieve(environmentSecret)
-    .then(() => {
-      ipWhitelistService.isIpValid(ip)
-        ? next()
-        : next(httpError(403, 'IP address rejected (' + ip + ')'));
-    })
-    .catch((error) => {
-      logger.error(error.message);
-      next(httpError(403, 'IP whitelist not retrieved'));
-    });
 }
 
 module.exports = createIpAuthorizer;

@@ -1,9 +1,10 @@
-const errorMessages = require('../utils/error-messages');
-const ipUtil = require('ip-utils');
 const P = require('bluebird');
 const _ = require('lodash');
-const forestServerRequester = require('./forest-server-requester');
 const VError = require('verror');
+const ipUtil = require('ip-utils');
+const logger = require('../services/logger');
+const errorMessages = require('../utils/error-messages');
+const forestServerRequester = require('./forest-server-requester');
 const IpWhitelistDeserializer = require('../deserializers/ip-whitelist');
 
 let ipWhitelistRules = null;
@@ -22,7 +23,12 @@ function retrieve(environmentSecret) {
       useIpWhitelist = ipWhitelistData.useIpWhitelist;
       ipWhitelistRules = ipWhitelistData.rules;
     })
-    .catch(error => P.reject(new VError(error, 'IP Whitelist error')));
+    .catch((error) => {
+      logger.error('An error occured while retrieving your IP whitelist. Your Forest envSecret ' +
+        'seems to be missing or unknown. Can you check that you properly set your Forest ' +
+        'envSecret in the Forest initializer?');
+      return P.reject(new VError('IP Whitelist error', error));
+    });
 }
 
 function isIpWhitelistRetrieved() {

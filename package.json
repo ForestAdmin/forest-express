@@ -33,6 +33,7 @@
     "csv-stringify": "1.0.4",
     "express": "4.16.2",
     "express-jwt": "5.3.1",
+    "http-errors": "1.7.2",
     "inflected": "2.0.4",
     "ip-utils": "git+https://github.com/ForestAdmin/ip-utils.git#5f88562ba53fedcdc0374937fca0fdb71fa4923c",
     "jsonapi-serializer": "3.4.1",

@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Changed
 - Technical - Do not use the authentication middleware for session creation routes.
+- Error Handling - Display an explicit error message if the envSecret is detected as missing or unknown during data a API request.
 
 ## RELEASE 3.0.3 - 2019-03-29
 ### Fixed

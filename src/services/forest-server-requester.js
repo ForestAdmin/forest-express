@@ -21,10 +21,6 @@ function perform(route, environmentSecret, queryParameters, headers) {
     }
 
     request.end((error, result) => {
-      if (error) {
-        return reject(new VError(error, 'Forest server request error'));
-      }
-
       if (result.status === 200 && result.body) {
         return resolve(result.body);
       } else if (result.status === 0) {
@@ -35,6 +31,11 @@ function perform(route, environmentSecret, queryParameters, headers) {
         return reject(new Error(errorMessages
           .SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT));
       }
+
+      if (error) {
+        return reject(new VError(error, 'Forest server request error'));
+      }
+
       return reject(new Error(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error));
     });
   });
