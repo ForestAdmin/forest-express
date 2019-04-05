@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.0.5 - 2019-04-05
 ### Changed
 - Technical - Update ip-utils to the published version.
 
