@@ -2168,6 +2168,14 @@ foreach@^2.0.5:
   resolved "https://registry.yarnpkg.com/foreach/-/foreach-2.0.5.tgz#0bee005018aeb260d0a3af3ae658dd0136ec1b99"
   integrity sha1-C+4AUBiusmDQo6865ljdATbsG5k=
 
+forest-ip-utils@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/forest-ip-utils/-/forest-ip-utils-1.0.1.tgz#4c53a4c1e16f20beed71ee862315e18b34508d0c"
+  integrity sha512-m/pXGliPvJ6pt5/kyTgNT3X4AKHBdeKJX+cg1RVHWrQiqvD7Qs6WbSaP8/l1nJz1FhrLC/EQJAWXTj/kdJjDEQ==
+  dependencies:
+    ip-address "^5.8.9"
+    range_check "^1.4.0"
+
 form-data@^2.3.1:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.3.2.tgz#4970498be604c20c005d4f5c23aecd21d6b49099"
@@ -2711,13 +2719,6 @@ ip-address@^5.8.9:
     lodash.padstart "^4.6.1"
     lodash.repeat "^4.1.0"
     sprintf-js "1.1.0"
-
-"ip-utils@git+https://github.com/ForestAdmin/ip-utils.git#5f88562ba53fedcdc0374937fca0fdb71fa4923c":
-  version "1.0.0"
-  resolved "git+https://github.com/ForestAdmin/ip-utils.git#5f88562ba53fedcdc0374937fca0fdb71fa4923c"
-  dependencies:
-    ip-address "^5.8.9"
-    range_check "^1.4.0"
 
 ip6@0.0.4:
   version "0.0.4"
