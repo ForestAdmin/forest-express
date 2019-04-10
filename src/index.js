@@ -80,10 +80,25 @@ exports.ensureAuthenticated = (request, response, next) => {
 
 let alreadyInitialized = false;
 
+function buildSchema(Implementation) {
+  const { opts } = Implementation;
+
+  const absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
+  return requireAllModels(Implementation, absModelDirs)
+    .then((models) => {
+      const integrator = new Integrator(opts, Implementation);
+      return Schemas.perform(Implementation, integrator, models, opts)
+        .thenReturn([models, integrator]);
+    });
+}
+
 exports.init = (Implementation) => {
   const { opts } = Implementation;
+  if (opts.onlyCrudModule === true) {
+    return buildSchema(Implementation).spread(models => models);
+  }
+
   const app = express();
-  let integrator;
 
   if (alreadyInitialized) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
@@ -163,30 +178,26 @@ exports.init = (Implementation) => {
   new SessionRoute(app, opts).perform();
 
   // Init
-  const absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
-  requireAllModels(Implementation, absModelDirs)
-    .then((models) => {
-      integrator = new Integrator(opts, Implementation);
+  let integrator;
+  buildSchema(Implementation)
+    .spread((models, _integrator) => {
+      integrator = _integrator;
+      let directorySmartImplementation;
 
-      return Schemas.perform(Implementation, integrator, models, opts)
-        .then(() => {
-          let directorySmartImplementation;
+      if (opts.configDir) {
+        directorySmartImplementation = path.resolve('.', opts.configDir);
+      } else {
+        directorySmartImplementation = `${path.resolve('.')}/forest`;
+      }
 
-          if (opts.configDir) {
-            directorySmartImplementation = path.resolve('.', opts.configDir);
-          } else {
-            directorySmartImplementation = `${path.resolve('.')}/forest`;
-          }
+      if (fs.existsSync(directorySmartImplementation)) {
+        return requireAllModels(Implementation, directorySmartImplementation);
+      }
+      if (opts.configDir) {
+        logger.error('The Forest modelsDir option you configured does not seem to be an existing directory.');
+      }
 
-          if (fs.existsSync(directorySmartImplementation)) {
-            return requireAllModels(Implementation, directorySmartImplementation);
-          }
-          if (opts.configDir) {
-            logger.error('The Forest modelsDir option you configured does not seem to be an existing directory.');
-          }
-          return [];
-        })
-        .thenReturn(models);
+      return models;
     })
     .each((model) => {
       const modelName = Implementation.getModelName(model);
