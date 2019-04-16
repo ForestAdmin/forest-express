@@ -1,8 +1,7 @@
 [
-  ".eslint-bin/lint-regitered-files.js",
+  ".eslint-bin/lint-registered-files.js",
   ".eslint-bin/pre-commit-hook.js",
   ".eslintrc.js",
-  "bin/.eslintrc.js",
   "bin/deploy.js",
   "src/deserializers/resource.js",
   "src/generators/schemas.js",
