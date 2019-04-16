@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Tests - Upgrade `nock` dependency to the latest version.
+
 ### Fixed
 - Security - Patch a vulnerability removing the unused `nsp` dependency.
 - Security - Patch vulnerabilities removing the unused `gulp` dependency.
