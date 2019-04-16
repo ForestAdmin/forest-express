@@ -2,7 +2,8 @@
 
 ## [Unreleased]
 ### Fixed
-- Security - Patch a vulnerability removing an unused dependency.
+- Security - Patch a vulnerability removing the unused `nsp` dependency.
+- Security - Patch a vulnerabilities removing the unused `gulp` dependency.
 
 ## RELEASE 3.0.5 - 2019-04-05
 ### Changed
