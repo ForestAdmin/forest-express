@@ -66,7 +66,7 @@
     "pre-commit": "1.2.2",
     "semver": "5.6.0",
     "simple-git": "1.65.0",
-    "sinon": "6.3.4",
+    "sinon": "7.3.1",
     "supertest": "3.0.0"
   },
   "scripts": {

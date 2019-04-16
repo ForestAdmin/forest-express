@@ -9,6 +9,7 @@
 - Security - Patch vulnerabilities removing the unused `gulp` dependency.
 - Security - Patch vulnerabilities using the latest `eslint` dependency.
 - Security - Patch vulnerabilities using the latest `babel` dependencies.
+- Security - Patch a vulnerability using the latest `sinon` dependency.
 
 ## RELEASE 3.0.5 - 2019-04-05
 ### Changed
