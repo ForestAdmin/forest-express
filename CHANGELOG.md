@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Security - Patch a vulnerability removing an unused dependency.
 
 ## RELEASE 3.0.5 - 2019-04-05
 ### Changed
