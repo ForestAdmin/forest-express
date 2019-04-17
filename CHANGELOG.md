@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.0.6 - 2019-04-17
 ### Changed
 - Tests - Upgrade `nock` dependency to the latest version.
 
