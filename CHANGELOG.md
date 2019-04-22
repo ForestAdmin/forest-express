@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Changes
-- Technical - Update nodejs version to v11.14.0 for travis.
+- CI - Update NodeJS version to v11.14.0 for make the test pass on the CI.
 
 ## RELEASE 3.0.7 - 2019-04-18
 ### Fixed
