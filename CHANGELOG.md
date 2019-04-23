@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.1.0 - 2019-04-23
 ### Added
 - Initialisation - Add an option onlyCrudModule to expose only the services without the Forest Admin's init.
 
