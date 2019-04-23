@@ -12,7 +12,17 @@ To do it at every js file change in the `src` folder:
 
 To increment the version and push to devel and master:
 
-`yarn deploy`
+- `yarn deploy --patch`
+- `yarn deploy --minor`
+- `yarn deploy --major`
+
+Then, for public release:
+
+`npm publish`
+
+or, for beta release:
+
+`npm publish --tag beta`
 
 # Lint
 
