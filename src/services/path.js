@@ -5,8 +5,8 @@ exports.generate = (path, options) => {
 
 exports.generateForSmartActionCustomEndpoint = (path, options) => {
   if (options.expressParentApp) {
-    return path.replace(/^\/forest/, '');
+    return path.replace(/^\/forest/, '/');
   }
 
-  return path;
+  return `/${path}`;
 };
