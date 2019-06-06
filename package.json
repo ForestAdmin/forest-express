@@ -41,7 +41,7 @@
     "lodash": "4.17.11",
     "moment": "2.19.4",
     "otplib": "10.0.0",
-    "superagent": "3.7.0",
+    "superagent": "5.0.6",
     "useragent": "2.1.13",
     "uuid": "3.0.1",
     "verror": "1.10.0",
