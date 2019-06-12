@@ -1,8 +1,15 @@
 const forestServerRequester = require('./forest-server-requester');
 const logger = require('./logger');
 
-function AuthorizationFinder(renderingId, environmentSecret, twoFactorRegistration, email, password, forestToken) {
-  this.perform = function () {
+function AuthorizationFinder(
+  renderingId,
+  environmentSecret,
+  twoFactorRegistration,
+  email,
+  password,
+  forestToken,
+) {
+  this.perform = () => {
     let pathEnd;
     let headers;
 
