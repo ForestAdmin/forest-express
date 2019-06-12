@@ -17,7 +17,7 @@ function LoginHandler({
 }) {
   const { forestToken, email, password } = authData;
 
-  function isTwoFactorTokenValid(user, twoFactorToken) {
+  function isTwoFactorTokenValid(user, token) {
     const twoFactorAuthenticationSecret = user.two_factor_authentication_secret;
     const userSecret = new UserSecretCreator(
       twoFactorAuthenticationSecret,
@@ -25,7 +25,7 @@ function LoginHandler({
     )
       .perform();
 
-    return otplib.authenticator.verify({ token: twoFactorToken, secret: userSecret });
+    return otplib.authenticator.verify({ token, secret: userSecret });
   }
 
   function getTwoFactorResponse(user) {
@@ -54,7 +54,7 @@ function LoginHandler({
     };
   }
 
-  function createToken(user, renderingId) {
+  function createToken(user, sessionRenderingId) {
     return jwt.sign({
       id: user.id,
       type: 'users',
@@ -68,7 +68,7 @@ function LoginHandler({
         renderings: {
           data: [{
             type: 'renderings',
-            id: renderingId,
+            id: sessionRenderingId,
           }],
         },
       },

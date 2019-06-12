@@ -2,12 +2,12 @@ const PermissionsChecker = require('../services/permissions-checker');
 const httpError = require('http-errors');
 const logger = require('../services/logger');
 
-const getRenderingFromUser = user => user.relationships.renderings.data[0].id;
+const getRenderingIdFromUser = user => user.relationships.renderings.data[0].id;
 
 function createCheckPermission(environmentSecret, collectionName) {
   function checkPermission(permissionName) {
     return (request, response, next) => {
-      const renderingId = getRenderingFromUser(request.user);
+      const renderingId = getRenderingIdFromUser(request.user);
 
       return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName)
         .perform()
@@ -21,7 +21,7 @@ function createCheckPermission(environmentSecret, collectionName) {
 
   function checkPermissionListAndSearch(request, response, next) {
     const { searchToEdit } = request.query;
-    const renderingId = getRenderingFromUser(request.user);
+    const renderingId = getRenderingIdFromUser(request.user);
     const permissionName = searchToEdit ? 'searchToEdit' : 'list';
 
     return new PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName)
