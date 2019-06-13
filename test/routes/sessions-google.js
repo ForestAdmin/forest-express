@@ -47,9 +47,9 @@ describe('API > Google OAuth2 Login', () => {
         type: 'users',
         attributes: {
           email: 'user@email.com',
-          firstName: 'FirstName',
-          lastName: 'LastName',
-          team: 'Operations',
+          first_name: 'FirstName',
+          last_name: 'LastName',
+          teams: ['Operations'],
         },
       },
       relationships: {
