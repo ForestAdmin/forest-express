@@ -4,6 +4,7 @@ const createIpAuthorizer = require('../middlewares/ip-whitelist');
 const { compose } = require('compose-middleware');
 
 const ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
+const ERROR_MESSAGE_TOKEN_OLD = 'Your token format is invalid, please login again.';
 
 let ipAuthorizer;
 
@@ -12,10 +13,17 @@ function initAuth(options) {
 }
 
 function ensureAuthenticated(request, response, next) {
-  if (request.user) {
-    return next();
+  if (!request.user) {
+    return next(new error.Unauthorized(ERROR_MESSAGE));
   }
-  return next(new error.Unauthorized(ERROR_MESSAGE));
+
+  // NOTICE: Automatically logout users trying to access the API with a token having an
+  //         old data format.
+  if (request.user.type) {
+    return next(new error.Unauthorized(ERROR_MESSAGE_TOKEN_OLD));
+  }
+
+  return next();
 }
 
 function authenticate(request, response, next, authenticator) {
