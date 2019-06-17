@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Configuration - The liana now requires recursively model files in `modelsDir` and customization files in `configDir`.
 
 ## RELEASE 3.1.1 - 2019-05-15
 ### Fixed

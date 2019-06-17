@@ -6,6 +6,7 @@ const fs = require('fs');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
+const requireAll = require('require-all');
 const auth = require('./services/auth');
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
@@ -22,8 +23,6 @@ const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
 const SchemaFileUpdater = require('./services/schema-file-updater');
 const ApimapFieldsFormater = require('./services/apimap-fields-formater');
-
-const readdirAsync = P.promisify(fs.readdir);
 
 let jwtAuthenticator;
 
@@ -45,19 +44,13 @@ function getModels(Implementation) {
 
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
-    return readdirAsync(modelsDir)
-      .each((file) => {
-        try {
-          if (file.endsWith('.js') || (file.endsWith('.ts') && !file.endsWith('.d.ts'))) {
-            if (fs.statSync(path.join(modelsDir, file)).isFile()) {
-              // eslint-disable-next-line
-              require(path.join(modelsDir, file));
-            }
-          }
-        } catch (error) {
-          logger.error(`Cannot read your model in the file ${file} for the following reason:`, error);
-        }
-      })
+    return P
+      .resolve(requireAll({
+        dirname: modelsDir,
+        filter: fileName =>
+          fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
+        recursive: true,
+      }))
       .then(() => getModels(Implementation))
       .catch((error) => {
         logger.error(`Cannot read your models for the following reason: ${error.message}`, error);
