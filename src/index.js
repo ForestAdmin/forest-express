@@ -65,8 +65,8 @@ function requireAllModels(Implementation, modelsDir) {
       });
   }
 
-  // NOTICE: User didn't provide a modelsDir but may already have required
-  // them manually so they might be available.
+  // NOTICE: User didn't provide a modelsDir but may already have required them manually so they
+  //         might be available.
   return P.resolve(getModels(Implementation));
 }
 
