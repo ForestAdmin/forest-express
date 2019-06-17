@@ -44,23 +44,25 @@ function getModels(Implementation) {
 
 function requireAllModels(Implementation, modelsDir) {
   if (modelsDir) {
-    return P
-      .resolve(requireAll({
+    try {
+      requireAll({
         dirname: modelsDir,
         filter: fileName =>
           fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
         recursive: true,
-      }))
-      .then(() => getModels(Implementation))
-      .catch((error) => {
-        logger.error(`Cannot read your models for the following reason: ${error.message}`, error);
-        return P.resolve([]);
       });
+    } catch (error) {
+      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
+    }
   }
 
   // NOTICE: User didn't provide a modelsDir but may already have required them manually so they
   //         might be available.
-  return P.resolve(getModels(Implementation));
+  return P.resolve(getModels(Implementation))
+    .catch((error) => {
+      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
+      return P.resolve([]);
+    });
 }
 
 exports.Schemas = Schemas;
