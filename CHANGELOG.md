@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Schema - Schemas having fields with validations based on complex regexps are now properly sent in remote environments.
 
 ## RELEASE 3.2.0 - 2019-06-17
 ### Added

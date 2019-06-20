@@ -155,7 +155,10 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       collection1.name.localeCompare(collection2.name));
 
     const schema = { collections, meta };
-    fs.writeFileSync(filename, prettyPrint(schema));
+    // NOTICE: Escape '\' characters to ensure the generation of valid JSON files. It fixes
+    //         potential issues if some fields have validations using complex regexp.
+    fs.writeFileSync(filename, prettyPrint(schema)
+      .replace(/[^\\]\\[^\\"]/g, x => x.replace('\\', '\\\\')));
     return schema;
   };
 }
