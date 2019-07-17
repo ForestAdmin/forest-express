@@ -1308,12 +1308,12 @@ cross-spawn@^6.0.0, cross-spawn@^6.0.5:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-csv-stringify@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-1.0.4.tgz#bc18bab9ad4cef3195fd257980b58b479c42d3e5"
-  integrity sha1-vBi6ua1M7zGV/SV5gLWLR5xC0+U=
+csv-stringify@5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-5.3.0.tgz#ff2dfafa6fcccd455ff5039be9c202475aa3bbe0"
+  integrity sha512-VMYPbE8zWz475smwqb9VbX9cj0y4J0PBl59UdcqzLkzXHZZ8dh4Rmbb0ZywsWEtUml4A96Hn7Q5MW9ppVghYzg==
   dependencies:
-    lodash.get "^4.0.0"
+    lodash.get "~4.4.2"
 
 cycle@1.0.x:
   version "1.0.3"
@@ -2778,7 +2778,7 @@ lodash.find@^4.6.0:
   resolved "https://registry.yarnpkg.com/lodash.find/-/lodash.find-4.6.0.tgz#cb0704d47ab71789ffa0de8b97dd926fb88b13b1"
   integrity sha1-ywcE1Hq3F4n/oN6Ll92Sb7iLE7E=
 
-lodash.get@^4.0.0:
+lodash.get@~4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
