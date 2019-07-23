@@ -44,7 +44,7 @@ const prettyPrint = (json, indentation = '') => {
   } else if (_.isNil(json)) {
     result += 'null';
   } else if (_.isString(json)) {
-    result += `"${json.replace(/"/g, '\\"')}"`;
+    result += `"${json.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`;
   } else {
     result += `${json}`;
   }
