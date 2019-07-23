@@ -5,8 +5,9 @@ exports.generate = (path, options) => {
 
 exports.generateForSmartActionCustomEndpoint = (path, options) => {
   if (options.expressParentApp) {
-    return path.replace(/^\/forest/, '');
+    return path.replace(/^\/?forest\//, '/');
   }
 
-  return path;
+  // NOTICE: Automatically fix missing / character at the beginning at the endpoint declaration.
+  return path[0] === '/' ? path : `/${path}`;
 };

@@ -32,6 +32,7 @@
   "src/services/ip-whitelist.js",
   "src/services/logger.js",
   "src/services/login-handler.js",
+  "src/services/path.js",
   "src/services/schema-file-updater.js",
   "src/utils/data.js",
   "src/utils/json.js",
