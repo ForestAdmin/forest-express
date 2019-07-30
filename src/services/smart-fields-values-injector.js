@@ -4,69 +4,62 @@ const logger = require('../services/logger');
 const Schemas = require('../generators/schemas');
 
 function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
-  var schema = Schemas.schemas[modelName];
-  var fieldsForHighlightedSearch = [];
+  const schema = Schemas.schemas[modelName];
+  const fieldsForHighlightedSearch = [];
 
-  this.getFieldsForHighlightedSearch = function () {
-    return fieldsForHighlightedSearch;
-  };
+  this.getFieldsForHighlightedSearch = () => fieldsForHighlightedSearch;
 
+  // eslint-disable-next-line
   function setSmartFieldValue(record, field, modelName) {
-    function addFieldForHighlightIfCandidate(field) {
-      if (field.type === 'String') {
-        fieldsForHighlightedSearch.push(field.field);
+    function addFieldForHighlightIfCandidate(fieldToCheck) {
+      if (fieldToCheck.type === 'String') {
+        fieldsForHighlightedSearch.push(fieldToCheck.field);
       }
     }
 
     try {
-      var value;
+      let value;
       if (field.value) {
-        logger.warn('DEPRECATION WARNING: Smart Fields "value" method is deprecated. Please use ' +
-          '"get" method in your collection ' + modelName + ' instead.');
+        logger.warn(`DEPRECATION WARNING: Smart Fields "value" method is deprecated. Please use "get" method in your collection ${modelName} instead.`);
       }
 
       try {
         value = field.get ? field.get(record) : field.value(record);
       } catch (error) {
-        logger.error('Cannot retrieve the ' + field.field + ' value because of an internal error ' +
-          'in the getter implementation: ' + error);
+        logger.error(`Cannot retrieve the ${field.field} value because of an internal error in the getter implementation: ${error}`);
       }
 
       if (!_.isNil(value)) {
         if (_.isFunction(value.then)) {
           return value
-            .then(function (result) {
+            .then((result) => {
               record[field.field] = result;
               addFieldForHighlightIfCandidate(field);
             })
-            .catch(function (error) {
-              logger.warn('Cannot set the ' + field.field + ' value because of an unexpected ' +
-                'error: ' + error);
-              return;
+            .catch((error) => {
+              logger.warn(`Cannot set the field.field value because of an unexpected error: ${error}`);
             });
-        } else {
-          record[field.field] = value;
-          addFieldForHighlightIfCandidate(field);
         }
+        record[field.field] = value;
+        return addFieldForHighlightIfCandidate(field);
       }
     } catch (error) {
-      logger.warn('Cannot set the ' + field.field + ' value because of an unexpected error: ' +
-        error);
+      logger.warn(`Cannot set the ${field.field} value because of an unexpected error: ${error}`);
     }
   }
 
-  function isNotRequestedField(modelName, fieldName) {
+  function isNotRequestedField(modelNameToCheck, fieldName) {
     return fieldsPerModel &&
-      fieldsPerModel[modelName] &&
-      fieldsPerModel[modelName].indexOf(fieldName) === -1;
+      fieldsPerModel[modelNameToCheck] &&
+      fieldsPerModel[modelNameToCheck].indexOf(fieldName) === -1;
   }
 
-  this.perform = function () {
-    return P.each(schema.fields, function (field) {
+  this.perform = () =>
+    P.each(schema.fields, (field) => {
       if (!record[field.field]) {
         if (field.get || field.value) {
           if (isNotRequestedField(modelName, field.field)) {
-            return;
+            return null;
           }
 
           return setSmartFieldValue(record, field, modelName);
@@ -75,25 +68,32 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
-        var modelNameAssociation = field.reference.split('.')[0];
-        var schemaAssociation = Schemas.schemas[modelNameAssociation];
+        const modelNameAssociation = field.reference.split('.')[0];
+        const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
         if (schemaAssociation && !_.isArray(field.type)) {
-          return P.each(schemaAssociation.fields, function (fieldAssociation) {
+          return P.each(schemaAssociation.fields, (fieldAssociation) => {
             if (isNotRequestedField(field.field, fieldAssociation.field)) {
-              return;
+              return null;
             }
 
             if (!record[field.field][fieldAssociation.field] &&
               (fieldAssociation.get || fieldAssociation.value)) {
-              return setSmartFieldValue(record[field.field], fieldAssociation,
-                modelNameAssociation);
+              return setSmartFieldValue(
+                record[field.field],
+                fieldAssociation,
+                modelNameAssociation,
+              );
             }
+
+            return null;
           });
         }
       }
-    }).thenReturn(record);
-  };
+
+      return null;
+    })
+      .thenReturn(record);
 }
 
 module.exports = SmartFieldsValuesInjector;

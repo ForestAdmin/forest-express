@@ -28,9 +28,7 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
           lastRetrieve: moment(),
         };
       })
-      .catch((error) => {
-        return P.reject(new VError(error, 'Permissions error'));
-      });
+      .catch(error => P.reject(new VError(error, 'Permissions error')));
   }
 
   function isPermissionExpired() {
@@ -53,14 +51,14 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
 
   function retrievePermissionsAndCheckAllowed(resolve, reject) {
     return retrievePermissions()
-      .then(() => isAllowed()
+      .then(() => (isAllowed()
         ? resolve()
-        : reject(new Error(`'${permissionName}' access forbidden on ${collectionName}`)))
+        : reject(new Error(`'${permissionName}' access forbidden on ${collectionName}`))))
       .catch(reject);
   }
 
-  this.perform = () => {
-    return new P((resolve, reject) => {
+  this.perform = () =>
+    new P((resolve, reject) => {
       if (isPermissionExpired()) {
         return retrievePermissionsAndCheckAllowed(resolve, reject);
       }
@@ -71,7 +69,6 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
 
       return resolve();
     });
-  };
 }
 
 PermissionsChecker.cleanCache = () => {

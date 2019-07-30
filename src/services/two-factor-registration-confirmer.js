@@ -8,10 +8,10 @@ function TwoFactorRegistrationConfirmer({
   envSecret,
   useGoogleAuthentication,
   email,
-  forestToken
+  forestToken,
 }) {
-  this.perform = function () {
-    return new P(function (resolve, reject) {
+  this.perform = () =>
+    new P((resolve, reject) => {
       const forestUrl = new ServiceUrlGetter().perform();
       const bodyData = { useGoogleAuthentication };
 
@@ -30,11 +30,9 @@ function TwoFactorRegistrationConfirmer({
             logger.error(error);
             return reject(new Error());
           }
-
-          resolve();
+          return resolve();
         });
     });
-  };
 }
 
 module.exports = TwoFactorRegistrationConfirmer;
