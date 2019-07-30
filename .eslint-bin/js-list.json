@@ -28,6 +28,8 @@
   "src/services/apimap-sorter.js",
   "src/services/auth.js",
   "src/services/authorization-finder.js",
+  "src/services/base-filters-parser.js",
+  "src/services/error.js",
   "src/services/forest-server-requester.js",
   "src/services/ip-whitelist.js",
   "src/services/logger.js",
