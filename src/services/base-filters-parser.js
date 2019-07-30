@@ -53,9 +53,8 @@ const getConditionAssociation = (condition) => {
   return splittedField.length > 1 ? splittedField[0] : null;
 };
 
-const aggregateAssociations = (_aggregator, conditionsAssociations) => {
-  return _.flatten(conditionsAssociations);
-};
+const aggregateAssociations = (_aggregator, conditionsAssociations) =>
+  _.flatten(conditionsAssociations);
 
 // NOTICE: Recursively populate the associations names from the filters.
 const getAssociations = (filtersString) => {
