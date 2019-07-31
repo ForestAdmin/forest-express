@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Technical - Set default prerelease tag to beta if nothing specified on deploy.
 
 ## RELEASE 4.0.0-beta.0 - 2019-07-31
 ### Changed
