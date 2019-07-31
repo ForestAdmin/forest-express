@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 4.0.0-beta.0 - 2019-07-31
 ### Changed
 - Technical - Apply ESLint conventions to old files.
 - Filters - Add generic filters parser to be used by forest-express-sequelize and forest-mongoose lianas.
