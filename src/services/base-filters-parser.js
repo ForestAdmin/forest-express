@@ -13,6 +13,12 @@ const parseFiltersString = (filtersString) => {
 // NOTICE: Apply the formatCondition function to a condition (leaf).
 const parseCondition = (condition, formatCondition) => {
   if (_.isEmpty(condition)) { throw new InvalidFiltersFormatError('Empty condition in filter'); }
+  if (!_.isObject(condition)) { throw new InvalidFiltersFormatError('Condition cannot be a raw value'); }
+  if (_.isArray(condition)) { throw new InvalidFiltersFormatError('Filters cannot be a raw array'); }
+  if (!_.isString(condition.field) || !_.isString(condition.operator)
+      || _.isUndefined(condition.value)) {
+    throw new InvalidFiltersFormatError('Invalid condition format');
+  }
 
   return formatCondition(condition);
 };
