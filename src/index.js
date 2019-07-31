@@ -338,3 +338,4 @@ exports.logger = require('./services/logger');
 exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');
+exports.BaseFiltersParser = require('./services/base-filters-parser');
