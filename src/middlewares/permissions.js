@@ -2,7 +2,7 @@ const PermissionsChecker = require('../services/permissions-checker');
 const httpError = require('http-errors');
 const logger = require('../services/logger');
 
-const getRenderingIdFromUser = user => user.relationships.renderings.data[0].id;
+const getRenderingIdFromUser = user => user.renderingId;
 
 function createCheckPermission(environmentSecret, collectionName) {
   function checkPermission(permissionName) {

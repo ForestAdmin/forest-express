@@ -57,21 +57,11 @@ function LoginHandler({
   function createToken(user, sessionRenderingId) {
     return jwt.sign({
       id: user.id,
-      type: 'users',
-      data: {
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        teams: user.teams,
-      },
-      relationships: {
-        renderings: {
-          data: [{
-            type: 'renderings',
-            id: sessionRenderingId,
-          }],
-        },
-      },
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      team: user.teams[0],
+      renderingId: sessionRenderingId,
     }, authSecret, {
       expiresIn: '14 days',
     });

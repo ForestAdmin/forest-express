@@ -178,23 +178,11 @@ describe('API > Sessions', () => {
 
             expect(decodedJWT).to.containSubset({
               id: '125',
-              type: 'users',
-              data: {
-                email: 'user@email.com',
-                first_name: 'user',
-                last_name: 'last',
-                teams: ['Operations'],
-              },
-              relationships: {
-                renderings: {
-                  data: [
-                    {
-                      type: 'renderings',
-                      id: 1,
-                    },
-                  ],
-                },
-              },
+              email: 'user@email.com',
+              firstName: 'user',
+              lastName: 'last',
+              team: 'Operations',
+              renderingId: 1,
             });
 
             done();

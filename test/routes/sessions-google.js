@@ -81,21 +81,11 @@ describe('API > Google OAuth2 Login', () => {
 
           expect(decodedJWT).to.containSubset({
             id: '654',
-            type: 'users',
-            data: {
-              email: 'user@email.com',
-              first_name: 'FirstName',
-              last_name: 'LastName',
-              teams: ['Operations'],
-            },
-            relationships: {
-              renderings: {
-                data: [{
-                  id: 1,
-                  type: 'renderings',
-                }],
-              },
-            },
+            email: 'user@email.com',
+            firstName: 'FirstName',
+            lastName: 'LastName',
+            renderingId: 1,
+            team: 'Operations',
           });
 
           done();

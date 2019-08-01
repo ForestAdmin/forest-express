@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Makes the JWT lighter and consistent across lianas.
+
 ### Fixed
 - Technical - Set default prerelease tag to beta if nothing specified on deploy.
 
