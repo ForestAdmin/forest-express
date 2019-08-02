@@ -1,23 +1,23 @@
 import _ from 'lodash';
-import { InvalidFiltersFormatError } from './error';
+import { InvalidFiltersFormat } from './error';
 
 // NOTICE: Parse the given filters into a valid JSON.
 const parseFiltersString = (filtersString) => {
   try {
     return filtersString ? JSON.parse(filtersString) : null;
   } catch (error) {
-    throw new InvalidFiltersFormatError('Invalid filters JSON format');
+    throw new InvalidFiltersFormat('Invalid filters JSON format');
   }
 };
 
 // NOTICE: Apply the formatCondition function to a condition (leaf).
 const parseCondition = (condition, formatCondition) => {
-  if (_.isEmpty(condition)) { throw new InvalidFiltersFormatError('Empty condition in filter'); }
-  if (!_.isObject(condition)) { throw new InvalidFiltersFormatError('Condition cannot be a raw value'); }
-  if (_.isArray(condition)) { throw new InvalidFiltersFormatError('Filters cannot be a raw array'); }
+  if (_.isEmpty(condition)) { throw new InvalidFiltersFormat('Empty condition in filter'); }
+  if (!_.isObject(condition)) { throw new InvalidFiltersFormat('Condition cannot be a raw value'); }
+  if (_.isArray(condition)) { throw new InvalidFiltersFormat('Filters cannot be a raw array'); }
   if (!_.isString(condition.field) || !_.isString(condition.operator)
       || _.isUndefined(condition.value)) {
-    throw new InvalidFiltersFormatError('Invalid condition format');
+    throw new InvalidFiltersFormat('Invalid condition format');
   }
 
   return formatCondition(condition);
@@ -26,16 +26,16 @@ const parseCondition = (condition, formatCondition) => {
 // NOTICE: Call the formatAggregation function on the node and propagate it to its childs or
 //         call the parseCondition function on the node if the node is a leaf.
 const parseAggregation = (node, formatAggregation, formatCondition) => {
-  if (_.isEmpty(node)) { throw new InvalidFiltersFormatError('Empty condition in filter'); }
-  if (!_.isObject(node)) { throw new InvalidFiltersFormatError('Filters cannot be a raw value'); }
-  if (_.isArray(node)) { throw new InvalidFiltersFormatError('Filters cannot be a raw array'); }
+  if (_.isEmpty(node)) { throw new InvalidFiltersFormat('Empty condition in filter'); }
+  if (!_.isObject(node)) { throw new InvalidFiltersFormat('Filters cannot be a raw value'); }
+  if (_.isArray(node)) { throw new InvalidFiltersFormat('Filters cannot be a raw array'); }
 
   if (!node.aggregator) { return parseCondition(node, formatCondition); }
 
   const formatedConditions = [];
 
   if (!_.isArray(node.conditions)) {
-    throw new InvalidFiltersFormatError('Filters\' conditions must be an array');
+    throw new InvalidFiltersFormat('Filters\' conditions must be an array');
   }
 
   node.conditions.forEach(condition => formatedConditions
