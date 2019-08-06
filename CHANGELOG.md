@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 3.2.5 - 2019-08-06
 ### Added
 - Technical - Change deploy script to be able to deploy a single branch without merging to master.
 
