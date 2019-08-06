@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - Change deploy script to be able to deploy a single branch without merging to master.
+
 ### Changed
 - Technical - Apply ESLint conventions to old files.
 
