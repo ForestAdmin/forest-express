@@ -64,12 +64,12 @@ const aggregateAssociations = (_aggregator, conditionsAssociations) =>
 
 // NOTICE: Recursively populate the associations names from the filters.
 const getAssociations = (filtersString) => {
-  const associations = perform(
+  let associations = perform(
     filtersString,
     aggregateAssociations,
     getConditionAssociation,
   );
-  if (!_.isArray(associations)) { return [associations]; }
+  if (!_.isArray(associations)) { associations = [associations]; }
   return _.uniq(_.compact(associations));
 };
 
