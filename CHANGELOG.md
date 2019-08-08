@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 4.0.0-beta.4 - 2019-08-08
 ### Fixed
 - Technical - Empty associations array on flat condition without belongsTo.
 
