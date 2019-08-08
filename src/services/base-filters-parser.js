@@ -69,7 +69,7 @@ const getAssociations = (filtersString) => {
     aggregateAssociations,
     getConditionAssociation,
   );
-  if (!_.isArray(associations)) { return [associations]; }
+  if (!_.isArray(associations)) { return associations ? [associations] : []; }
   return _.uniq(_.compact(associations));
 };
 
