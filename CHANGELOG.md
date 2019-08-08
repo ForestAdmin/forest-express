@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Filters - Empty associations array on flat condition without belongsTo.
+- Technical - Empty associations array on flat condition without belongsTo.
 
 ## RELEASE 4.0.0-beta.3 - 2019-08-02
 ### Fixed
