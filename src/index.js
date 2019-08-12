@@ -339,3 +339,4 @@ exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');
 exports.BaseFiltersParser = require('./services/base-filters-parser');
+exports.BaseOperatorDateParser = require('./services/base-operator-date-parser');
