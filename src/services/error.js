@@ -19,8 +19,16 @@ function InvalidFiltersFormat(message) {
   Error.call(this, message);
 }
 
+function NoMatchingOperatorError(message) {
+  this.name = 'NoMatchingOperatorError';
+  this.message = message || 'The given operator is not handled.';
+  this.status = 422;
+  Error.call(this, message);
+}
+
 module.exports = {
   Unauthorized,
   UnprocessableEntity,
   InvalidFiltersFormat,
+  NoMatchingOperatorError,
 };

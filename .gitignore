@@ -34,3 +34,6 @@ dist
 
 # Tests
 .forestadmin-schema.json
+
+# Lock
+package-lock.json

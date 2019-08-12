@@ -40,6 +40,7 @@
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.13",
     "moment": "2.19.4",
+    "moment-timezone": "0.5.26",
     "otplib": "10.0.0",
     "require-all": "3.0.0",
     "superagent": "3.7.0",
