@@ -63,13 +63,13 @@ function BaseOperatorDateParser(options) {
     switch (operator) {
       case 'today':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment().startOf('day')),
-          [options.ops.LTE]: this.toDateWithTimezone(moment().endOf('day')),
+          [options.operators.GTE]: this.toDateWithTimezone(moment().startOf('day')),
+          [options.operators.LTE]: this.toDateWithTimezone(moment().endOf('day')),
         };
       case 'past':
-        return { [options.ops.LTE]: moment().toDate() };
+        return { [options.operators.LTE]: moment().toDate() };
       case 'future':
-        return { [options.ops.GTE]: moment().toDate() };
+        return { [options.operators.GTE]: moment().toDate() };
       case 'yesterday':
       case 'previous_week':
       case 'previous_month':
@@ -78,9 +78,9 @@ function BaseOperatorDateParser(options) {
         const previousPeriod = moment().subtract(1, PERIODS[operator]);
 
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(previousPeriod.clone()
+          [options.operators.GTE]: this.toDateWithTimezone(previousPeriod.clone()
             .startOf(PERIODS_VALUES[PERIODS[operator]])),
-          [options.ops.LTE]: this.toDateWithTimezone(previousPeriod.clone()
+          [options.operators.LTE]: this.toDateWithTimezone(previousPeriod.clone()
             .endOf(PERIODS_VALUES[PERIODS[operator]])),
         };
       }
@@ -89,30 +89,30 @@ function BaseOperatorDateParser(options) {
       case 'previous_quarter_to_date':
       case 'previous_year_to_date':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment()
+          [options.operators.GTE]: this.toDateWithTimezone(moment()
             .startOf(PERIODS_VALUES[PERIODS[operator]])),
-          [options.ops.LTE]: moment().toDate(),
+          [options.operators.LTE]: moment().toDate(),
         };
       case 'previous_x_days':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment()
+          [options.operators.GTE]: this.toDateWithTimezone(moment()
             .subtract(value, 'days').startOf('day')),
-          [options.ops.LTE]: this.toDateWithTimezone(moment()
+          [options.operators.LTE]: this.toDateWithTimezone(moment()
             .subtract(1, 'days').endOf('day')),
         };
       case 'previous_x_days_to_date':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment()
+          [options.operators.GTE]: this.toDateWithTimezone(moment()
             .subtract(value - 1, 'days').startOf('day')),
-          [options.ops.LTE]: moment().toDate(),
+          [options.operators.LTE]: moment().toDate(),
         };
       case 'before_x_hours_ago':
         return {
-          [options.ops.LTE]: this.toDateWithTimezone(moment().subtract(value, 'hours')),
+          [options.operators.LTE]: this.toDateWithTimezone(moment().subtract(value, 'hours')),
         };
       case 'after_x_hours_ago':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment().subtract(value, 'hours')),
+          [options.operators.GTE]: this.toDateWithTimezone(moment().subtract(value, 'hours')),
         };
       default:
         throw new NoMatchingOperatorError();
@@ -127,22 +127,22 @@ function BaseOperatorDateParser(options) {
         const yesterday = moment().subtract(1, 'days');
 
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(yesterday.clone().startOf('day')),
-          [options.ops.LTE]: this.toDateWithTimezone(yesterday.clone().endOf('day')),
+          [options.operators.GTE]: this.toDateWithTimezone(yesterday.clone().startOf('day')),
+          [options.operators.LTE]: this.toDateWithTimezone(yesterday.clone().endOf('day')),
         };
       }
       case 'previous_x_days':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment()
+          [options.operators.GTE]: this.toDateWithTimezone(moment()
             .subtract(value * 2, 'days').startOf('day')),
-          [options.ops.LTE]: this.toDateWithTimezone(moment()
+          [options.operators.LTE]: this.toDateWithTimezone(moment()
             .subtract(value + 1, 'days').endOf('day')),
         };
       case 'previous_x_days_to_date':
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(moment()
+          [options.operators.GTE]: this.toDateWithTimezone(moment()
             .subtract((value * 2) - 1, 'days').startOf('day')),
-          [options.ops.LTE]: this.toDateWithTimezone(moment()
+          [options.operators.LTE]: this.toDateWithTimezone(moment()
             .subtract(value, 'days')),
         };
       case 'yesterday':
@@ -153,9 +153,9 @@ function BaseOperatorDateParser(options) {
         const penultimatePeriod = moment().subtract(2, PERIODS[operator]);
 
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(penultimatePeriod.clone()
+          [options.operators.GTE]: this.toDateWithTimezone(penultimatePeriod.clone()
             .startOf(PERIODS_VALUES[PERIODS[operator]])),
-          [options.ops.LTE]: this.toDateWithTimezone(penultimatePeriod.clone()
+          [options.operators.LTE]: this.toDateWithTimezone(penultimatePeriod.clone()
             .endOf(PERIODS_VALUES[PERIODS[operator]])),
         };
       }
@@ -166,9 +166,9 @@ function BaseOperatorDateParser(options) {
         const previousPeriod = moment().subtract(1, PERIODS[operator]);
 
         return {
-          [options.ops.GTE]: this.toDateWithTimezone(previousPeriod.clone()
+          [options.operators.GTE]: this.toDateWithTimezone(previousPeriod.clone()
             .startOf(PERIODS_VALUES[PERIODS[operator]])),
-          [options.ops.LTE]: this.toDateWithTimezone(previousPeriod.clone()),
+          [options.operators.LTE]: this.toDateWithTimezone(previousPeriod.clone()),
         };
       }
       default:
