@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Make filters date operator parser generic through forest-express.
 
 ## RELEASE 4.0.0-beta.4 - 2019-08-08
 ### Fixed
