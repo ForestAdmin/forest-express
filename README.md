@@ -31,3 +31,9 @@ or, for beta release:
 # Test
 
 `yarn test`
+
+## Community
+
+👇 Join our Slack community of +1000 developers
+
+[![Slack Status](http://community.forestadmin.com/badge.svg)](https://community.forestadmin.com)

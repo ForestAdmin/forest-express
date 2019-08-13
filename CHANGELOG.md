@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Readme - Add a community section.
 
 ## RELEASE 4.0.0-beta.5 - 2019-08-12
 ### Changed
