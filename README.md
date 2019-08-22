@@ -1,4 +1,7 @@
-# Build
+# Forest Express Lianas dependency
+[![npm package](https://badge.fury.io/js/forest-express.svg)](https://badge.fury.io/js/forest-express) [![CI status](https://travis-ci.org/ForestAdmin/forest-express.svg?branch=devel)](https://travis-ci.org/ForestAdmin/forest-express)
+
+## Build
 
 To transpile from `src` to `build` using babel:
 
@@ -8,7 +11,7 @@ To do it at every js file change in the `src` folder:
 
 `yarn build:watch`
 
-# Deploy
+## Deploy
 
 To increment the version and push to devel and master:
 
@@ -24,11 +27,11 @@ or, for beta release:
 
 `npm publish --tag beta`
 
-# Lint
+## Lint
 
 `yarn lint`
 
-# Test
+## Test
 
 `yarn test`
 
