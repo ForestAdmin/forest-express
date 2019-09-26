@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Changed
 - Readme - Add a community section.
+- Fixed a bug where reinitializing the liana would remove collection routes.
 
 ## RELEASE 4.0.0-beta.5 - 2019-08-12
 ### Changed
