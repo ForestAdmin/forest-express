@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - A Release now also automatically publish the release note to Slack.
+
 ### Changed
 - Readme - Add a community section.
 

@@ -50,12 +50,14 @@
     "winston": "2.2.0"
   },
   "devDependencies": {
+    "@forestadmin/devops": "2.0.0",
     "babel-cli": "7.0.0-beta.3",
     "babel-plugin-transform-runtime": "7.0.0-beta.3",
     "babel-preset-env": "7.0.0-beta.3",
     "babel-register": "7.0.0-beta.3",
     "chai": "4.1.2",
     "chai-subset": "1.6.0",
+    "dotenv": "6.2.0",
     "eslint": "5.16.0",
     "eslint-config-airbnb": "16.1.0",
     "eslint-plugin-import": "2.8.0",
@@ -73,7 +75,7 @@
   "scripts": {
     "build": "./node_modules/babel-cli/bin/babel.js src --out-dir dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
     "build:watch": "onchange 'src/**/*.js' -i -- yarn build",
-    "deploy": "yarn build && node ./bin/deploy.js",
+    "release": "yarn build && node ./scripts/release.js",
     "test": "./node_modules/mocha/bin/mocha test/** --require babel-register",
     "test:watch": "./node_modules/mocha/bin/mocha test/**/* deserializers/** generators/** integrations/** routes/** serializers/** services/** utils/** --require babel-register --watch",
     "lint": "./node_modules/eslint/bin/eslint.js src",
