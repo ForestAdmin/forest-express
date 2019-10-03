@@ -7,6 +7,9 @@
 ### Changed
 - Readme - Add a community section.
 
+### Fixed
+- Technical - Fix a missing dependency.
+
 ## RELEASE 4.0.0-beta.5 - 2019-08-12
 ### Changed
 - Technical - Make filters date operator parser generic through forest-express.
