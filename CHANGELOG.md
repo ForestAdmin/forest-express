@@ -4,13 +4,15 @@
 ### Changed
 - Technical - Apply ESLint rules to an existing code file.
 
+### Fixed
+- Initialization - Fix a bad behaviour that removes all admin API routes if the liana init is called more than once.
+
 ## RELEASE 4.0.0 - 2019-10-03
 ### Added
 - Technical - A Release now also automatically publish the release note to Slack.
 
 ### Changed
 - Readme - Add a community section.
-- Fixed a bug where reinitializing the liana would remove collection routes.
 
 ### Fixed
 - Technical - Fix a missing dependency.
