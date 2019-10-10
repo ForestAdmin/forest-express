@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 4.0.1 - 2019-10-10
 ### Changed
 - Technical - Apply ESLint rules to an existing code file.
 
