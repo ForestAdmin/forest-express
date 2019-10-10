@@ -10,6 +10,7 @@
 
 ### Changed
 - Readme - Add a community section.
+- Fixed a bug where reinitializing the liana would remove collection routes.
 
 ### Fixed
 - Technical - Fix a missing dependency.

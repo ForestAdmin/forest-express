@@ -73,7 +73,7 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-let alreadyInitialized = false;
+let app = null;
 
 function buildSchema(Implementation) {
   const { opts } = Implementation;
@@ -93,14 +93,12 @@ exports.init = (Implementation) => {
     return buildSchema(Implementation).spread(models => models);
   }
 
-  const app = express();
-
-  if (alreadyInitialized) {
+  if (app) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
     return app;
   }
 
-  alreadyInitialized = true;
+  app = express();
 
   auth.initAuth(opts);
 
