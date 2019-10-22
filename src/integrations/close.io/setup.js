@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const path = require('../../services/path');
 const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'close.io';
@@ -61,7 +62,7 @@ exports.createFields = function (implementation, model, schema) {
   schema.actions.push({
     id: implementation.getModelName(model) + '.' + 'Create Close.io lead',
     name: 'Create Close.io lead',
-    endpoint: '/forest/' + implementation.getModelName(model) + '_closeio_leads',
+    endpoint: path.base() + implementation.getModelName(model) + '_closeio_leads',
     fields: [{
       field: 'Company/Organization Name',
       type: 'String'

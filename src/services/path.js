@@ -1,5 +1,10 @@
+exports.base = (withPrefix = true) => {
+  const base = '/:teamName/';
+  return withPrefix ? `/forest${base}` : base;
+};
+
 exports.generate = (path, options) => {
-  const pathPrefix = options.expressParentApp ? '/' : '/forest/';
+  const pathPrefix = exports.base(!options.expressParentApp);
   return pathPrefix + path;
 };
 

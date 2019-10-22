@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var logger = require('../../services/logger');
+var path = require('../../services/path');
 var Routes = require('./routes');
 var Setup = require('./setup');
 
@@ -120,7 +121,7 @@ function Checker(opts, Implementation) {
         relationshipLinks: {
           related: function (dataSet) {
             return {
-              href: '/forest/' + Implementation.getModelName(model) +
+              href: path.base() + Implementation.getModelName(model) +
                 '/' + dataSet[schema.idField] + '/' + field.field,
             };
           }

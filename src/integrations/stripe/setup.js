@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const path = require('../../services/path');
 const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
 
 const INTEGRATION_NAME = 'stripe';
@@ -38,7 +39,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
     actions: [{
       id: 'stripe.Refund',
       name: 'Refund',
-      endpoint: '/forest/' + modelName + '_stripe_payments/refunds'
+      endpoint: path.base() + modelName + '_stripe_payments/refunds'
     }]
   });
 

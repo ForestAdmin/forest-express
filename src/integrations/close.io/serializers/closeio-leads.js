@@ -1,4 +1,5 @@
 'use strict';
+var path = require('../../../services/path');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function CloseioLeadsSerializer(attributes, collectionName, meta) {
@@ -15,7 +16,7 @@ function CloseioLeadsSerializer(attributes, collectionName, meta) {
       relationshipLinks: {
         related: function (dataSet) {
           return {
-            href: '/forest/' + collectionName + '_closeio_leads/' +
+            href: path.base() + collectionName + '_closeio_leads/' +
               dataSet.id + '/emails'
           };
         }

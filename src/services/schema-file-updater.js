@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const logger = require('../services/logger');
+const path = require('../services/path');
 const { parameterize } = require('../utils/string');
 const { prettyPrint } = require('../utils/json');
 
@@ -71,7 +72,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
         action.type = null;
       }
 
-      setDefaultValueIfNecessary(action, 'endpoint', `/forest/actions/${parameterize(action.name)}`);
+      setDefaultValueIfNecessary(action, 'endpoint', `${path.base()}actions/${parameterize(action.name)}`);
       setDefaultValueIfNecessary(action, 'httpMethod', 'POST');
       setDefaultValueIfNecessary(action, 'fields', []);
       setDefaultValueIfNecessary(action, 'redirect', null);

@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Security - Set session tokens in http-only.
 
 ## RELEASE 4.0.1 - 2019-10-10
 ### Changed

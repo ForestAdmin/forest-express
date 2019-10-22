@@ -1,6 +1,8 @@
 'use strict';
 var _ = require('lodash');
+var path = require('../../../services/path');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+
 
 function ConversationsSerializer(conversations, collectionName, meta) {
 
@@ -50,7 +52,7 @@ function ConversationsSerializer(conversations, collectionName, meta) {
       relationshipLinks: {
         related: function (dataSet) {
           return {
-            href: '/forest/' + collectionName + '_layer_conversations/' + dataSet.id +
+            href: path.base() + collectionName + '_layer_conversations/' + dataSet.id +
               '/relationships/messages'
           };
         }

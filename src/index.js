@@ -137,8 +137,10 @@ exports.init = (Implementation) => {
             return request.headers.authorization.split(' ')[1];
           // NOTICE: Necessary for downloads authentication.
           } else if (request.headers.cookie) {
+            console.log('================ cookie', request.headers.cookie);
             const match = request.headers.cookie.match(REGEX_COOKIE_SESSION_TOKEN);
             if (match && match[1]) {
+              console.log('================ token:', match[1]);
               return match[1];
             }
           }

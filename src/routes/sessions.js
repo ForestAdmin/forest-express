@@ -52,8 +52,11 @@ module.exports = function sessions(app, opts) {
       // NOTICE: The token is empty at first authentication step if the 2FA option is active.
       if (responseData.token) {
         // NOTICE: Set a cookie to ensure secure authentication using export feature.
-        const twoWeeksInMilliseconds = 14 * 24 * 60 * 60;
-        response.header('Set-Cookie', `forest_session_token=${responseData.token}; Max-Age=${twoWeeksInMilliseconds}`);
+        const twoWeeksInMilliseconds = 300; //14 * 24 * 60 * 60;
+        console.log('========== create session for Rendering:', renderingId);
+        const cookie = `forest_session_token=${responseData.token}; HttpOnly; Path=/forest/${renderingId}; Max-Age=${twoWeeksInMilliseconds}`;
+        console.log('=============', cookie);
+        response.header('Set-Cookie', cookie);
       }
       response.send(responseData);
     } catch (error) {
