@@ -1,1 +1,6 @@
 src
+.env
+.env-example
+.forestadmin-schema.json
+.github
+.yarn-error.log
