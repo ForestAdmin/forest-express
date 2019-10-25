@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Error Handling - Fix error message when configDir does not exist.
 
 ## RELEASE 5.0.0 - 2019-10-31
 ### Changed

@@ -182,7 +182,7 @@ exports.init = (Implementation) => {
         return requireAllModels(Implementation, directorySmartImplementation);
       }
       if (opts.configDir) {
-        logger.error('The Forest modelsDir option you configured does not seem to be an existing directory.');
+        logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
       }
 
       return models;
