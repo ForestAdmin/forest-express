@@ -17,6 +17,7 @@ const ForestRoutes = require('./routes/forest');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
+const pathService = require('./services/path');
 const Integrator = require('./integrations');
 const errorHandler = require('./services/error-handler');
 const ApimapSender = require('./services/apimap-sender');
@@ -99,6 +100,7 @@ exports.init = (Implementation) => {
   }
 
   app = express();
+  const pathMounted = pathService.generate('*', opts);
 
   auth.initAuth(opts);
 
@@ -116,14 +118,14 @@ exports.init = (Implementation) => {
     allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(','));
   }
 
-  app.use(cors({
+  app.use(pathMounted, cors({
     origin: allowedOrigins,
     maxAge: 86400, // NOTICE: 1 day
     credentials: true,
   }));
 
   // Mime type
-  app.use(bodyParser.json());
+  app.use(pathMounted, bodyParser.json());
 
   // Authentication
   if (opts.authSecret) {
@@ -156,16 +158,9 @@ exports.init = (Implementation) => {
       'that you properly set a Forest envSecret in the Forest initializer?');
   }
 
-  const pathsPublic = [/^\/forest\/sessions.*$/];
-
   if (jwtAuthenticator) {
-    if (!opts.expressParentApp) {
-      // NOTICE: If Forest is a sub-app of the client app; all private routes need authentication.
-      //         If Forest routes are part of the client app; only Forest private routes need
-      //         authentication. In this case we add another unless condition.
-      pathsPublic.push(/^((?!.*\/forest\/).)*$/);
-    }
-    app.use(jwtAuthenticator.unless({ path: pathsPublic }));
+    const pathsPublic = [/^\/forest\/sessions.*$/];
+    app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
   new SessionRoute(app, opts).perform();
@@ -207,7 +202,7 @@ exports.init = (Implementation) => {
       new StatRoutes(app, model, Implementation, opts).perform();
     })
     .then(() => new ForestRoutes(app, opts).perform())
-    .then(() => app.use(errorHandler.catchIfAny))
+    .then(() => app.use(pathMounted, errorHandler.catchIfAny))
     .then(() => {
       if (!opts.envSecret) { return; }
 

@@ -8,6 +8,7 @@
 - NPM Publish - Do not send local environment variables on package publish.
 - NPM Publish - Remove Github templates from the published packages.
 - NPM Publish - Remove yarn errors log file from the published packages.
+- Routes - Ensure that admin middlewares are configured for admin API routes only and does not interfere with other project routes.
 
 ## RELEASE 4.0.1 - 2019-10-10
 ### Changed
