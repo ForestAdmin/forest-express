@@ -33,6 +33,19 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
         if (_.isFunction(value.then)) {
           return value
             .then((result) => {
+              // NOTICE: We need some recursion in order to consider smart fields in smart
+              //         relations. So if the result contains data and the field has a reference
+              //         then we consider we have to inject smart fields within the reference.
+              if (result && result.dataValues && field.reference) {
+                const modelNameAssociation = field.reference.split('.')[0];
+                const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
+                  result,
+                  modelNameAssociation,
+                  fieldsPerModel,
+                );
+                smartFieldsValuesInjector.perform();
+              }
+
               record[field.field] = result;
               addFieldForHighlightIfCandidate(field);
             })
