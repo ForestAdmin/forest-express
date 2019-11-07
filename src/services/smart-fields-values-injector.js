@@ -37,10 +37,10 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
               //         relations. So if the result contains data and the field has a reference
               //         then we consider we have to inject smart fields within the reference.
               if (result && result.dataValues && field.reference) {
-                const modelNameAssociation = field.reference.split('.')[0];
+                const [referenceModelName] = field.reference.split('.');
                 const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
                   result,
-                  modelNameAssociation,
+                  referenceModelName,
                   fieldsPerModel,
                 );
                 smartFieldsValuesInjector.perform();
