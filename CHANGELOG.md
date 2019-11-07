@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Error Handling - Fix error message when configDir does not exist.
+- Continuous Integration - Change `11.14` version of `node_js` to `lts/*` in `.travis.yml`.
 
 ## RELEASE 5.0.0 - 2019-10-31
 ### Changed
