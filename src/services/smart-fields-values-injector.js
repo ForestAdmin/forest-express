@@ -17,6 +17,25 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
       }
     }
 
+    // NOTICE: Update the record with smart field value (contains side effects).
+    async function updateRecord(smartFieldValue) {
+      // NOTICE: We need some recursion in order to consider smart fields in smart relations.
+      //         So if the smartFieldValue contains data and the field has a reference then we
+      //         consider we have to inject smart fields within the reference.
+      if (smartFieldValue && smartFieldValue.dataValues && field.reference) {
+        // NOTICE: Field reference format: `modelName.property`.
+        const [referenceModelName] = field.reference.split('.');
+        const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
+          smartFieldValue,
+          referenceModelName,
+          fieldsPerModel,
+        );
+        await smartFieldsValuesInjector.perform();
+      }
+      // NOTICE: (side effects) Update the record, then update fieldsForHighlightedSearch.
+      record[field.field] = smartFieldValue;
+      addFieldForHighlightIfCandidate(field);
+    }
     try {
       let value;
       if (field.value) {
@@ -32,29 +51,12 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
       if (!_.isNil(value)) {
         if (_.isFunction(value.then)) {
           return value
-            .then((result) => {
-              // NOTICE: We need some recursion in order to consider smart fields in smart
-              //         relations. So if the result contains data and the field has a reference
-              //         then we consider we have to inject smart fields within the reference.
-              if (result && result.dataValues && field.reference) {
-                const [referenceModelName] = field.reference.split('.');
-                const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
-                  result,
-                  referenceModelName,
-                  fieldsPerModel,
-                );
-                smartFieldsValuesInjector.perform();
-              }
-
-              record[field.field] = result;
-              addFieldForHighlightIfCandidate(field);
-            })
+            .then(result => updateRecord(result))
             .catch((error) => {
               logger.warn(`Cannot set the field.field value because of an unexpected error: ${error}`);
             });
         }
-        record[field.field] = value;
-        return addFieldForHighlightIfCandidate(field);
+        return updateRecord(value);
       }
     } catch (error) {
       logger.warn(`Cannot set the ${field.field} value because of an unexpected error: ${error}`);
