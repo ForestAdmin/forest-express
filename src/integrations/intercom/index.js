@@ -1,11 +1,11 @@
-'use strict';
-var _ = require('lodash');
-var logger = require('../../services/logger');
-var Routes = require('./routes');
-var Setup = require('./setup');
+
+const _ = require('lodash');
+const logger = require('../../services/logger');
+const Routes = require('./routes');
+const Setup = require('./setup');
 
 function IntercomChecker(opts, Implementation) {
-  var integrationValid = false;
+  let integrationValid = false;
 
   function hasIntegration() {
     return opts.integrations && opts.integrations.intercom;
@@ -17,26 +17,26 @@ function IntercomChecker(opts, Implementation) {
   }
 
   function isMappingValid() {
-    var models = Implementation.getModels();
-    var mappingValid = true;
-    _.map(opts.integrations.intercom.mapping, function (mappingValue) {
-      var collectionName = mappingValue.split('.')[0];
+    const models = Implementation.getModels();
+    let mappingValid = true;
+    _.map(opts.integrations.intercom.mapping, (mappingValue) => {
+      const collectionName = mappingValue.split('.')[0];
       if (!models[collectionName]) {
         mappingValid = false;
       }
     });
 
     if (!mappingValid) {
-      logger.error('Cannot find some Intercom integration mapping values (' +
-        opts.integrations.intercom.mapping + ') among the project models:\n' +
-        _.keys(models).join(', '));
+      logger.error(`Cannot find some Intercom integration mapping values (${
+        opts.integrations.intercom.mapping}) among the project models:\n${
+        _.keys(models).join(', ')}`);
     }
 
     return mappingValid;
   }
 
   function isIntegrationDeprecated() {
-    var integrationValid = opts.integrations.intercom.apiKey &&
+    const integrationValid = opts.integrations.intercom.apiKey &&
       opts.integrations.intercom.appId &&
       opts.integrations.intercom.intercom &&
       opts.integrations.intercom.mapping;
@@ -56,18 +56,19 @@ function IntercomChecker(opts, Implementation) {
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
-    var models = Implementation.getModels();
+    const models = Implementation.getModels();
 
-    var collectionModelNames = _.map(integration.mapping,
-      function (mappingValue) {
-        var collectionName = mappingValue.split('.')[0];
+    const collectionModelNames = _.map(
+      integration.mapping,
+      (mappingValue) => {
+        const collectionName = mappingValue.split('.')[0];
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
-      });
+      },
+    );
 
-    return collectionModelNames.indexOf(
-      Implementation.getModelName(model)) > -1;
+    return collectionModelNames.indexOf(Implementation.getModelName(model)) > -1;
   }
 
   if (hasIntegration()) {
@@ -77,7 +78,7 @@ function IntercomChecker(opts, Implementation) {
 
       if (opts.integrations.intercom.accessToken) {
         opts.integrations.intercom.credentials = {
-          token: opts.integrations.intercom.accessToken
+          token: opts.integrations.intercom.accessToken,
         };
       }
 
@@ -98,10 +99,12 @@ function IntercomChecker(opts, Implementation) {
   this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
-    _.each(opts.integrations.intercom.mapping,
-      function (collectionName) {
+    _.each(
+      opts.integrations.intercom.mapping,
+      (collectionName) => {
         Setup.createCollections(Implementation, collections, collectionName);
-      });
+      },
+    );
   };
 
   this.defineFields = function (model, schema) {
@@ -121,13 +124,13 @@ function IntercomChecker(opts, Implementation) {
         nullIfMissing: true, // TODO: This option in the JSONAPISerializer is weird.
         ignoreRelationshipData: true,
         relationshipLinks: {
-          related: function (dataSet) {
+          related(dataSet) {
             return {
-              href: '/forest/' + Implementation.getModelName(model) +
-                '/' + dataSet[schema.idField] + '/' + field.field,
+              href: `/forest/${Implementation.getModelName(model)
+              }/${dataSet[schema.idField]}/${field.field}`,
             };
-          }
-        }
+          },
+        },
       };
     }
   };

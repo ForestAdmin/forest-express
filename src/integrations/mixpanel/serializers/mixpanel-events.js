@@ -3,7 +3,7 @@ const uuidV1 = require('uuid/v1');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function MixpanelEventsSerializer(events, collectionName, meta, options) {
-  events = events.map(function (event) {
+  events = events.map((event) => {
     const MAP_PROPERTIES = {
       $city: 'city',
       $region: 'region',
@@ -11,10 +11,10 @@ function MixpanelEventsSerializer(events, collectionName, meta, options) {
       $os: 'os',
       $os_version: 'osVersion',
       mp_country_code: 'country',
-      time: 'date'
+      time: 'date',
     };
 
-    Object.keys(event.properties).forEach(function (propertyName) {
+    Object.keys(event.properties).forEach((propertyName) => {
       if (MAP_PROPERTIES[propertyName]) {
         event[MAP_PROPERTIES[propertyName]] = event.properties[propertyName];
       } else {
@@ -40,7 +40,7 @@ function MixpanelEventsSerializer(events, collectionName, meta, options) {
 
   return new JSONAPISerializer(type, events, {
     attributes,
-    keyForAttribute: function (key) { return key; },
+    keyForAttribute(key) { return key; },
     meta,
   });
 }

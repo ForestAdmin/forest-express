@@ -10,15 +10,17 @@ module.exports = function (app, model, Implementation, options) {
   let integrationInfo;
 
   if (options.integrations && options.integrations.mixpanel) {
-    integrationInfo = new IntegrationInformationsGetter(modelName,
-      Implementation, options.integrations.mixpanel).perform();
+    integrationInfo = new IntegrationInformationsGetter(
+      modelName,
+      Implementation, options.integrations.mixpanel,
+    ).perform();
   }
 
   if (integrationInfo) {
     const integrationValues = integrationInfo.split('.');
     integrationInfo = {
       collection: Implementation.getModels()[integrationValues[0]],
-      field: integrationValues[1]
+      field: integrationValues[1],
     };
   }
 
@@ -27,18 +29,18 @@ module.exports = function (app, model, Implementation, options) {
       Implementation,
       _.extend(request.query, request.params),
       options,
-      integrationInfo
+      integrationInfo,
     )
       .perform()
-      .then(function (events) {
-        return new MixpanelEventsSerializer(events, modelName, { }, options);
-      })
-      .then(function (events) { response.send(events); })
+      .then(events => new MixpanelEventsSerializer(events, modelName, { }, options))
+      .then((events) => { response.send(events); })
       .catch(next);
   };
 
   this.perform = function () {
-    app.get(path.generate(`${modelName}/:recordId/relationships/mixpanel_last_events`, options),
-      auth.ensureAuthenticated, this.mixpanelEvents);
+    app.get(
+      path.generate(`${modelName}/:recordId/relationships/mixpanel_last_events`, options),
+      auth.ensureAuthenticated, this.mixpanelEvents,
+    );
   };
 };

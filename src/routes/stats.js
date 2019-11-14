@@ -47,7 +47,7 @@ module.exports = function (app, model, Implementation, opts) {
     }
 
     promise
-      .then(function (stat) {
+      .then((stat) => {
         if (request.body.type === CHART_TYPE_OBJECTIVE) {
           stat.value.value = stat.value.countCurrent;
           delete stat.value.countCurrent;
@@ -56,86 +56,84 @@ module.exports = function (app, model, Implementation, opts) {
 
         return new StatSerializer(stat).perform();
       })
-      .then(function (stat) { response.send(stat); })
+      .then((stat) => { response.send(stat); })
       .catch(next);
   };
 
   function getErrorQueryColumnsName(result, keyNames) {
-    var message = 'The result columns must be named ' + keyNames + ' instead of \'' +
-      Object.keys(result).join('\', \'') + '\'.';
-    logger.error('Live Query error: ' + message);
+    const message = `The result columns must be named ${keyNames} instead of '${
+      Object.keys(result).join('\', \'')}'.`;
+    logger.error(`Live Query error: ${message}`);
     return new error.UnprocessableEntity(message);
   }
 
   this.getWithLiveQuery = function (request, response, next) {
     return new Implementation.QueryStatGetter(request.body, opts)
       .perform()
-      .then(function (result) {
+      .then((result) => {
         switch (request.body.type) {
-        case CHART_TYPE_VALUE:
-          if (result.length) {
-            var resultLine = result[0];
-            if (resultLine.value === undefined) {
-              throw getErrorQueryColumnsName(resultLine, '\'value\'');
-            } else {
-              result = {
-                countCurrent: resultLine.value,
-                countPrevious: resultLine.previous
-              };
+          case CHART_TYPE_VALUE:
+            if (result.length) {
+              const resultLine = result[0];
+              if (resultLine.value === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'value\'');
+              } else {
+                result = {
+                  countCurrent: resultLine.value,
+                  countPrevious: resultLine.previous,
+                };
+              }
             }
-          }
-          break;
-        case CHART_TYPE_PIE:
-        case CHART_TYPE_LEADERBOARD:
-          if (result.length) {
-            result.forEach(function (resultLine) {
-              if (resultLine.value === undefined || resultLine.key === undefined) {
-                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
-              }
-            });
-          }
-          break;
-        case CHART_TYPE_LINE:
-          if (result.length) {
-            result.forEach(function (resultLine) {
-              if (resultLine.value === undefined || resultLine.key === undefined) {
-                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
-              }
-            });
-          }
+            break;
+          case CHART_TYPE_PIE:
+          case CHART_TYPE_LEADERBOARD:
+            if (result.length) {
+              result.forEach((resultLine) => {
+                if (resultLine.value === undefined || resultLine.key === undefined) {
+                  throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+                }
+              });
+            }
+            break;
+          case CHART_TYPE_LINE:
+            if (result.length) {
+              result.forEach((resultLine) => {
+                if (resultLine.value === undefined || resultLine.key === undefined) {
+                  throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+                }
+              });
+            }
 
-          result = result.map(function (resultLine) {
-            return {
+            result = result.map(resultLine => ({
               label: resultLine.key,
               values: {
                 value: resultLine.value,
               },
-            };
-          });
-          break;
-        case CHART_TYPE_OBJECTIVE:
-          if (result.length) {
-            let resultLine = result[0];
-            if (resultLine.value === undefined || resultLine.objective === undefined) {
-              throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
-            } else {
-              result = {
-                objective: resultLine.objective,
-                value: resultLine.value,
-              };
+            }));
+            break;
+          case CHART_TYPE_OBJECTIVE:
+            if (result.length) {
+              const resultLine = result[0];
+              if (resultLine.value === undefined || resultLine.objective === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
+              } else {
+                result = {
+                  objective: resultLine.objective,
+                  value: resultLine.value,
+                };
+              }
             }
-          }
-          break;
+            break;
         }
 
         return new StatSerializer({ value: result }).perform();
       })
-      .then(function (data) { response.send(data); })
+      .then((data) => { response.send(data); })
       .catch(next);
   };
 
   this.perform = function () {
-    app.post(path.generate('stats/' + modelName, opts), auth.ensureAuthenticated, this.get);
+    app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, this.get);
     app.post(path.generate('stats', opts), auth.ensureAuthenticated, this.getWithLiveQuery);
   };
 };

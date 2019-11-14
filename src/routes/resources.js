@@ -15,7 +15,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
     return new Implementation.ResourcesGetter(model, opts, params)
       .perform()
-      .then(function (results) {
+      .then((results) => {
         const records = results[0];
         const fieldsSearched = results[1];
 
@@ -28,10 +28,10 @@ module.exports = function (app, model, Implementation, integrator, opts) {
           null,
           fieldsSearched,
           params.search,
-          fieldsPerModel
+          fieldsPerModel,
         ).perform();
       })
-      .then(function (records) {
+      .then((records) => {
         response.send(records);
       })
       .catch(next);
@@ -42,14 +42,16 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
     return new Implementation.ResourcesGetter(model, opts, params)
       .count()
-      .then(count => response.send({ count: count }))
+      .then(count => response.send({ count }))
       .catch(next);
   };
 
   this.exportCSV = function (request, response, next) {
-    var params = request.query;
-    var recordsExporter = new Implementation.RecordsExporter(model, opts,
-      params);
+    const params = request.query;
+    const recordsExporter = new Implementation.RecordsExporter(
+      model, opts,
+      params,
+    );
     return new CSVExporter(params, response, modelName, recordsExporter)
       .perform()
       .catch(next);
@@ -58,11 +60,11 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.get = function (request, response, next) {
     return new Implementation.ResourceGetter(model, request.params)
       .perform()
-      .then(function (record) {
-        return new ResourceSerializer(Implementation, model, record,
-          integrator, opts).perform();
-      })
-      .then(function (record) {
+      .then(record => new ResourceSerializer(
+        Implementation, model, record,
+        integrator, opts,
+      ).perform())
+      .then((record) => {
         response.send(record);
       })
       .catch(next);
@@ -70,16 +72,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
   this.create = function (request, response, next) {
     new ResourceDeserializer(Implementation, model, request.body, true, {
-      omitNullAttributes: true
+      omitNullAttributes: true,
     }).perform()
-      .then(function (params) {
-        return new Implementation.ResourceCreator(model, params).perform();
-      })
-      .then(function (record) {
-        return new ResourceSerializer(Implementation, model, record,
-          integrator, opts).perform();
-      })
-      .then(function (record) {
+      .then(params => new Implementation.ResourceCreator(model, params).perform())
+      .then(record => new ResourceSerializer(
+        Implementation, model, record,
+        integrator, opts,
+      ).perform())
+      .then((record) => {
         response.send(record);
       })
       .catch(next);
@@ -88,14 +88,14 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.update = function (request, response, next) {
     new ResourceDeserializer(Implementation, model, request.body, false)
       .perform()
-      .then(function (record) {
+      .then((record) => {
         new Implementation.ResourceUpdater(model, request.params, record)
           .perform()
-          .then(function (record) {
-            return new ResourceSerializer(Implementation, model, record,
-              integrator, opts).perform();
-          })
-          .then(function (record) {
+          .then(record => new ResourceSerializer(
+            Implementation, model, record,
+            integrator, opts,
+          ).perform())
+          .then((record) => {
             response.send(record);
             return record;
           })
@@ -106,7 +106,7 @@ module.exports = function (app, model, Implementation, integrator, opts) {
   this.remove = function (request, response, next) {
     new Implementation.ResourceRemover(model, request.params)
       .perform()
-      .then(function () {
+      .then(() => {
         response.status(204).send();
       })
       .catch(next);
@@ -119,46 +119,46 @@ module.exports = function (app, model, Implementation, integrator, opts) {
 
   this.perform = function () {
     app.get(
-      path.generate(modelName, opts) + '.csv',
+      `${path.generate(modelName, opts)}.csv`,
       auth.ensureAuthenticated,
       checkPermission('export'),
-      this.exportCSV
+      this.exportCSV,
     );
     app.get(
       path.generate(modelName, opts),
       auth.ensureAuthenticated,
       checkPermissionListAndSearch,
-      this.list
+      this.list,
     );
     app.get(
       path.generate(`${modelName}/count`, opts),
       auth.ensureAuthenticated,
       checkPermissionListAndSearch,
-      this.count
+      this.count,
     );
     app.get(
-      path.generate(modelName + '/:recordId', opts),
+      path.generate(`${modelName}/:recordId`, opts),
       auth.ensureAuthenticated,
       checkPermission('show'),
-      this.get
+      this.get,
     );
     app.post(
       path.generate(modelName, opts),
       auth.ensureAuthenticated,
       checkPermission('create'),
-      this.create
+      this.create,
     );
     app.put(
-      path.generate(modelName + '/:recordId', opts),
+      path.generate(`${modelName}/:recordId`, opts),
       auth.ensureAuthenticated,
       checkPermission('update'),
-      this.update
+      this.update,
     );
     app.delete(
-      path.generate(modelName + '/:recordId', opts),
+      path.generate(`${modelName}/:recordId`, opts),
       auth.ensureAuthenticated,
       checkPermission('delete'),
-      this.remove
+      this.remove,
     );
   };
 };

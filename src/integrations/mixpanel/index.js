@@ -19,7 +19,7 @@ function Checker(options, Implementation) {
   function isMappingValid() {
     const models = Implementation.getModels();
     let mappingValid = true;
-    _.map(options.integrations.mixpanel.mapping, function (mappingValue) {
+    _.map(options.integrations.mixpanel.mapping, (mappingValue) => {
       const collectionName = mappingValue.split('.')[0];
       if (!models[collectionName]) {
         mappingValid = false;
@@ -27,9 +27,9 @@ function Checker(options, Implementation) {
     });
 
     if (!mappingValid) {
-      logger.error('Cannot find some Mixpanel integration mapping values (' +
-        options.integrations.mixpanel.mapping + ') among the project models:\n' +
-        _.keys(models).join(', '));
+      logger.error(`Cannot find some Mixpanel integration mapping values (${
+        options.integrations.mixpanel.mapping}) among the project models:\n${
+        _.keys(models).join(', ')}`);
     }
 
     return mappingValid;
@@ -44,7 +44,7 @@ function Checker(options, Implementation) {
 
     const models = Implementation.getModels();
 
-    const collectionModelNames = _.map(integration.mapping, function (mappingValue) {
+    const collectionModelNames = _.map(integration.mapping, (mappingValue) => {
       const collectionName = mappingValue.split('.')[0];
       if (models[collectionName]) {
         return Implementation.getModelName(models[collectionName]);
@@ -74,10 +74,12 @@ function Checker(options, Implementation) {
   this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
-    _.each(options.integrations.mixpanel.mapping,
-      function (collectionAndFieldName) {
+    _.each(
+      options.integrations.mixpanel.mapping,
+      (collectionAndFieldName) => {
         Setup.createCollections(Implementation, collections, collectionAndFieldName, options);
-      });
+      },
+    );
   };
 
   this.defineFields = function (model, schema) {
@@ -97,12 +99,12 @@ function Checker(options, Implementation) {
         nullIfMissing: true, // TODO: This option in the JSONAPISerializer is weird.
         ignoreRelationshipData: true,
         relationshipLinks: {
-          related: function (dataSet) {
+          related(dataSet) {
             return {
               href: `/forest/${Implementation.getModelName(model)}/${dataSet[schema.idField]}/relationships/${field.field}`,
             };
-          }
-        }
+          },
+        },
       };
     }
   };

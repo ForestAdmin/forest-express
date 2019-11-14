@@ -1,11 +1,11 @@
-'use strict';
-var _ = require('lodash');
-var logger = require('../../services/logger');
-var Routes = require('./routes');
-var Setup = require('./setup');
+
+const _ = require('lodash');
+const logger = require('../../services/logger');
+const Routes = require('./routes');
+const Setup = require('./setup');
 
 function Checker(opts, Implementation) {
-  var integrationValid = false;
+  let integrationValid = false;
 
   function hasIntegration() {
     return opts.integrations && opts.integrations.closeio &&
@@ -18,19 +18,19 @@ function Checker(opts, Implementation) {
   }
 
   function isMappingValid() {
-    var models = Implementation.getModels();
-    var mappingValid = true;
-    _.map(opts.integrations.closeio.mapping, function (mappingValue) {
-      var collectionName = mappingValue.split('.')[0];
+    const models = Implementation.getModels();
+    let mappingValid = true;
+    _.map(opts.integrations.closeio.mapping, (mappingValue) => {
+      const collectionName = mappingValue.split('.')[0];
       if (!models[collectionName]) {
         mappingValid = false;
       }
     });
 
     if (!mappingValid) {
-      logger.error('Cannot find some Close.io integration mapping values (' +
-        opts.integrations.closeio.mapping + ') among the project models:\n' +
-        _.keys(models).join(', '));
+      logger.error(`Cannot find some Close.io integration mapping values (${
+        opts.integrations.closeio.mapping}) among the project models:\n${
+        _.keys(models).join(', ')}`);
     }
 
     return mappingValid;
@@ -43,18 +43,19 @@ function Checker(opts, Implementation) {
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return; }
 
-    var models = Implementation.getModels();
+    const models = Implementation.getModels();
 
-    var collectionModelNames = _.map(integration.mapping,
-      function (mappingValue) {
-        var collectionName = mappingValue.split('.')[0];
+    const collectionModelNames = _.map(
+      integration.mapping,
+      (mappingValue) => {
+        const collectionName = mappingValue.split('.')[0];
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
-      });
+      },
+    );
 
-    return collectionModelNames.indexOf(
-      Implementation.getModelName(model)) > -1;
+    return collectionModelNames.indexOf(Implementation.getModelName(model)) > -1;
   }
 
   if (hasIntegration()) {
@@ -78,11 +79,15 @@ function Checker(opts, Implementation) {
   this.defineCollections = function (collections) {
     if (!integrationValid) { return; }
 
-    _.each(opts.integrations.closeio.mapping,
-      function (collectionAndFieldName) {
-        Setup.createCollections(Implementation, collections,
-          collectionAndFieldName);
-      });
+    _.each(
+      opts.integrations.closeio.mapping,
+      (collectionAndFieldName) => {
+        Setup.createCollections(
+          Implementation, collections,
+          collectionAndFieldName,
+        );
+      },
+    );
   };
 
   this.defineFields = function (model, schema) {
@@ -101,13 +106,13 @@ function Checker(opts, Implementation) {
         nullIfMissing: true, // TODO: This option in the JSONAPISerializer is weird.
         ignoreRelationshipData: true,
         relationshipLinks: {
-          related: function (dataSet) {
+          related(dataSet) {
             return {
-              href: '/forest/' + Implementation.getModelName(model) +
-                '/' + dataSet[schema.idField] + '/' + field.field,
+              href: `/forest/${Implementation.getModelName(model)
+              }/${dataSet[schema.idField]}/${field.field}`,
             };
-          }
-        }
+          },
+        },
       };
     }
   };

@@ -1,20 +1,20 @@
 const _ = require('lodash');
-const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
+const { pushIntoApimap } = require('../../utils/integrations');
 
 const INTEGRATION_NAME = 'stripe';
 
 exports.createCollections = function (Implementation, apimap, collectionAndFieldName) {
   // jshint camelcase: false
-  var model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
-  var modelName = Implementation.getModelName(model);
-  var referenceName = modelName + '.id';
-  var collectionDisplayName = _.capitalize(modelName);
+  const model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
+  const modelName = Implementation.getModelName(model);
+  const referenceName = `${modelName}.id`;
+  const collectionDisplayName = _.capitalize(modelName);
 
   pushIntoApimap(apimap, {
-    name: modelName + '_stripe_payments',
+    name: `${modelName}_stripe_payments`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_stripe_payments',
-    displayName: collectionDisplayName + ' Payments',
+    nameOld: `${Implementation.getModelNameOld(model)}_stripe_payments`,
+    displayName: `${collectionDisplayName} Payments`,
     icon: 'stripe',
     integration: INTEGRATION_NAME,
     isVirtual: true,
@@ -32,21 +32,21 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isFilterable: false
-      }
+        isFilterable: false,
+      },
     ],
     actions: [{
       id: 'stripe.Refund',
       name: 'Refund',
-      endpoint: '/forest/' + modelName + '_stripe_payments/refunds'
-    }]
+      endpoint: `/forest/${modelName}_stripe_payments/refunds`,
+    }],
   });
 
   pushIntoApimap(apimap, {
-    name: modelName + '_stripe_invoices',
+    name: `${modelName}_stripe_invoices`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_stripe_invoices',
-    displayName: collectionDisplayName + ' Invoices',
+    nameOld: `${Implementation.getModelNameOld(model)}_stripe_invoices`,
+    displayName: `${collectionDisplayName} Invoices`,
     icon: 'stripe',
     integration: INTEGRATION_NAME,
     isVirtual: true,
@@ -72,16 +72,16 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isFilterable: false
-      }
-    ]
+        isFilterable: false,
+      },
+    ],
   });
 
   pushIntoApimap(apimap, {
-    name: modelName + '_stripe_cards',
+    name: `${modelName}_stripe_cards`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_stripe_cards',
-    displayName: collectionDisplayName + ' Cards',
+    nameOld: `${Implementation.getModelNameOld(model)}_stripe_cards`,
+    displayName: `${collectionDisplayName} Cards`,
     icon: 'stripe',
     integration: INTEGRATION_NAME,
     isVirtual: true,
@@ -108,16 +108,16 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isFilterable: false
-      }
-    ]
+        isFilterable: false,
+      },
+    ],
   });
 
   pushIntoApimap(apimap, {
-    name: modelName + '_stripe_subscriptions',
+    name: `${modelName}_stripe_subscriptions`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_stripe_subscriptions',
-    displayName: collectionDisplayName + ' Subscriptions',
+    nameOld: `${Implementation.getModelNameOld(model)}_stripe_subscriptions`,
+    displayName: `${collectionDisplayName} Subscriptions`,
     icon: 'stripe',
     integration: INTEGRATION_NAME,
     isVirtual: true,
@@ -142,16 +142,16 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isFilterable: false
-      }
-    ]
+        isFilterable: false,
+      },
+    ],
   });
 
   pushIntoApimap(apimap, {
-    name: modelName + '_stripe_bank_accounts',
+    name: `${modelName}_stripe_bank_accounts`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_stripe_bank_accounts',
-    displayName: collectionDisplayName + ' Bank Accounts',
+    nameOld: `${Implementation.getModelNameOld(model)}_stripe_bank_accounts`,
+    displayName: `${collectionDisplayName} Bank Accounts`,
     icon: 'stripe',
     integration: INTEGRATION_NAME,
     isVirtual: true,
@@ -175,9 +175,9 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
         field: 'customer',
         type: 'String',
         reference: referenceName,
-        isFilterable: false
-      }
-    ]
+        isFilterable: false,
+      },
+    ],
   });
 };
 
@@ -186,49 +186,49 @@ exports.createFields = function (implementation, model, schemaFields) {
     field: 'stripe_payments',
     displayName: 'Payments',
     type: ['String'],
-    reference: implementation.getModelName(model) + '_stripe_payments.id',
+    reference: `${implementation.getModelName(model)}_stripe_payments.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 
   schemaFields.push({
     field: 'stripe_invoices',
     displayName: 'Invoices',
     type: ['String'],
-    reference: implementation.getModelName(model) + '_stripe_invoices.id',
+    reference: `${implementation.getModelName(model)}_stripe_invoices.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 
   schemaFields.push({
     field: 'stripe_cards',
     displayName: 'Cards',
     type: ['String'],
-    reference: implementation.getModelName(model) + '_stripe_cards.id',
+    reference: `${implementation.getModelName(model)}_stripe_cards.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 
   schemaFields.push({
     field: 'stripe_subscriptions',
     displayName: 'Subscriptions',
     type: ['String'],
-    reference: implementation.getModelName(model) + '_stripe_subscriptions.id',
+    reference: `${implementation.getModelName(model)}_stripe_subscriptions.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 
   schemaFields.push({
     field: 'stripe_bank_accounts',
     displayName: 'Bank Accounts',
     type: ['String'],
-    reference: implementation.getModelName(model) + '_stripe_bank_accounts.id',
+    reference: `${implementation.getModelName(model)}_stripe_bank_accounts.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 };

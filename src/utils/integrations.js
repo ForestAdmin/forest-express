@@ -1,9 +1,7 @@
 const _ = require('lodash');
 
 exports.pushIntoApimap = function (apimap, collection) {
-  var existingCollection = _.remove(apimap, function (currentCollection) {
-    return currentCollection.name === collection.name;
-  });
+  const existingCollection = _.remove(apimap, currentCollection => currentCollection.name === collection.name);
 
   if (existingCollection.length) {
     if (!collection.actions) {

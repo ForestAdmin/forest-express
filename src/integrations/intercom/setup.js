@@ -1,18 +1,17 @@
 const _ = require('lodash');
-const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
+const { pushIntoApimap } = require('../../utils/integrations');
 
 const INTEGRATION_NAME = 'intercom';
 
 exports.createCollections = function (Implementation, apimap, collectionName) {
-
-  var collectionDisplayName = _.capitalize(collectionName);
-  var model = Implementation.getModels()[collectionName];
+  const collectionDisplayName = _.capitalize(collectionName);
+  const model = Implementation.getModels()[collectionName];
   // jshint camelcase: false
   pushIntoApimap(apimap, {
-    name: Implementation.getModelName(model) + '_intercom_conversations',
+    name: `${Implementation.getModelName(model)}_intercom_conversations`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_intercom_conversations',
-    displayName: collectionDisplayName + ' Conversations',
+    nameOld: `${Implementation.getModelNameOld(model)}_intercom_conversations`,
+    displayName: `${collectionDisplayName} Conversations`,
     icon: 'intercom',
     integration: INTEGRATION_NAME,
     onlyForRelationships: true,
@@ -21,17 +20,17 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
     fields: [
       { field: 'subject', type: 'String' },
       { field: 'body', type: ['String'] },
-      { field: 'open', type: 'Boolean'},
-      { field: 'read', type: 'Boolean'},
-      { field: 'assignee', type: 'String' }
-    ]
+      { field: 'open', type: 'Boolean' },
+      { field: 'read', type: 'Boolean' },
+      { field: 'assignee', type: 'String' },
+    ],
   });
 
   pushIntoApimap(apimap, {
-    name: Implementation.getModelName(model) + '_intercom_attributes',
+    name: `${Implementation.getModelName(model)}_intercom_attributes`,
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: Implementation.getModelNameOld(model) + '_intercom_attributes',
-    displayName: collectionDisplayName + ' Attributes',
+    nameOld: `${Implementation.getModelNameOld(model)}_intercom_attributes`,
+    displayName: `${collectionDisplayName} Attributes`,
     icon: 'intercom',
     integration: INTEGRATION_NAME,
     onlyForRelationships: true,
@@ -54,31 +53,30 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
         field: 'geoloc',
         type: 'String',
         widget: 'map',
-        isFilterable: false
-      }
-    ]
+        isFilterable: false,
+      },
+    ],
   });
-
 };
 
 exports.createFields = function (implementation, model, schemaFields) {
   schemaFields.push({
     field: 'intercom_conversations',
     type: ['String'],
-    reference: implementation.getModelName(model) +
-      '_intercom_conversations.id',
+    reference: `${implementation.getModelName(model)
+    }_intercom_conversations.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 
   schemaFields.push({
     field: 'intercom_attributes',
     type: 'String',
-    reference: implementation.getModelName(model) +
-      '_intercom_attributes.id',
+    reference: `${implementation.getModelName(model)
+    }_intercom_attributes.id`,
     column: null,
     isFilterable: false,
-    integration: INTEGRATION_NAME
+    integration: INTEGRATION_NAME,
   });
 };

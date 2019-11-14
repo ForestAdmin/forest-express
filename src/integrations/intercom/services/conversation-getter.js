@@ -1,19 +1,17 @@
-'use strict';
-var logger = require('../../../services/logger');
+
+const logger = require('../../../services/logger');
 
 function ConversationGetter(Implementation, params, opts) {
-  var Intercom = opts.integrations.intercom.intercom;
-  var intercom;
+  const Intercom = opts.integrations.intercom.intercom;
+  let intercom;
 
   intercom = new Intercom.Client(opts.integrations.intercom.credentials).usePromises();
 
   this.perform = function () {
     return intercom.conversations
       .find({ id: params.conversationId })
-      .then(function (response) {
-        return response.body;
-      })
-      .catch(function (error) {
+      .then(response => response.body)
+      .catch((error) => {
         logger.error('Cannot retrieve the Intercom conversation for the following reason:', error);
         return null;
       });
