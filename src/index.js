@@ -24,18 +24,21 @@ const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
 const SchemaFileUpdater = require('./services/schema-file-updater');
 const ApimapFieldsFormater = require('./services/apimap-fields-formater');
+const StateManager = require('./services/state-manager');
+
+const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
+|| ['dev', 'development'].includes(process.env.NODE_ENV);
+const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
+const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
+&& JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
+const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
+const stateManager = StateManager.getInstance();
+
 
 let jwtAuthenticator;
 
-const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
-  || ['dev', 'development'].includes(process.env.NODE_ENV);
-const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
-const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
-  && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
-
-function getModels(Implementation) {
-  const models = Implementation.getModels();
+function getModels() {
+  const models = stateManager.Implementation.getModels();
   _.each(models, (model, modelName) => {
     model.modelName = modelName;
   });
@@ -43,7 +46,7 @@ function getModels(Implementation) {
   return _.values(models);
 }
 
-function requireAllModels(Implementation, modelsDir) {
+function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
       requireAll({
@@ -59,7 +62,7 @@ function requireAllModels(Implementation, modelsDir) {
 
   // NOTICE: User didn't provide a modelsDir but may already have required them manually so they
   //         might be available.
-  return P.resolve(getModels(Implementation))
+  return P.resolve(getModels())
     .catch((error) => {
       logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
       return P.resolve([]);
@@ -76,22 +79,30 @@ exports.ensureAuthenticated = (request, response, next) => {
 
 let app = null;
 
-function buildSchema(Implementation) {
-  const { opts } = Implementation;
-
-  const absModelDirs = opts.modelsDir ? path.resolve('.', opts.modelsDir) : undefined;
-  return requireAllModels(Implementation, absModelDirs)
-    .then((models) => {
-      const integrator = new Integrator(opts, Implementation);
-      return Schemas.perform(Implementation, integrator, models, opts)
-        .thenReturn([models, integrator]);
+function buildSchema() {
+  const { lianaOptions, Implementation } = stateManager;
+  const absModelDirs = stateManager.modelsDir ? path.resolve('.', stateManager.modelsDir) : undefined;
+  return requireAllModels(absModelDirs)
+    .then(async (models) => {
+      stateManager.integrator = new Integrator(lianaOptions, Implementation);
+      await Schemas.perform(
+        Implementation,
+        stateManager.integrator,
+        models,
+        lianaOptions,
+      );
+      return models;
     });
 }
 
 exports.init = (Implementation) => {
   const { opts } = Implementation;
+
+  stateManager.Implementation = Implementation;
+  stateManager.lianaOptions = opts;
+
   if (opts.onlyCrudModule === true) {
-    return buildSchema(Implementation).spread(models => models);
+    return buildSchema();
   }
 
   if (app) {
@@ -166,10 +177,8 @@ exports.init = (Implementation) => {
   new SessionRoute(app, opts).perform();
 
   // Init
-  let integrator;
-  buildSchema(Implementation)
-    .spread((models, _integrator) => {
-      integrator = _integrator;
+  buildSchema()
+    .then((models) => {
       let directorySmartImplementation;
 
       if (opts.configDir) {
@@ -179,7 +188,7 @@ exports.init = (Implementation) => {
       }
 
       if (fs.existsSync(directorySmartImplementation)) {
-        return requireAllModels(Implementation, directorySmartImplementation);
+        return requireAllModels(directorySmartImplementation);
       }
       if (opts.configDir) {
         logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
@@ -188,20 +197,37 @@ exports.init = (Implementation) => {
       return models;
     })
     .each((model) => {
-      const modelName = Implementation.getModelName(model);
+      const modelName = stateManager.Implementation.getModelName(model);
 
-      integrator.defineRoutes(app, model, Implementation);
+      stateManager.integrator.defineRoutes(app, model, stateManager.Implementation);
 
-      const resourcesRoute = new ResourcesRoutes(app, model, Implementation, integrator, opts);
+      const resourcesRoute = new ResourcesRoutes(app, model);
       resourcesRoute.perform();
       exports.ResourcesRoute[modelName] = resourcesRoute;
 
-      new AssociationsRoutes(app, model, Implementation, integrator, opts).perform();
-      new ActionsRoutes(app, model, Implementation, integrator, opts).perform();
+      new AssociationsRoutes(
+        app,
+        model,
+        stateManager.Implementation,
+        stateManager.integrator,
+        stateManager.lianaOptions,
+      ).perform();
+      new ActionsRoutes(
+        app,
+        model,
+        stateManager.Implementation,
+        stateManager.integrator,
+        stateManager.lianaOptions,
+      ).perform();
 
-      new StatRoutes(app, model, Implementation, opts).perform();
+      new StatRoutes(
+        app,
+        model,
+        stateManager.Implementation,
+        stateManager.lianaOptions,
+      ).perform();
     })
-    .then(() => new ForestRoutes(app, opts).perform())
+    .then(() => new ForestRoutes(app, stateManager.lianaOptions).perform())
     .then(() => app.use(pathMounted, errorHandler.catchIfAny))
     .then(() => {
       if (!opts.envSecret) { return; }
@@ -213,7 +239,7 @@ exports.init = (Implementation) => {
       }
 
       const collections = _.values(Schemas.schemas);
-      integrator.defineCollections(collections);
+      stateManager.integrator.defineCollections(collections);
 
       // NOTICE: Check each Smart Action declaration to detect configuration errors.
       _.each(collections, (collection) => {
@@ -233,10 +259,10 @@ exports.init = (Implementation) => {
 
       if (ENVIRONMENT_DEVELOPMENT) {
         const meta = {
-          database_type: Implementation.getDatabaseType(),
-          liana: Implementation.getLianaName(),
-          liana_version: Implementation.getLianaVersion(),
-          orm_version: Implementation.getOrmVersion(),
+          database_type: stateManager.Implementation.getDatabaseType(),
+          liana: stateManager.Implementation.getLianaName(),
+          liana_version: stateManager.Implementation.getLianaVersion(),
+          orm_version: stateManager.Implementation.getOrmVersion(),
         };
         const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
           .perform();
@@ -333,3 +359,12 @@ exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');
 exports.BaseFiltersParser = require('./services/base-filters-parser');
 exports.BaseOperatorDateParser = require('./services/base-operator-date-parser');
+
+exports.RecordsGetter = require('./services/exposed/records-getter');
+exports.RecordsCounter = require('./services/exposed/records-counter');
+exports.RecordsExporter = require('./services/exposed/records-exporter');
+exports.RecordGetter = require('./services/exposed/record-getter');
+exports.RecordUpdater = require('./services/exposed/record-updater');
+exports.RecordCreator = require('./services/exposed/record-creator');
+exports.RecordRemover = require('./services/exposed/record-remover');
+exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
