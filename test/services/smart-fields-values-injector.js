@@ -10,35 +10,45 @@ const { expect } = chai;
 chai.use(chaiSubset);
 
 describe('Service > Smart Fields Values Injector', () => {
-
-  it('should work with a simple smart field', async () => {
-    Schemas.schemas = { users: usersSchema };
-    const record = { id: 123 };
-    const fieldsPerModel = { users: ['id', 'smart'] };
-    const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
-    await injector.perform();
-    expect(record).to.be.deep.equal({ id: 123, smart: { foo: 'bar' } });
+  describe('without Smart Fields', () => {
+    it('should not modify the record', async () => {
+      // NOTICE: Clone users fixture and remove smart field.
+      const usersSchemaWithoutSmartField = _.cloneDeep(usersSchema);
+      usersSchemaWithoutSmartField.fields.shift();
+      Schemas.schemas = { users: usersSchemaWithoutSmartField };
+      const record = { id: 123 };
+      const fieldsPerModel = { users: ['id'] };
+      const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
+      await injector.perform();
+      expect(record).to.be.deep.equal({ id: 123 });
+    });
   });
 
-  it('should work without smart fields', async () => {
-    // NOTICE: Clone users fixture and remove smart field.
-    const usersSchemaWithoutSmartField = _.cloneDeep(usersSchema);
-    usersSchemaWithoutSmartField.fields.shift();
-    Schemas.schemas = { users: usersSchemaWithoutSmartField };
-    const record = { id: 123 };
-    const fieldsPerModel = { users: ['id'] };
-    const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
-    await injector.perform();
-    expect(record).to.be.deep.equal({ id: 123 });
+  describe('with a simple Smart Field', () => {
+    it('should inject the Smart Field value in the record', async () => {
+      Schemas.schemas = { users: usersSchema };
+      const record = { id: 123 };
+      const fieldsPerModel = { users: ['id', 'smart'] };
+      const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
+      await injector.perform();
+      expect(record).to.be.deep.equal({ id: 123, smart: { foo: 'bar' } });
+    });
   });
 
-  it('should work with a smart relationship that reference a smart field', async () => {
-    Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+  describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
     const record = { id: 456 };
     const fieldsPerModel = { users: ['smart'], addresses: ['id', 'user'] };
-    const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
-    await injector.perform();
-    expect(record.user).not.to.be.undefined;
-    expect(record.user.smart).to.be.deep.equal({ foo: 'bar' });
+    it('should inject the Smart Relationship reference', async () => {
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
+      await injector.perform();
+      expect(record.user).not.to.be.undefined;
+    });
+    it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
+      await injector.perform();
+      expect(record.user.smart).to.be.deep.equal({ foo: 'bar' });
+    });
   });
 });

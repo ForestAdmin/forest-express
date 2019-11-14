@@ -9,57 +9,50 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
 
   this.getFieldsForHighlightedSearch = () => fieldsForHighlightedSearch;
 
+  // NOTICE: Field reference format: `modelName.property`.
+  function getReferenceModelName(field) {
+    return field.reference.split('.')[0];
+  }
+
   // eslint-disable-next-line
   function setSmartFieldValue(record, field, modelName) {
-    function addFieldForHighlightIfCandidate(fieldToCheck) {
-      if (fieldToCheck.type === 'String') {
-        fieldsForHighlightedSearch.push(fieldToCheck.field);
-      }
+    if (field.value) {
+      logger.warn(`DEPRECATION WARNING: Smart Fields "value" method is deprecated. Please use "get" method in your collection ${modelName} instead.`);
     }
 
-    // NOTICE: Update the record with smart field value (contains side effects).
-    async function updateRecord(smartFieldValue) {
-      // NOTICE: We need some recursion in order to consider smart fields in smart relations.
-      //         So if the smartFieldValue contains data and the field has a reference then we
-      //         consider we have to inject smart fields within the reference.
-      if (smartFieldValue && smartFieldValue.dataValues && field.reference) {
-        // NOTICE: Field reference format: `modelName.property`.
-        const [referenceModelName] = field.reference.split('.');
-        const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
-          smartFieldValue,
-          referenceModelName,
-          fieldsPerModel,
-        );
-        await smartFieldsValuesInjector.perform();
-      }
-      // NOTICE: (side effects) Update the record, then update fieldsForHighlightedSearch.
-      record[field.field] = smartFieldValue;
-      addFieldForHighlightIfCandidate(field);
-    }
+    let value;
     try {
-      let value;
-      if (field.value) {
-        logger.warn(`DEPRECATION WARNING: Smart Fields "value" method is deprecated. Please use "get" method in your collection ${modelName} instead.`);
-      }
-
-      try {
-        value = field.get ? field.get(record) : field.value(record);
-      } catch (error) {
-        logger.error(`Cannot retrieve the ${field.field} value because of an internal error in the getter implementation: ${error}`);
-      }
-
-      if (!_.isNil(value)) {
-        if (_.isFunction(value.then)) {
-          return value
-            .then(result => updateRecord(result))
-            .catch((error) => {
-              logger.warn(`Cannot set the field.field value because of an unexpected error: ${error}`);
-            });
-        }
-        return updateRecord(value);
-      }
+      value = field.get ? field.get(record) : field.value(record);
     } catch (error) {
-      logger.warn(`Cannot set the ${field.field} value because of an unexpected error: ${error}`);
+      logger.error(`Cannot retrieve the ${field.field} value because of an internal error in the getter implementation: ${error}`);
+    }
+
+    if (!_.isNil(value)) {
+      if (!_.isFunction(value.then)) {
+        value = Promise.resolve(value);
+      }
+      return value
+        .then(async (smartFieldValue) => {
+          // NOTICE: If the Smart Field is a Smart Relationship (ie references another record type),
+          //         we also need to inject the values of the referenced records Smart Fields.
+          if (smartFieldValue && smartFieldValue.dataValues && field.reference) {
+            const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
+              smartFieldValue,
+              getReferenceModelName(field),
+              fieldsPerModel,
+            );
+            await smartFieldsValuesInjector.perform();
+          }
+          // NOTICE: Update the record with the the Smart Field value.
+          record[field.field] = smartFieldValue;
+          // NOTICE: String fields can be highlighted.
+          if (field.type === 'String') {
+            fieldsForHighlightedSearch.push(field.field);
+          }
+        })
+        .catch((error) => {
+          logger.warn(`Cannot set the ${field.field} value because of an unexpected error: ${error}`);
+        });
     }
   }
 
@@ -83,7 +76,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
-        const modelNameAssociation = field.reference.split('.')[0];
+        const modelNameAssociation = getReferenceModelName(field);
         const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
         if (schemaAssociation && !_.isArray(field.type)) {
