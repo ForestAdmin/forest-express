@@ -10,7 +10,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
   this.getFieldsForHighlightedSearch = () => fieldsForHighlightedSearch;
 
   // NOTICE: Field reference format: `modelName.property`.
-  function getReferenceModelName(field) {
+  function getReferencedModelName(field) {
     return field.reference.split('.')[0];
   }
 
@@ -38,7 +38,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
           if (smartFieldValue && smartFieldValue.dataValues && field.reference) {
             const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
               smartFieldValue,
-              getReferenceModelName(field),
+              getReferencedModelName(field),
               fieldsPerModel,
             );
             await smartFieldsValuesInjector.perform();
@@ -76,7 +76,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
-        const modelNameAssociation = getReferenceModelName(field);
+        const modelNameAssociation = getReferencedModelName(field);
         const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
         if (schemaAssociation && !_.isArray(field.type)) {
