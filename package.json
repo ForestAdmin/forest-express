@@ -1,7 +1,7 @@
 {
   "name": "forest-express",
   "description": "Official package for all Forest Express Lianas",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
     "Arnaud Besnier <arnaudibesnier@gmail.com>",
@@ -22,7 +22,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "babel-runtime": "7.0.0-beta.3",
+    "@babel/runtime": "7.7.2",
     "base32-encode": "1.1.0",
     "bcryptjs": "2.4.3",
     "bitwise-xor": "0.0.0",
@@ -51,11 +51,13 @@
     "winston": "2.2.0"
   },
   "devDependencies": {
+    "@babel/cli": "7.7.0",
+    "@babel/core": "7.7.2",
+    "@babel/plugin-transform-classes": "7.7.0",
+    "@babel/plugin-transform-runtime": "7.6.2",
+    "@babel/preset-env": "7.7.1",
+    "@babel/register": "7.7.0",
     "@forestadmin/devops": "2.0.0",
-    "babel-cli": "7.0.0-beta.3",
-    "babel-plugin-transform-runtime": "7.0.0-beta.3",
-    "babel-preset-env": "7.0.0-beta.3",
-    "babel-register": "7.0.0-beta.3",
     "chai": "4.1.2",
     "chai-subset": "1.6.0",
     "dotenv": "6.2.0",
@@ -73,11 +75,11 @@
     "supertest": "3.0.0"
   },
   "scripts": {
-    "build": "./node_modules/babel-cli/bin/babel.js src --out-dir dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
+    "build": "babel src -d dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
     "build:watch": "onchange 'src/**/*.js' -i -- yarn build",
     "release": "yarn build && node ./scripts/release.js",
-    "test": "./node_modules/mocha/bin/mocha test/** --require babel-register",
-    "test:watch": "./node_modules/mocha/bin/mocha test/**/* deserializers/** generators/** integrations/** routes/** serializers/** services/** utils/** --require babel-register --watch",
+    "test": "./node_modules/mocha/bin/mocha test/** --require @babel/register",
+    "test:watch": "./node_modules/mocha/bin/mocha test/**/* deserializers/** generators/** integrations/** routes/** serializers/** services/** utils/** --require @babel/register --watch",
     "lint": "./node_modules/eslint/bin/eslint.js src",
     "lint:ci": "node ./.eslint-bin/lint-registered-files.js",
     "pre-commit": "node ./.eslint-bin/pre-commit-hook.js"
