@@ -23,9 +23,11 @@ const CONFIG = {
 
 const TITLE = '[forest] 🌳🌳🌳  ';
 
-module.exports = new (winston.Logger)({
+winston.addColors(CONFIG.colors);
+
+module.exports = winston.createLogger({
   transports: [
-    new (winston.transports.Console)({
+    new winston.transports.Console({
       formatter: (options) => {
         let message = TITLE + options.message;
 
@@ -38,5 +40,4 @@ module.exports = new (winston.Logger)({
     }),
   ],
   levels: CONFIG.levels,
-  colors: CONFIG.colors,
 });

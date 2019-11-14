@@ -48,7 +48,7 @@
     "useragent": "2.1.13",
     "uuid": "3.0.1",
     "verror": "1.10.0",
-    "winston": "2.2.0"
+    "winston": "3.2.1"
   },
   "devDependencies": {
     "@forestadmin/devops": "2.0.0",
