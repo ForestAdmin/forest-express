@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ## RELEASE 5.1.0 - 2019-11-14
+### Changed
+- Technical - Change functions of filter parser to async.
+
 ### Fixed
 - Error Handling - Fix error message when configDir does not exist.
 - Continuous Integration - Change `11.14` version of `node_js` to `lts/*` in `.travis.yml`.
@@ -31,7 +34,6 @@
 
 ### Changed
 - Readme - Add a community section.
-- Technical - Change functions of filter parser to async.
 
 ### Fixed
 - Technical - Fix a missing dependency.
