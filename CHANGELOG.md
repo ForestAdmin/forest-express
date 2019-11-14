@@ -29,6 +29,7 @@
 
 ### Changed
 - Readme - Add a community section.
+- Technical - Change functions of filter parser to async.
 
 ### Fixed
 - Technical - Fix a missing dependency.
