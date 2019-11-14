@@ -1,9 +1,9 @@
 const PermissionsChecker = require('../services/permissions-checker');
 const httpError = require('http-errors');
 const logger = require('../services/logger');
-const StateManager = require('../services/state-manager');
+const ConfigStore = require('../services/config-store');
 
-const stateManager = StateManager.getInstance();
+const configStore = ConfigStore.getInstance();
 
 const getRenderingIdFromUser = user => user.renderingId;
 
@@ -14,7 +14,7 @@ class PermissionMiddleWareCreator {
 
   _checkPermission(permissionName) {
     return (request, response, next) => {
-      const environmentSecret = stateManager.lianaOptions.envSecret;
+      const environmentSecret = configStore.lianaOptions.envSecret;
       const renderingId = getRenderingIdFromUser(request.user);
 
       return new PermissionsChecker(

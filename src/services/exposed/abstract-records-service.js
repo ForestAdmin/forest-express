@@ -1,18 +1,18 @@
 const ResourceSerializer = require('../../serializers/resource');
-const StateManager = require('../state-manager');
+const ConfigStore = require('../config-store');
 
 class AbstractRecordService {
   constructor(model) {
     this.model = model;
-    this.stateManager = StateManager.getInstance();
+    this.configStore = ConfigStore.getInstance();
   }
 
   get Implementation() {
-    return this.stateManager.Implementation;
+    return this.configStore.Implementation;
   }
 
   get lianaOptions() {
-    return this.stateManager.lianaOptions;
+    return this.configStore.lianaOptions;
   }
 
   serialize(records) {
@@ -20,7 +20,7 @@ class AbstractRecordService {
       this.Implementation,
       this.model,
       records,
-      this.stateManager.integrator,
+      this.configStore.integrator,
       null,
       this.fieldsSearched,
       this.searchValue,

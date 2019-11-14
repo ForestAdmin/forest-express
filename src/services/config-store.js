@@ -1,9 +1,9 @@
-class StateManager {
+class ConfigStore {
   static getInstance() {
-    if (!StateManager.instance) {
-      StateManager.instance = new StateManager();
+    if (!ConfigStore.instance) {
+      ConfigStore.instance = new ConfigStore();
     }
-    return StateManager.instance;
+    return ConfigStore.instance;
   }
 
   static get Implementation() {
@@ -15,8 +15,8 @@ class StateManager {
   }
 
   constructor() {
-    if (StateManager.instance) {
-      throw new Error('Singleton StateManager has been instantiated twice');
+    if (ConfigStore.instance) {
+      throw new Error('Singleton ConfigStore has been instantiated twice');
     }
     this.Implementation = null;
     this.lianaOptions = null;
@@ -28,6 +28,6 @@ class StateManager {
   }
 }
 
-StateManager.instance = null;
+ConfigStore.instance = null;
 
-module.exports = StateManager;
+module.exports = ConfigStore;

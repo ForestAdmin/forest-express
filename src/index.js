@@ -24,7 +24,7 @@ const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
 const SchemaFileUpdater = require('./services/schema-file-updater');
 const ApimapFieldsFormater = require('./services/apimap-fields-formater');
-const StateManager = require('./services/state-manager');
+const ConfigStore = require('./services/config-store');
 
 const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 || ['dev', 'development'].includes(process.env.NODE_ENV);
@@ -32,13 +32,13 @@ const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
 && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
-const stateManager = StateManager.getInstance();
+const configStore = ConfigStore.getInstance();
 
 
 let jwtAuthenticator;
 
 function getModels() {
-  const models = stateManager.Implementation.getModels();
+  const models = configStore.Implementation.getModels();
   _.each(models, (model, modelName) => {
     model.modelName = modelName;
   });
@@ -80,14 +80,14 @@ exports.ensureAuthenticated = (request, response, next) => {
 let app = null;
 
 function buildSchema() {
-  const { lianaOptions, Implementation } = stateManager;
-  const absModelDirs = stateManager.modelsDir ? path.resolve('.', stateManager.modelsDir) : undefined;
+  const { lianaOptions, Implementation } = configStore;
+  const absModelDirs = configStore.modelsDir ? path.resolve('.', configStore.modelsDir) : undefined;
   return requireAllModels(absModelDirs)
     .then(async (models) => {
-      stateManager.integrator = new Integrator(lianaOptions, Implementation);
+      configStore.integrator = new Integrator(lianaOptions, Implementation);
       await Schemas.perform(
         Implementation,
-        stateManager.integrator,
+        configStore.integrator,
         models,
         lianaOptions,
       );
@@ -98,8 +98,8 @@ function buildSchema() {
 exports.init = (Implementation) => {
   const { opts } = Implementation;
 
-  stateManager.Implementation = Implementation;
-  stateManager.lianaOptions = opts;
+  configStore.Implementation = Implementation;
+  configStore.lianaOptions = opts;
 
   if (opts.onlyCrudModule === true) {
     return buildSchema();
@@ -197,9 +197,9 @@ exports.init = (Implementation) => {
       return models;
     })
     .each((model) => {
-      const modelName = stateManager.Implementation.getModelName(model);
+      const modelName = configStore.Implementation.getModelName(model);
 
-      stateManager.integrator.defineRoutes(app, model, stateManager.Implementation);
+      configStore.integrator.defineRoutes(app, model, configStore.Implementation);
 
       const resourcesRoute = new ResourcesRoutes(app, model);
       resourcesRoute.perform();
@@ -208,26 +208,26 @@ exports.init = (Implementation) => {
       new AssociationsRoutes(
         app,
         model,
-        stateManager.Implementation,
-        stateManager.integrator,
-        stateManager.lianaOptions,
+        configStore.Implementation,
+        configStore.integrator,
+        configStore.lianaOptions,
       ).perform();
       new ActionsRoutes(
         app,
         model,
-        stateManager.Implementation,
-        stateManager.integrator,
-        stateManager.lianaOptions,
+        configStore.Implementation,
+        configStore.integrator,
+        configStore.lianaOptions,
       ).perform();
 
       new StatRoutes(
         app,
         model,
-        stateManager.Implementation,
-        stateManager.lianaOptions,
+        configStore.Implementation,
+        configStore.lianaOptions,
       ).perform();
     })
-    .then(() => new ForestRoutes(app, stateManager.lianaOptions).perform())
+    .then(() => new ForestRoutes(app, configStore.lianaOptions).perform())
     .then(() => app.use(pathMounted, errorHandler.catchIfAny))
     .then(() => {
       if (!opts.envSecret) { return; }
@@ -239,7 +239,7 @@ exports.init = (Implementation) => {
       }
 
       const collections = _.values(Schemas.schemas);
-      stateManager.integrator.defineCollections(collections);
+      configStore.integrator.defineCollections(collections);
 
       // NOTICE: Check each Smart Action declaration to detect configuration errors.
       _.each(collections, (collection) => {
@@ -259,10 +259,10 @@ exports.init = (Implementation) => {
 
       if (ENVIRONMENT_DEVELOPMENT) {
         const meta = {
-          database_type: stateManager.Implementation.getDatabaseType(),
-          liana: stateManager.Implementation.getLianaName(),
-          liana_version: stateManager.Implementation.getLianaVersion(),
-          orm_version: stateManager.Implementation.getOrmVersion(),
+          database_type: configStore.Implementation.getDatabaseType(),
+          liana: configStore.Implementation.getLianaName(),
+          liana_version: configStore.Implementation.getLianaVersion(),
+          orm_version: configStore.Implementation.getOrmVersion(),
         };
         const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
           .perform();

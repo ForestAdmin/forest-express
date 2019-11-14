@@ -5,12 +5,12 @@ const ResourceDeserializer = require('../deserializers/resource');
 const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const PermissionMiddleWareCreator = require('../middlewares/permissions');
-const StateManager = require('../services/state-manager');
+const ConfigStore = require('../services/config-store');
 
-const stateManager = StateManager.getInstance();
+const configStore = ConfigStore.getInstance();
 
 module.exports = function Resources(app, model) {
-  const { Implementation, integrator, lianaOptions } = stateManager;
+  const { Implementation, integrator, lianaOptions } = configStore;
   const modelName = Implementation.getModelName(model);
 
   this.list = (request, response, next) => {
