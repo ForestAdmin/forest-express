@@ -6,7 +6,7 @@ module.exports = {
   fields: [
     {
       field: 'user',
-      type: 'String',
+      type: 'Json',
       reference: 'users.id',
       get: () => ({ dataValues: { id: 123 } }),
       isVirtual: true,

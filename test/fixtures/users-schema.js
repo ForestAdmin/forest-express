@@ -6,7 +6,7 @@ module.exports = {
   fields: [
     {
       field: 'smart',
-      type: 'JSON',
+      type: 'Json',
       get: () => ({ foo: 'bar' }),
       isVirtual: true,
       isFilterable: false,
