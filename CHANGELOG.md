@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart Relationships - Smart Relashionships returns referenced Smart Fields values.
 
 ## RELEASE 5.1.0 - 2019-11-14
 ### Changed
