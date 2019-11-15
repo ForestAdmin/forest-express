@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Technical - Apply eslint rules to all files (Auto fix).
 
 ## RELEASE 5.1.1 - 2019-11-15
 ### Fixed
@@ -14,7 +16,6 @@
 - Error Handling - Fix error message when configDir does not exist.
 - Continuous Integration - Change `11.14` version of `node_js` to `lts/*` in `.travis.yml`.
 - Error Handling - Prevent server to crash when Forest Admin API does not respond.
-- Technical - Apply eslint rules to all files (Auto fix).
 
 ## RELEASE 5.0.0 - 2019-10-31
 ### Changed
