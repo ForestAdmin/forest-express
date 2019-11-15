@@ -3,18 +3,17 @@ const httpError = require('http-errors');
 const logger = require('../services/logger');
 const ConfigStore = require('../services/config-store');
 
-const configStore = ConfigStore.getInstance();
-
 const getRenderingIdFromUser = user => user.renderingId;
 
 class PermissionMiddleWareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
+    this.configStore = ConfigStore.getInstance();
   }
 
   _checkPermission(permissionName) {
     return (request, response, next) => {
-      const environmentSecret = configStore.lianaOptions.envSecret;
+      const environmentSecret = this.configStore.lianaOptions.envSecret;
       const renderingId = getRenderingIdFromUser(request.user);
 
       return new PermissionsChecker(

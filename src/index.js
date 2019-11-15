@@ -27,10 +27,10 @@ const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 const ConfigStore = require('./services/config-store');
 
 const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
-|| ['dev', 'development'].includes(process.env.NODE_ENV);
+  || ['dev', 'development'].includes(process.env.NODE_ENV);
 const SCHEMA_FILENAME = `${path.resolve('.')}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
-&& JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
+  && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const configStore = ConfigStore.getInstance();
 

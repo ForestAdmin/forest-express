@@ -15,12 +15,16 @@ class AbstractRecordService {
     return this.configStore.lianaOptions;
   }
 
+  get integrator() {
+    return this.configStore.integrator;
+  }
+
   serialize(records) {
     return new ResourceSerializer(
       this.Implementation,
       this.model,
       records,
-      this.configStore.integrator,
+      this.integrator,
       null,
       this.fieldsSearched,
       this.searchValue,
