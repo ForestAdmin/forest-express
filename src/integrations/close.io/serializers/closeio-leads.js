@@ -1,8 +1,8 @@
-'use strict';
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function CloseioLeadsSerializer(attributes, collectionName, meta) {
-  var type = collectionName + '_closeio_leads';
+  const type = `${collectionName}_closeio_leads`;
 
   return new JSONAPISerializer(type, attributes, {
     attributes: ['url', 'created_by_name', 'display_name', 'status_label',
@@ -13,16 +13,16 @@ function CloseioLeadsSerializer(attributes, collectionName, meta) {
       ignoreRelationshipData: true,
       nullIfMissing: true,
       relationshipLinks: {
-        related: function (dataSet) {
+        related(dataSet) {
           return {
-            href: '/forest/' + collectionName + '_closeio_leads/' +
-              dataSet.id + '/emails'
+            href: `/forest/${collectionName}_closeio_leads/${
+              dataSet.id}/emails`,
           };
-        }
-      }
+        },
+      },
     },
-    keyForAttribute: function (key) { return key; },
-    meta: meta
+    keyForAttribute(key) { return key; },
+    meta,
   });
 }
 

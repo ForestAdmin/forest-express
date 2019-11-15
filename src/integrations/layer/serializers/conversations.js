@@ -1,9 +1,8 @@
-'use strict';
-var _ = require('lodash');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
+
+const _ = require('lodash');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function ConversationsSerializer(conversations, collectionName, meta) {
-
   function mapConversation(conversation) {
     // jshint camelcase: false
     conversation.id = conversation.id.replace('layer:///conversations/', '');
@@ -21,21 +20,17 @@ function ConversationsSerializer(conversations, collectionName, meta) {
 
     if (_.isArray(conversation.participants) &&
       conversation.participants.length) {
-      conversation.title = conversation.participants.map(function (participant) {
-        return participant.display_name;
-      }).join(', ');
+      conversation.title = conversation.participants.map(participant => participant.display_name).join(', ');
     }
 
     return conversation;
   }
 
-  var type = collectionName + '_layer_conversations';
-  var data = null;
+  const type = `${collectionName}_layer_conversations`;
+  let data = null;
 
   if (_.isArray(conversations)) {
-    data = conversations.map(function (conversation) {
-      return mapConversation(conversation);
-    });
+    data = conversations.map(conversation => mapConversation(conversation));
   } else {
     data = mapConversation(conversations);
   }
@@ -48,27 +43,27 @@ function ConversationsSerializer(conversations, collectionName, meta) {
       included: false,
       nullIfMissing: true,
       relationshipLinks: {
-        related: function (dataSet) {
+        related(dataSet) {
           return {
-            href: '/forest/' + collectionName + '_layer_conversations/' + dataSet.id +
-              '/relationships/messages'
+            href: `/forest/${collectionName}_layer_conversations/${dataSet.id
+            }/relationships/messages`,
           };
-        }
-      }
+        },
+      },
     },
     lastMessage: {
       ref: 'id',
-      attributes: ['sender', 'sentAt', 'content', 'mimeType']
+      attributes: ['sender', 'sentAt', 'content', 'mimeType'],
     },
-    keyForAttribute: function (key) { return key; },
-    typeForAttribute: function (attribute) {
+    keyForAttribute(key) { return key; },
+    typeForAttribute(attribute) {
       if (attribute === 'lastMessage') {
-        return collectionName + '_layer_messages';
+        return `${collectionName}_layer_messages`;
       }
 
       return undefined;
     },
-    meta: meta
+    meta,
   });
 }
 

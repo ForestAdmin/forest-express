@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const pushIntoApimap = require('../../utils/integrations').pushIntoApimap;
+const { pushIntoApimap } = require('../../utils/integrations');
 
 const INTEGRATION_NAME = 'mixpanel';
 
@@ -9,28 +9,49 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
   const collectionDisplayName = _.capitalize(modelName);
 
   const fields = [
-    { field: 'id', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'event', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'date', type: 'Date', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'city', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'region', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'country', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'timezone', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'os', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'osVersion', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'browser', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
-    { field: 'browserVersion', type: 'String', isVirtual: true, isFilterable: false, isSortable: false },
+    {
+      field: 'id', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'event', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'date', type: 'Date', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'city', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'region', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'country', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'timezone', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'os', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'osVersion', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'browser', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
+    {
+      field: 'browserVersion', type: 'String', isVirtual: true, isFilterable: false, isSortable: false,
+    },
   ];
 
   if (options.integrations.mixpanel.customProperties) {
-    fields.push.apply(fields, options.integrations.mixpanel.customProperties.map(
-      propertyName => ({
-        field: propertyName,
-        type: 'String',
-        isVirtual: true,
-        isFilterable: false,
-        isSortable: false,
-      })));
+    fields.push.apply(fields, options.integrations.mixpanel.customProperties.map(propertyName => ({
+      field: propertyName,
+      type: 'String',
+      isVirtual: true,
+      isFilterable: false,
+      isSortable: false,
+    })));
   }
 
   pushIntoApimap(apimap, {
@@ -51,7 +72,7 @@ exports.createFields = function (implementation, model, schemaFields) {
     field: 'mixpanel_last_events',
     displayName: 'Last events',
     type: ['String'],
-    reference: implementation.getModelName(model) + '_mixpanel_events.id',
+    reference: `${implementation.getModelName(model)}_mixpanel_events.id`,
     column: null,
     integration: INTEGRATION_NAME,
   });

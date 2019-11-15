@@ -4,8 +4,8 @@ const logger = require('../../../services/logger');
 function MixpanelEventsGetter(Implementation, params, options, integrationInfo) {
   const MixpanelExport = options.integrations.mixpanel.mixpanel;
   const panel = new MixpanelExport({
-    'api_key': options.integrations.mixpanel.apiKey,
-    'api_secret': options.integrations.mixpanel.apiSecret,
+    api_key: options.integrations.mixpanel.apiKey,
+    api_secret: options.integrations.mixpanel.apiSecret,
   });
 
   this.perform = function () {
@@ -13,7 +13,7 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
     const collectionModel = integrationInfo.collection;
 
     return Implementation.Mixpanel.getUser(collectionModel, params.recordId)
-      .then(function (user) {
+      .then((user) => {
         const script = `function main() {
           return People().filter(function (user) {
             return user.properties.$email == '${user[collectionFieldName]}';
@@ -27,9 +27,9 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
 
         return panel
           .get('jql', {
-            script
+            script,
           })
-          .then(function (result) {
+          .then((result) => {
             if (!result || !result[0]) { return { results: { events: [] } }; }
 
             return panel
@@ -37,10 +37,10 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
                 from_date: fromDate.format('YYYY-MM-DD'),
                 to_date: toDate.format('YYYY-MM-DD'),
                 distinct_ids: [result[0].distinct_id],
-                limit: 100
+                limit: 100,
               });
           })
-          .then(function (result) {
+          .then((result) => {
             if (result.error) {
               logger.error('Cannot retrieve mixpanel events: ', result.error);
               return [];

@@ -1,20 +1,22 @@
-'use strict';
-var _ = require('lodash');
-var P = require('bluebird');
-var logger = require('../../../services/logger');
+
+const _ = require('lodash');
+const P = require('bluebird');
+const logger = require('../../../services/logger');
 
 function ConversationsGetter(Implementation, params, opts, collectionName) {
-  var model = null;
-  var Intercom = opts.integrations.intercom.intercom;
-  var intercom;
+  let model = null;
+  const Intercom = opts.integrations.intercom.intercom;
+  let intercom;
 
   if (opts.integrations.intercom.credentials) {
     intercom = new Intercom.Client(opts.integrations.intercom.credentials)
       .usePromises();
   } else {
     // TODO: Remove once appId/apiKey is not supported anymore.
-    intercom = new Intercom.Client(opts.integrations.intercom.appId,
-      opts.integrations.intercom.apiKey).usePromises();
+    intercom = new Intercom.Client(
+      opts.integrations.intercom.appId,
+      opts.integrations.intercom.apiKey,
+    ).usePromises();
   }
 
   function hasPagination() {
@@ -28,27 +30,25 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
   function getSkip() {
     if (hasPagination()) {
       return (parseInt(params.page.number) - 1) * getLimit();
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   function getLink(conversation) {
-    return 'https://api.intercom.io/conversations/' + conversation.id;
+    return `https://api.intercom.io/conversations/${conversation.id}`;
   }
 
 
   function fetchPages(pages, conversations) {
     return intercom
       .nextPage(pages)
-      .then(function (response) {
+      .then((response) => {
         conversations = conversations.concat(response.body.conversations);
 
         if (response.body.pages.next) {
           return fetchPages(response.pages);
-        } else {
-          return conversations;
         }
+        return conversations;
       });
   }
 
@@ -56,60 +56,51 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
     model = Implementation.getModels()[collectionName];
 
     return Implementation.Intercom.getCustomer(model, params.recordId)
-      .then(function (customer) {
-        return intercom.conversations
-          .list({
-            email: customer.email,
-            type: 'user',
-            'display_as': 'plaintext'
-          })
-          .then(function (response) {
-            var conversations = response.body.conversations;
+      .then(customer => intercom.conversations
+        .list({
+          email: customer.email,
+          type: 'user',
+          display_as: 'plaintext',
+        })
+        .then((response) => {
+          const { conversations } = response.body;
 
-            if (response.body.pages.next) {
-              return fetchPages(response.body.pages, conversations);
-            } else {
-              return conversations;
-            }
-          })
-          .then(function (conversations) {
-            return [conversations.length,
-              conversations.slice(getSkip(), getSkip() + getLimit())];
-          })
-          .spread(function (count, conversations) {
-            return intercom.admins.list()
-              .then(function (response) {
-                var admins = response.body.admins;
+          if (response.body.pages.next) {
+            return fetchPages(response.body.pages, conversations);
+          }
+          return conversations;
+        })
+        .then(conversations => [conversations.length,
+          conversations.slice(getSkip(), getSkip() + getLimit())])
+        .spread((count, conversations) => intercom.admins.list()
+          .then((response) => {
+            const { admins } = response.body;
 
-                return P
-                  .map(conversations, function (conversation) {
-                    if (conversation.assignee.type === 'admin') {
-                      var adminId = parseInt(conversation.assignee.id);
-                      var admin = _.find(admins, { id: adminId });
+            return P
+              .map(conversations, (conversation) => {
+                if (conversation.assignee.type === 'admin') {
+                  const adminId = parseInt(conversation.assignee.id);
+                  const admin = _.find(admins, { id: adminId });
 
-                      conversation.assignee = admin;
-                    }
+                  conversation.assignee = admin;
+                }
 
-                    if (opts.integrations.intercom.apiKey) {
-                      conversation.link = getLink(conversation);
-                    }
+                if (opts.integrations.intercom.apiKey) {
+                  conversation.link = getLink(conversation);
+                }
 
-                    return conversation;
-                  })
-                  .then(function (conversations) {
-                    return [count, conversations];
-                  });
-              });
-          })
-          .catch(function (error) {
-            try {
-              logger.error('Cannot access to Intercom conversations:', error.body.errors[0].message);
-            } catch (error) {
-              logger.error('Cannot access to Intercom conversations:', error);
-            }
-            return [0, []];
-          });
-      });
+                return conversation;
+              })
+              .then(conversations => [count, conversations]);
+          }))
+        .catch((error) => {
+          try {
+            logger.error('Cannot access to Intercom conversations:', error.body.errors[0].message);
+          } catch (error) {
+            logger.error('Cannot access to Intercom conversations:', error);
+          }
+          return [0, []];
+        }));
   };
 }
 

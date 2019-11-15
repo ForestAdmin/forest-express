@@ -1,20 +1,20 @@
-'use strict';
-var _ = require('lodash');
-var JSONAPISerializer = require('jsonapi-serializer').Serializer;
-var Schemas = require('../../../generators/schemas');
+
+const _ = require('lodash');
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const Schemas = require('../../../generators/schemas');
 
 function CardsSerializer(cards, collectionName, meta) {
   function getCustomerAttributes() {
     if (!cards.length) { return []; }
 
-    var schema = Schemas.schemas[collectionName];
+    const schema = Schemas.schemas[collectionName];
     if (!schema) { return []; }
     return _.map(schema.fields, 'field');
   }
 
-  var customerAttributes = getCustomerAttributes();
+  const customerAttributes = getCustomerAttributes();
 
-  var type = collectionName + '_stripe_cards';
+  const type = `${collectionName}_stripe_cards`;
 
   return new JSONAPISerializer(type, cards, {
     attributes: ['last4', 'brand', 'funding', 'exp_month', 'exp_year',
@@ -23,14 +23,14 @@ function CardsSerializer(cards, collectionName, meta) {
       'customer'],
     customer: {
       ref: 'id',
-      attributes: customerAttributes
+      attributes: customerAttributes,
     },
-    keyForAttribute: function (key) { return key; },
-    typeForAttribute: function (attr) {
+    keyForAttribute(key) { return key; },
+    typeForAttribute(attr) {
       if (attr === 'customer') { return collectionName; }
       return attr;
     },
-    meta: meta
+    meta,
   });
 }
 

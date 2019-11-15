@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Technical - Apply eslint rules to all files (Auto fix).
 
 ## RELEASE 5.1.1 - 2019-11-15
 ### Fixed
