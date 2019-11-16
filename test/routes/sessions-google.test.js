@@ -1,23 +1,18 @@
-const chai = require('chai');
-const chaiSubset = require('chai-subset');
 const sinon = require('sinon');
 const jsonwebtoken = require('jsonwebtoken');
 const P = require('bluebird');
 const request = require('../helpers/request');
 const createServer = require('../helpers/create-server');
 
-const { expect } = chai;
-chai.use(chaiSubset);
-
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
 const googleAccessToken = 'google-access-token';
 
-describe('API > Google OAuth2 Login', () => {
+describe('routes > session Google', () => {
   let app;
   let sandbox;
 
-  before(() => {
+  beforeAll(() => {
     sandbox = sinon.createSandbox();
     // eslint-disable-next-line global-require
     const forestServerRequester = require('../../src/services/forest-server-requester');
@@ -63,33 +58,36 @@ describe('API > Google OAuth2 Login', () => {
     });
   });
 
-  after(() => {
+  afterAll(() => {
     sandbox.restore();
   });
 
   describe('POST /forest/sessions-google', () => {
-    it('should return a valid jwt token', (done) => {
-      request(app)
-        .post('/forest/sessions-google')
-        .send({ renderingId: 1, forestToken: googleAccessToken })
-        .expect(200)
-        .end((error, response) => {
-          expect(error).to.be.null;
+    it('should return a valid jwt token', async () => {
+      expect.assertions(2);
+      await new Promise((done) => {
+        request(app)
+          .post('/forest/sessions-google')
+          .send({ renderingId: 1, forestToken: googleAccessToken })
+          .expect(200)
+          .end((error, response) => {
+            expect(error).toBeNull();
 
-          const { token } = response.body;
-          const decodedJWT = jsonwebtoken.verify(token, authSecret);
+            const { token } = response.body;
+            const decodedJWT = jsonwebtoken.verify(token, authSecret);
 
-          expect(decodedJWT).to.containSubset({
-            id: '654',
-            email: 'user@email.com',
-            firstName: 'FirstName',
-            lastName: 'LastName',
-            renderingId: 1,
-            team: 'Operations',
+            expect(decodedJWT).toMatchObject({
+              id: '654',
+              email: 'user@email.com',
+              firstName: 'FirstName',
+              lastName: 'LastName',
+              renderingId: 1,
+              team: 'Operations',
+            });
+
+            done();
           });
-
-          done();
-        });
+      });
     });
   });
 });
