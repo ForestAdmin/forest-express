@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Technical - Apply eslint rules to all files (Auto fix).
+- Readme - Fix release instructions.
 
 ## RELEASE 5.1.1 - 2019-11-15
 ### Fixed
