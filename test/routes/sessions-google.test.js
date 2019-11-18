@@ -12,7 +12,7 @@ describe('routes > session Google', () => {
   let app;
   let sandbox;
 
-  beforeAll(() => {
+  function initializeSandbox() {
     sandbox = sinon.createSandbox();
     // eslint-disable-next-line global-require
     const forestServerRequester = require('../../src/services/forest-server-requester');
@@ -56,15 +56,16 @@ describe('routes > session Google', () => {
         },
       },
     });
-  });
+  }
 
-  afterAll(() => {
+  function restoreSandbox() {
     sandbox.restore();
-  });
+  }
 
   describe('POST /forest/sessions-google', () => {
     it('should return a valid jwt token', async () => {
       expect.assertions(2);
+      initializeSandbox();
       await new Promise((done) => {
         request(app)
           .post('/forest/sessions-google')
@@ -88,6 +89,7 @@ describe('routes > session Google', () => {
             done();
           });
       });
+      restoreSandbox();
     });
   });
 });

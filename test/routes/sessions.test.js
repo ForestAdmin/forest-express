@@ -143,18 +143,14 @@ function setupApp() {
     },
   });
 
-  return { app, sandbox };
+  return { app };
 }
 
 describe('routes > sessions', () => {
   const urlService = new ServiceUrlGetter().perform();
   const nockObj = nock(urlService);
 
-  const { app, sandbox } = setupApp();
-
-  afterAll(() => {
-    sandbox.restore();
-  });
+  const { app } = setupApp();
 
   describe('POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
