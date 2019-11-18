@@ -54,7 +54,6 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         associationModel,
         records,
         integrator,
-        opts,
         null,
         fieldsSearched,
         params.search,

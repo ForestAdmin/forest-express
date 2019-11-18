@@ -12,7 +12,6 @@ function ResourceSerializer(
   model,
   records,
   integrator,
-  opts,
   meta,
   fieldsSearched,
   searchValue,

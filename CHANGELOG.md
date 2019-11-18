@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - Readme - Add the test coverage badge.
+- Routes - Expose the record services and the permissions middleware.
 
 ### Changed
 - Technical - Use Jest instead of Mocha for the test base.
