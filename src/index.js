@@ -219,7 +219,6 @@ exports.init = (Implementation) => {
         configStore.integrator,
         configStore.lianaOptions,
       ).perform();
-
       new StatRoutes(
         app,
         model,

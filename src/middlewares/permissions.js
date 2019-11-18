@@ -5,7 +5,7 @@ const ConfigStore = require('../services/config-store');
 
 const getRenderingIdFromUser = user => user.renderingId;
 
-class PermissionMiddleWareCreator {
+class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     this.configStore = ConfigStore.getInstance();
@@ -61,4 +61,4 @@ class PermissionMiddleWareCreator {
   }
 }
 
-module.exports = PermissionMiddleWareCreator;
+module.exports = PermissionMiddlewareCreator;

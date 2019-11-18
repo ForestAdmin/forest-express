@@ -4,7 +4,7 @@ const ResourceSerializer = require('../serializers/resource');
 const ResourceDeserializer = require('../deserializers/resource');
 const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
-const PermissionMiddleWareCreator = require('../middlewares/permissions');
+const PermissionMiddlewareCreator = require('../middlewares/permissions');
 const ConfigStore = require('../services/config-store');
 
 const configStore = ConfigStore.getInstance();
@@ -120,7 +120,7 @@ module.exports = function Resources(app, model) {
       .catch(next);
   };
 
-  const permissionMiddlewareCreator = new PermissionMiddleWareCreator(modelName);
+  const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
 
   this.perform = () => {
     app.get(
