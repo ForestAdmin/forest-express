@@ -1,11 +1,6 @@
-const chai = require('chai');
-const chaiSubset = require('chai-subset');
 const ApimapFieldsFormater = require('../../src/services/apimap-fields-formater');
 
-const { expect } = chai;
-chai.use(chaiSubset);
-
-describe('Service > Apimap Fields Formater', () => {
+describe('services > apimap-fields-formater', () => {
   const fieldsFormated = new ApimapFieldsFormater([{
     field: 'email',
     type: 'String',
@@ -18,8 +13,9 @@ describe('Service > Apimap Fields Formater', () => {
   }], 'Users').perform();
 
   it('should filter fields without declared "field" attribute', () => {
-    expect(fieldsFormated.length).equal(2);
-    expect(fieldsFormated).to.containSubset([{
+    expect.assertions(2);
+    expect(fieldsFormated).toHaveLength(2);
+    expect(fieldsFormated).toStrictEqual([{
       field: 'email',
       type: 'String',
       isVirtual: true,

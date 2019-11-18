@@ -1,9 +1,16 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Readme - Add the test coverage badge.
+
+### Changed
+- Technical - Use Jest instead of Mocha for the test base.
+
 ### Fixed
 - Technical - Apply eslint rules to all files (Auto fix).
 - Readme - Fix release instructions.
+- Technical - Fix a wrong test about 2FA feature.
 
 ## RELEASE 5.1.1 - 2019-11-15
 ### Fixed
