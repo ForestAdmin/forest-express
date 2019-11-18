@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Improve linter rules for script files.
 
 ## RELEASE 5.2.0 - 2019-11-18
 ### Added
