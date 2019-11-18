@@ -4,22 +4,25 @@
 ### Added
 - Technical - `.forestadmin-schema` now keeps track of engine and framework names and versions.
 
+### Changed
+- Technical - Improve linter rules for script files.
+
 ## RELEASE 5.2.0 - 2019-11-18
-### Added
+### Added
 - Readme - Add the test coverage badge.
 - Routes - Expose the record services and the permissions middleware.
 
 ### Changed
+- Technical - Apply ESLint rules to all files (Auto fix).
 - Technical - Use Jest instead of Mocha for the test base.
 
 ### Fixed
-- Technical - Apply eslint rules to all files (Auto fix).
 - Readme - Fix release instructions.
 - Technical - Fix a wrong test about 2FA feature.
 
 ## RELEASE 5.1.1 - 2019-11-15
 ### Fixed
-- Smart Relationships - Smart Relashionships returns referenced Smart Fields values.
+- Smart Relationships - Smart Relationships returns referenced Smart Fields values.
 
 ## RELEASE 5.1.0 - 2019-11-14
 ### Changed

@@ -32,7 +32,8 @@ module.exports = {
       'error',
       {
         'devDependencies': [
-          'bin/*.js',
+          'eslint-bin/*.js',
+          'scripts/*.js',
           'test/**/*.js'
         ]
       }
