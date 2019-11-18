@@ -62,7 +62,7 @@ describe('routes > session Google', () => {
     sandbox.restore();
   }
 
-  describe('POST /forest/sessions-google', () => {
+  describe('#POST /forest/sessions-google', () => {
     it('should return a valid jwt token', async () => {
       expect.assertions(2);
       initializeSandbox();

@@ -152,7 +152,7 @@ describe('routes > sessions', () => {
 
   const { app } = setupApp();
 
-  describe('POST /forest/sessions', () => {
+  describe('#POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
       it('should return a valid jwt', async () => {
         expect.assertions(3);
