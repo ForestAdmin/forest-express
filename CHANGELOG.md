@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - `.forestadmin-schema` now keeps track of engine and framework names and versions.
+
 ### Changed
 - Technical - Improve linter rules for script files.
 
