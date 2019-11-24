@@ -10,6 +10,9 @@
 - Technical - Upgrade the latest `body-parser` dependency.
 - Technical - Upgrade the latest `base32-encode` dependency.
 
+### Fixed
+- Technical - Remove unused `bcryptjs` dependency.
+
 ## RELEASE 5.2.0 - 2019-11-18
 ### Added
 - Readme - Add the test coverage badge.
