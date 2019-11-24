@@ -1,9 +1,9 @@
-const PermissionsChecker = require('../services/permissions-checker');
 const httpError = require('http-errors');
+const PermissionsChecker = require('../services/permissions-checker');
 const logger = require('../services/logger');
 const ConfigStore = require('../services/config-store');
 
-const getRenderingIdFromUser = user => user.renderingId;
+const getRenderingIdFromUser = (user) => user.renderingId;
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {

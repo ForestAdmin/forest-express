@@ -45,7 +45,7 @@ module.exports = function Resources(app, model) {
 
     return new Implementation.ResourcesGetter(model, lianaOptions, params)
       .count()
-      .then(count => response.send({ count }))
+      .then((count) => response.send({ count }))
       .catch(next);
   };
 
@@ -63,7 +63,7 @@ module.exports = function Resources(app, model) {
 
   this.get = (request, response, next) => new Implementation.ResourceGetter(model, request.params)
     .perform()
-    .then(record => new ResourceSerializer(
+    .then((record) => new ResourceSerializer(
       Implementation,
       model,
       record,
@@ -78,8 +78,8 @@ module.exports = function Resources(app, model) {
     new ResourceDeserializer(Implementation, model, request.body, true, {
       omitNullAttributes: true,
     }).perform()
-      .then(params => new Implementation.ResourceCreator(model, params).perform())
-      .then(record => new ResourceSerializer(
+      .then((params) => new Implementation.ResourceCreator(model, params).perform())
+      .then((record) => new ResourceSerializer(
         Implementation,
         model,
         record,
@@ -97,7 +97,7 @@ module.exports = function Resources(app, model) {
       .then((record) => {
         new Implementation.ResourceUpdater(model, request.params, record)
           .perform()
-          .then(updatedRecord => new ResourceSerializer(
+          .then((updatedRecord) => new ResourceSerializer(
             Implementation,
             model,
             updatedRecord,

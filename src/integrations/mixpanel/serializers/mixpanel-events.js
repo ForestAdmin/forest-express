@@ -35,6 +35,7 @@ function MixpanelEventsSerializer(events, collectionName, meta, options) {
     'browser'];
 
   if (options.integrations.mixpanel.customProperties) {
+    // eslint-disable-next-line prefer-spread
     attributes.push.apply(attributes, options.integrations.mixpanel.customProperties);
   }
 

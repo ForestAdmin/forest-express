@@ -65,7 +65,7 @@ module.exports = function routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then(payment => new PaymentsSerializer(payment, modelName))
+      .then((payment) => new PaymentsSerializer(payment, modelName))
       .then((payment) => { response.send(payment); })
       .catch(next);
   };
@@ -109,7 +109,7 @@ module.exports = function routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then(invoice => new InvoicesSerializer(invoice, modelName))
+      .then((invoice) => new InvoicesSerializer(invoice, modelName))
       .then((invoice) => { response.send(invoice); })
       .catch(next);
   };
@@ -141,7 +141,7 @@ module.exports = function routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then(card => new CardsSerializer(card, modelName))
+      .then((card) => new CardsSerializer(card, modelName))
       .then((card) => { response.send(card); })
       .catch(next);
   };
@@ -172,7 +172,7 @@ module.exports = function routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then(subscription => new SubscriptionsSerializer(subscription, modelName))
+      .then((subscription) => new SubscriptionsSerializer(subscription, modelName))
       .then((subscription) => { response.send(subscription); })
       .catch(next);
   };
@@ -199,7 +199,7 @@ module.exports = function routes(app, model, Implementation, opts) {
   const getBankAccount = (request, response, next) => {
     new SourceGetter(Implementation, _.extend(request.query, request.params), opts, integrationInfo)
       .perform()
-      .then(bankAccount => new BankAccountsSerializer(bankAccount, modelName))
+      .then((bankAccount) => new BankAccountsSerializer(bankAccount, modelName))
       .then((bankAccount) => { response.send(bankAccount); })
       .catch(next);
   };

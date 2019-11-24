@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
@@ -8,13 +7,12 @@ function Checker(opts, Implementation) {
   let integrationValid = false;
 
   function hasIntegration() {
-    return opts.integrations && opts.integrations.closeio &&
-      opts.integrations.closeio.apiKey;
+    return opts.integrations && opts.integrations.closeio && opts.integrations.closeio.apiKey;
   }
 
   function isProperlyIntegrated() {
-    return opts.integrations.closeio.apiKey &&
-      opts.integrations.closeio.closeio && opts.integrations.closeio.mapping;
+    return opts.integrations.closeio.apiKey && opts.integrations.closeio.closeio
+      && opts.integrations.closeio.mapping;
   }
 
   function isMappingValid() {
@@ -41,7 +39,7 @@ function Checker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return false; }
 
     const models = Implementation.getModels();
 
@@ -52,6 +50,7 @@ function Checker(opts, Implementation) {
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
+        return null;
       },
     );
 
@@ -60,15 +59,14 @@ function Checker(opts, Implementation) {
 
   if (hasIntegration()) {
     if (isProperlyIntegrated()) {
-      opts.integrations.closeio.mapping =
-        castToArray(opts.integrations.closeio.mapping);
+      opts.integrations.closeio.mapping = castToArray(opts.integrations.closeio.mapping);
       integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Close.io integration.');
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = (app, model) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.closeio, model)) {
@@ -76,7 +74,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = (collections) => {
     if (!integrationValid) { return; }
 
     _.each(
@@ -90,7 +88,7 @@ function Checker(opts, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = (model, schema) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.closeio, model)) {
@@ -98,7 +96,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = (model, schema, dest, field) => {
     if (integrationValid && field.integration === 'close.io') {
       dest[field.field] = {
         ref: 'id',

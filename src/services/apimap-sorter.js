@@ -70,7 +70,7 @@ function ApimapSorter(apimap) {
         if (collection.attributes.fields) {
           collection.attributes.fields = sortArrayOfFields(collection.attributes.fields);
           collection.attributes.fields = collection.attributes.fields
-            .map(field => reorderKeysField(field));
+            .map((field) => reorderKeysField(field));
         }
         return collection;
       });
@@ -84,7 +84,7 @@ function ApimapSorter(apimap) {
           if (include.attributes.fields) {
             include.attributes.fields = sortArrayOfFields(include.attributes.fields);
             include.attributes.fields = include.attributes.fields
-              .map(field => reorderKeysField(field));
+              .map((field) => reorderKeysField(field));
           }
           return include;
         });

@@ -3,7 +3,7 @@ const { pushIntoApimap } = require('../../utils/integrations');
 
 const INTEGRATION_NAME = 'stripe';
 
-exports.createCollections = function (Implementation, apimap, collectionAndFieldName) {
+exports.createCollections = (Implementation, apimap, collectionAndFieldName) => {
   // jshint camelcase: false
   const model = Implementation.getModels()[collectionAndFieldName.split('.')[0]];
   const modelName = Implementation.getModelName(model);
@@ -181,7 +181,7 @@ exports.createCollections = function (Implementation, apimap, collectionAndField
   });
 };
 
-exports.createFields = function (implementation, model, schemaFields) {
+exports.createFields = (implementation, model, schemaFields) => {
   schemaFields.push({
     field: 'stripe_payments',
     displayName: 'Payments',

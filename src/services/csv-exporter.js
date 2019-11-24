@@ -7,7 +7,7 @@ const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 // NOTICE: Prevent bad date formatting into timestamps.
 const CSV_OPTIONS = {
   formatters: {
-    date: value => moment(value).format(),
+    date: (value) => moment(value).format(),
   },
 };
 
@@ -30,10 +30,10 @@ function CSVExporter(params, response, modelName, recordsExporter) {
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return recordsExporter
-      .perform(records => P
-        .map(records, record =>
+      .perform((records) => P
+        .map(records, (record) =>
           new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform())
-        .then(recordsWithSmartFieldsValues =>
+        .then((recordsWithSmartFieldsValues) =>
           new P((resolve) => {
             const CSVLines = [];
             recordsWithSmartFieldsValues.forEach((record) => {
@@ -42,8 +42,7 @@ function CSVExporter(params, response, modelName, recordsExporter) {
                 let value;
                 if (params.fields[attribute]) {
                   if (record[attribute]) {
-                    if (params.fields[attribute] &&
-                      record[attribute][params.fields[attribute]]) {
+                    if (params.fields[attribute] && record[attribute][params.fields[attribute]]) {
                       value = record[attribute][params.fields[attribute]];
                     } else {
                       // eslint-disable-next-line

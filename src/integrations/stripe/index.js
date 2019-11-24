@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
@@ -8,30 +7,26 @@ function Checker(opts, Implementation) {
   let integrationValid = false;
 
   function hasIntegration() {
-    return opts.integrations && opts.integrations.stripe &&
-      opts.integrations.stripe.apiKey;
+    return opts.integrations && opts.integrations.stripe && opts.integrations.stripe.apiKey;
   }
 
   function isProperlyIntegrated() {
-    return opts.integrations.stripe.apiKey &&
-      opts.integrations.stripe.stripe && opts.integrations.stripe.mapping;
+    return opts.integrations.stripe.apiKey
+      && opts.integrations.stripe.stripe
+      && opts.integrations.stripe.mapping;
   }
 
   function isIntegrationDeprecated() {
-    const integrationValid = opts.integrations.stripe.apiKey &&
-      opts.integrations.stripe.stripe &&
-        (opts.integrations.stripe.userCollection ||
-          opts.integrations.stripe.userCollection);
+    const isIntegrationValid = opts.integrations.stripe.apiKey
+      && opts.integrations.stripe.stripe
+      && (opts.integrations.stripe.userCollection || opts.integrations.stripe.userCollection);
 
-    if (integrationValid) {
-      logger.warn('Stripe integration attributes "userCollection" and ' +
-        '"userField" are now deprecated, please use "mapping" attribute.');
-      opts.integrations.stripe.mapping =
-        `${opts.integrations.stripe.userCollection}.${
-          opts.integrations.stripe.userField}`;
+    if (isIntegrationValid) {
+      logger.warn('Stripe integration attributes "userCollection" and "userField" are now deprecated, please use "mapping" attribute.');
+      opts.integrations.stripe.mapping = `${opts.integrations.stripe.userCollection}.${opts.integrations.stripe.userField}`;
     }
 
-    return integrationValid;
+    return isIntegrationValid;
   }
 
   function isMappingValid() {
@@ -58,7 +53,7 @@ function Checker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return false; }
 
     const models = Implementation.getModels();
 
@@ -69,6 +64,7 @@ function Checker(opts, Implementation) {
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
+        return null;
       },
     );
 
@@ -77,15 +73,14 @@ function Checker(opts, Implementation) {
 
   if (hasIntegration()) {
     if (isProperlyIntegrated() || isIntegrationDeprecated()) {
-      opts.integrations.stripe.mapping =
-        castToArray(opts.integrations.stripe.mapping);
+      opts.integrations.stripe.mapping = castToArray(opts.integrations.stripe.mapping);
       integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Stripe integration.');
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = (app, model) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.stripe, model)) {
@@ -93,7 +88,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = (collections) => {
     if (!integrationValid) { return; }
 
     _.each(
@@ -104,7 +99,7 @@ function Checker(opts, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = (model, schema) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.stripe, model)) {
@@ -112,7 +107,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = (model, schema, dest, field) => {
     if (integrationValid && field.integration === 'stripe') {
       dest[field.field] = {
         ref: 'id',

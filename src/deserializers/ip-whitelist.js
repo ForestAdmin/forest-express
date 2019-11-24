@@ -1,8 +1,8 @@
 const P = require('bluebird');
 
 function IpWhitelistDeserializer(data) {
-  this.perform = function () {
-    return P.try(() => {
+  this.perform = () =>
+    P.try(() => {
       const deserialiazedData = {};
 
       deserialiazedData.useIpWhitelist = data.attributes.use_ip_whitelist;
@@ -21,7 +21,6 @@ function IpWhitelistDeserializer(data) {
 
       return deserialiazedData;
     });
-  };
 }
 
 module.exports = IpWhitelistDeserializer;

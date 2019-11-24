@@ -1,5 +1,5 @@
-const ipWhitelistService = require('../services/ip-whitelist');
 const httpError = require('http-errors');
+const ipWhitelistService = require('../services/ip-whitelist');
 
 function retrieveWhitelist(environmentSecret, ip, next) {
   return ipWhitelistService

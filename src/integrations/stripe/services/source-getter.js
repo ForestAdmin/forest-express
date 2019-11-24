@@ -26,9 +26,9 @@ function SourceGetter(Implementation, params, opts, integrationInfo) {
       collectionFieldName,
       params.recordId,
     )
-      .then(customer =>
+      .then((customer) =>
         getSource(customer[collectionFieldName], params.objectId)
-          .then(source =>
+          .then((source) =>
             Implementation.Stripe.getCustomerByUserField(
               collectionModel,
               fieldName,

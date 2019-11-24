@@ -20,8 +20,8 @@ function ResourceSerializer(
   const modelName = Implementation.getModelName(model);
   const schema = Schemas.schemas[modelName];
 
-  const needsDateOnlyFormating = Implementation.getLianaName() === 'forest-express-sequelize' &&
-    semver.lt(Implementation.getOrmVersion(), '4.0.0');
+  const needsDateOnlyFormating = Implementation.getLianaName() === 'forest-express-sequelize'
+    && semver.lt(Implementation.getOrmVersion(), '4.0.0');
 
   const reservedWords = ['meta'];
   const fieldInfoDateonly = [];
@@ -82,7 +82,7 @@ function ResourceSerializer(
             let fieldReference = referenceSchema.idField;
 
             if (_.isArray(field.type) && !fieldReference && referenceSchema.isVirtual) {
-              if (_.find(referenceSchema.fields, schemaField => schemaField.field === 'id')) {
+              if (_.find(referenceSchema.fields, (schemaField) => schemaField.field === 'id')) {
                 fieldReference = 'id';
               } else {
                 logger.warn(`Cannot find the 'idField' attribute in your '${referenceSchema.name}' Smart Collection declaration.`);
@@ -97,7 +97,7 @@ function ResourceSerializer(
               ref: fieldReference,
               attributes: getFieldsNames(referenceSchema.fields),
               relationshipLinks: {
-                related: dataSet => ({
+                related: (dataSet) => ({
                   href: `/forest/${Implementation.getModelName(model)}/${dataSet[schema.idField]}/relationships/${field.field}`,
                 }),
               },
@@ -117,8 +117,8 @@ function ResourceSerializer(
 
       _.each(fieldInfoDateonly, (fieldInfo) => {
         let dateonly;
-        if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name &&
-          record[fieldInfo.association][fieldInfo.name]) {
+        if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name
+          && record[fieldInfo.association][fieldInfo.name]) {
           dateonly = moment.utc(record[fieldInfo.association][fieldInfo.name])
             .add(offsetServer, 'h');
           record[fieldInfo.association][fieldInfo.name] = dateonly.format();
@@ -130,10 +130,10 @@ function ResourceSerializer(
       });
 
       _.each(fieldInfoPoint, (fieldInfo) => {
-        if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name &&
-          record[fieldInfo.association][fieldInfo.name]) {
-          record[fieldInfo.association][fieldInfo.name] =
-            record[fieldInfo.association][fieldInfo.name].coordinates;
+        if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name
+          && record[fieldInfo.association][fieldInfo.name]) {
+          record[fieldInfo.association][fieldInfo.name] = record[fieldInfo
+            .association][fieldInfo.name].coordinates;
         }
         if (fieldInfo.name && record[fieldInfo.name]) {
           record[fieldInfo.name] = record[fieldInfo.name].coordinates;
@@ -144,8 +144,8 @@ function ResourceSerializer(
     const serializationOptions = {
       id: schema.idField,
       attributes: getFieldsNames(schema.fields),
-      keyForAttribute: key => key,
-      typeForAttribute: attribute => typeForAttributes[attribute] || attribute,
+      keyForAttribute: (key) => key,
+      typeForAttribute: (attribute) => typeForAttributes[attribute] || attribute,
       meta,
     };
 
@@ -163,8 +163,11 @@ function ResourceSerializer(
         let smartFieldsValuesInjector;
         resolve(P
           .map(records, (record) => {
-            smartFieldsValuesInjector =
-              new SmartFieldsValuesInjector(record, modelName, fieldsPerModel);
+            smartFieldsValuesInjector = new SmartFieldsValuesInjector(
+              record,
+              modelName,
+              fieldsPerModel,
+            );
             return smartFieldsValuesInjector.perform();
           })
           .then((result) => {

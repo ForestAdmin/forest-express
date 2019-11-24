@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
@@ -11,7 +10,7 @@ const CloseioLeadCreator = require('./services/closeio-lead-creator');
 const CloseioLeadsSerializer = require('./serializers/closeio-leads');
 const CloseioLeadEmailsSerializer = require('./serializers/closeio-lead-emails');
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = (app, model, Implementation, opts) => {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -33,7 +32,7 @@ module.exports = function (app, model, Implementation, opts) {
   function closeioLead(req, res, next) {
     new CloseioLeadGetter(Implementation, _.extend(req.query, req.params), opts)
       .perform()
-      .then(lead => new CloseioLeadsSerializer(lead, modelName))
+      .then((lead) => new CloseioLeadsSerializer(lead, modelName))
       .then((lead) => {
         res.send(lead);
       }, next);
@@ -60,12 +59,14 @@ module.exports = function (app, model, Implementation, opts) {
 
   function customerLead(request, response) {
     new CloseioCustomerLeadGetter(
-      Implementation, _.extend(request.query, request.params),
-      opts, integrationInfo,
+      Implementation,
+      _.extend(request.query, request.params),
+      opts,
+      integrationInfo,
     )
       .perform()
       .then((lead) => {
-        if (!lead) { throw { status: 404, message: 'not_found' }; }
+        if (!lead) { throw new Error('not_found'); }
         return new CloseioLeadsSerializer(lead, modelName);
       })
       .then((lead) => {
@@ -82,7 +83,7 @@ module.exports = function (app, model, Implementation, opts) {
       req.params,
     ), opts)
       .perform()
-      .then(email => new CloseioLeadEmailsSerializer(email, modelName))
+      .then((email) => new CloseioLeadEmailsSerializer(email, modelName))
       .then((email) => {
         res.send(email);
       }, next);
@@ -96,7 +97,7 @@ module.exports = function (app, model, Implementation, opts) {
       }, next);
   }
 
-  this.perform = function () {
+  this.perform = () => {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}_closeio_leads/:leadId`, opts),

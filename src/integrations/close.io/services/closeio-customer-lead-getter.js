@@ -1,11 +1,9 @@
-
-
 function CloseioCustomerLeadGetter(Implementation, params, opts, integrationInfo) {
   const Closeio = opts.integrations.closeio.closeio;
   const closeio = new Closeio(opts.integrations.closeio.apiKey);
 
-  this.perform = function () {
-    return Implementation.Closeio.getCustomer(
+  this.perform = () =>
+    Implementation.Closeio.getCustomer(
       integrationInfo.collection,
       params.recordId,
     )
@@ -16,8 +14,7 @@ function CloseioCustomerLeadGetter(Implementation, params, opts, integrationInfo
           encodeURIComponent(`name:"${customer[integrationInfo.field]
           }" or email:"${customer[integrationInfo.field]}"`)}`);
       })
-      .then(response => response.data[0]);
-  };
+      .then((response) => response.data[0]);
 }
 
 module.exports = CloseioCustomerLeadGetter;

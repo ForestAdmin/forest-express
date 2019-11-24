@@ -48,7 +48,7 @@ function InvoicesSerializer(invoices, collectionName, meta) {
       ref: Schemas.schemas[collectionName].idField,
       attributes: customerAttributes,
     },
-    keyForAttribute: key => key,
+    keyForAttribute: (key) => key,
     typeForAttribute: (attr) => {
       if (attr === 'customer') { return collectionName; }
       return attr;

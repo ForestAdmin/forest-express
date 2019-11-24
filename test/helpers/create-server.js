@@ -1,7 +1,7 @@
-const forestExpress = require('../../src');
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
+const forestExpress = require('../../src');
 
 let app;
 

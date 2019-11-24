@@ -37,7 +37,6 @@ const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const configStore = ConfigStore.getInstance();
 
-
 let jwtAuthenticator;
 
 function getModels() {
@@ -54,7 +53,7 @@ function requireAllModels(modelsDir) {
     try {
       requireAll({
         dirname: modelsDir,
-        filter: fileName =>
+        filter: (fileName) =>
           fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
         recursive: true,
       });
@@ -119,8 +118,7 @@ exports.init = (Implementation) => {
   auth.initAuth(opts);
 
   if (opts.secretKey) {
-    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options ' +
-    'is deprecated. Please use envSecret and authSecret instead.');
+    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options is deprecated. Please use envSecret and authSecret instead.');
     opts.envSecret = opts.secretKey;
     opts.authSecret = opts.authKey;
   }
@@ -152,7 +150,7 @@ exports.init = (Implementation) => {
             && request.headers.authorization.split(' ')[0] === 'Bearer') {
             return request.headers.authorization.split(' ')[1];
           // NOTICE: Necessary for downloads authentication.
-          } else if (request.headers.cookie) {
+          } if (request.headers.cookie) {
             const match = request.headers.cookie.match(REGEX_COOKIE_SESSION_TOKEN);
             if (match && match[1]) {
               return match[1];
@@ -163,13 +161,11 @@ exports.init = (Implementation) => {
       },
     });
   } else {
-    logger.error('Your Forest authSecret seems to be missing. Can you check ' +
-      'that you properly set a Forest authSecret in the Forest initializer?');
+    logger.error('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initializer?');
   }
 
   if (!opts.envSecret) {
-    logger.error('Your Forest envSecret seems to be missing. Can you check ' +
-      'that you properly set a Forest envSecret in the Forest initializer?');
+    logger.error('Your Forest envSecret seems to be missing. Can you check that you properly set a Forest envSecret in the Forest initializer?');
   }
 
   if (jwtAuthenticator) {
@@ -235,8 +231,7 @@ exports.init = (Implementation) => {
       if (!opts.envSecret) { return; }
 
       if (opts.envSecret.length !== 64) {
-        logger.error('Your envSecret does not seem to be correct. Can you check on Forest that ' +
-          'you copied it properly in the Forest initialization?');
+        logger.error('Your envSecret does not seem to be correct. Can you check on Forest that you copied it properly in the Forest initialization?');
         return;
       }
 
@@ -307,9 +302,7 @@ exports.init = (Implementation) => {
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
       .catch(() => {}))
     .catch((error) => {
-      logger.error('An error occured while computing the Forest schema. Your application schema ' +
-        'cannot be synchronized with Forest. Your admin panel might not reflect your application ' +
-        'models definition.', error);
+      logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition.', error);
     });
 
   if (opts.expressParentApp) {

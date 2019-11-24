@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
@@ -24,18 +23,15 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
     }
 
     if (subscription.current_period_end) {
-      subscription.current_period_end =
-        new Date(subscription.current_period_end * 1000);
+      subscription.current_period_end = new Date(subscription.current_period_end * 1000);
     }
 
     if (subscription.current_period_start) {
-      subscription.current_period_start =
-        new Date(subscription.current_period_start * 1000);
+      subscription.current_period_start = new Date(subscription.current_period_start * 1000);
     }
 
     if (subscription.ended_at) {
-      subscription.ended_at =
-        new Date(subscription.ended_at * 1000);
+      subscription.ended_at = new Date(subscription.ended_at * 1000);
     }
 
     if (subscription.start) {

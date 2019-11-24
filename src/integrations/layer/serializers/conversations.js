@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
@@ -18,9 +17,8 @@ function ConversationsSerializer(conversations, collectionName, meta) {
       };
     }
 
-    if (_.isArray(conversation.participants) &&
-      conversation.participants.length) {
-      conversation.title = conversation.participants.map(participant => participant.display_name).join(', ');
+    if (_.isArray(conversation.participants) && conversation.participants.length) {
+      conversation.title = conversation.participants.map((participant) => participant.display_name).join(', ');
     }
 
     return conversation;
@@ -30,7 +28,7 @@ function ConversationsSerializer(conversations, collectionName, meta) {
   let data = null;
 
   if (_.isArray(conversations)) {
-    data = conversations.map(conversation => mapConversation(conversation));
+    data = conversations.map((conversation) => mapConversation(conversation));
   } else {
     data = mapConversation(conversations);
   }

@@ -3,7 +3,7 @@ const { pushIntoApimap } = require('../../utils/integrations');
 
 const INTEGRATION_NAME = 'intercom';
 
-exports.createCollections = function (Implementation, apimap, collectionName) {
+exports.createCollections = (Implementation, apimap, collectionName) => {
   const collectionDisplayName = _.capitalize(collectionName);
   const model = Implementation.getModels()[collectionName];
   // jshint camelcase: false
@@ -59,7 +59,7 @@ exports.createCollections = function (Implementation, apimap, collectionName) {
   });
 };
 
-exports.createFields = function (implementation, model, schemaFields) {
+exports.createFields = (implementation, model, schemaFields) => {
   schemaFields.push({
     field: 'intercom_conversations',
     type: ['String'],

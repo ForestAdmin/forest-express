@@ -38,7 +38,7 @@ const parseAggregation = async (node, formatAggregation, formatCondition) => {
   }
 
   const promises = [];
-  node.conditions.forEach(condition =>
+  node.conditions.forEach((condition) =>
     promises.push(parseAggregation(condition, formatAggregation, formatCondition)));
 
   const formatedConditions = await Promise.all(promises);

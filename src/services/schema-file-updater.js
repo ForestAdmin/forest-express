@@ -9,7 +9,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     const objectFormated = {};
     const objectOrdered = _.sortBy(
       Object.keys(object),
-      attribute => attributes.indexOf(attribute),
+      (attribute) => attributes.indexOf(attribute),
     );
     _.each(objectOrdered, (attribute) => {
       if (attributes.includes(attribute)) {
@@ -26,7 +26,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
   }
 
   const cleanFields = (fields) => {
-    fields = fields.filter(field => field.field);
+    fields = fields.filter((field) => field.field);
     fields.forEach((field) => {
       if (field.defaultValue === undefined) {
         field.defaultValue = null;
@@ -57,10 +57,10 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     return fields;
   };
 
-  const cleanSegments = segments => segments.filter(segment => segment.name);
+  const cleanSegments = (segments) => segments.filter((segment) => segment.name);
 
   const cleanActions = (actions) => {
-    actions = actions.filter(action => action.name);
+    actions = actions.filter((action) => action.name);
     actions.forEach((action) => {
       if (action.global) {
         logger.warn(`REMOVED OPTION: The support for Smart Action "global" option is now removed. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
@@ -80,7 +80,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       setDefaultValueIfNecessary(action, 'download', false);
 
       // NOTICE: Set a position to the Smart Actions fields.
-      action.fields = action.fields.filter(field => field.field);
+      action.fields = action.fields.filter((field) => field.field);
       _.each(action.fields, (field, position) => {
         field.position = position;
 
@@ -128,14 +128,14 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       collectionFormatted.fields = collectionFormatted.fields.map((field) => {
         const fieldFormatted = formatObject(field, serializerOptions.fields.attributes);
 
-        fieldFormatted.validations = fieldFormatted.validations.map(validation =>
+        fieldFormatted.validations = fieldFormatted.validations.map((validation) =>
           formatObject(validation, serializerOptions.validations.attributes));
         return fieldFormatted;
       });
       collectionFormatted.fields = _.sortBy(collectionFormatted.fields, ['field', 'type']);
 
       collectionFormatted.segments = collectionFormatted.segments || [];
-      collectionFormatted.segments = collectionFormatted.segments.map(segment =>
+      collectionFormatted.segments = collectionFormatted.segments.map((segment) =>
         formatObject(segment, serializerOptions.segments.attributes));
       collectionFormatted.segments = _.sortBy(collectionFormatted.segments, ['name']);
 
@@ -143,7 +143,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       collectionFormatted.actions = collectionFormatted.actions.map((action) => {
         const actionFormatted = formatObject(action, serializerOptions.actions.attributes);
         actionFormatted.fields = actionFormatted.fields || [];
-        actionFormatted.fields = actionFormatted.fields.map(field =>
+        actionFormatted.fields = actionFormatted.fields.map((field) =>
           formatObject(field, serializerOptions.actions.fields.attributes));
         return actionFormatted;
       });
@@ -158,7 +158,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     // NOTICE: Escape '\' characters to ensure the generation of valid JSON files. It fixes
     //         potential issues if some fields have validations using complex regexp.
     fs.writeFileSync(filename, prettyPrint(schema)
-      .replace(/[^\\]\\[^\\"]/g, x => x.replace('\\', '\\\\')));
+      .replace(/[^\\]\\[^\\"]/g, (x) => x.replace('\\', '\\\\')));
     return schema;
   };
 }

@@ -21,7 +21,7 @@ function SubscriptionGetter(Implementation, params, opts, integrationInfo) {
     const fieldName = embeddedPath ? `${collectionFieldName}.${embeddedPath}` : collectionFieldName;
 
     return getSubscription(params.subscriptionId)
-      .then(subscription =>
+      .then((subscription) =>
         Implementation.Stripe.getCustomerByUserField(
           collectionModel,
           fieldName,

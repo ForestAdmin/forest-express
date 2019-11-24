@@ -82,7 +82,7 @@ function SubscriptionsGetter(Implementation, params, opts, integrationInfo) {
                 }
                 return subscription;
               })
-              .then(subscriptionsData => [count, subscriptionsData]))
+              .then((subscriptionsData) => [count, subscriptionsData]))
           .catch((error) => {
             logger.warn('Stripe subscriptions retrieval issue:', error);
             return P.resolve([0, []]);

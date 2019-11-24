@@ -11,9 +11,10 @@ function Checker(options, Implementation) {
   }
 
   function isProperlyIntegrated() {
-    return options.integrations.mixpanel.apiKey &&
-      options.integrations.mixpanel.apiSecret &&
-      options.integrations.mixpanel.mapping && options.integrations.mixpanel.mixpanel;
+    return options.integrations.mixpanel.apiKey
+      && options.integrations.mixpanel.apiSecret
+      && options.integrations.mixpanel.mapping
+      && options.integrations.mixpanel.mixpanel;
   }
 
   function isMappingValid() {
@@ -40,7 +41,7 @@ function Checker(options, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return false; }
 
     const models = Implementation.getModels();
 
@@ -49,6 +50,7 @@ function Checker(options, Implementation) {
       if (models[collectionName]) {
         return Implementation.getModelName(models[collectionName]);
       }
+      return null;
     });
 
     return collectionModelNames.indexOf(Implementation.getModelName(model)) > -1;
@@ -63,7 +65,7 @@ function Checker(options, Implementation) {
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = (app, model) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(options.integrations.mixpanel, model)) {
@@ -71,7 +73,7 @@ function Checker(options, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = (collections) => {
     if (!integrationValid) { return; }
 
     _.each(
@@ -82,7 +84,7 @@ function Checker(options, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = (model, schema) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(options.integrations.mixpanel, model)) {
@@ -90,7 +92,7 @@ function Checker(options, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = (model, schema, dest, field) => {
     if (integrationValid && field.integration === 'mixpanel') {
       dest[field.field] = {
         ref: 'id',

@@ -14,7 +14,7 @@ function PaymentRefunder(params, opts) {
     });
   }
 
-  this.perform = () => P.map(params.data.attributes.ids, id => refund(id));
+  this.perform = () => P.map(params.data.attributes.ids, (id) => refund(id));
 }
 
 module.exports = PaymentRefunder;

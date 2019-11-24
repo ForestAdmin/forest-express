@@ -22,7 +22,7 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
     const fieldName = embeddedPath ? `${collectionFieldName}.${embeddedPath}` : collectionFieldName;
 
     return getInvoice(params.invoiceId)
-      .then(invoice =>
+      .then((invoice) =>
         Implementation.Stripe.getCustomerByUserField(
           collectionModel,
           fieldName,

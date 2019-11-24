@@ -22,7 +22,7 @@ function PaymentsGetter(Implementation, params, opts, integrationInfo) {
     const fieldName = embeddedPath ? `${collectionFieldName}.${embeddedPath}` : collectionFieldName;
 
     return getCharge(params.paymentId)
-      .then(payment =>
+      .then((payment) =>
         Implementation.Stripe.getCustomerByUserField(
           collectionModel,
           fieldName,
