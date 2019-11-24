@@ -5,7 +5,7 @@ const MixpanelEventsSerializer = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
-module.exports = (app, model, Implementation, options) => {
+module.exports = function Routes(app, model, Implementation, options) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

@@ -10,7 +10,7 @@ const MessagesSerializer = require('./serializers/messages');
 
 /* jshint camelcase: false */
 
-module.exports = (app, model, Implementation, opts) => {
+module.exports = function Routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

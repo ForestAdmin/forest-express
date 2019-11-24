@@ -17,7 +17,7 @@ const BankAccountsSerializer = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
-module.exports = function routes(app, model, Implementation, opts) {
+module.exports = function Routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

@@ -9,7 +9,7 @@ const ConversationSerializer = require('./serializers/intercom-conversation');
 const path = require('../../services/path');
 const auth = require('../../services/auth');
 
-module.exports = (app, model, Implementation, options) => {
+module.exports = function Routes(app, model, Implementation, options) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

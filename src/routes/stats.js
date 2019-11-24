@@ -12,7 +12,7 @@ const CHART_TYPE_LINE = 'Line';
 const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
-module.exports = (app, model, Implementation, opts) => {
+module.exports = function Stats(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
 
   this.get = (request, response, next) => {

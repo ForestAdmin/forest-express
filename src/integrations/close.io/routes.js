@@ -10,7 +10,7 @@ const CloseioLeadCreator = require('./services/closeio-lead-creator');
 const CloseioLeadsSerializer = require('./serializers/closeio-leads');
 const CloseioLeadEmailsSerializer = require('./serializers/closeio-lead-emails');
 
-module.exports = (app, model, Implementation, opts) => {
+module.exports = function Routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
