@@ -10,6 +10,7 @@
 - Technical - Upgrade the latest `body-parser` dependency.
 - Technical - Upgrade the latest `base32-encode` dependency.
 - Technical - Upgrade the latest `bluebird` dependency.
+- Technical - Upgrade the latest `cors` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.

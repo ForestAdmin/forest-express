@@ -31,7 +31,7 @@
     "bluebird": "3.7.1",
     "body-parser": "1.19.0",
     "compose-middleware": "4.0.0",
-    "cors": "2.8.4",
+    "cors": "2.8.5",
     "csv-stringify": "1.0.4",
     "express": "4.16.2",
     "express-jwt": "5.3.1",
