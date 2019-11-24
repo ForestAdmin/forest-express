@@ -43,7 +43,7 @@
     "lodash": "4.17.15",
     "moment": "2.19.4",
     "moment-timezone": "0.5.26",
-    "otplib": "10.0.0",
+    "otplib": "11.0.1",
     "require-all": "3.0.0",
     "semver": "5.6.0",
     "superagent": "3.7.0",
