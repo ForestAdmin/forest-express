@@ -13,6 +13,7 @@
 - Technical - Upgrade the latest `cors` dependency.
 - Technical - Upgrade the latest `http-errors` dependency.
 - Technical - Upgrade the latest `express` dependency.
+- Technical - Upgrade the latest `lodash` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
