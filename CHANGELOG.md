@@ -8,6 +8,7 @@
 - Technical - Improve linter rules for script files.
 - Technical - Rename `.env.example` file.
 - Technical - Upgrade the latest `body-parser` dependency.
+- Technical - Upgrade the latest `base32-encode` dependency.
 
 ## RELEASE 5.2.0 - 2019-11-18
 ### Added
