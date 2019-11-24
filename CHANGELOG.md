@@ -12,6 +12,7 @@
 - Technical - Upgrade the latest `bluebird` dependency.
 - Technical - Upgrade the latest `cors` dependency.
 - Technical - Upgrade the latest `http-errors` dependency.
+- Technical - Upgrade the latest `express` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
