@@ -9,6 +9,7 @@
 - Technical - Rename `.env.example` file.
 - Technical - Upgrade the latest `body-parser` dependency.
 - Technical - Upgrade the latest `base32-encode` dependency.
+- Technical - Upgrade the latest `bluebird` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
