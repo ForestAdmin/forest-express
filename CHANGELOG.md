@@ -11,6 +11,7 @@
 - Technical - Upgrade the latest `base32-encode` dependency.
 - Technical - Upgrade the latest `bluebird` dependency.
 - Technical - Upgrade the latest `cors` dependency.
+- Technical - Upgrade the latest `http-errors` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.

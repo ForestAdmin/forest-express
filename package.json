@@ -36,7 +36,7 @@
     "express": "4.16.2",
     "express-jwt": "5.3.1",
     "forest-ip-utils": "1.0.1",
-    "http-errors": "1.7.2",
+    "http-errors": "1.7.3",
     "inflected": "2.0.4",
     "jsonapi-serializer": "3.6.4",
     "jsonwebtoken": "8.5.1",
