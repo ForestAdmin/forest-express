@@ -16,6 +16,7 @@
 - Technical - Upgrade the latest `lodash` dependency.
 - Technical - Upgrade the latest `semver` dependency.
 - Technical - Upgrade the latest `uuid` dependency.
+- Technical - Upgrade the latest `sinon` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
