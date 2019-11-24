@@ -15,6 +15,7 @@
 - Technical - Upgrade the latest `express` dependency.
 - Technical - Upgrade the latest `lodash` dependency.
 - Technical - Upgrade the latest `semver` dependency.
+- Technical - Upgrade the latest `uuid` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
