@@ -45,7 +45,7 @@
     "moment-timezone": "0.5.26",
     "otplib": "10.0.0",
     "require-all": "3.0.0",
-    "semver": "5.6.0",
+    "semver": "6.3.0",
     "superagent": "3.7.0",
     "useragent": "2.1.13",
     "uuid": "3.0.1",
