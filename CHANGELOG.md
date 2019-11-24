@@ -6,6 +6,7 @@
 
 ### Changed
 - Technical - Improve linter rules for script files.
+- Technical - Rename `.env.example` file.
 
 ## RELEASE 5.2.0 - 2019-11-18
 ### Added
