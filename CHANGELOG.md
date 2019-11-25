@@ -4,6 +4,9 @@
 ### Added
 - Technical - `.forestadmin-schema` now keeps track of engine and framework names and versions.
 
+### Fixed
+- ForestAdmin-Schema - The schema file is now written in the project directory, wherever the startup command has been hinted from.
+
 ### Changed
 - Technical - Improve linter rules for script files.
 - Technical - Rename `.env.example` file.

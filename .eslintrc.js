@@ -37,6 +37,12 @@ module.exports = {
           'test/**/*.js'
         ]
       }
+    ],
+    'jest/no-hooks': [
+      'error',
+      {
+        'allow': ['beforeEach', 'afterEach'],
+      }
     ]
   },
 };
