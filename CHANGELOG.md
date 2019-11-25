@@ -19,6 +19,7 @@
 - Technical - Upgrade the latest `sinon` devDependency.
 - Technical - Upgrade the latest `onchange` devDependency.
 - Technical - Upgrade the latest `otplib` dependency.
+- Technical - Upgrade the dependencies of the project dependencies.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
