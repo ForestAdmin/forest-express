@@ -18,6 +18,7 @@
 - Technical - Upgrade the latest `uuid` dependency.
 - Technical - Upgrade the latest `sinon` devDependency.
 - Technical - Upgrade the latest `onchange` devDependency.
+- Technical - Upgrade the latest `otplib` dependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
