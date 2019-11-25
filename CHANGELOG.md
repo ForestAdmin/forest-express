@@ -1,7 +1,7 @@
 # Change Log
 
 ## [Unreleased]
-### Added
+### Added
 - Technical - `.forestadmin-schema` now keeps track of engine and framework names and versions.
 
 ### Changed
