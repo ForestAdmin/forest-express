@@ -57,7 +57,7 @@
     "@babel/core": "7.7.2",
     "@babel/plugin-transform-classes": "7.7.0",
     "@babel/plugin-transform-runtime": "7.6.2",
-    "@babel/preset-env": "7.7.1",
+    "@babel/preset-env": "7.7.4",
     "@babel/register": "7.7.0",
     "@forestadmin/devops": "2.0.0",
     "dotenv": "6.2.0",
