@@ -37,6 +37,6 @@ module.exports = {
           'test/**/*.js'
         ]
       }
-    ]
+    ],
   },
 };
