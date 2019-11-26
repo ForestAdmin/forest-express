@@ -32,6 +32,7 @@
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
 - ForestAdmin-Schema - The schema file is now written in the project directory, wherever the startup command has been hinted from.
+- Smart Relationships - Prevent server crash in case of "cyclic" Smart BelongsTo declaration.
 
 ## RELEASE 5.2.0 - 2019-11-18
 ### Added
