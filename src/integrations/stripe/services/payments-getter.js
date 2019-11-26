@@ -83,7 +83,7 @@ function PaymentsGetter(Implementation, params, opts, integrationInfo) {
                 }
                 return payment;
               })
-              .then(paymentsData => [count, paymentsData]))
+              .then((paymentsData) => [count, paymentsData]))
           .catch((error) => {
             logger.warn('Stripe payments retrieval issue:', error);
             return P.resolve([0, []]);

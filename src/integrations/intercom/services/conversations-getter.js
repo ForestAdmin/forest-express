@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const P = require('bluebird');
 const logger = require('../../../services/logger');
@@ -29,7 +28,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
 
   function getSkip() {
     if (hasPagination()) {
-      return (parseInt(params.page.number) - 1) * getLimit();
+      return (parseInt(params.page.number, 10) - 1) * getLimit();
     }
     return 0;
   }
@@ -52,11 +51,11 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
       });
   }
 
-  this.perform = function () {
+  this.perform = () => {
     model = Implementation.getModels()[collectionName];
 
     return Implementation.Intercom.getCustomer(model, params.recordId)
-      .then(customer => intercom.conversations
+      .then((customer) => intercom.conversations
         .list({
           email: customer.email,
           type: 'user',
@@ -70,7 +69,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
           }
           return conversations;
         })
-        .then(conversations => [conversations.length,
+        .then((conversations) => [conversations.length,
           conversations.slice(getSkip(), getSkip() + getLimit())])
         .spread((count, conversations) => intercom.admins.list()
           .then((response) => {
@@ -79,7 +78,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
             return P
               .map(conversations, (conversation) => {
                 if (conversation.assignee.type === 'admin') {
-                  const adminId = parseInt(conversation.assignee.id);
+                  const adminId = parseInt(conversation.assignee.id, 10);
                   const admin = _.find(admins, { id: adminId });
 
                   conversation.assignee = admin;
@@ -91,12 +90,12 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
 
                 return conversation;
               })
-              .then(conversations => [count, conversations]);
+              .then((conversationsFormatted) => [count, conversationsFormatted]);
           }))
         .catch((error) => {
           try {
             logger.error('Cannot access to Intercom conversations:', error.body.errors[0].message);
-          } catch (error) {
+          } catch (tryError) {
             logger.error('Cannot access to Intercom conversations:', error);
           }
           return [0, []];

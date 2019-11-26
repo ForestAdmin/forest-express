@@ -1,5 +1,5 @@
-const PermissionsChecker = require('../../src/services/permissions-checker');
 const nock = require('nock');
+const PermissionsChecker = require('../../src/services/permissions-checker');
 const ServiceUrlGetter = require('../../src/services/service-url-getter');
 
 describe('services > permissions', () => {

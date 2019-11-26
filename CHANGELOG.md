@@ -20,6 +20,8 @@
 - Technical - Upgrade the latest `onchange` devDependency.
 - Technical - Upgrade the latest `otplib` dependency.
 - Technical - Upgrade the dependencies of the project dependencies.
+- Technical - Upgrade ESLint rules.
+- Technical - Ensure that all files follow the ESLint rules.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.

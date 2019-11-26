@@ -8,7 +8,7 @@ function MixpanelEventsGetter(Implementation, params, options, integrationInfo) 
     api_secret: options.integrations.mixpanel.apiSecret,
   });
 
-  this.perform = function () {
+  this.perform = () => {
     const collectionFieldName = integrationInfo.field;
     const collectionModel = integrationInfo.collection;
 

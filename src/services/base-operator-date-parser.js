@@ -50,11 +50,11 @@ function BaseOperatorDateParser(options) {
 
   this.offsetHours = offsetServer - offsetClient;
 
-  this.toDateWithTimezone = date => date.add(this.offsetHours, 'h').toDate();
+  this.toDateWithTimezone = (date) => date.add(this.offsetHours, 'h').toDate();
 
-  this.isDateOperator = operator => DATE_OPERATORS.includes(operator);
+  this.isDateOperator = (operator) => DATE_OPERATORS.includes(operator);
 
-  this.hasPreviousDateInterval = operator => DATE_OPERATORS_HAVING_PREVIOUS_INTERVAL
+  this.hasPreviousDateInterval = (operator) => DATE_OPERATORS_HAVING_PREVIOUS_INTERVAL
     .includes(operator);
 
   this.getDateFilter = (operator, value) => {

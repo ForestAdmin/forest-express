@@ -1,4 +1,3 @@
-
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function IntercomAttributesSerializer(attributes, collectionName, meta) {

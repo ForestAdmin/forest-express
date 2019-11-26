@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
@@ -16,7 +15,7 @@ function MessagesSerializer(messages, collectionName, meta) {
 
   let data = null;
   if (_.isArray(messages)) {
-    data = messages.map(message => mapMessage(message));
+    data = messages.map((message) => mapMessage(message));
   } else {
     data = mapMessage(messages);
   }

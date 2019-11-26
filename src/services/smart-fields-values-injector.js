@@ -57,9 +57,9 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
   }
 
   function isNotRequestedField(modelNameToCheck, fieldName) {
-    return fieldsPerModel &&
-      fieldsPerModel[modelNameToCheck] &&
-      fieldsPerModel[modelNameToCheck].indexOf(fieldName) === -1;
+    return fieldsPerModel
+      && fieldsPerModel[modelNameToCheck]
+      && fieldsPerModel[modelNameToCheck].indexOf(fieldName) === -1;
   }
 
   this.perform = () =>
@@ -71,7 +71,8 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
           }
 
           return setSmartFieldValue(record, field, modelName);
-        } else if (_.isArray(field.type)) {
+        }
+        if (_.isArray(field.type)) {
           record[field.field] = [];
         }
       } else if (field.reference && !_.isArray(field.type)) {
@@ -85,8 +86,8 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
               return null;
             }
 
-            if (!record[field.field][fieldAssociation.field] &&
-              (fieldAssociation.get || fieldAssociation.value)) {
+            if (!record[field.field][fieldAssociation.field]
+              && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
                 record[field.field],
                 fieldAssociation,

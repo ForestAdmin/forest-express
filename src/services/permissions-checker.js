@@ -1,7 +1,7 @@
 const P = require('bluebird');
-const forestServerRequester = require('./forest-server-requester');
 const moment = require('moment');
 const VError = require('verror');
+const forestServerRequester = require('./forest-server-requester');
 
 let permissionsPerRendering = {};
 
@@ -9,8 +9,8 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isAllowed() {
-    const permissions =
-      permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
+    const permissions = permissionsPerRendering[renderingId]
+      && permissionsPerRendering[renderingId].data;
 
     if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
       return false;
@@ -28,12 +28,12 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
           lastRetrieve: moment(),
         };
       })
-      .catch(error => P.reject(new VError(error, 'Permissions error')));
+      .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
 
   function isPermissionExpired() {
-    if (!permissionsPerRendering[renderingId] ||
-      !permissionsPerRendering[renderingId].lastRetrieve) {
+    if (!permissionsPerRendering[renderingId]
+      || !permissionsPerRendering[renderingId].lastRetrieve) {
       return true;
     }
 
@@ -76,8 +76,8 @@ PermissionsChecker.cleanCache = () => {
 };
 
 PermissionsChecker.resetExpiration = (renderingId) => {
-  const permissions =
-    permissionsPerRendering[renderingId] && permissionsPerRendering[renderingId].data;
+  const permissions = permissionsPerRendering[renderingId]
+    && permissionsPerRendering[renderingId].data;
 
   if (permissions) {
     permissions.lastRetrieve = null;

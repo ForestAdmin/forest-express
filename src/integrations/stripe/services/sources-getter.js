@@ -83,7 +83,7 @@ function SourcesGetter(Implementation, params, opts, integrationInfo) {
                 }
                 return source;
               })
-              .then(sourcesData => [count, sourcesData]))
+              .then((sourcesData) => [count, sourcesData]))
           .catch((error) => {
             logger.warn('Stripe sources retrieval issue:', error);
             return P.resolve([0, []]);

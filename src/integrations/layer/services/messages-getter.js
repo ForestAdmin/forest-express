@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 const request = require('superagent');
 
@@ -17,9 +16,7 @@ function MessagesGetter(Implementation, params, opts) {
       })));
   }
 
-  this.perform = function () {
-    return getMessages();
-  };
+  this.perform = () => getMessages();
 }
 
 module.exports = MessagesGetter;

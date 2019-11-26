@@ -17,21 +17,13 @@ function ApimapSender(envSecret, apimap) {
               logger.warn(result.body.warning);
             }
           } else if (result.status === 0) {
-            logger.warn('Cannot send the apimap to Forest. Are you ' +
-              'online?');
+            logger.warn('Cannot send the apimap to Forest. Are you online?');
           } else if (result.status === 404) {
-            logger.error('Cannot find the project related to the ' +
-              'envSecret you configured. Can you check on Forest ' +
-              'that you copied it properly in the Forest ' +
-              'initialization?');
+            logger.error('Cannot find the project related to the envSecret you configured. Can you check on Forest that you copied it properly in the Forest initialization?');
           } else if (result.status === 503) {
-            logger.warn('Forest is in maintenance for a few minutes. ' +
-              'We are upgrading your experience in the forest. We ' +
-              'just need a few more minutes to get it right.');
+            logger.warn('Forest is in maintenance for a few minutes. We are upgrading your experience in the forest. We just need a few more minutes to get it right.');
           } else {
-            logger.error('An error occured with the apimap sent to ' +
-              'Forest. Please contact support@forestadmin.com for ' +
-              'further investigations.');
+            logger.error('An error occured with the apimap sent to Forest. Please contact support@forestadmin.com for further investigations.');
           }
         }
       });

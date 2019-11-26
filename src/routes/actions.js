@@ -5,7 +5,7 @@ const path = require('../services/path');
 const logger = require('../services/logger');
 const Schemas = require('../generators/schemas');
 
-module.exports = function actionRoutes(app, model, Implementation, integrator, options) {
+module.exports = function Actions(app, model, Implementation, integrator, options) {
   const modelName = Implementation.getModelName(model);
   const schema = Schemas.schemas[modelName];
 

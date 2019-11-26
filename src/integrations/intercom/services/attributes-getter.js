@@ -1,4 +1,3 @@
-
 const P = require('bluebird');
 const useragent = require('useragent');
 const logger = require('../../../services/logger');
@@ -19,12 +18,12 @@ function AttributesGetter(Implementation, params, opts, collectionName) {
     ).usePromises();
   }
 
-  this.perform = function () {
+  this.perform = () => {
     model = Implementation.getModels()[collectionName];
 
     return Implementation.Intercom.getCustomer(model, params.recordId)
-      .then(customer => intercom.users.find({ email: customer.email }))
-      .then(response => response.body)
+      .then((customer) => intercom.users.find({ email: customer.email }))
+      .then((response) => response.body)
       .then((user) => {
         // jshint camelcase: false
         const agent = useragent.parse(user.user_agent_data);
@@ -36,14 +35,14 @@ function AttributesGetter(Implementation, params, opts, collectionName) {
         user.geoloc = [user.location_data.latitude,
           user.location_data.longitude];
 
-        user.tags = user.tags.tags.map(tag => tag.name);
+        user.tags = user.tags.tags.map((tag) => tag.name);
 
-        user.companies = user.companies.companies.map(company => company.name);
+        user.companies = user.companies.companies.map((company) => company.name);
 
         return P
-          .map(user.segments.segments, segment => intercom.segments
+          .map(user.segments.segments, (segment) => intercom.segments
             .find({ id: segment.id })
-            .then(response => response.body.name))
+            .then((response) => response.body.name))
           .then((segments) => {
             user.segments = segments;
             return user;

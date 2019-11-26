@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('./services/integration-informations-getter');
 const AttributesGetter = require('./services/attributes-getter');
@@ -10,7 +9,7 @@ const ConversationSerializer = require('./serializers/intercom-conversation');
 const path = require('../../services/path');
 const auth = require('../../services/auth');
 
-module.exports = function (app, model, Implementation, options) {
+module.exports = function Routes(app, model, Implementation, options) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -21,20 +20,20 @@ module.exports = function (app, model, Implementation, options) {
     ).perform();
   }
 
-  this.getAttributes = function (request, response, next) {
+  this.getAttributes = (request, response, next) => {
     new AttributesGetter(
       Implementation, _.extend(request.query, request.params), options,
       integrationInfo,
     )
       .perform()
-      .then(attributes => new AttributesSerializer(attributes, modelName))
+      .then((attributes) => new AttributesSerializer(attributes, modelName))
       .then((attributes) => {
         response.send(attributes);
       })
       .catch(next);
   };
 
-  this.listConversations = function (request, response, next) {
+  this.listConversations = (request, response, next) => {
     new ConversationsGetter(
       Implementation, _.extend(request.query, request.params), options,
       integrationInfo,
@@ -50,17 +49,17 @@ module.exports = function (app, model, Implementation, options) {
       .catch(next);
   };
 
-  this.getConversation = function (request, response, next) {
+  this.getConversation = (request, response, next) => {
     new ConversationGetter(Implementation, _.extend(request.query, request.params), options)
       .perform()
-      .then(conversation => new ConversationSerializer(conversation, modelName))
+      .then((conversation) => new ConversationSerializer(conversation, modelName))
       .then((conversation) => {
         response.send(conversation);
       })
       .catch(next);
   };
 
-  this.perform = function () {
+  this.perform = () => {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}/:recordId/intercom_attributes`, options),

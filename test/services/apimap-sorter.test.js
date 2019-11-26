@@ -113,7 +113,7 @@ describe('services > apimap-sorter', () => {
 
   it('should sort the data collections', () => {
     expect.assertions(1);
-    expect(apimapSorted.data.map(collection => collection.id))
+    expect(apimapSorted.data.map((collection) => collection.id))
       .toStrictEqual(['animals', 'guests', 'users']);
   });
 
@@ -134,11 +134,11 @@ describe('services > apimap-sorter', () => {
 
   it('should sort the data collections attributes fields by name', () => {
     expect.assertions(3);
-    expect(apimapSorted.data[0].attributes.fields.map(field => field.field))
+    expect(apimapSorted.data[0].attributes.fields.map((field) => field.field))
       .toStrictEqual(['createdAt', 'id', 'updatedAt']);
-    expect(apimapSorted.data[1].attributes.fields.map(field => field.field))
+    expect(apimapSorted.data[1].attributes.fields.map((field) => field.field))
       .toStrictEqual(['createdAt', 'email', 'id', 'updatedAt']);
-    expect(apimapSorted.data[2].attributes.fields.map(field => field.field))
+    expect(apimapSorted.data[2].attributes.fields.map((field) => field.field))
       .toStrictEqual(['createdAt', 'email', 'firstName',
         'id', 'lastName', 'name', 'updatedAt', 'url']);
   });
@@ -151,7 +151,7 @@ describe('services > apimap-sorter', () => {
 
   it('should sort the included actions and segments objects', () => {
     expect.assertions(1);
-    expect(apimapSorted.included.map(object => object.id))
+    expect(apimapSorted.included.map((object) => object.id))
       .toStrictEqual(['animals.ban', 'users.import', 'users.Men', 'users.Women']);
   });
 
@@ -177,7 +177,7 @@ describe('services > apimap-sorter', () => {
 
   it('should sort the included action attributes fields by name', () => {
     expect.assertions(1);
-    expect(apimapSorted.included[1].attributes.fields.map(field => field.field))
+    expect(apimapSorted.included[1].attributes.fields.map((field) => field.field))
       .toStrictEqual(['File', 'Save']);
   });
 

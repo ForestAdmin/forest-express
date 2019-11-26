@@ -10,8 +10,8 @@ function ResourceDeserializer(Implementation, model, params, withRelationships, 
   function extractAttributes() {
     let { attributes } = params.data;
     if (params.data.attributes) {
-      attributes[schema.idField] = params.data.attributes[schema.idField] ||
-        params.data.id;
+      attributes[schema.idField] = params.data.attributes[schema.idField]
+        || params.data.id;
     }
 
     // NOTICE: Look for some Smart Field setters and apply them if any.
@@ -42,7 +42,7 @@ function ResourceDeserializer(Implementation, model, params, withRelationships, 
       })
       .then(() => {
         if (opts.omitNullAttributes) {
-          attributes = _.pickBy(attributes, value => !_.isNull(value));
+          attributes = _.pickBy(attributes, (value) => !_.isNull(value));
         }
 
         return attributes || {};
@@ -54,8 +54,8 @@ function ResourceDeserializer(Implementation, model, params, withRelationships, 
       const relationships = {};
 
       _.each(schema.fields, (field) => {
-        if (field.reference && params.data.relationships &&
-          params.data.relationships[field.field]) {
+        if (field.reference && params.data.relationships
+          && params.data.relationships[field.field]) {
           if (params.data.relationships[field.field].data === null) {
             // Remove the relationships
             relationships[field.field] = null;
@@ -63,7 +63,7 @@ function ResourceDeserializer(Implementation, model, params, withRelationships, 
             // Set the relationship
             if (_.isArray(params.data.relationships[field.field].data)) {
               relationships[field.field] = params.data.relationships[field.field]
-                .data.map(d => d.id);
+                .data.map((d) => d.id);
             } else {
               relationships[field.field] = params.data.relationships[field.field]
                 .data.id;

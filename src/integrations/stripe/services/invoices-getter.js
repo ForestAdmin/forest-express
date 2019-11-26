@@ -82,7 +82,7 @@ function InvoicesGetter(Implementation, params, opts, integrationInfo) {
                 }
                 return invoice;
               })
-              .then(invoicesData => [count, invoicesData]))
+              .then((invoicesData) => [count, invoicesData]))
           .catch((error) => {
             logger.warn('Stripe invoices retrieval issue:', error);
             return P.resolve([0, []]);

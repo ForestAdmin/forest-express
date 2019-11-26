@@ -5,7 +5,7 @@ const MixpanelEventsSerializer = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
-module.exports = function (app, model, Implementation, options) {
+module.exports = function Routes(app, model, Implementation, options) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -24,7 +24,7 @@ module.exports = function (app, model, Implementation, options) {
     };
   }
 
-  this.mixpanelEvents = function (request, response, next) {
+  this.mixpanelEvents = (request, response, next) => {
     new MixpanelEventsGetter(
       Implementation,
       _.extend(request.query, request.params),
@@ -32,12 +32,12 @@ module.exports = function (app, model, Implementation, options) {
       integrationInfo,
     )
       .perform()
-      .then(events => new MixpanelEventsSerializer(events, modelName, { }, options))
+      .then((events) => new MixpanelEventsSerializer(events, modelName, { }, options))
       .then((events) => { response.send(events); })
       .catch(next);
   };
 
-  this.perform = function () {
+  this.perform = () => {
     app.get(
       path.generate(`${modelName}/:recordId/relationships/mixpanel_last_events`, options),
       auth.ensureAuthenticated, this.mixpanelEvents,

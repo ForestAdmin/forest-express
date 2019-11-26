@@ -1,12 +1,12 @@
 const sinon = require('sinon');
 const jsonwebtoken = require('jsonwebtoken');
 const P = require('bluebird');
-const request = require('../helpers/request');
 const nock = require('nock');
+const otplib = require('otplib');
+const request = require('../helpers/request');
 const ServiceUrlGetter = require('../../src/services/service-url-getter');
 const UserSecretCreator = require('../../src/services/user-secret-creator');
 const createServer = require('../helpers/create-server');
-const otplib = require('otplib');
 
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');

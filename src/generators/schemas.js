@@ -10,7 +10,7 @@ module.exports = {
   perform(implementation, integrator, models, opts) {
     const that = this;
     return P
-      .each(models, model =>
+      .each(models, (model) =>
         new implementation.SchemaAdapter(model, opts)
           .then((schema) => {
             integrator.defineFields(model, schema);

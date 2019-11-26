@@ -1,5 +1,5 @@
 function ParamsFieldsDeserializer(paramsFields) {
-  this.perform = function () {
+  this.perform = () => {
     if (paramsFields) {
       return Object.keys(paramsFields).reduce((fields, modelName) => {
         fields[modelName] = paramsFields[modelName].split(',');

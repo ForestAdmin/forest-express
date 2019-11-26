@@ -1,8 +1,7 @@
-
 const _ = require('lodash');
 
 function IntegrationInformationsGetter(modelName, Implementation, integration) {
-  this.perform = function () {
+  this.perform = () => {
     const models = Implementation.getModels();
     let value = null;
 

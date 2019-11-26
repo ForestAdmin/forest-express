@@ -1,4 +1,3 @@
-
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function CloseioLeadsSerializer(attributes, collectionName, meta) {

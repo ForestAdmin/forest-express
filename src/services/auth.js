@@ -1,7 +1,7 @@
+const { compose } = require('compose-middleware');
 const error = require('./error');
 const logger = require('./logger');
 const createIpAuthorizer = require('../middlewares/ip-whitelist');
-const { compose } = require('compose-middleware');
 
 const ERROR_MESSAGE = 'Forest cannot authenticate the user for this request.';
 const ERROR_MESSAGE_TOKEN_OLD = 'Your token format is invalid, please login again.';

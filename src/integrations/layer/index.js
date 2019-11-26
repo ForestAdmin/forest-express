@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
@@ -12,8 +11,7 @@ function Checker(opts, Implementation) {
   }
 
   function isProperlyIntegrated() {
-    return opts.integrations.layer.serverApiToken &&
-      opts.integrations.layer.appId;
+    return opts.integrations.layer.serverApiToken && opts.integrations.layer.appId;
   }
 
   function isMappingValid() {
@@ -40,7 +38,7 @@ function Checker(opts, Implementation) {
   }
 
   function integrationCollectionMatch(integration, model) {
-    if (!integrationValid) { return; }
+    if (!integrationValid) { return false; }
 
     const models = Implementation.getModels();
 
@@ -51,6 +49,7 @@ function Checker(opts, Implementation) {
         if (models[collectionName]) {
           return Implementation.getModelName(models[collectionName]);
         }
+        return null;
       },
     );
 
@@ -59,15 +58,14 @@ function Checker(opts, Implementation) {
 
   if (hasIntegration()) {
     if (isProperlyIntegrated()) {
-      opts.integrations.layer.mapping =
-        castToArray(opts.integrations.layer.mapping);
+      opts.integrations.layer.mapping = castToArray(opts.integrations.layer.mapping);
       integrationValid = isMappingValid();
     } else {
       logger.error('Cannot setup properly your Layer integration.');
     }
   }
 
-  this.defineRoutes = function (app, model) {
+  this.defineRoutes = (app, model) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.layer, model)) {
@@ -75,7 +73,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineCollections = function (collections) {
+  this.defineCollections = (collections) => {
     if (!integrationValid) { return; }
 
     _.each(
@@ -89,7 +87,7 @@ function Checker(opts, Implementation) {
     );
   };
 
-  this.defineFields = function (model, schema) {
+  this.defineFields = (model, schema) => {
     if (!integrationValid) { return; }
 
     if (integrationCollectionMatch(opts.integrations.layer, model)) {
@@ -97,7 +95,7 @@ function Checker(opts, Implementation) {
     }
   };
 
-  this.defineSerializationOption = function (model, schema, dest, field) {
+  this.defineSerializationOption = (model, schema, dest, field) => {
     if (integrationValid && field.integration === 'layer') {
       dest[field.field] = {
         ref: 'id',

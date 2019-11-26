@@ -38,7 +38,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     const params = _.extend(request.query, request.params, association);
     const models = Implementation.getModels();
     const associationField = getAssociationField(params.associationName);
-    const associationModel = _.find(models, refModel =>
+    const associationModel = _.find(models, (refModel) =>
       Implementation.getModelName(refModel) === associationField);
 
     return { params, associationModel };
@@ -58,7 +58,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         fieldsSearched,
         params.search,
       ).perform())
-      .then(records => response.send(records))
+      .then((records) => response.send(records))
       .catch(next);
   }
 
@@ -67,7 +67,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
 
     return new Implementation.HasManyGetter(model, associationModel, opts, params)
       .count()
-      .then(recordsCount => response.send({ count: recordsCount }))
+      .then((recordsCount) => response.send({ count: recordsCount }))
       .catch(next);
   }
 
@@ -95,7 +95,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
       models,
-      innerModel => Implementation.getModelName(innerModel) === associationField,
+      (innerModel) => Implementation.getModelName(innerModel) === associationField,
     );
 
     return new Implementation.HasManyAssociator(
@@ -114,7 +114,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
       models,
-      innerModel => Implementation.getModelName(innerModel) === associationField,
+      (innerModel) => Implementation.getModelName(innerModel) === associationField,
     );
 
     return new Implementation.HasManyDissociator(
@@ -133,7 +133,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
       models,
-      innerModel => Implementation.getModelName(innerModel) === associationField,
+      (innerModel) => Implementation.getModelName(innerModel) === associationField,
     );
 
     return new Implementation.BelongsToUpdater(
@@ -152,7 +152,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     return (request, response, next) =>
       new ResourceDeserializer(Implementation, model, request.body, false)
         .perform()
-        .then(record => new Implementation
+        .then((record) => new Implementation
           .EmbeddedDocumentUpdater(model, request.params, association, record)
           .perform())
         .then(() => response.status(204).send())

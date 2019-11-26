@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 const path = require('../../services/path');
@@ -11,7 +10,7 @@ const MessagesSerializer = require('./serializers/messages');
 
 /* jshint camelcase: false */
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function Routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -30,7 +29,7 @@ module.exports = function (app, model, Implementation, opts) {
     };
   }
 
-  this.conversations = function (req, res, next) {
+  this.conversations = (req, res, next) => {
     new ConversationsGetter(
       Implementation, _.extend(req.query, req.params),
       opts, integrationInfo,
@@ -50,20 +49,20 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.conversation = function (req, res, next) {
+  this.conversation = (req, res, next) => {
     new ConversationGetter(
       Implementation, _.extend(req.query, req.params),
       opts, integrationInfo,
     )
       .perform()
-      .then(conversation => new ConversationsSerializer(conversation, modelName))
+      .then((conversation) => new ConversationsSerializer(conversation, modelName))
       .then((conversation) => {
         res.send(conversation);
       })
       .catch(next);
   };
 
-  this.messages = function (req, res, next) {
+  this.messages = (req, res, next) => {
     new MessagesGetter(
       Implementation, _.extend(req.query, req.params),
       opts, integrationInfo,
@@ -83,7 +82,7 @@ module.exports = function (app, model, Implementation, opts) {
       .catch(next);
   };
 
-  this.perform = function () {
+  this.perform = () => {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}/:recordId/layer_conversations`, opts),

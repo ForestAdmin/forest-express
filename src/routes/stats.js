@@ -12,21 +12,24 @@ const CHART_TYPE_LINE = 'Line';
 const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
-module.exports = function (app, model, Implementation, opts) {
+module.exports = function Stats(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
 
-  this.get = function (request, response, next) {
+  this.get = (request, response, next) => {
     let promise = null;
 
     function getAssociationModel(schema, associationName) {
       const field = _.find(schema.fields, { field: associationName });
       let relatedModelName;
       if (field && field.reference) {
-        relatedModelName = field.reference.split('.')[0];
+        [relatedModelName] = field.reference.split('.');
       }
 
       const models = Implementation.getModels();
-      return _.find(models, model => Implementation.getModelName(model) === relatedModelName);
+      return _.find(
+        models,
+        (currentModel) => Implementation.getModelName(currentModel) === relatedModelName,
+      );
     }
 
     let { type } = request.body;
@@ -46,7 +49,7 @@ module.exports = function (app, model, Implementation, opts) {
       return response.status(400).send({ error: 'Chart type not found.' });
     }
 
-    promise
+    return promise
       .then((stat) => {
         if (request.body.type === CHART_TYPE_OBJECTIVE) {
           stat.value.value = stat.value.countCurrent;
@@ -67,8 +70,8 @@ module.exports = function (app, model, Implementation, opts) {
     return new error.UnprocessableEntity(message);
   }
 
-  this.getWithLiveQuery = function (request, response, next) {
-    return new Implementation.QueryStatGetter(request.body, opts)
+  this.getWithLiveQuery = (request, response, next) =>
+    new Implementation.QueryStatGetter(request.body, opts)
       .perform()
       .then((result) => {
         switch (request.body.type) {
@@ -104,7 +107,7 @@ module.exports = function (app, model, Implementation, opts) {
               });
             }
 
-            result = result.map(resultLine => ({
+            result = result.map((resultLine) => ({
               label: resultLine.key,
               values: {
                 value: resultLine.value,
@@ -124,15 +127,16 @@ module.exports = function (app, model, Implementation, opts) {
               }
             }
             break;
+          default:
+            throw new Error('Unknown Chart type');
         }
 
         return new StatSerializer({ value: result }).perform();
       })
       .then((data) => { response.send(data); })
       .catch(next);
-  };
 
-  this.perform = function () {
+  this.perform = () => {
     app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, this.get);
     app.post(path.generate('stats', opts), auth.ensureAuthenticated, this.getWithLiveQuery);
   };
