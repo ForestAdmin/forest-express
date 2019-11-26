@@ -24,8 +24,9 @@
 - Technical - Ensure that all files follow the ESLint rules.
 - Technical - Upgrade `nock` devDependency to the latest version.
 - Technical - Upgrade `moment` dependency to the latest version.
-- Technical - Upgrade `@babel/preset-env` dependency to the latest version.
-- Technical - Upgrade `@babel/register` dependency to the latest version.
+- Technical - Upgrade `@babel/preset-env` devDependency to the latest version.
+- Technical - Upgrade `@babel/register` devDependency to the latest version.
+- Technical - Upgrade `jsonapi-serializer` dependency to the latest version.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
