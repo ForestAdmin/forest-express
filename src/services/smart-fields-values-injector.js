@@ -3,7 +3,9 @@ const P = require('bluebird');
 const logger = require('../services/logger');
 const Schemas = require('../generators/schemas');
 
-function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
+const DEPTH_MAX_FOR_INJECTION = 0;
+
+function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0) {
   const schema = Schemas.schemas[modelName];
   const fieldsForHighlightedSearch = [];
 
@@ -35,11 +37,13 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
         .then(async (smartFieldValue) => {
           // NOTICE: If the Smart Field is a Smart Relationship (ie references another record type),
           //         we also need to inject the values of the referenced records Smart Fields.
-          if (smartFieldValue && smartFieldValue.dataValues && field.reference) {
+          if (depth <= DEPTH_MAX_FOR_INJECTION && smartFieldValue && smartFieldValue.dataValues
+            && field.reference) {
             const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
               smartFieldValue,
               getReferencedModelName(field),
               fieldsPerModel,
+              depth + 1,
             );
             await smartFieldsValuesInjector.perform();
           }
