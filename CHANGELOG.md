@@ -22,6 +22,7 @@
 - Technical - Upgrade the dependencies of the project dependencies.
 - Technical - Upgrade ESLint rules.
 - Technical - Ensure that all files follow the ESLint rules.
+- Technical - Upgrade the latest `nock` devDependency.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
