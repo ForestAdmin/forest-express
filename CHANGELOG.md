@@ -27,6 +27,7 @@
 - Technical - Upgrade `@babel/preset-env` devDependency to the latest version.
 - Technical - Upgrade `@babel/register` devDependency to the latest version.
 - Technical - Upgrade `jsonapi-serializer` dependency to the latest version.
+- Technical - Upgrade `winston` dependency to the latest version.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.

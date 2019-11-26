@@ -23,20 +23,24 @@ const CONFIG = {
 
 const TITLE = '[forest] 🌳🌳🌳  ';
 
-module.exports = new (winston.Logger)({
+winston.addColors(CONFIG.colors);
+
+module.exports = winston.createLogger({
   transports: [
-    new (winston.transports.Console)({
-      formatter: (options) => {
-        let message = TITLE + options.message;
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.printf((info) => {
+          let message = TITLE + info.message;
 
-        if (options.meta && options.meta.stack) {
-          message += `\n${options.meta.stack}`;
-        }
+          if (info.meta && info.meta.stack) {
+            message += `\n${info.meta.stack}`;
+          }
 
-        return winston.config.colorize(options.level, message);
-      },
+          return message;
+        }),
+        winston.format.colorize({ all: true }),
+      ),
     }),
   ],
   levels: CONFIG.levels,
-  colors: CONFIG.colors,
 });
