@@ -7,22 +7,23 @@
 ### Changed
 - Technical - Improve linter rules for script files.
 - Technical - Rename `.env.example` file.
-- Technical - Upgrade the latest `body-parser` dependency.
-- Technical - Upgrade the latest `base32-encode` dependency.
-- Technical - Upgrade the latest `bluebird` dependency.
-- Technical - Upgrade the latest `cors` dependency.
-- Technical - Upgrade the latest `http-errors` dependency.
-- Technical - Upgrade the latest `express` dependency.
-- Technical - Upgrade the latest `lodash` dependency.
-- Technical - Upgrade the latest `semver` dependency.
-- Technical - Upgrade the latest `uuid` dependency.
-- Technical - Upgrade the latest `sinon` devDependency.
-- Technical - Upgrade the latest `onchange` devDependency.
-- Technical - Upgrade the latest `otplib` dependency.
+- Technical - Upgrade `body-parser` dependency to the latest version.
+- Technical - Upgrade `base32-encode` dependency to the latest version.
+- Technical - Upgrade `bluebird` dependency to the latest version.
+- Technical - Upgrade `cors` dependency to the latest version.
+- Technical - Upgrade `http-errors` dependency to the latest version.
+- Technical - Upgrade `express` dependency to the latest version.
+- Technical - Upgrade `lodash` dependency to the latest version.
+- Technical - Upgrade `semver` dependency to the latest version.
+- Technical - Upgrade `uuid` dependency to the latest version.
+- Technical - Upgrade `sinon` devDependency to the latest version.
+- Technical - Upgrade `onchange` devDependency to the latest version.
+- Technical - Upgrade `otplib` dependency to the latest version.
 - Technical - Upgrade the dependencies of the project dependencies.
 - Technical - Upgrade ESLint rules.
 - Technical - Ensure that all files follow the ESLint rules.
-- Technical - Upgrade the latest `nock` devDependency.
+- Technical - Upgrade `nock` devDependency to the latest version.
+- Technical - Upgrade `moment` dependency to the latest version.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
