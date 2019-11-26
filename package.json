@@ -50,7 +50,7 @@
     "useragent": "2.1.13",
     "uuid": "3.3.3",
     "verror": "1.10.0",
-    "winston": "2.2.0"
+    "winston": "3.2.1"
   },
   "devDependencies": {
     "@babel/cli": "7.7.0",
