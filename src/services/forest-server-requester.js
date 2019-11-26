@@ -24,11 +24,14 @@ function perform(route, environmentSecret, queryParameters, headers) {
       if (result) {
         if (result.status === 200 && result.body) {
           return resolve(result.body);
-        } if (result.status === 0) {
+        }
+        if (result.status === 0) {
           return reject(new Error(errorMessages.SERVER_TRANSACTION.SERVER_DOWN));
-        } if (result.status === 404) {
+        }
+        if (result.status === 404) {
           return reject(new Error(errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND));
-        } if (result.status === 422) {
+        }
+        if (result.status === 422) {
           return reject(new Error(errorMessages
             .SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT));
         }

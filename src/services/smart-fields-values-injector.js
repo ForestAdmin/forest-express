@@ -71,7 +71,8 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel) {
           }
 
           return setSmartFieldValue(record, field, modelName);
-        } if (_.isArray(field.type)) {
+        }
+        if (_.isArray(field.type)) {
           record[field.field] = [];
         }
       } else if (field.reference && !_.isArray(field.type)) {
