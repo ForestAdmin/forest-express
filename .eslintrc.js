@@ -38,11 +38,5 @@ module.exports = {
         ]
       }
     ],
-    'jest/no-hooks': [
-      'error',
-      {
-        'allow': ['beforeEach', 'afterEach'],
-      }
-    ]
   },
 };
