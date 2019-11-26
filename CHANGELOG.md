@@ -25,6 +25,7 @@
 - Technical - Upgrade `nock` devDependency to the latest version.
 - Technical - Upgrade `moment` dependency to the latest version.
 - Technical - Upgrade `@babel/preset-env` dependency to the latest version.
+- Technical - Upgrade `@babel/register` dependency to the latest version.
 
 ### Fixed
 - Technical - Remove unused `bcryptjs` dependency.
