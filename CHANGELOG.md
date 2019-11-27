@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Technical - Upgrade `eslint-plugin-jest` devDependency to the latest version.
 
 ## RELEASE 5.3.0 - 2019-11-26
 ### Added
