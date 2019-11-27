@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Schema - Add option `schemaDir` to customiwe where the schema file should be saved.
+
 ### Changed
 - Technical - Upgrade `eslint-plugin-jest` devDependency to the latest version.
 
