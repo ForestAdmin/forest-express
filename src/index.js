@@ -98,7 +98,7 @@ function buildSchema() {
 
 exports.init = (Implementation) => {
   const { opts } = Implementation;
-  const schemaFolder = opts.schemaDir ? path.resolve('.', opts.schemaDir) : pathProjectAbsolute;
+  const schemaFolder = opts.schemaDir ? path.resolve(pathProjectAbsolute, opts.schemaDir) : pathProjectAbsolute;
   const SCHEMA_FILENAME = `${schemaFolder}/.forestadmin-schema.json`;
 
   configStore.Implementation = Implementation;
