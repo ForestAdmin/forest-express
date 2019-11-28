@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Smart Relationship - Expose a serializer to simplify the serialization.
+
 ### Changed
 - Technical - Upgrade `eslint-plugin-jest` devDependency to the latest version.
 
