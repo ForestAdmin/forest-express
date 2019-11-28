@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Initialisation - Make Liana.init return a promise resolving when all is up.
+
 ### Fixed
 - Logger - Improve formatting, add stack if present, do not display error messages twice.
 - Smart actions - Ignore smart actions that do not have a name (display a warning).
