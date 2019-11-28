@@ -100,7 +100,7 @@ exports.init = (Implementation) => {
   const { opts } = Implementation;
   const schemaFolder = opts.schemaDir
     ? path.resolve('.', opts.schemaDir) : pathProjectAbsolute;
-  const SCHEMA_FILENAME = `${schemaFolder}/.forestadmin-schema.json`;
+  const schemaFilename = `${schemaFolder}/.forestadmin-schema.json`;
 
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
@@ -269,13 +269,13 @@ exports.init = (Implementation) => {
           framework_version: expressVersion,
           orm_version: configStore.Implementation.getOrmVersion(),
         };
-        const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
+        const content = new SchemaFileUpdater(schemaFilename, collections, meta, serializerOptions)
           .perform();
         collectionsSent = content.collections;
         metaSent = content.meta;
       } else {
         try {
-          const content = fs.readFileSync(SCHEMA_FILENAME);
+          const content = fs.readFileSync(schemaFilename);
           if (!content) {
             logger.error('The .forestadmin-schema.json file is empty.');
             logger.error('The schema cannot be synchronized with Forest Admin servers.');
@@ -326,7 +326,7 @@ exports.collection = (name, opts) => {
   if (!collection) {
     collection = _.find(Schemas.schemas, { nameOld: name });
     if (collection) {
-      name = collection.name;
+      ({ name } = collection);
       logger.warn(`DEPRECATION WARNING: Collection names are now based on the models names. Please rename the collection "${collection.nameOld}" of your Forest customisation in "${collection.name}".`);
     }
   }
