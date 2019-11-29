@@ -21,5 +21,7 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
+        on:
+          branch: "improvement/semantic-release"
         script:
-          - npx semantic-release --dry-run --branch "improvement/semantic-release"
+          - npx semantic-release --dry-run
