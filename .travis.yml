@@ -24,4 +24,4 @@ jobs:
         on:
           branch: "improvement/semantic-release"
         script:
-          - npx semantic-release --dry-run
+          - npx semantic-release --dry-run --branch "improvement/semantic-release"

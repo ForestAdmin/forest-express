@@ -80,7 +80,6 @@
     "lint": "./node_modules/eslint/bin/eslint.js .eslint-bin scripts src test",
     "pre-commit": "node ./.eslint-bin/pre-commit-hook.js",
     "readme:update-coverage": "yarn test:coverage && node ./scripts/update-coverage.js",
-    "release": "yarn build && node ./scripts/release.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "semantic-release": "semantic-release"
