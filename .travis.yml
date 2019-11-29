@@ -4,6 +4,14 @@ language: node_js
 
 node_js: lts/*
 
-script:
-  - npm run lint
-  - npm run test
+jobs:
+  include:
+    - stage: install
+      script: yarn lint
+    - stage: test
+      script: yarn test
+    - stage: Build & publish
+      if: branch IN ("master", "improvement/semantic-release")
+      script:
+        - yarn
+        - yarn build
