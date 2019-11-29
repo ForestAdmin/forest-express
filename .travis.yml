@@ -10,8 +10,15 @@ jobs:
       script: yarn lint
     - stage: test
       script: yarn test
-    - stage: Build & publish
+    - stage: build
       if: branch IN ("master", "improvement/semantic-release")
       script:
         - yarn
         - yarn build
+    - stage: publish
+      if: branch IN ("improvement/semantic-release")
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - npx semantic-release --dry-run
