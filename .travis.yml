@@ -6,7 +6,7 @@ node_js: lts/*
 
 jobs:
   include:
-    - stage: install
+    - stage: lint
       script: yarn lint
     - stage: test
       script: yarn test
@@ -15,10 +15,11 @@ jobs:
       script:
         - yarn
         - yarn build
-    - stage: publish
+    - stage: publish (dry run)
       if: branch IN ("improvement/semantic-release")
+      script: skip
       deploy:
         provider: script
         skip_cleanup: true
         script:
-          - npx semantic-release --dry-run
+          - npx semantic-release --dry-run --branch "improvement/semantic-release"
