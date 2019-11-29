@@ -24,6 +24,7 @@ jobs:
         on:
           branch: "improvement/semantic-release"
         script:
+          - yarn build
           - npx semantic-release --dry-run --branch "improvement/semantic-release"
     - stage: publish
       if: branch IN ("master")
@@ -34,4 +35,5 @@ jobs:
         on:
           branch: master
         script:
+          - yarn build
           - npx semantic-release --dry-run
