@@ -25,3 +25,13 @@ jobs:
           branch: "improvement/semantic-release"
         script:
           - npx semantic-release --dry-run --branch "improvement/semantic-release"
+    - stage: publish
+      if: branch IN ("master")
+      script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        on:
+          branch: master
+        script:
+          - npx semantic-release --dry-run
