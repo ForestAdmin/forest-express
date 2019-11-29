@@ -19,13 +19,13 @@ class AbstractRecordService {
     return this.configStore.integrator;
   }
 
-  serialize(records) {
+  serialize(records, meta = null) {
     return new ResourceSerializer(
       this.Implementation,
       this.model,
       records,
       this.integrator,
-      null,
+      meta,
       this.fieldsSearched,
       this.searchValue,
       this.fieldsPerModel,
