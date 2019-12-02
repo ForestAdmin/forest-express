@@ -10,7 +10,7 @@ exports.catchIfAny = (error, request, response, next) => {
 
     if (!error.status) {
       // NOTICE: Unexpected errors should log an error in the console.
-      logger.error(`Unexpected error: ${message}`, error);
+      logger.error(`Unexpected error: ${message}`);
     }
     response.status(error.status || 500).send({
       errors: [{
