@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Logger - Do not display error messages twice.
 
 ## RELEASE 5.4.0 - 2019-11-29
 ### Added

@@ -58,7 +58,7 @@ function requireAllModels(modelsDir) {
         recursive: true,
       });
     } catch (error) {
-      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
+      logger.error(`Cannot read a file for the following reason: ${error.message}`);
     }
   }
 
@@ -66,7 +66,7 @@ function requireAllModels(modelsDir) {
   //         might be available.
   return P.resolve(getModels())
     .catch((error) => {
-      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
+      logger.error(`Cannot read a file for the following reason: ${error.message}`);
       return P.resolve([]);
     });
 }
