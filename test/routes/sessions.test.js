@@ -12,12 +12,16 @@ const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
 const twoFactorAuthenticationSecret = '00000000000000000000';
 
-function setupApp() {
+let app;
+let urlService;
+let nockObj;
+
+async function setupApp() {
   const sandbox = sinon.createSandbox();
   // eslint-disable-next-line global-require
   const forestServerRequester = require('../../src/services/forest-server-requester');
 
-  const app = createServer(envSecret, authSecret);
+  const forestApp = await createServer(envSecret, authSecret);
 
   const stubPerform = sandbox.stub(forestServerRequester, 'perform');
 
@@ -143,14 +147,15 @@ function setupApp() {
     },
   });
 
-  return { app };
+  return forestApp;
 }
 
 describe('routes > sessions', () => {
-  const urlService = new ServiceUrlGetter().perform();
-  const nockObj = nock(urlService);
-
-  const { app } = setupApp();
+  beforeAll(async () => {
+    urlService = new ServiceUrlGetter().perform();
+    nockObj = nock(urlService);
+    app = await setupApp();
+  });
 
   describe('#POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {

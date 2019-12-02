@@ -33,7 +33,7 @@ module.exports = function createServer(envSecret, authSecret) {
   implementation.getOrmVersion = () => {};
   implementation.getDatabaseType = () => {};
 
-  app.use(forestExpress.init(implementation));
-
-  return app;
+  return forestExpress.init(implementation)
+    .then((forestApp) => app.use(forestApp))
+    .then(() => app);
 };
