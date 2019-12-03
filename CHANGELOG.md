@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Smart actions - Display an warning if a Smart action as no name.
 
 ## RELEASE 5.4.0 - 2019-11-29
 ### Added
