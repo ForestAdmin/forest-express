@@ -240,7 +240,7 @@ exports.init = (Implementation) => {
       configStore.integrator.defineCollections(collections);
 
       collections
-        .filter((collection) => collection.actions)
+        .filter((collection) => collection.actions && collection.actions.length)
         // NOTICE: Check each Smart Action declaration to detect configuration errors.
         .forEach((collection) => {
           const isFieldsInvalid = (action) => action.fields && !Array.isArray(action.fields);
