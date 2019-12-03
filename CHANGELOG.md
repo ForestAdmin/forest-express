@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Initialisation - Make liana initialisation use `opts.callback` if provided.
 
 ## RELEASE 5.4.0 - 2019-11-29
 ### Added

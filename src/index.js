@@ -302,13 +302,20 @@ exports.init = (Implementation) => {
       .retrieve(opts.envSecret)
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
       .catch(() => {}))
+    .then(() => {
+      if (opts.expressParentApp) {
+        opts.expressParentApp.use('/forest', app);
+      }
+      if (opts.callback) {
+        opts.callback(null, app);
+      }
+    })
     .catch((error) => {
       logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition.', error);
+      if (opts.callback) {
+        opts.callback(error);
+      }
     });
-
-  if (opts.expressParentApp) {
-    opts.expressParentApp.use('/forest', app);
-  }
 
   return app;
 };
