@@ -94,7 +94,7 @@ function ApimapSorter(apimap) {
 
       return apimap;
     } catch (error) {
-      logger.warn('An Apimap reordering issue occured:', error);
+      logger.warn('An Apimap reordering issue occured: ', error);
       return apimap;
     }
   };

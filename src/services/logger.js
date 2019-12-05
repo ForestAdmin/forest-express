@@ -32,8 +32,8 @@ module.exports = winston.createLogger({
         winston.format.printf((info) => {
           let message = TITLE + info.message;
 
-          if (info.meta && info.meta.stack) {
-            message += `\n${info.meta.stack}`;
+          if (info.stack) {
+            message += `\n${info.stack}`;
           }
 
           return message;

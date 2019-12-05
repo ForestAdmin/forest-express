@@ -94,9 +94,9 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
           }))
         .catch((error) => {
           try {
-            logger.error('Cannot access to Intercom conversations:', error.body.errors[0].message);
+            logger.error(`Cannot access to Intercom conversations: ${error.body.errors[0].message}`);
           } catch (tryError) {
-            logger.error('Cannot access to Intercom conversations:', error);
+            logger.error('Cannot access to Intercom conversations: ', error);
           }
           return [0, []];
         }));

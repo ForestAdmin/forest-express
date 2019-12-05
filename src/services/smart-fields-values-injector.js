@@ -26,7 +26,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
     try {
       value = field.get ? field.get(record) : field.value(record);
     } catch (error) {
-      logger.error(`Cannot retrieve the ${field.field} value because of an internal error in the getter implementation: ${error}`);
+      logger.error(`Cannot retrieve the ${field.field} value because of an internal error in the getter implementation: `, error);
     }
 
     if (!_.isNil(value)) {
@@ -55,7 +55,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
           }
         })
         .catch((error) => {
-          logger.warn(`Cannot set the ${field.field} value because of an unexpected error: ${error}`);
+          logger.warn(`Cannot set the ${field.field} value because of an unexpected error: `, error);
         });
     }
   }

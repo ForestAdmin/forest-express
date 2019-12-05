@@ -9,7 +9,7 @@ function ConversationGetter(Implementation, params, opts) {
       .find({ id: params.conversationId })
       .then((response) => response.body)
       .catch((error) => {
-        logger.error('Cannot retrieve the Intercom conversation for the following reason:', error);
+        logger.error('Cannot retrieve the Intercom conversation for the following reason: ', error);
         return null;
       });
 }
