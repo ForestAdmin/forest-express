@@ -1,7 +1,7 @@
 # Change Log
 
 ## [Unreleased]
-### Changed
+### Fix
 - Logger - Improve formatting, add stack if present, do not display error messages twice.
 
 ## RELEASE 5.4.0 - 2019-11-29
