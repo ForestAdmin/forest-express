@@ -19,7 +19,7 @@ module.exports = function Actions(app, model, Implementation, integrator, option
             values = valuesComputed;
           })
           .catch((error) => {
-            logger.error(`Cannot send the values of the "${action.name}" Smart Actions because of an unexpected error: ${error}`);
+            logger.error(`Cannot send the values of the "${action.name}" Smart Actions because of an unexpected error: `, error);
             values = {};
           })
           .finally(() => response.status(200).send(values));

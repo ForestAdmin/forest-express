@@ -50,7 +50,7 @@ function AttributesGetter(Implementation, params, opts, collectionName) {
       })
       .catch((error) => {
         if (error.statusCode && error.statusCode !== 404) {
-          logger.error('Cannot retrieve Intercom attributes for the following reason:', error);
+          logger.error('Cannot retrieve Intercom attributes for the following reason: ', error);
         }
         return null;
       });
