@@ -315,6 +315,7 @@ exports.init = (Implementation) => {
     })
     .catch((error) => {
       logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+      throw error;
     });
 };
 
