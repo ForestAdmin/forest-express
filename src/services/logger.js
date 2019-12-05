@@ -32,7 +32,7 @@ module.exports = winston.createLogger({
         winston.format.printf((info) => {
           let message = TITLE + info.message;
 
-          if (info instanceof Error && info.stack) {
+          if (info.stack) {
             message += `\n${info.stack}`;
           }
 
