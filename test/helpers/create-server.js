@@ -5,7 +5,7 @@ const forestExpress = require('../../src');
 
 let app;
 
-module.exports = function createServer(envSecret, authSecret) {
+module.exports = async function createServer(envSecret, authSecret) {
   if (app) {
     return app;
   }
@@ -33,7 +33,8 @@ module.exports = function createServer(envSecret, authSecret) {
   implementation.getOrmVersion = () => {};
   implementation.getDatabaseType = () => {};
 
-  return forestExpress.init(implementation)
-    .then((forestApp) => app.use(forestApp))
-    .then(() => app);
+  const forestApp = await forestExpress.init(implementation);
+  app.use(forestApp);
+
+  return app;
 };

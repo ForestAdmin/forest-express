@@ -9,7 +9,6 @@ module.exports = {
     node: true,
   },
   rules: {
-    'jest/no-hooks': 0,
     'implicit-arrow-linebreak': 0,
     'no-param-reassign': 0,
     'no-underscore-dangle': 0,

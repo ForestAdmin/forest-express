@@ -12,10 +12,6 @@ const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
 const twoFactorAuthenticationSecret = '00000000000000000000';
 
-let app;
-let urlService;
-let nockObj;
-
 async function setupApp() {
   const sandbox = sinon.createSandbox();
   // eslint-disable-next-line global-require
@@ -151,6 +147,11 @@ async function setupApp() {
 }
 
 describe('routes > sessions', () => {
+  let app;
+  let urlService;
+  let nockObj;
+
+  /* eslint-disable jest/no-hooks */
   beforeAll(async () => {
     urlService = new ServiceUrlGetter().perform();
     nockObj = nock(urlService);
