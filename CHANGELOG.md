@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Smart actions - Display a warning if a smart action has no name.
+- Smart actions - Ignore smart actions that do not have a name (display a warning).
 
 ## RELEASE 5.4.0 - 2019-11-29
 ### Added
