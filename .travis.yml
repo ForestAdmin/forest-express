@@ -20,9 +20,6 @@ jobs:
     # run tests.
     - stage: test
       script: yarn test
-      node_js: 
-        - lts/*
-        - 10
     # devel and master require clean commit messages.
     - stage: commit-lint
       if: branch IN ("master", "devel")
