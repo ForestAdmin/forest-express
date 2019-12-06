@@ -59,20 +59,22 @@
     "@babel/plugin-transform-runtime": "7.6.2",
     "@babel/preset-env": "7.7.4",
     "@babel/register": "7.7.4",
+    "@commitlint/cli": "8.2.0",
+    "@commitlint/config-conventional": "8.2.0",
     "@forestadmin/devops": "2.0.0",
     "dotenv": "6.2.0",
     "eslint": "6.6.0",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-jest": "23.0.5",
+    "husky": "3.1.0",
     "jest": "24.9.0",
     "nock": "11.7.0",
     "onchange": "6.1.0",
-    "pre-commit": "1.2.2",
+    "semantic-release": "^15.13.31",
     "simple-git": "1.65.0",
     "sinon": "7.5.0",
-    "supertest": "3.0.0",
-    "semantic-release": "^15.13.31"
+    "supertest": "3.0.0"
   },
   "scripts": {
     "build": "babel src -d dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
@@ -84,7 +86,10 @@
     "test:coverage": "jest --coverage",
     "semantic-release": "semantic-release"
   },
-  "pre-commit": [
-    "pre-commit"
-  ]
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn pre-commit",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
 }
