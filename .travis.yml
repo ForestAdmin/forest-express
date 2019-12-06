@@ -2,19 +2,29 @@ sudo: required
 
 language: node_js
 
-node_js: lts/*
+node_js: 
+  - lts/*
+  - 10
 
 jobs:
   include:
+    # run eslint on all files.
     - stage: lint
       script: yarn lint
+    # run tests.
     - stage: test
       script: yarn test
+    # devel and master require clean commit messages.
+    - stage: commit-lint
+      if: branch IN ("master", "devel")
+      script: commitlint-travis
+    # build only for master and devel (tmp: "improvement/semantic-release").
     - stage: build
-      if: branch IN ("master", "improvement/semantic-release")
+      if: branch IN ("master", "devel", "improvement/semantic-release")
       script:
         - yarn
         - yarn build
+    # tmp: publish dry run on "improvement/semantic-release".
     - stage: publish (dry run)
       if: branch IN ("improvement/semantic-release")
       script: skip
@@ -25,6 +35,7 @@ jobs:
           branch: "improvement/semantic-release"
         script:
           - npx semantic-release --dry-run --branch "improvement/semantic-release"
+    # publish for master only thanks to semantic-release
     - stage: publish
       if: branch IN ("master")
       script: skip
