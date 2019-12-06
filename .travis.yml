@@ -2,9 +2,15 @@ sudo: required
 
 language: node_js
 
-node_js: 
-  - lts/*
-  - 10
+node_js: lts/*
+
+stages:
+  - lint
+  - commit-lint
+  - test
+  - build
+  - publish (dry run)
+  - publish
 
 jobs:
   include:
@@ -14,6 +20,9 @@ jobs:
     # run tests.
     - stage: test
       script: yarn test
+      node_js: 
+        - lts/*
+        - 10
     # devel and master require clean commit messages.
     - stage: commit-lint
       if: branch IN ("master", "devel")
