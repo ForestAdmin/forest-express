@@ -22,7 +22,7 @@ jobs:
       script: yarn test
     # devel and master require clean commit messages.
     - stage: commit-lint
-      if: branch IN ("master", "devel")
+      if: branch IN ("master", "devel") AND type != pull_request
       script: commitlint-travis
     # build only for master and devel (tmp: "improvement/semantic-release").
     - stage: build
@@ -43,7 +43,7 @@ jobs:
           - npx semantic-release --dry-run --branch "improvement/semantic-release"
     # publish for master only thanks to semantic-release
     - stage: publish
-      if: branch IN ("master")
+      if: branch IN ("master") AND type != pull_request
       script: skip
       deploy:
         provider: script
