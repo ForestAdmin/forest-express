@@ -11,157 +11,154 @@ const createServer = require('../helpers/create-server');
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
 const twoFactorAuthenticationSecret = '00000000000000000000';
+let stubPerform;
 
 async function setupApp() {
   const sandbox = sinon.createSandbox();
   // eslint-disable-next-line global-require
   const forestServerRequester = require('../../src/services/forest-server-requester');
-
   const forestApp = await createServer(envSecret, authSecret);
 
-  const stubPerform = sandbox.stub(forestServerRequester, 'perform');
+  if (!stubPerform) {
+    stubPerform = sandbox.stub(forestServerRequester, 'perform');
 
-  stubPerform.withArgs('/liana/v1/ip-whitelist-rules').returns({
-    then: () => P.resolve({
+    stubPerform.withArgs('/liana/v1/ip-whitelist-rules').returns({
+      then: () => P.resolve({
+        data: {
+          attributes: {
+            use_ip_whitelist: false,
+          },
+        },
+      }),
+    });
+
+    stubPerform.withArgs(
+      '/liana/v2/renderings/1/authorization',
+      envSecret,
+      null,
+      { email: 'user@email.com', password: 'user-password' },
+    ).resolves({
       data: {
+        id: '125',
+        type: 'users',
         attributes: {
-          use_ip_whitelist: false,
+          email: 'user@email.com',
+          first_name: 'user',
+          last_name: 'last',
+          teams: ['Operations'],
         },
       },
-    }),
-  });
+      relationships: {
+        renderings: {
+          data: [{
+            id: 1,
+            type: 'renderings',
+          }],
+        },
+      },
+    });
 
-  stubPerform.withArgs(
-    '/liana/v2/renderings/1/authorization',
-    envSecret,
-    null,
-    { email: 'user@email.com', password: 'user-password' },
-  ).resolves({
-    data: {
-      id: '125',
-      type: 'users',
-      attributes: {
-        email: 'user@email.com',
-        first_name: 'user',
-        last_name: 'last',
-        teams: ['Operations'],
+    stubPerform.withArgs(
+      '/liana/v2/renderings/1/authorization',
+      envSecret,
+      null,
+      { email: 'user2@email.com', password: 'user2-password' },
+    ).resolves({
+      data: {
+        id: '126',
+        type: 'users',
+        attributes: {
+          email: 'user2@email.com',
+          first_name: 'user2',
+          last_name: 'last',
+          teams: ['Operations'],
+          two_factor_authentication_enabled: true,
+          two_factor_authentication_active: false,
+          two_factor_authentication_secret: twoFactorAuthenticationSecret,
+        },
       },
-    },
-    relationships: {
-      renderings: {
-        data: [{
-          id: 1,
-          type: 'renderings',
-        }],
+      relationships: {
+        renderings: {
+          data: [{
+            id: 1,
+            type: 'renderings',
+          }],
+        },
       },
-    },
-  });
+    });
 
-  stubPerform.withArgs(
-    '/liana/v2/renderings/1/authorization',
-    envSecret,
-    null,
-    { email: 'user2@email.com', password: 'user2-password' },
-  ).resolves({
-    data: {
-      id: '126',
-      type: 'users',
-      attributes: {
-        email: 'user2@email.com',
-        first_name: 'user2',
-        last_name: 'last',
-        teams: ['Operations'],
-        two_factor_authentication_enabled: true,
-        two_factor_authentication_active: false,
-        two_factor_authentication_secret: twoFactorAuthenticationSecret,
+    stubPerform.withArgs(
+      '/liana/v2/renderings/1/authorization?two-factor-registration=true',
+      envSecret,
+      null,
+      { email: 'user3@email.com', password: 'user3-password' },
+    ).resolves({
+      data: {
+        id: '127',
+        type: 'users',
+        attributes: {
+          email: 'user@email.com',
+          first_name: 'user3',
+          last_name: 'last',
+          teams: ['Operations'],
+          two_factor_authentication_enabled: true,
+          two_factor_authentication_active: false,
+          two_factor_authentication_secret: twoFactorAuthenticationSecret,
+        },
       },
-    },
-    relationships: {
-      renderings: {
-        data: [{
-          id: 1,
-          type: 'renderings',
-        }],
+      relationships: {
+        renderings: {
+          data: [{
+            id: 1,
+            type: 'renderings',
+          }],
+        },
       },
-    },
-  });
+    });
 
-  stubPerform.withArgs(
-    '/liana/v2/renderings/1/authorization?two-factor-registration=true',
-    envSecret,
-    null,
-    { email: 'user3@email.com', password: 'user3-password' },
-  ).resolves({
-    data: {
-      id: '127',
-      type: 'users',
-      attributes: {
-        email: 'user@email.com',
-        first_name: 'user3',
-        last_name: 'last',
-        teams: ['Operations'],
-        two_factor_authentication_enabled: true,
-        two_factor_authentication_active: false,
-        two_factor_authentication_secret: twoFactorAuthenticationSecret,
+    stubPerform.withArgs(
+      '/liana/v2/renderings/1/authorization',
+      envSecret,
+      null,
+      { email: 'user4@email.com', password: 'user4-password' },
+    ).resolves({
+      data: {
+        id: '128',
+        type: 'users',
+        attributes: {
+          email: 'user4@email.com',
+          first_name: 'user4',
+          last_name: 'last',
+          teams: ['Operations'],
+          two_factor_authentication_enabled: true,
+          two_factor_authentication_active: true,
+        },
       },
-    },
-    relationships: {
-      renderings: {
-        data: [{
-          id: 1,
-          type: 'renderings',
-        }],
+      relationships: {
+        renderings: {
+          data: [{
+            id: 1,
+            type: 'renderings',
+          }],
+        },
       },
-    },
-  });
-
-  stubPerform.withArgs(
-    '/liana/v2/renderings/1/authorization',
-    envSecret,
-    null,
-    { email: 'user4@email.com', password: 'user4-password' },
-  ).resolves({
-    data: {
-      id: '128',
-      type: 'users',
-      attributes: {
-        email: 'user4@email.com',
-        first_name: 'user4',
-        last_name: 'last',
-        teams: ['Operations'],
-        two_factor_authentication_enabled: true,
-        two_factor_authentication_active: true,
-      },
-    },
-    relationships: {
-      renderings: {
-        data: [{
-          id: 1,
-          type: 'renderings',
-        }],
-      },
-    },
-  });
+    });
+  }
 
   return forestApp;
 }
 
+async function setupNock() {
+  const urlService = new ServiceUrlGetter().perform();
+  return nock(urlService);
+}
+
 describe('routes > sessions', () => {
-  let app;
-  let urlService;
-  let nockObj;
-
-  /* eslint-disable jest/no-hooks */
-  beforeAll(async () => {
-    urlService = new ServiceUrlGetter().perform();
-    nockObj = nock(urlService);
-    app = await setupApp();
-  });
-
   describe('#POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
       it('should return a valid jwt', async () => {
         expect.assertions(3);
+        const app = await setupApp();
         await new Promise((done) => {
           request(app)
             .post('/forest/sessions')
@@ -197,6 +194,7 @@ describe('routes > sessions', () => {
         it('should return the "user secret"', async () => {
           expect.assertions(5);
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
+          const app = await setupApp();
 
           await new Promise((done) => {
             request(app)
@@ -234,6 +232,7 @@ describe('routes > sessions', () => {
       describe('with no token and "twoFactorRegistration" "true"', () => {
         it('should return a 401', async () => {
           expect.assertions(1);
+          const app = await setupApp();
           await new Promise((done) => {
             request(app)
               .post('/forest/sessions')
@@ -254,6 +253,9 @@ describe('routes > sessions', () => {
       describe('with a token', () => {
         it('should return a jwt token', async () => {
           expect.assertions(3);
+          const app = await setupApp();
+          const nockObj = await setupNock();
+
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
           nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
@@ -290,6 +292,8 @@ describe('routes > sessions', () => {
       describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "twoFactorAuthenticationEnabled" set to "true"', async () => {
           expect.assertions(5);
+          const app = await setupApp();
+
           await new Promise((done) => {
             request(app)
               .post('/forest/sessions')
@@ -321,6 +325,9 @@ describe('routes > sessions', () => {
       describe('with a token', () => {
         it('should return a jwt token', async () => {
           expect.assertions(3);
+          const app = await setupApp();
+          const nockObj = await setupNock();
+
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
           nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
@@ -356,6 +363,7 @@ describe('routes > sessions', () => {
       it('should return a 401', async () => {
         expect.assertions(1);
         process.env.FOREST_2FA_SECRET_SALT = '00';
+        const app = await setupApp();
 
         await new Promise((done) => {
           request(app)
