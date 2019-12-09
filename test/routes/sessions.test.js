@@ -193,8 +193,8 @@ describe('routes > sessions', () => {
       describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "user secret"', async () => {
           expect.assertions(5);
-          process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
           const app = await setupApp();
+          process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
 
           await new Promise((done) => {
             request(app)
