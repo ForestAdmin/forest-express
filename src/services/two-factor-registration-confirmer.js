@@ -27,7 +27,7 @@ function TwoFactorRegistrationConfirmer({
         .set('forest-secret-key', envSecret)
         .end((error) => {
           if (error) {
-            logger.error(error);
+            logger.error('Two factor registration confirmation error: ', error);
             return reject(new Error());
           }
           return resolve();

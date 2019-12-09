@@ -52,7 +52,7 @@ exports.ensureAuthenticated = compose([
   ensureAuthenticated,
   (request, response, next) => {
     if (!ipAuthorizer) {
-      return logger.error('"ensureAuthenticated" middleware must be called after "liana.init" function');
+      return logger.error('"ensureAuthenticated" middleware must be called after "liana.init" function.');
     }
 
     return ipAuthorizer(request, response, next);

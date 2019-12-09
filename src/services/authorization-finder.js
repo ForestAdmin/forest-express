@@ -35,7 +35,7 @@ function AuthorizationFinder(
         return user;
       })
       .catch((error) => {
-        logger.error(error);
+        logger.error('Authorization error: ', error);
         throw new Error();
       });
   };

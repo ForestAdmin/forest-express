@@ -58,7 +58,7 @@ function requireAllModels(modelsDir) {
         recursive: true,
       });
     } catch (error) {
-      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
+      logger.error('Cannot read a file for the following reason: ', error);
     }
   }
 
@@ -66,7 +66,7 @@ function requireAllModels(modelsDir) {
   //         might be available.
   return P.resolve(getModels())
     .catch((error) => {
-      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
+      logger.error('Cannot read a file for the following reason: ', error);
       return P.resolve([]);
     });
 }
@@ -308,7 +308,7 @@ exports.init = (Implementation) => {
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
       .catch(() => { }))
     .catch((error) => {
-      logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition.', error);
+      logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
     });
 
   if (opts.expressParentApp) {
