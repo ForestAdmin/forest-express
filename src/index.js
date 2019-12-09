@@ -177,7 +177,7 @@ exports.init = (Implementation) => {
   new SessionRoute(app, opts).perform();
 
   // Init
-  buildSchema()
+  return buildSchema()
     .then((models) => {
       let directorySmartImplementation;
 
@@ -306,16 +306,17 @@ exports.init = (Implementation) => {
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
-      .catch(() => { }))
+      .catch(() => {}))
+    .then(() => {
+      if (opts.expressParentApp) {
+        opts.expressParentApp.use('/forest', app);
+      }
+      return app;
+    })
     .catch((error) => {
       logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+      throw error;
     });
-
-  if (opts.expressParentApp) {
-    opts.expressParentApp.use('/forest', app);
-  }
-
-  return app;
 };
 
 exports.collection = (name, opts) => {
