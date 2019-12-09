@@ -239,16 +239,21 @@ exports.init = (Implementation) => {
       const collections = _.values(Schemas.schemas);
       configStore.integrator.defineCollections(collections);
 
-      // NOTICE: Check each Smart Action declaration to detect configuration errors.
-      _.each(collections, (collection) => {
-        if (collection.actions) {
-          _.each(collection.actions, (action) => {
-            if (action.fields && !_.isArray(action.fields)) {
+      collections
+        .filter((collection) => collection.actions && collection.actions.length)
+        // NOTICE: Check each Smart Action declaration to detect configuration errors.
+        .forEach((collection) => {
+          const isFieldsInvalid = (action) => action.fields && !Array.isArray(action.fields);
+          collection.actions.forEach((action) => {
+            if (!action.name) {
+              logger.warn(`An unnamed Smart Action of collection "${collection.name}" has been ignored.`);
+            } else if (isFieldsInvalid(action)) {
               logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
             }
           });
-        }
-      });
+          // NOTICE: Ignore actions without a name.
+          collection.actions = collection.actions.filter((action) => action.name);
+        });
 
       const schemaSerializer = new SchemaSerializer();
       const { options: serializerOptions } = schemaSerializer;
@@ -301,7 +306,7 @@ exports.init = (Implementation) => {
     .then(() => ipWhitelist
       .retrieve(opts.envSecret)
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
-      .catch(() => {}))
+      .catch(() => { }))
     .catch((error) => {
       logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
     });

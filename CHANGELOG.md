@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Logger - Improve formatting, add stack if present, do not display error messages twice.
+- Smart actions - Ignore smart actions that do not have a name (display a warning).
 
 ## RELEASE 5.4.0 - 2019-11-29
 ### Added
