@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 5.4.1 - 2019-12-11
 ### Fixed
 - Logger - Improve formatting, add stack if present, do not display error messages twice.
 - Smart actions - Ignore smart actions that do not have a name (display a warning).
