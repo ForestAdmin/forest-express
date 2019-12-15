@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Tests - Add params fields deserialzer test.
 
 ## RELEASE 5.4.1 - 2019-12-11
 ### Fixed
