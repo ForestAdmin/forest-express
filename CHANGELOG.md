@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Added
 - Tests - Add params fields deserializer test.
+- Tests - Add tests for IP whitelist deserializer.
+
+### Changed
+- Technical - Simplify IP whitelist deserializer code.
 
 ## RELEASE 5.4.1 - 2019-12-11
 ### Fixed
