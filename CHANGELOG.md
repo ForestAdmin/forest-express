@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Tests - Add params fields deserializer test.
 - Tests - Add tests for IP whitelist deserializer.
 
 ### Changed
