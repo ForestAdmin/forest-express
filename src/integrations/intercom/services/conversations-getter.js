@@ -77,7 +77,7 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
 
             return P
               .map(conversations, (conversation) => {
-                if (conversation.assignee.type === 'admin') {
+                if (conversation.assignee !== null && conversation.assignee.type === 'admin') {
                   const adminId = parseInt(conversation.assignee.id, 10);
                   const admin = _.find(admins, { id: adminId });
 
