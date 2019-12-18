@@ -7,6 +7,7 @@
 
 ### Changed
 - Technical - Simplify IP whitelist deserializer code.
+- Smart Collections - Do not insert Smart Collections unless they contain at least one declared field.
 
 ### Fixed
 - Intercom Integration - Better handling of automated messages.
