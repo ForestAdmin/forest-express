@@ -10,6 +10,7 @@
 
 ### Fixed
 - Intercom Integration - Better handling of automated messages.
+- Collections - Fix included/excluded collections on `Smart Customizations` requireAll call.
 
 ## RELEASE 5.4.1 - 2019-12-11
 ### Fixed
