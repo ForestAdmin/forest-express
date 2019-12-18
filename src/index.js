@@ -49,24 +49,30 @@ function getModels() {
 }
 
 function getModelsFileNames() {
-  const models = configStore.Implementation.getModels();
-  const modelsFileNames = [];
-  _.each(models, (modelName) => {
-    modelsFileNames.push(_.kebabCase(modelName));
+  const { excludedModels = [], includedModels = [] } = configStore.Implementation.opts;
+  const excludedModelsKebabCase = [];
+  const includedModelsKebabCase = [];
+  _.each(excludedModels, (modelName) => {
+    excludedModelsKebabCase.push(_.kebabCase(modelName));
   });
 
-  return modelsFileNames;
+  _.each(includedModels, (modelName) => {
+    includedModelsKebabCase.push(_.kebabCase(modelName));
+  });
+
+  return { excludedModelsKebabCase, includedModelsKebabCase };
 }
 
 function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
-      const modelsFileNames = getModelsFileNames();
+      const { excludedModelsKebabCase, includedModelsKebabCase } = getModelsFileNames();
       requireAll({
         dirname: modelsDir,
-        filter: fileName =>
-          (fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'))) 
-          && modelsFileNames.includes(fileName.replace(/\.[^/.]+$/, "")),
+        filter: (fileName) =>
+          (fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')))
+          && (!excludedModelsKebabCase.includes(fileName.replace(/\.[^/.]+$/, ''))
+             || includedModelsKebabCase.includes(fileName.replace(/\.[^/.]+$/, ''))),
         recursive: true,
       });
     } catch (error) {
