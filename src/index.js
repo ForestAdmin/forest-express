@@ -48,17 +48,29 @@ function getModels() {
   return _.values(models);
 }
 
+function getModelsFileNames() {
+  const models = configStore.Implementation.getModels();
+  const modelsFileNames = [];
+  _.each(models, (modelName) => {
+    modelsFileNames.push(_.kebabCase(modelName));
+  });
+
+  return modelsFileNames;
+}
+
 function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
+      const modelsFileNames = getModelsFileNames();
       requireAll({
         dirname: modelsDir,
-        filter: (fileName) =>
-          fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
+        filter: fileName =>
+          (fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'))) 
+          && modelsFileNames.includes(fileName.replace(/\.[^/.]+$/, "")),
         recursive: true,
       });
     } catch (error) {
-      logger.error('Cannot read a file for the following reason: ', error);
+      logger.error(`Cannot read a file for the following reason: ${error.message}`, error);
     }
   }
 
