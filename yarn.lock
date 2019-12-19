@@ -1960,12 +1960,10 @@ cssstyle@^1.0.0:
   dependencies:
     cssom "0.3.x"
 
-csv-stringify@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-1.0.4.tgz#bc18bab9ad4cef3195fd257980b58b479c42d3e5"
-  integrity sha1-vBi6ua1M7zGV/SV5gLWLR5xC0+U=
-  dependencies:
-    lodash.get "^4.0.0"
+csv-stringify@5.3.5:
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-5.3.5.tgz#fd1f4008741c77c35870705e45b6ab6bb0671f3c"
+  integrity sha512-bFbaJqz7LcwnTzdryyJuhR6Pys2deU8+z7O8N0JBnNGm7vnJVr3K0n68bhb+rlMpwCmDbUtinr8yq5I2RlPMqw==
 
 dashdash@^1.12.0:
   version "1.14.1"
@@ -4025,11 +4023,6 @@ locate-path@^3.0.0:
   dependencies:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
-
-lodash.get@^4.0.0:
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
-  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
 lodash.includes@^4.3.0:
   version "4.3.0"
