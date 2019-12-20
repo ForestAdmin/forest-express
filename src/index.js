@@ -348,7 +348,7 @@ exports.collection = (name, opts) => {
     if (opts.searchFields) {
       Schemas.schemas[name].searchFields = opts.searchFields;
     }
-  } else {
+  } else if (opts.fields && opts.fields.length) {
     // NOTICE: Smart Collection definition case
     opts.name = name;
     opts.idField = 'id';
