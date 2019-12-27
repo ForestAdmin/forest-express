@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Technical - Add SonarJS linter for complexity issues.
 - Tests - Add params fields deserializer test.
 - Tests - Add tests for IP whitelist deserializer.
 
