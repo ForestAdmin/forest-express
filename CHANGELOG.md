@@ -4,6 +4,7 @@
 ### Added
 - Tests - Add params fields deserializer test.
 - Tests - Add tests for IP whitelist deserializer.
+- Technical - Add SonarJS linter for complexity issues.
 
 ### Changed
 - Technical - Simplify IP whitelist deserializer code.
