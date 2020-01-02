@@ -51,10 +51,11 @@ function getModels() {
 function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
+      const isJSFilename = (fileName) => fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+      const isTestFilename = (fileName) => fileName.match(/__tests__|.test.|.spec./g);
       requireAll({
         dirname: modelsDir,
-        filter: (fileName) =>
-          fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
+        filter: (fileName) => isJSFilename(fileName) && !isTestFilename(fileName),
         recursive: true,
       });
     } catch (error) {

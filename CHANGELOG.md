@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Initialisation - Do not require files that have `__tests__`, `.test.`, or `.spec.` in their filename.
 
 ## RELEASE 5.5.0 - 2020-01-02
 ### Added
