@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## RELEASE 5.5.0 - 2020-01-02
 ### Added
 - Tests - Add params fields deserializer test.
 - Tests - Add tests for IP whitelist deserializer.
