@@ -2,7 +2,6 @@
 
 ## [Unreleased]
 ### Added
-- Technical - New healthcheck route
 - Linter - Do not lint uncommitted files.
 
 ## RELEASE 5.5.0 - 2020-01-02
