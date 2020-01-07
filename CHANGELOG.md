@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Technical - New healthcheck route
 
 ## RELEASE 5.5.0 - 2020-01-02
 ### Added
