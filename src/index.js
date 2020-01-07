@@ -14,6 +14,7 @@ const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
 const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
+const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
@@ -233,6 +234,7 @@ exports.init = (Implementation) => {
         configStore.lianaOptions,
       ).perform();
     })
+    .then(() => new HealthCheckRoute(app, configStore.lianaOptions).perform())
     .then(() => new ForestRoutes(app, configStore.lianaOptions).perform())
     .then(() => app.use(pathMounted, errorHandler.catchIfAny))
     .then(() => {
