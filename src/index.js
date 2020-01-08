@@ -183,6 +183,7 @@ exports.init = (Implementation) => {
   }
 
   new SessionRoute(app, opts).perform();
+  new HealthCheckRoute(app, opts).perform();
 
   // Init
   buildSchema()
@@ -385,4 +386,4 @@ exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
-exports.PUBLIC_ROUTES = ['/', '/sessions', '/sessions-google'];
+exports.PUBLIC_ROUTES = ['/', '/sessions', '/sessions-google', '/healthcheck'];
