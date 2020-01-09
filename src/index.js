@@ -55,7 +55,8 @@ function requireAllModels(modelsDir) {
       // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
       const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
       requireAll({
-        dirname: modelsDir,
+         dirname: modelsDir,
+         excludeDirs: /^__tests__$/,
         filter: (fileName) => isJSFilename(fileName) && !isTestFilename(fileName),
         recursive: true,
       });
