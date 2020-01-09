@@ -235,7 +235,6 @@ exports.init = (Implementation) => {
         configStore.lianaOptions,
       ).perform();
     })
-    .then(() => new HealthCheckRoute(app, configStore.lianaOptions).perform())
     .then(() => new ForestRoutes(app, configStore.lianaOptions).perform())
     .then(() => app.use(pathMounted, errorHandler.catchIfAny))
     .then(() => {
