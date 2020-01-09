@@ -52,7 +52,8 @@ function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
       const isJSFilename = (fileName) => fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
-      const isTestFilename = (fileName) => fileName.match(/__tests__|.test.|.spec./g);
+      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
       requireAll({
         dirname: modelsDir,
         filter: (fileName) => isJSFilename(fileName) && !isTestFilename(fileName),
