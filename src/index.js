@@ -386,4 +386,4 @@ exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
-exports.PUBLIC_ROUTES = ['/', '/sessions', '/sessions-google', '/healthcheck'];
+exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];
