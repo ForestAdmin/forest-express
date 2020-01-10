@@ -88,10 +88,6 @@ function LoginHandler({
       ).perform();
     }
 
-    if (!user) {
-      throw new Error();
-    }
-
     if (user.two_factor_authentication_enabled) {
       if (twoFactorToken) {
         if (isTwoFactorTokenValid(user, twoFactorToken)) {
