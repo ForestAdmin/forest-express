@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
+- Linter - Do not lint uncommitted files.
 - Initialisation - Filter out test files when requiring models (`__tests__/*`, `*.spec.js`, `*.spec.ts`, `*.test.js` or `*.test.ts`).
 
 ## RELEASE 5.5.0 - 2020-01-02
