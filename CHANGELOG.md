@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Linter - Do not lint uncommitted files.
 
 ## RELEASE 5.5.0 - 2020-01-02
 ### Added
