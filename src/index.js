@@ -182,8 +182,8 @@ exports.init = (Implementation) => {
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
-  new SessionRoute(app, opts).perform();
   new HealthCheckRoute(app, opts).perform();
+  new SessionRoute(app, opts).perform();
 
   // Init
   buildSchema()
