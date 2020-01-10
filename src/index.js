@@ -51,10 +51,17 @@ function getModels() {
 function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
+      const isJavascriptOrTypescriptFileName = (fileName) =>
+        fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+
+      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
+
       requireAll({
         dirname: modelsDir,
+        excludeDirs: /^__tests__$/,
         filter: (fileName) =>
-          fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
+          isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
         recursive: true,
       });
     } catch (error) {
