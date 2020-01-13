@@ -14,6 +14,7 @@ const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
 const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
+const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
@@ -181,6 +182,7 @@ exports.init = (Implementation) => {
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
+  new HealthCheckRoute(app, opts).perform();
   new SessionRoute(app, opts).perform();
 
   // Init
@@ -383,4 +385,4 @@ exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
-exports.PUBLIC_ROUTES = ['/', '/sessions', '/sessions-google'];
+exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];
