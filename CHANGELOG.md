@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Fixed
+- Login - Make the login error messages brought up to the end client through toasts more accurate.
 
 ## RELEASE 5.6.0 - 2020-01-14
 ### Added
