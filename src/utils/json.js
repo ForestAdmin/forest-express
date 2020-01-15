@@ -44,7 +44,17 @@ const prettyPrint = (json, indentation = '') => {
   } else if (_.isNil(json)) {
     result += 'null';
   } else if (_.isString(json)) {
-    result += `"${json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r/g, '\\r').replace(/\n/g, '\\n')}"`;
+    // NOTICE: Escape invalid characters (see: https://www.json.org/json-en.html).
+    const escapedJsonString = json
+      .replace(/[\\]/g, '\\\\')
+      .replace(/["]/g, '\\"')
+      .replace(/[/]/g, '\\/')
+      .replace(/[\b]/g, '\\b')
+      .replace(/[\f]/g, '\\f')
+      .replace(/[\n]/g, '\\n')
+      .replace(/[\r]/g, '\\r')
+      .replace(/[\t]/g, '\\t');
+    result += `"${escapedJsonString}"`;
   } else {
     result += `${json}`;
   }
