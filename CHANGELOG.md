@@ -3,6 +3,9 @@
 ## [Unreleased]
 ### Fixed
 - Login - Make the login error messages brought up to the end client through toasts more accurate.
+- Schema - Schemas having fields with escaped characters are now properly saved as valid JSON.
+- Tests - Add tests for json prettyPrint.
+- Tests - Add tests for schema file updater.
 
 ## RELEASE 5.6.0 - 2020-01-14
 ### Added
