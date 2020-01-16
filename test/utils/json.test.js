@@ -15,11 +15,11 @@ describe('utils > json', () => {
     expect.assertions(4);
     expect(prettyPrint('.*foo$')).toStrictEqual('".*foo$"');
     expect(prettyPrint('http://somekindofurl.mydomain.com'))
-      .toStrictEqual('"http:\\/\\/somekindofurl.mydomain.com"');
+      .toStrictEqual('"http://somekindofurl.mydomain.com"');
     expect(prettyPrint('This text \r\n contains \r\n escaped char'))
       .toStrictEqual('"This text \\r\\n contains \\r\\n escaped char"');
     expect(prettyPrint('\t \r \n \f \b " /'))
-      .toStrictEqual('"\\t \\r \\n \\f \\b \\" \\/"');
+      .toStrictEqual('"\\t \\r \\n \\f \\b \\" /"');
   });
 
   it('should prettyPrint a simple array', () => {
@@ -37,9 +37,7 @@ describe('utils > json', () => {
     const regExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g.toString();
     const prettyPrintedRegExp = prettyPrint(regExp);
     // NOTICE: On regex, `prettyPrint` & `JSON.stringify` should produce the same result.
-    expect(prettyPrintedRegExp).toStrictEqual(
-      '"\\/^(([^<>()[\\\\]\\\\\\\\.,;:\\\\s@\\"]+(\\\\.[^<>()[\\\\]\\\\\\\\.,;:\\\\s@\\"]+)*)|(\\".+\\"))@((\\\\[[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}])|(([a-zA-Z\\\\-0-9]+\\\\.)+[a-zA-Z]{2,}))$\\/g"',
-    );
+    expect(prettyPrintedRegExp).toStrictEqual(JSON.stringify(regExp));
     expect(() => JSON.parse(prettyPrintedRegExp)).not.toThrow();
     expect(JSON.parse(prettyPrintedRegExp)).toStrictEqual(regExp);
   });
@@ -72,14 +70,14 @@ describe('utils > json', () => {
       .toStrictEqual(expect.stringContaining('"fullname": "John smith",'));
     expect(prettyPrintedObject)
       .toStrictEqual(
-        expect.stringContaining('"profile": "https:\\/\\/mysocialnetwork.mydomain.com\\/johnsmith",'),
+        expect.stringContaining('"profile": "https://mysocialnetwork.mydomain.com/johnsmith",'),
       );
     expect(prettyPrintedObject)
       .toStrictEqual(expect.stringContaining('"isAvailable": false,'));
     expect(prettyPrintedObject)
       .toStrictEqual(expect.stringContaining('    "languages": [\n      "js",\n      "C",\n      "C++"\n    ],'));
     expect(prettyPrintedObject)
-      .toStrictEqual(expect.stringContaining('    "caution": "\\nw00t\\/\\/"'));
+      .toStrictEqual(expect.stringContaining('    "caution": "\\nw00t//"'));
 
     expect(JSON.parse(prettyPrintedObject)).toStrictEqual(obj);
   });
