@@ -1,5 +1,4 @@
 const path = require('../services/path');
-const ipWhitelist = require('../services/ip-whitelist');
 const errorMessages = require('../utils/error-messages');
 const LoginHandler = require('../services/login-handler');
 
@@ -35,8 +34,6 @@ module.exports = function Sessions(app, opts) {
       if (twoFactorRegistration && !twoFactorToken) {
         throw new Error();
       }
-
-      await ipWhitelist.retrieve(envSecret);
 
       const responseData = await new LoginHandler({
         renderingId,
