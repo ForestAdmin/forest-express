@@ -4,6 +4,40 @@ language: node_js
 
 node_js: lts/*
 
-script:
-  - npm run lint
-  - npm run test
+stages:
+  - lint
+  - commit-lint
+  - test
+  - build
+  - publish (dry run)
+  - publish
+
+jobs:
+  include:
+    # run eslint on all files.
+    - stage: lint
+      script: yarn lint
+    # run tests.
+    - stage: test
+      script: yarn test
+    # devel and master require clean commit messages.
+    - stage: commit-lint
+      if: branch IN ("master", "devel") AND type != pull_request
+      script: commitlint-travis
+    # build only for master and devel (tmp: "improvement/semantic-release").
+    - stage: build
+      if: branch IN ("master", "devel")
+      script:
+        - yarn
+        - yarn build
+    # publish for master only thanks to semantic-release
+    - stage: publish
+      if: branch IN ("master") AND type != pull_request
+      script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        on:
+          branch: master
+        script:
+          - npx semantic-release --dry-run
