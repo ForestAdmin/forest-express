@@ -2,7 +2,37 @@
 
 ## [Unreleased]
 ### Fixed
+- Login - Make the login error messages brought up to the end client through toasts more accurate.
+- Schema - Schemas having fields with escaped characters are now properly saved as valid JSON.
+- Tests - Add tests for json prettyPrint.
+- Tests - Add tests for schema file updater.
+
+## RELEASE 5.6.0 - 2020-01-14
+### Added
+- Sessions - Distinguish "CORS configuration issue" and "Server down" scenarios in case of liana login error.
+
+### Fixed
+- Linter - Do not lint uncommitted files.
+- Initialization - Filter out test files when requiring models (`__tests__/*`, `*.spec.js`, `*.spec.ts`, `*.test.js` or `*.test.ts`).
+
+## RELEASE 5.5.0 - 2020-01-02
+### Added
+- Tests - Add params fields deserializer test.
+- Tests - Add tests for IP whitelist deserializer.
+- Technical - Add SonarJS linter for complexity issues.
+
+### Changed
+- Technical - Simplify IP whitelist deserializer code.
+- Smart Collections - Do not insert Smart Collections unless they contain at least one declared field.
+
+### Fixed
+- Intercom Integration - Better handling of automated messages.
+
+## RELEASE 5.4.1 - 2019-12-11
+### Fixed
 - Logger - Improve formatting, add stack if present, do not display error messages twice.
+- Smart actions - Ignore smart actions that do not have a name (display a warning).
+- Export - Fix export on related data.
 
 ## RELEASE 5.4.0 - 2019-11-29
 ### Added
