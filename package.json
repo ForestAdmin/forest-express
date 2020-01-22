@@ -76,7 +76,7 @@
     "semantic-release": "^15.13.31",
     "simple-git": "1.65.0",
     "sinon": "7.5.0",
-    "supertest": "3.0.0"
+    "supertest": "4.0.0"
   },
   "scripts": {
     "build": "babel src -d dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
