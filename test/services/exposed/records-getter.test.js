@@ -2,15 +2,18 @@ const RecordsGetter = require('../../../src/services/exposed/records-getter.js')
 const Schemas = require('../../../src/generators/schemas');
 const usersSchema = require('../../fixtures/users-schema.js');
 
+const collection = [
+  { id: '1', name: 'foo' },
+  { id: '2', name: 'bar' },
+  { id: '3', name: 'baz' },
+];
+
 function getMockedRecordsGetter(modelName = null) {
   const recordsGetter = new RecordsGetter(modelName);
   recordsGetter.configStore.Implementation = {
     ResourcesGetter() {
       return {
-        perform: () => Promise.resolve([[
-          { id: 1, name: 'foo' },
-          { id: 2, name: 'bar' },
-        ], ['id']]),
+        perform: () => Promise.resolve([collection, ['id']]),
         count: () => 2,
       };
     },
@@ -25,7 +28,7 @@ describe('services › exposed › records-getter', () => {
   describe('getIdsFromRequest', () => {
     it('should return IDs as is if IDs provided', async () => {
       expect.assertions(1);
-      const expectedIds = [1, 2, 3];
+      const expectedIds = ['1', '2'];
       const request = { body: { data: { attributes: { ids: expectedIds } } } };
       const ids = await new RecordsGetter().getIdsFromRequest(request);
       expect(ids).toBe(expectedIds);
@@ -34,8 +37,17 @@ describe('services › exposed › records-getter', () => {
     it('should return all records if query is provided', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
-      const expectedIds = [1, 2];
+      const expectedIds = ['1', '2', '3'];
       const request = { query: {} };
+      const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
+      expect(ids).toStrictEqual(expectedIds);
+    });
+
+    it('should return all records but some if there are excluded IDs', async () => {
+      expect.assertions(1);
+      Schemas.schemas = { users: usersSchema };
+      const expectedIds = ['2'];
+      const request = { query: { excludedIds: '1,3' } };
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toStrictEqual(expectedIds);
     });
@@ -45,10 +57,7 @@ describe('services › exposed › records-getter', () => {
     it('should return all records', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
-      const expected = [
-        { id: 1, name: 'foo' },
-        { id: 2, name: 'bar' },
-      ];
+      const expected = collection;
       const users = await getMockedRecordsGetter('users').getAll({});
       expect(users).toStrictEqual(expected);
     });
