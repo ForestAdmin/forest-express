@@ -7,6 +7,7 @@ const ResourceSerializer = require('../serializers/resource');
 const Schemas = require('../generators/schemas');
 const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
+const RecordsGetter = require('../services/exposed/records-getter.js');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
   const modelName = Implementation.getModelName(model);
@@ -107,9 +108,25 @@ module.exports = function Associations(app, model, Implementation, integrator, o
       .catch(next);
   }
 
-  function remove(request, response, next) {
+  async function remove(request, response, next) {
     const params = _.extend(request.params, getAssociation(request), request.query);
-    const data = request.body;
+
+    let body;
+    // NOTICE: There are two ways to receive request data from frontend:
+    //         - Legacy: `{ body: { data: [ { id: 1, … }, { id: 2, … }, … ]} }`.
+    //         - IDs or query params (similar to smart actions parameters and deletion operations).
+    //
+    //         The HasManyDissociator currently accepts a `data` parameter that has to be formatted
+    //         as the legacy one.
+    const isLegacyRequest = request.body && request.body.data && Array.isArray(request.body.data);
+    if (isLegacyRequest) {
+      body = request.body;
+    } else {
+      const ids = await new RecordsGetter().getIdsFromRequest(request);
+      // NOTICE: Map id list to "body" data parameter (follow legacy body signature).
+      body = { body: ids.map((id) => ({ id })) };
+    }
+
     const models = Implementation.getModels();
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
@@ -118,8 +135,11 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     );
 
     return new Implementation.HasManyDissociator(
-      model, associationModel, opts,
-      params, data,
+      model,
+      associationModel,
+      opts,
+      params,
+      body,
     )
       .perform()
       .then(() => { response.status(204).send(); })
