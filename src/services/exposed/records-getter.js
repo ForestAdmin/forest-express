@@ -42,9 +42,15 @@ class RecordsGetter extends AbstractRecordService {
 
     // NOTICE: records IDs are returned with a batch.
     const recordsIds = await Array.from({ length: Math.ceil(recordsCount / BATCH_PAGE_SIZE) })
-      .reduce(async (accumulator, _, index) => [...await accumulator, ...(await this.getAll(
-        { ...params.query, page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` } },
-      )).map((record) => getId(record))], []);
+      .reduce(async (accumulator, _, index) => {
+        const currentRecordsParams = {
+          ...params.query,
+          page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` },
+        };
+        const currentRecords = this.getAll(currentRecordsParams).map((record) => getId(record));
+
+        return [...await accumulator, ...await currentRecords];
+      }, []);
 
     // NOTICE: remove excluded IDs.
     if (params.query.excludedIds) {
