@@ -1,5 +1,6 @@
 const AbstractRecordService = require('./abstract-records-service');
 const ParamsFieldsDeserializer = require('../../deserializers/params-fields');
+const QueryDeserializer = require('../../deserializers/query');
 const Schemas = require('../../generators/schemas');
 
 const BATCH_PAGE_SIZE = 100;
@@ -20,9 +21,12 @@ class RecordsGetter extends AbstractRecordService {
   //          It could be used to handle both "select all" (query) and "select some" (ids).
   async getIdsFromRequest(params) {
     const hasBodyAttributes = params.body && params.body.data && params.body.data.attributes;
-    const attributes = hasBodyAttributes && params.body.data.attributes;
+
+    const attributes = hasBodyAttributes
+      && new QueryDeserializer(params.body.data.attributes).perform();
+
     const isSelectAllRecordsQuery = hasBodyAttributes
-      && params.body.data.attributes.areAllRecordsSelected === true;
+      && attributes.areAllRecordsSelected === true;
 
     // NOTICE: If it is not a "select all records" query and it receives a list of ID.
     if (!isSelectAllRecordsQuery && attributes.ids) {
