@@ -47,9 +47,9 @@ class RecordsGetter extends AbstractRecordService {
           ...params.query,
           page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` },
         };
-        const currentRecords = this.getAll(currentRecordsParams).map((record) => getId(record));
+        const currentRecords = await this.getAll(currentRecordsParams);
 
-        return [...await accumulator, ...await currentRecords];
+        return [...await accumulator, ...currentRecords.map((record) => getId(record))];
       }, []);
 
     // NOTICE: remove excluded IDs.
