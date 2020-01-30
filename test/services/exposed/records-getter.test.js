@@ -24,21 +24,25 @@ function getMockedRecordsGetter(modelName = null) {
   return recordsGetter;
 }
 
+function bodyDataAttributes(attributes) {
+  return { body: { data: { attributes } } };
+}
+
 describe('services › exposed › records-getter', () => {
   describe('getIdsFromRequest', () => {
     it('should return IDs as is if IDs provided', async () => {
       expect.assertions(1);
       const expectedIds = ['1', '2'];
-      const request = { body: { data: { attributes: { ids: expectedIds } } } };
+      const request = bodyDataAttributes({ ids: expectedIds });
       const ids = await new RecordsGetter().getIdsFromRequest(request);
       expect(ids).toBe(expectedIds);
     });
 
-    it('should return all records if query is provided', async () => {
+    it('should return all records if areAllRecordsSelected === true', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
       const expectedIds = ['1', '2', '3'];
-      const request = { query: {} };
+      const request = bodyDataAttributes({ areAllRecordsSelected: true });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toStrictEqual(expectedIds);
     });
@@ -47,7 +51,7 @@ describe('services › exposed › records-getter', () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
       const expectedIds = ['2'];
-      const request = { query: { excludedIds: '1,3' } };
+      const request = bodyDataAttributes({ excludedIds: '1,3' });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toStrictEqual(expectedIds);
     });

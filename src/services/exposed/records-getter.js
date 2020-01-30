@@ -16,16 +16,17 @@ class RecordsGetter extends AbstractRecordService {
       });
   }
 
-  // NOTICE: This function accept either query or body (that contains ID list) params
-  //         and return an ID list. It could be used to handle both "select all" (query)
-  //         and "select some" (ids).
+  // NOTICE: This function accept either query or ID list params and return an ID list.
+  //          It could be used to handle both "select all" (query) and "select some" (ids).
   async getIdsFromRequest(params) {
-    // NOTICE: If it receives a list of ID, return it as is.
-    if (params.body
-      && params.body.data
-      && params.body.data.attributes
-      && params.body.data.attributes.ids) {
-      return params.body.data.attributes.ids;
+    const hasBodyAttributes = params.body && params.body.data && params.body.data.attributes;
+    const attributes = hasBodyAttributes && params.body.data.attributes;
+    const isSelectAllRecordsQuery = hasBodyAttributes
+      && params.body.data.attributes.areAllRecordsSelected === true;
+
+    // NOTICE: If it is not a "select all records" query and it receives a list of ID.
+    if (!isSelectAllRecordsQuery && attributes.ids) {
+      return attributes.ids;
     }
 
     // NOTICE: Build id from primary keys (there can be multiple primary keys).
@@ -37,14 +38,14 @@ class RecordsGetter extends AbstractRecordService {
     const recordsCount = await new this.Implementation.ResourcesGetter(
       this.model,
       this.lianaOptions,
-      params,
-    ).count(params.query);
+      attributes.query,
+    ).count(attributes.query);
 
     // NOTICE: records IDs are returned with a batch.
     const recordsIds = await Array.from({ length: Math.ceil(recordsCount / BATCH_PAGE_SIZE) })
       .reduce(async (accumulator, _, index) => {
         const currentRecordsParams = {
-          ...params.query,
+          ...attributes.query,
           page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` },
         };
         const currentRecords = await this.getAll(currentRecordsParams);
@@ -53,8 +54,8 @@ class RecordsGetter extends AbstractRecordService {
       }, []);
 
     // NOTICE: remove excluded IDs.
-    if (params.query.excludedIds) {
-      const excludedIds = params.query.excludedIds.split(',');
+    if (attributes.excludedIds) {
+      const excludedIds = attributes.excludedIds.split(',');
       return recordsIds.filter((id) => !excludedIds.includes(id));
     }
 
