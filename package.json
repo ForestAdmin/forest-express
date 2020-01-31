@@ -42,7 +42,7 @@
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
     "moment": "2.24.0",
-    "moment-timezone": "0.5.26",
+    "moment-timezone": "0.5.27",
     "otplib": "11.0.1",
     "require-all": "3.0.0",
     "semver": "6.3.0",
