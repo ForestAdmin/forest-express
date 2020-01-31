@@ -25,7 +25,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "@babel/runtime": "7.7.2",
+    "@babel/runtime": "7.8.3",
     "base32-encode": "1.1.1",
     "bitwise-xor": "0.0.0",
     "bluebird": "3.7.1",
@@ -53,16 +53,18 @@
     "winston": "3.2.1"
   },
   "devDependencies": {
-    "@babel/cli": "7.7.0",
-    "@babel/core": "7.7.2",
-    "@babel/plugin-transform-classes": "7.7.0",
-    "@babel/plugin-transform-runtime": "7.6.2",
-    "@babel/preset-env": "7.7.4",
-    "@babel/register": "7.7.4",
+    "@babel/cli": "7.8.3",
+    "@babel/core": "7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "7.8.3",
+    "@babel/plugin-transform-classes": "7.8.3",
+    "@babel/plugin-transform-runtime": "7.8.3",
+    "@babel/preset-env": "7.8.3",
+    "@babel/register": "7.8.3",
     "@commitlint/cli": "8.2.0",
     "@commitlint/config-conventional": "8.2.0",
     "@commitlint/travis-cli": "8.2.0",
     "@forestadmin/devops": "2.0.0",
+    "babel-eslint": "10.0.3",
     "dotenv": "6.2.0",
     "eslint": "6.8.0",
     "eslint-config-airbnb-base": "14.0.0",
@@ -79,7 +81,7 @@
     "supertest": "4.0.0"
   },
   "scripts": {
-    "build": "babel src -d dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
+    "build": "./node_modules/.bin/babel src -d dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
     "build:watch": "onchange 'src/**/*.js' -i -- yarn build",
     "lint": "./node_modules/eslint/bin/eslint.js .eslint-bin scripts src test",
     "pre-commit": "node ./.eslint-bin/pre-commit-hook.js",

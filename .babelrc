@@ -2,6 +2,7 @@
   "presets": ["@babel/preset-env"],
   "plugins": [
     "@babel/plugin-transform-runtime",
-    "@babel/plugin-transform-classes"
+    "@babel/plugin-transform-classes",
+    "@babel/plugin-proposal-optional-chaining"
   ]
 }
