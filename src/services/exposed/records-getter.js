@@ -59,8 +59,7 @@ class RecordsGetter extends AbstractRecordService {
 
     // NOTICE: remove excluded IDs.
     if (attributes.excludedIds) {
-      const excludedIds = attributes.excludedIds.split(',');
-      return recordsIds.filter((id) => !excludedIds.includes(id));
+      return recordsIds.filter((id) => !attributes.excludedIds.includes(id));
     }
 
     return recordsIds;
