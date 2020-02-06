@@ -122,7 +122,7 @@ module.exports = function Resources(app, model) {
   };
 
   this.removeMany = async (request, response, next) => {
-    const ids = await new RecordsGetter().getIdsFromRequest(request);
+    const ids = await new RecordsGetter(model).getIdsFromRequest(request);
 
     const promises = ids.map((recordId) =>
       new Implementation.ResourceRemover(model, { recordId }).perform());
