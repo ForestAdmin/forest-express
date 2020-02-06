@@ -42,7 +42,7 @@ describe('services › exposed › records-getter', () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
       const expectedIds = ['1', '2', '3'];
-      const request = bodyDataAttributes({ areAllRecordsSelected: true });
+      const request = bodyDataAttributes({ are_all_records_selected: true });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toStrictEqual(expectedIds);
     });
@@ -51,7 +51,7 @@ describe('services › exposed › records-getter', () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
       const expectedIds = ['2'];
-      const request = bodyDataAttributes({ excludedIds: ['1', '3'] });
+      const request = bodyDataAttributes({ excluded_ids: ['1', '3'] });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toStrictEqual(expectedIds);
     });
