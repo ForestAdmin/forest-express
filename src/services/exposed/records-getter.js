@@ -18,8 +18,7 @@ class RecordsGetter extends AbstractRecordService {
   // NOTICE: This function accept either query or ID list params and return an ID list.
   //          It could be used to handle both "select all" (query) and "select some" (ids).
   async getIdsFromRequest(params) {
-    const recordsGetter = async (attributes, currentPageParams) =>
-      this.getAll({ ...attributes, currentPageParams });
+    const recordsGetter = async (attributes) => this.getAll(attributes);
     const recordsCounter = async (attributes) => new this.Implementation.ResourcesGetter(
       this.model,
       this.lianaOptions,

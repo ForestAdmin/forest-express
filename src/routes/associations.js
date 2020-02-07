@@ -109,13 +109,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   }
 
   async function remove(request, response, next) {
-    const params = _.extend(request.params, getAssociation(request), request.query);
-    const models = Implementation.getModels();
-    const associationField = getAssociationField(params.associationName);
-    const associationModel = _.find(
-      models,
-      (innerModel) => Implementation.getModelName(innerModel) === associationField,
-    );
+    const { params, associationModel } = getContext(request);
 
     let body;
     // NOTICE: There are three ways to receive request data from frontend:
@@ -130,12 +124,12 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     if (!hasBodyAttributes && isLegacyRequest) {
       body = request.body;
     } else if (hasBodyAttributes) {
-      const recordsGetter = async (_attributes, currentPageParams) => {
+      const recordsGetter = async (attributes) => {
         const [records] = await new Implementation.HasManyGetter(
           model,
           associationModel,
           opts,
-          { ...params, currentPageParams },
+          { ...params, ...attributes },
         ).perform();
         return records;
       };
@@ -148,7 +142,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         recordsCounter,
         primaryKeysGetter,
       ).perform(request);
-      body = { body: ids.map((id) => ({ id })) };
+      body = { data: ids.map((id) => ({ id })) };
     }
 
     return new Implementation.HasManyDissociator(
