@@ -7,7 +7,7 @@ const ResourceSerializer = require('../serializers/resource');
 const Schemas = require('../generators/schemas');
 const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
-const RecordsGetter = require('../services/exposed/records-getter.js');
+const IdsFromRequestRetriever = require('../services/ids-from-request-retriever');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
   const modelName = Implementation.getModelName(model);
@@ -110,29 +110,46 @@ module.exports = function Associations(app, model, Implementation, integrator, o
 
   async function remove(request, response, next) {
     const params = _.extend(request.params, getAssociation(request), request.query);
-
-    let body;
-    // NOTICE: There are two ways to receive request data from frontend:
-    //         - Legacy: `{ body: { data: [ { id: 1, … }, { id: 2, … }, … ]} }`.
-    //         - IDs or query params (similar to smart actions parameters and deletion operations).
-    //
-    //         The HasManyDissociator currently accepts a `data` parameter that has to be formatted
-    //         as the legacy one.
-    const isLegacyRequest = request.body && request.body.data && Array.isArray(request.body.data);
-    if (isLegacyRequest) {
-      body = request.body;
-    } else {
-      const ids = await new RecordsGetter().getIdsFromRequest(request);
-      // NOTICE: Map id list to "body" data parameter (follow legacy body signature).
-      body = { body: ids.map((id) => ({ id })) };
-    }
-
     const models = Implementation.getModels();
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
       models,
       (innerModel) => Implementation.getModelName(innerModel) === associationField,
     );
+
+    let body;
+    // NOTICE: There are three ways to receive request data from frontend:
+    //         - Legacy: `{ body: { data: [ { id: 1, … }, { id: 2, … }, … ]} }`.
+    //         - IDs (select some)
+    //         - Or query params (select all).
+    //
+    //         The HasManyDissociator currently accepts a `data` parameter that has to be formatted
+    //         as the legacy one.
+    const hasBodyAttributes = request.body && request.body.data && request.body.data.attributes;
+    const isLegacyRequest = request.body && request.body.data && Array.isArray(request.body.data);
+    if (!hasBodyAttributes && isLegacyRequest) {
+      body = request.body;
+    } else if (hasBodyAttributes) {
+      const recordsGetter = async (_attributes, currentPageParams) => {
+        const [records] = await new Implementation.HasManyGetter(
+          model,
+          associationModel,
+          opts,
+          { ...params, currentPageParams },
+        ).perform();
+        return records;
+      };
+      const recordsCounter = async () =>
+        new Implementation.HasManyGetter(model, associationModel, opts, params).count();
+      const primaryKeysGetter = () =>
+        Schemas.schemas[Implementation.getModelName(associationModel)];
+      const ids = await new IdsFromRequestRetriever(
+        recordsGetter,
+        recordsCounter,
+        primaryKeysGetter,
+      ).perform(request);
+      body = { body: ids.map((id) => ({ id })) };
+    }
 
     return new Implementation.HasManyDissociator(
       model,
