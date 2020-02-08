@@ -20,7 +20,10 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
     // NOTICE: Build id from primary keys (there can be multiple primary keys).
     //         See: https://github.com/ForestAdmin/forest-express-sequelize/blob/42283494de77c9cebe96adbe156caa45c86a80fa/src/services/composite-keys-manager.js#L24-L40
     const { primaryKeys } = primaryKeysGetter();
-    const getId = (record) => primaryKeys.map((primaryKey) => record[primaryKey]).join('-');
+    const getId = (record) => (
+      // NOTICE: Primary keys are not available in mongoose schemas.
+      primaryKeys ? primaryKeys.map((primaryKey) => record[primaryKey]).join('-') : record._id
+    );
 
     // NOTICE: Get records count
     const recordsCount = await recordsCounter(attributes);
