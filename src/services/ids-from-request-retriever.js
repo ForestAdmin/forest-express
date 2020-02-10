@@ -39,8 +39,8 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
       }, []);
 
     // NOTICE: remove excluded IDs.
-    if (attributes.excludedIds) {
-      return recordsIds.filter((id) => !attributes.excludedIds.includes(id));
+    if (attributes.idsExcluded) {
+      return recordsIds.filter((id) => !attributes.idsExcluded.includes(id));
     }
 
     return recordsIds;
