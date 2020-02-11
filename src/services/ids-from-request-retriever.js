@@ -40,7 +40,9 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
 
     // NOTICE: remove excluded IDs.
     if (attributes.idsExcluded) {
-      return recordsIds.filter((id) => !attributes.idsExcluded.includes(id));
+      // NOTICE: Ensure that IDs are comparables (avoid ObjectId or Integer issues).
+      const idsExcludedAsString = attributes.idsExcluded.map(String);
+      return recordsIds.filter((id) => !idsExcludedAsString.includes(String(id)));
     }
 
     return recordsIds;
