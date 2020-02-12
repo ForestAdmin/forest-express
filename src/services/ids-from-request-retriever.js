@@ -10,7 +10,7 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
       && new QueryDeserializer(params.body.data.attributes).perform();
 
     const isSelectAllRecordsQuery = hasBodyAttributes
-      && attributes.areAllRecordsSelected === true;
+      && attributes.allRecords === true;
 
     // NOTICE: If it is not a "select all records" query and it receives a list of ID.
     if (!isSelectAllRecordsQuery && attributes.ids) {
@@ -32,16 +32,16 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
     const recordsIds = await Array.from({ length: Math.ceil(recordsCount / BATCH_PAGE_SIZE) })
       .reduce(async (accumulator, _, index) => {
         const currentRecords = await recordsGetter({
-          ...attributes.query,
+          ...attributes.allRecordsSubsetQuery,
           page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` },
         });
         return [...await accumulator, ...currentRecords.map((record) => getId(record))];
       }, []);
 
     // NOTICE: remove excluded IDs.
-    if (attributes.idsExcluded) {
+    if (attributes.allRecordsIdsExcluded) {
       // NOTICE: Ensure that IDs are comparables (avoid ObjectId or Integer issues).
-      const idsExcludedAsString = attributes.idsExcluded.map(String);
+      const idsExcludedAsString = attributes.allRecordsIdsExcluded.map(String);
       return recordsIds.filter((id) => !idsExcludedAsString.includes(String(id)));
     }
 

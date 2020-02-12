@@ -1,8 +1,9 @@
 function QueryDeserializer(attributes) {
   this.perform = () => ({
     ...attributes,
-    areAllRecordsSelected: attributes.are_all_records_selected,
-    idsExcluded: attributes.ids_excluded,
+    allRecords: attributes.all_records,
+    allRecordsIdsExcluded: attributes.all_records_ids_excluded,
+    allRecordsSubsetQuery: attributes.all_records_subset_query,
   });
 }
 

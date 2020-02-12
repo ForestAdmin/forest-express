@@ -22,8 +22,8 @@ class RecordsGetter extends AbstractRecordService {
     const recordsCounter = async (attributes) => new this.Implementation.ResourcesGetter(
       this.model,
       this.lianaOptions,
-      attributes.query,
-    ).count(attributes.query);
+      attributes.allRecordsSubsetQuery,
+    ).count(attributes.allRecordsSubsetQuery);
     const primaryKeysGetter = () => Schemas.schemas[this.Implementation.getModelName(this.model)];
 
     return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGetter)
