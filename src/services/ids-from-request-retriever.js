@@ -2,7 +2,7 @@ const QueryDeserializer = require('../deserializers/query');
 
 const BATCH_PAGE_SIZE = 100;
 
-function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGetter) {
+function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeys) {
   this.perform = async (params) => {
     const hasBodyAttributes = params.body && params.body.data && params.body.data.attributes;
 
@@ -19,7 +19,6 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
 
     // NOTICE: Build id from primary keys (there can be multiple primary keys).
     //         See: https://github.com/ForestAdmin/forest-express-sequelize/blob/42283494de77c9cebe96adbe156caa45c86a80fa/src/services/composite-keys-manager.js#L24-L40
-    const { primaryKeys } = primaryKeysGetter();
     const getId = (record) => (
       // NOTICE: Primary keys are not available in mongoose schemas.
       primaryKeys ? primaryKeys.map((primaryKey) => record[primaryKey]).join('-') : record._id

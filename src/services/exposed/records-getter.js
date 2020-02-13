@@ -18,15 +18,61 @@ class RecordsGetter extends AbstractRecordService {
   // NOTICE: This function accept either query or ID list params and return an ID list.
   //          It could be used to handle both "select all" (query) and "select some" (ids).
   async getIdsFromRequest(params) {
+    if (params
+      && params.body
+      && params.body.data
+      && params.body.data.attributes
+      && params.body.data.attributes.all_records_subset_query
+      && params.body.data.attributes.all_records_subset_query.parent_collection_id) {
+      const parentModel = this.Implementation.getModels()[
+        params.body.data.attributes.all_records_subset_query.parent_collection_name
+      ];
+      const modelName = this.Implementation.getModelName(this.model);
+      const associationName = params.body.data.attributes.all_records_subset_query.association_name;
+      // const model = Schemas.schemas[modelName];
+      const recordsGetter = async (attributes) => {
+        const [records] = await new this.Implementation.HasManyGetter(
+          parentModel,
+          this.model,
+          this.lianaOptions,
+          {
+            ...params,
+            ...attributes,
+            recordId: params.body.data.attributes.all_records_subset_query.parent_collection_id,
+            associationName,
+          },
+        ).perform();
+        return records;
+      };
+      const recordsCounter = async () =>
+        new this.Implementation.HasManyGetter(
+          parentModel,
+          this.model,
+          this.lianaOptions,
+          {
+            ...params,
+            recordId: params.body.data.attributes.all_records_subset_query.parent_collection_id,
+            associationName,
+          },
+        ).count();
+      // console.log(Schemas.schemas[modelName]);
+      const { primaryKeys } = Schemas.schemas[modelName];
+
+      return new IdsFromRequestRetriever(
+        recordsGetter,
+        recordsCounter,
+        primaryKeys,
+      ).perform(params);
+    }
     const recordsGetter = async (attributes) => this.getAll(attributes);
     const recordsCounter = async (attributes) => new this.Implementation.ResourcesGetter(
       this.model,
       this.lianaOptions,
       attributes.allRecordsSubsetQuery,
     ).count(attributes.allRecordsSubsetQuery);
-    const primaryKeysGetter = () => Schemas.schemas[this.Implementation.getModelName(this.model)];
+    const { primaryKeys } = Schemas.schemas[this.Implementation.getModelName(this.model)];
 
-    return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGetter)
+    return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeys)
       .perform(params);
   }
 }
