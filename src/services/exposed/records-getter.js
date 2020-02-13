@@ -34,14 +34,15 @@ class RecordsGetter extends AbstractRecordService {
           this.lianaOptions,
           {
             ...params,
-            ...attributes,
+            ...attributes.allRecordsSubsetQuery,
+            page: attributes.page,
             recordId: parentCollectionId,
             associationName: parentAssociationName,
           },
         ).perform();
         return records;
       }
-      return this.getAll(attributes);
+      return this.getAll({ ...attributes.allRecordsSubsetQuery, page: attributes.page });
     };
 
     const recordsCounter = async (attributes) => {

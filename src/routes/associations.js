@@ -129,7 +129,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
           model,
           associationModel,
           opts,
-          { ...params, ...attributes },
+          { ...params, ...attributes.allRecordsSubsetQuery },
         ).perform();
         return records;
       };
