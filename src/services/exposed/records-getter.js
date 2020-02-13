@@ -16,21 +16,18 @@ class RecordsGetter extends AbstractRecordService {
   }
 
   // NOTICE: This function accept either query or ID list params and return an ID list.
-  //          It could be used to handle both "select all" (query) and "select some" (ids).
+  //         It could be used to handle both "select all" (query) and "select some" (ids).
+  //         It also handles related data.
   async getIdsFromRequest(params) {
-    if (params
-      && params.body
-      && params.body.data
-      && params.body.data.attributes
-      && params.body.data.attributes.all_records_subset_query
-      && params.body.data.attributes.all_records_subset_query.parent_collection_id) {
-      const parentModel = this.Implementation.getModels()[
-        params.body.data.attributes.all_records_subset_query.parent_collection_name
-      ];
-      const modelName = this.Implementation.getModelName(this.model);
-      const associationName = params.body.data.attributes.all_records_subset_query.association_name;
-      // const model = Schemas.schemas[modelName];
-      const recordsGetter = async (attributes) => {
+    const isRelatedData = (attributes) =>
+      attributes.parentCollectionId
+      && attributes.parentCollectionName
+      && attributes.parentAssociationName;
+
+    const recordsGetter = async (attributes) => {
+      const { parentCollectionId, parentCollectionName, parentAssociationName } = attributes;
+      if (isRelatedData(attributes)) {
+        const parentModel = this.Implementation.getModels()[parentCollectionName];
         const [records] = await new this.Implementation.HasManyGetter(
           parentModel,
           this.model,
@@ -38,38 +35,32 @@ class RecordsGetter extends AbstractRecordService {
           {
             ...params,
             ...attributes,
-            recordId: params.body.data.attributes.all_records_subset_query.parent_collection_id,
-            associationName,
+            recordId: parentCollectionId,
+            associationName: parentAssociationName,
           },
         ).perform();
         return records;
-      };
-      const recordsCounter = async () =>
-        new this.Implementation.HasManyGetter(
+      }
+      return this.getAll(attributes);
+    };
+
+    const recordsCounter = async (attributes) => {
+      const { parentCollectionId, parentCollectionName, parentAssociationName } = attributes;
+      if (isRelatedData(attributes)) {
+        const parentModel = this.Implementation.getModels()[parentCollectionName];
+        return new this.Implementation.HasManyGetter(
           parentModel,
           this.model,
           this.lianaOptions,
-          {
-            ...params,
-            recordId: params.body.data.attributes.all_records_subset_query.parent_collection_id,
-            associationName,
-          },
+          { ...params, recordId: parentCollectionId, associationName: parentAssociationName },
         ).count();
-      // console.log(Schemas.schemas[modelName]);
-      const { primaryKeys } = Schemas.schemas[modelName];
-
-      return new IdsFromRequestRetriever(
-        recordsGetter,
-        recordsCounter,
-        primaryKeys,
-      ).perform(params);
-    }
-    const recordsGetter = async (attributes) => this.getAll(attributes);
-    const recordsCounter = async (attributes) => new this.Implementation.ResourcesGetter(
-      this.model,
-      this.lianaOptions,
-      attributes.allRecordsSubsetQuery,
-    ).count(attributes.allRecordsSubsetQuery);
+      }
+      return new this.Implementation.ResourcesGetter(
+        this.model,
+        this.lianaOptions,
+        attributes.allRecordsSubsetQuery,
+      ).count(attributes.allRecordsSubsetQuery);
+    };
     const { primaryKeys } = Schemas.schemas[this.Implementation.getModelName(this.model)];
 
     return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeys)
