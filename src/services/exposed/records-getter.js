@@ -61,9 +61,9 @@ class RecordsGetter extends AbstractRecordService {
         attributes.allRecordsSubsetQuery,
       ).count(attributes.allRecordsSubsetQuery);
     };
-    const { primaryKeys } = Schemas.schemas[this.Implementation.getModelName(this.model)];
+    const primaryKeysGetter = () => Schemas.schemas[this.Implementation.getModelName(this.model)];
 
-    return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeys)
+    return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGetter)
       .perform(params);
   }
 }

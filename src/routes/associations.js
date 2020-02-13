@@ -135,11 +135,12 @@ module.exports = function Associations(app, model, Implementation, integrator, o
       };
       const recordsCounter = async () =>
         new Implementation.HasManyGetter(model, associationModel, opts, params).count();
-      const { primaryKeys } = Schemas.schemas[Implementation.getModelName(associationModel)];
+      const primaryKeysGetter = () =>
+        Schemas.schemas[Implementation.getModelName(associationModel)];
       const ids = await new IdsFromRequestRetriever(
         recordsGetter,
         recordsCounter,
-        primaryKeys,
+        primaryKeysGetter,
       ).perform(request);
       body = { data: ids.map((id) => ({ id })) };
     }
