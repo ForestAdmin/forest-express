@@ -32,7 +32,7 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
     const recordsIds = await Array.from({ length: Math.ceil(recordsCount / BATCH_PAGE_SIZE) })
       .reduce(async (accumulator, _, index) => {
         const currentRecords = await recordsGetter({
-          ...attributes.allRecordsSubsetQuery,
+          ...attributes,
           page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` },
         });
         return [...await accumulator, ...currentRecords.map((record) => getId(record))];
