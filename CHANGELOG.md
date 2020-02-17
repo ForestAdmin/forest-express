@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Initialisation - Make Liana.init return a promise resolving when all is up.
 
 ## RELEASE 5.6.1 - 2020-01-17
 ### Changed

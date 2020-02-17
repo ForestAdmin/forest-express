@@ -12,12 +12,12 @@ describe('routes > session Google', () => {
   let app;
   let sandbox;
 
-  function initializeSandbox() {
+  async function initializeSandbox() {
     sandbox = sinon.createSandbox();
     // eslint-disable-next-line global-require
     const forestServerRequester = require('../../src/services/forest-server-requester');
 
-    app = createServer(envSecret, authSecret);
+    app = await createServer(envSecret, authSecret);
 
     const stubPerform = sandbox.stub(forestServerRequester, 'perform');
 
@@ -65,7 +65,7 @@ describe('routes > session Google', () => {
   describe('#POST /forest/sessions-google', () => {
     it('should return a valid jwt token', async () => {
       expect.assertions(2);
-      initializeSandbox();
+      await initializeSandbox();
       await new Promise((done) => {
         request(app)
           .post('/forest/sessions-google')
