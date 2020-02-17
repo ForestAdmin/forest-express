@@ -6,6 +6,7 @@ const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const PermissionMiddlewareCreator = require('../middlewares/permissions');
 const ConfigStore = require('../services/config-store');
+const RecordsGetter = require('../services/exposed/records-getter.js');
 
 const configStore = ConfigStore.getInstance();
 
@@ -120,6 +121,17 @@ module.exports = function Resources(app, model) {
       .catch(next);
   };
 
+  this.removeMany = async (request, response, next) => {
+    const ids = await new RecordsGetter(model).getIdsFromRequest(request);
+
+    try {
+      await new Implementation.ResourcesRemover(model, ids).perform();
+    } catch (e) {
+      next(e);
+    }
+    response.status(204).send();
+  };
+
   const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
 
   this.perform = () => {
@@ -164,6 +176,12 @@ module.exports = function Resources(app, model) {
       auth.ensureAuthenticated,
       permissionMiddlewareCreator.delete(),
       this.remove,
+    );
+    app.delete(
+      path.generate(modelName, lianaOptions),
+      auth.ensureAuthenticated,
+      permissionMiddlewareCreator.delete(),
+      this.removeMany,
     );
   };
 };
