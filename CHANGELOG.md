@@ -1,3 +1,15 @@
+# [7.0.0](https://github.com/ForestAdmin/forest-express/compare/v6.0.0...v7.0.0) (2020-02-17)
+
+
+### Features
+
+* make Liana.init return a promise resolving when all is up ([#355](https://github.com/ForestAdmin/forest-express/issues/355)) ([c407609](https://github.com/ForestAdmin/forest-express/commit/c407609eaa2500704ce96c4943dfbea6af7c4283))
+
+
+### BREAKING CHANGES
+
+* The init method now returns a promise.
+
 # Change Log
 
 ## [Unreleased]
