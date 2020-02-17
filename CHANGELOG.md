@@ -10,11 +10,17 @@
 
 * The init method now returns a promise.
 
-# Change Log
+# [6.0.0](https://github.com/ForestAdmin/forest-express/compare/v5.6.1...v6.0.0) (2020-02-17)
 
-## [Unreleased]
-### Added
-- Initialisation - Make Liana.init return a promise resolving when all is up.
+
+### Features
+
+* **smart actions**: add a method to RecordsGetter to get all models IDs given a query or an ID list ([#346](https://github.com/ForestAdmin/forest-express/issues/346)) ([fb43abe](https://github.com/ForestAdmin/forest-express/commit/fb43abe4550c795556f4dc6bab60d381b43baa5d))
+
+
+### BREAKING CHANGES
+
+* **smart actions**: smart actions must now use this method (documentation has to be updated)
 
 ## RELEASE 5.6.1 - 2020-01-17
 ### Changed
