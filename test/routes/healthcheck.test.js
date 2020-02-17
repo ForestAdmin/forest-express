@@ -9,7 +9,7 @@ describe('routes > healthcheck', () => {
   describe('#GET /forest/healthcheck', () => {
     it('should return 200', async () => {
       expect.assertions(2);
-      const app = createServer(envSecret, authSecret);
+      const app = await createServer(envSecret, authSecret);
       await new Promise((done) => {
         request(app)
           .get('/forest/healthcheck')
