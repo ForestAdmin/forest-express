@@ -74,7 +74,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   function exportCSV(request, response, next) {
     const { params, associationModel } = getContext(request);
 
-    const recordsExporter = new Implementation.RecordsExporter(
+    const recordsExporter = new Implementation.ResourcesExporter(
       model,
       opts,
       params,

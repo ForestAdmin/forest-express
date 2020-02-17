@@ -14,6 +14,7 @@ const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
 const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
+const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
@@ -51,10 +52,17 @@ function getModels() {
 function requireAllModels(modelsDir) {
   if (modelsDir) {
     try {
+      const isJavascriptOrTypescriptFileName = (fileName) =>
+        fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+
+      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
+
       requireAll({
         dirname: modelsDir,
+        excludeDirs: /^__tests__$/,
         filter: (fileName) =>
-          fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')),
+          isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
         recursive: true,
       });
     } catch (error) {
@@ -174,6 +182,7 @@ exports.init = (Implementation) => {
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
+  new HealthCheckRoute(app, opts).perform();
   new SessionRoute(app, opts).perform();
 
   // Init
@@ -349,7 +358,7 @@ exports.collection = (name, opts) => {
     if (opts.searchFields) {
       Schemas.schemas[name].searchFields = opts.searchFields;
     }
-  } else {
+  } else if (opts.fields && opts.fields.length) {
     // NOTICE: Smart Collection definition case
     opts.name = name;
     opts.idField = 'id';
@@ -377,4 +386,4 @@ exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
-exports.PUBLIC_ROUTES = ['/', '/sessions', '/sessions-google'];
+exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];

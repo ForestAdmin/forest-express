@@ -2,25 +2,15 @@ const P = require('bluebird');
 
 function IpWhitelistDeserializer(data) {
   this.perform = () =>
-    P.try(() => {
-      const deserialiazedData = {};
-
-      deserialiazedData.useIpWhitelist = data.attributes.use_ip_whitelist;
-      deserialiazedData.rules = data.attributes.rules.map((rule) => {
-        if (rule.ip_minimum) {
-          rule.ipMinimum = rule.ip_minimum;
-          delete rule.ip_minimum;
-        }
-        if (rule.ip_maximum) {
-          rule.ipMaximum = rule.ip_maximum;
-          delete rule.ip_maximum;
-        }
-
-        return rule;
-      });
-
-      return deserialiazedData;
-    });
+    P.try(() => ({
+      useIpWhitelist: data.attributes.use_ip_whitelist,
+      rules: data.attributes.rules.map((rule) => {
+        const { ip_minimum: ipMinimum, ip_maximum: ipMaximum, ...rest } = rule;
+        if (ipMinimum) rest.ipMinimum = ipMinimum;
+        if (ipMaximum) rest.ipMaximum = ipMaximum;
+        return rest;
+      }),
+    }));
 }
 
 module.exports = IpWhitelistDeserializer;

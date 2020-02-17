@@ -44,7 +44,18 @@ const prettyPrint = (json, indentation = '') => {
   } else if (_.isNil(json)) {
     result += 'null';
   } else if (_.isString(json)) {
-    result += `"${json.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`;
+    // NOTICE: Escape invalid characters (see: https://www.json.org/json-en.html).
+    //         Also, JSON spec precise that '/' doesn't need to be escaped.
+    //         (see: https://stackoverflow.com/questions/1580647/json-why-are-forward-slashes-escaped)
+    const escapedJsonString = json
+      .replace(/[\\]/g, '\\\\')
+      .replace(/["]/g, '\\"')
+      .replace(/[\b]/g, '\\b')
+      .replace(/[\f]/g, '\\f')
+      .replace(/[\n]/g, '\\n')
+      .replace(/[\r]/g, '\\r')
+      .replace(/[\t]/g, '\\t');
+    result += `"${escapedJsonString}"`;
   } else {
     result += `${json}`;
   }

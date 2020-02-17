@@ -1,5 +1,6 @@
 const forestServerRequester = require('./forest-server-requester');
 const logger = require('./logger');
+const errorMessages = require('../utils/error-messages');
 
 function AuthorizationFinder(
   renderingId,
@@ -36,7 +37,18 @@ function AuthorizationFinder(
       })
       .catch((error) => {
         logger.error('Authorization error: ', error);
-        throw new Error();
+        let errorMessageToForward;
+        switch (error.message) {
+          case errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
+            errorMessageToForward = error.message;
+            break;
+          case errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
+            errorMessageToForward = 'Cannot retrieve the project you\'re trying to unlock. '
+              + 'Please check that you\'re using the right environment secret regarding your project and environment.';
+            break;
+          default: errorMessageToForward = undefined;
+        }
+        throw new Error(errorMessageToForward);
       });
   };
 }
