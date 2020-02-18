@@ -40,4 +40,4 @@ jobs:
         on:
           branch: master
         script:
-          - npx semantic-release
+          - yarn && yarn build && npx semantic-release
