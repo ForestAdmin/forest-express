@@ -1,3 +1,10 @@
+## [7.0.1](https://github.com/ForestAdmin/forest-express/compare/v7.0.0...v7.0.1) (2020-02-18)
+
+
+### Bug Fixes
+
+* **ci:** build before release ([#361](https://github.com/ForestAdmin/forest-express/issues/361)) ([0a12413](https://github.com/ForestAdmin/forest-express/commit/0a1241372c9b2fae3cdd23c99e3f2051a1db2fbd))
+
 # [7.0.0](https://github.com/ForestAdmin/forest-express/compare/v6.0.0...v7.0.0) (2020-02-17)
 
 
