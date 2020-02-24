@@ -8,6 +8,10 @@ module.exports = {
       field: 'smart',
       type: 'Json',
       get: () => ({ foo: 'bar' }),
+      set: (user, value) => {
+        user.name = `${user.name} - ${value}`;
+        return user;
+      },
       isVirtual: true,
       isFilterable: false,
       isSortable: false,

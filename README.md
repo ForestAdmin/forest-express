@@ -1,7 +1,7 @@
 # Forest Express Lianas dependency
 [![npm package](https://badge.fury.io/js/forest-express.svg)](https://badge.fury.io/js/forest-express)
 [![CI status](https://travis-ci.org/ForestAdmin/forest-express.svg?branch=devel)](https://travis-ci.org/ForestAdmin/forest-express)
-![Coverage](https://img.shields.io/badge/coverage-33%25%0A-critical)
+![Coverage](https://img.shields.io/badge/coverage-42%25%0A-critical)
 
 ## Build
 
