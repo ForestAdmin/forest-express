@@ -30,7 +30,7 @@ describe('utils › services', () => {
     expect(isIpValid('1.0.1.0')).toBe(true);
     expect(isIpValid('1.2.0.0')).toBe(true);
   });
-  it('should consider not valid IP as valid', async () => {
+  it('should consider invalid IP as invalid', async () => {
     expect.assertions(2);
     await retrieve();
     expect(isIpWhitelistRetrieved()).toBe(true);
