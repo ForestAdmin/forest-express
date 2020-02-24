@@ -13,4 +13,10 @@ describe('utils › data › find', () => {
     const data = { foo: 'bar' };
     expect(find(data, 'wrong-path')).toBeNull();
   });
+
+  it('should return a falsy data if data is falsy', () => {
+    expect.assertions(2);
+    expect(find(null, 'valid.path')).toBeNull();
+    expect(find(undefined, 'valid.path')).toBeUndefined();
+  });
 });
