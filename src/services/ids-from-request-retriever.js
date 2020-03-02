@@ -1,6 +1,6 @@
 const QueryDeserializer = require('../deserializers/query');
 
-const BATCH_PAGE_SIZE = 100;
+const BATCH_PAGE_SIZE = 1000;
 
 function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGetter) {
   this.perform = async (params) => {
@@ -33,6 +33,9 @@ function IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGette
       .reduce(async (accumulator, _, index) => {
         const currentRecords = await recordsGetter({
           ...attributes,
+          // NOTICE: Try to sort to avoid unexpected order result. Since sequelize and mongoose
+          //         lianas do not support multiple sort, we take first primary key only.
+          sort: primaryKeys ? primaryKeys[0] : '_id',
           page: { number: `${index + 1}`, size: `${BATCH_PAGE_SIZE}` },
         });
         return [...await accumulator, ...currentRecords.map((record) => getId(record))];
