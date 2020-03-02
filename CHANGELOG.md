@@ -1,3 +1,10 @@
+## [7.0.2](https://github.com/ForestAdmin/forest-express/compare/v7.0.1...v7.0.2) (2020-03-02)
+
+
+### Bug Fixes
+
+* use export csv batch configuration in IdsFromRequestRetriever ([#365](https://github.com/ForestAdmin/forest-express/issues/365)) ([c5102c7](https://github.com/ForestAdmin/forest-express/commit/c5102c7d6a09f6908720b4ec3c8e30ee0a35214d))
+
 ## [7.0.1](https://github.com/ForestAdmin/forest-express/compare/v7.0.0...v7.0.1) (2020-02-18)
 
 
