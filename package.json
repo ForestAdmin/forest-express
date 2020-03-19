@@ -47,7 +47,7 @@
     "require-all": "3.0.0",
     "semver": "6.3.0",
     "superagent": "3.7.0",
-    "useragent": "2.1.13",
+    "useragent": "2.3.0",
     "uuid": "3.3.3",
     "verror": "1.10.0",
     "winston": "3.2.1"
