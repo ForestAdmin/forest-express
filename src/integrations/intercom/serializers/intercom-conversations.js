@@ -2,10 +2,17 @@ const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function IntercomConversationsSerializer(conversations, collectionName, meta) {
   conversations = conversations.map((conversation) => {
-    // jshint camelcase: false
-    conversation.subject = conversation.conversation_message.subject;
-    conversation.body = [conversation.conversation_message.body,
-      conversation.link];
+    if (conversation.conversation_message) {
+      // NOTICE: Intercom API old version
+      conversation.subject = conversation.conversation_message.subject;
+      conversation.body = [conversation.conversation_message.body, conversation.link];
+    } else {
+      // NOTICE: Intercom API v2
+      conversation.subject = conversation.source.subject;
+      // NOTICE: The Intercom API does not sent all the conversation in a "list" request, only the
+      //         first message. So we add suspension points "...".
+      conversation.body = [conversation.source.body, '...'];
+    }
 
     if (conversation.assignee) {
       conversation.assignee = conversation.assignee.email;
