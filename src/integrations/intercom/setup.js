@@ -68,6 +68,7 @@ exports.createFields = (implementation, model, schemaFields) => {
     column: null,
     isFilterable: false,
     integration: INTEGRATION_NAME,
+    isVirtual: true,
   });
 
   schemaFields.push({
@@ -78,5 +79,6 @@ exports.createFields = (implementation, model, schemaFields) => {
     column: null,
     isFilterable: false,
     integration: INTEGRATION_NAME,
+    isVirtual: true,
   });
 };
