@@ -1,3 +1,10 @@
+## [7.0.3](https://github.com/ForestAdmin/forest-express/compare/v7.0.2...v7.0.3) (2020-04-06)
+
+
+### Bug Fixes
+
+* **integration:** fix intercom conversations display with API v2 ([#366](https://github.com/ForestAdmin/forest-express/issues/366)) ([9069668](https://github.com/ForestAdmin/forest-express/commit/90696689b6e9c252366f1d8ff544520ab8d798c9))
+
 ## [7.0.2](https://github.com/ForestAdmin/forest-express/compare/v7.0.1...v7.0.2) (2020-03-02)
 
 
