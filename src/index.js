@@ -298,7 +298,7 @@ exports.init = (Implementation) => {
           metaSent = contentParsed.meta;
         } catch (error) {
           if (error.code === 'ENOENT') {
-            logger.error('The .forestadmin-schema.json file does not exists.');
+            logger.error('The .forestadmin-schema.json file does not exist.');
           } else {
             logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
           }
