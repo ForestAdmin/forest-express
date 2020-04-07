@@ -78,7 +78,7 @@
     "nock": "11.7.0",
     "onchange": "6.1.0",
     "semantic-release": "17.0.3",
-    "simple-git": "1.65.0",
+    "simple-git": "1.132.0",
     "sinon": "7.5.0",
     "supertest": "4.0.0"
   },
