@@ -1,3 +1,10 @@
+## [7.0.6](https://github.com/ForestAdmin/forest-express/compare/v7.0.5...v7.0.6) (2020-04-07)
+
+
+### Bug Fixes
+
+* **integration:** fix intercom details display ([#371](https://github.com/ForestAdmin/forest-express/issues/371)) ([c9fa48d](https://github.com/ForestAdmin/forest-express/commit/c9fa48d8f8d766825c5919edfb23adf2d67ae886))
+
 ## [7.0.5](https://github.com/ForestAdmin/forest-express/compare/v7.0.4...v7.0.5) (2020-04-07)
 
 
