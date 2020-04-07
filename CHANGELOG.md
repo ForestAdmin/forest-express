@@ -1,3 +1,10 @@
+## [7.0.5](https://github.com/ForestAdmin/forest-express/compare/v7.0.4...v7.0.5) (2020-04-07)
+
+
+### Bug Fixes
+
+* **wording:** fix a typo in the missing .forestadmin-schema.json file error message ([#369](https://github.com/ForestAdmin/forest-express/issues/369)) ([24d4672](https://github.com/ForestAdmin/forest-express/commit/24d4672fc9c83d54e2db7853bfe46d009f336fb0))
+
 ## [7.0.4](https://github.com/ForestAdmin/forest-express/compare/v7.0.3...v7.0.4) (2020-04-07)
 
 
