@@ -1,3 +1,10 @@
+## [7.0.4](https://github.com/ForestAdmin/forest-express/compare/v7.0.3...v7.0.4) (2020-04-07)
+
+
+### Bug Fixes
+
+* **security:** bump acorn from 5.7.3 to 5.7.4 ([#368](https://github.com/ForestAdmin/forest-express/issues/368)) ([51af9b8](https://github.com/ForestAdmin/forest-express/commit/51af9b8fa15c0a6dfc1f75de2f26c76e9014e83e))
+
 ## [7.0.3](https://github.com/ForestAdmin/forest-express/compare/v7.0.2...v7.0.3) (2020-04-06)
 
 
