@@ -22,7 +22,9 @@ module.exports = function Routes(app, model, Implementation, options) {
 
   this.getAttributes = (request, response, next) => {
     new AttributesGetter(
-      Implementation, _.extend(request.query, request.params), options,
+      Implementation,
+      _.extend(request.query, request.params),
+      options,
       integrationInfo,
     )
       .perform()
@@ -35,7 +37,9 @@ module.exports = function Routes(app, model, Implementation, options) {
 
   this.listConversations = (request, response, next) => {
     new ConversationsGetter(
-      Implementation, _.extend(request.query, request.params), options,
+      Implementation,
+      _.extend(request.query, request.params),
+      options,
       integrationInfo,
     )
       .perform()

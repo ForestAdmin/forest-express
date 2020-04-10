@@ -1,22 +1,11 @@
 const _ = require('lodash');
 const P = require('bluebird');
 const logger = require('../../../services/logger');
+const ContactGetter = require('./contact-getter');
 
-function ConversationsGetter(Implementation, params, opts, collectionName) {
-  let model = null;
+function ConversationsGetter(Implementation, params, opts, mappingValue) {
   const Intercom = opts.integrations.intercom.intercom;
-  let intercom;
-
-  if (opts.integrations.intercom.credentials) {
-    intercom = new Intercom.Client(opts.integrations.intercom.credentials)
-      .usePromises();
-  } else {
-    // TODO: Remove once appId/apiKey is not supported anymore.
-    intercom = new Intercom.Client(
-      opts.integrations.intercom.appId,
-      opts.integrations.intercom.apiKey,
-    ).usePromises();
-  }
+  const intercom = new Intercom.Client(opts.integrations.intercom.credentials);
 
   function hasPagination() {
     return params.page && params.page.number;
@@ -51,56 +40,61 @@ function ConversationsGetter(Implementation, params, opts, collectionName) {
       });
   }
 
-  this.perform = () => {
-    model = Implementation.getModels()[collectionName];
-
-    return Implementation.Intercom.getCustomer(model, params.recordId)
-      .then((customer) => intercom.conversations
-        .list({
-          email: customer.email,
-          type: 'user',
-          display_as: 'plaintext',
-        })
-        .then((response) => {
-          const { conversations } = response.body;
-
-          if (response.body.pages.next) {
-            return fetchPages(response.body.pages, conversations);
-          }
-          return conversations;
-        })
-        .then((conversations) => [conversations.length,
-          conversations.slice(getSkip(), getSkip() + getLimit())])
-        .spread((count, conversations) => intercom.admins.list()
+  // NOTICE: Forcing the usage of bluebird to avoid issues with the spread on route file
+  this.perform = () => P.resolve(
+    ContactGetter
+      .getContact(intercom, Implementation, mappingValue, params.recordId)
+      .then((contact) => {
+        if (!contact.body.data) {
+          throw new Error('No intercom contact matches the given key');
+        }
+        return intercom.conversations
+          .list({
+            email: contact.body.data[0].email,
+            type: 'user',
+            display_as: 'plaintext',
+          })
           .then((response) => {
-            const { admins } = response.body;
+            const { conversations } = response.body;
 
-            return P
-              .map(conversations, (conversation) => {
-                if (conversation.assignee && conversation.assignee.type === 'admin') {
-                  const adminId = parseInt(conversation.assignee.id, 10);
-                  const admin = _.find(admins, { id: adminId });
+            if (response.body.pages.next) {
+              return fetchPages(response.body.pages, conversations);
+            }
+            return conversations;
+          })
+          .then((conversations) => [conversations.length,
+            conversations.slice(getSkip(), getSkip() + getLimit())])
+          .spread((count, conversations) => intercom.admins.list()
+            .then((response) => {
+              const { admins } = response.body;
 
-                  conversation.assignee = admin;
-                }
+              return P
+                .map(conversations, (conversation) => {
+                  if (conversation.assignee && conversation.assignee.type === 'admin') {
+                    const adminId = parseInt(conversation.assignee.id, 10);
+                    const admin = _.find(admins, { id: adminId });
 
-                if (opts.integrations.intercom.apiKey) {
-                  conversation.link = getLink(conversation);
-                }
+                    conversation.assignee = admin;
+                  }
 
-                return conversation;
-              })
-              .then((conversationsFormatted) => [count, conversationsFormatted]);
-          }))
-        .catch((error) => {
-          try {
-            logger.error(`Cannot access to Intercom conversations: ${error.body.errors[0].message}`);
-          } catch (tryError) {
-            logger.error('Cannot access to Intercom conversations: ', error);
-          }
-          return [0, []];
-        }));
-  };
+                  if (opts.integrations.intercom.apiKey) {
+                    conversation.link = getLink(conversation);
+                  }
+
+                  return conversation;
+                })
+                .then((conversationsFormatted) => [count, conversationsFormatted]);
+            }))
+          .catch((error) => {
+            try {
+              logger.error(`Cannot access to Intercom conversations: ${error.body.errors[0].message}`);
+            } catch (tryError) {
+              logger.error('Cannot access to Intercom conversations: ', error);
+            }
+            return [0, []];
+          });
+      }),
+  );
 }
 
 module.exports = ConversationsGetter;
