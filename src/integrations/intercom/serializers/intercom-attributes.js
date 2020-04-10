@@ -4,9 +4,26 @@ function IntercomAttributesSerializer(attributes, collectionName, meta) {
   const type = `${collectionName}_intercom_attributes`;
 
   return new JSONAPISerializer(type, attributes, {
-    attributes: ['session_count', 'last_seen_ip', 'created_at', 'updated_at',
-      'signed_up_at', 'last_request_at', 'country', 'city', 'user_agent',
-      'companies', 'segments', 'tags', 'browser', 'platform', 'geoloc'],
+    attributes: [
+      'email',
+      'name',
+      'role',
+      'companies',
+      'tags',
+      'platform',
+      'browser',
+      'city',
+      'country',
+      'signed_up_at',
+      'last_request_at',
+      'last_seen_at',
+      'last_replied_at',
+      'last_contacted_at',
+      'last_email_opened_at',
+      'last_email_clicked_at',
+      'created_at',
+      'updated_at',
+    ],
     keyForAttribute(key) { return key; },
     meta,
   });
