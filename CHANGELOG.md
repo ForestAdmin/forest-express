@@ -1,3 +1,10 @@
+## [7.0.7](https://github.com/ForestAdmin/forest-express/compare/v7.0.6...v7.0.7) (2020-04-10)
+
+
+### Bug Fixes
+
+* **integration:** adapt intercom attributes getter for its v2 API ([#372](https://github.com/ForestAdmin/forest-express/issues/372)) ([e6b1426](https://github.com/ForestAdmin/forest-express/commit/e6b1426fac4c4937436af279c96a14ee888b83b6))
+
 ## [7.0.6](https://github.com/ForestAdmin/forest-express/compare/v7.0.5...v7.0.6) (2020-04-07)
 
 
