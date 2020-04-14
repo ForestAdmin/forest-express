@@ -1,3 +1,10 @@
+# [7.1.0](https://github.com/ForestAdmin/forest-express/compare/v7.0.7...v7.1.0) (2020-04-14)
+
+
+### Features
+
+* **integration:** allow user to choose custom mapping values for intercom integration ([#373](https://github.com/ForestAdmin/forest-express/issues/373)) ([db87b97](https://github.com/ForestAdmin/forest-express/commit/db87b978664263ef735941f7809c2e7a8c9fe8eb))
+
 ## [7.0.7](https://github.com/ForestAdmin/forest-express/compare/v7.0.6...v7.0.7) (2020-04-10)
 
 
