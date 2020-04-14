@@ -97,8 +97,14 @@ function IntercomChecker(opts, Implementation) {
   this.defineCollections = (collections) => {
     if (!integrationValid) { return; }
 
+    const collectionNames = opts
+      .integrations
+      .intercom
+      .mapping
+      .map((mappingValue) => mappingValue.split('.')[0]);
+
     _.each(
-      opts.integrations.intercom.mapping,
+      collectionNames,
       (collectionName) => {
         Setup.createCollections(Implementation, collections, collectionName);
       },

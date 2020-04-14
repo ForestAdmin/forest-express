@@ -9,8 +9,6 @@ exports.createCollections = (Implementation, apimap, collectionName) => {
   // jshint camelcase: false
   pushIntoApimap(apimap, {
     name: `${Implementation.getModelName(model)}_intercom_conversations`,
-    // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
-    nameOld: `${Implementation.getModelNameOld(model)}_intercom_conversations`,
     displayName: `${collectionDisplayName} Conversations`,
     icon: 'intercom',
     integration: INTEGRATION_NAME,
