@@ -106,6 +106,177 @@ describe('services > permissions', () => {
           .rejects.toThrow("'list' access forbidden on Users");
       });
     });
+
+    describe('handling smart action permissions', () => {
+      describe('if no smart action permissions are available', () => {
+        it('should return a rejected promise', async () => {
+          expect.assertions(1);
+
+          PermissionsChecker.resetExpiration(1);
+          PermissionsChecker.cleanCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {
+            Users: {
+              collection: {},
+              actions: {},
+            },
+          });
+
+          const smartActionParameters = {
+            actionId: 1,
+            userId: 1,
+          };
+
+          await expect(new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform())
+            .rejects.toThrow("'smart action' access forbidden on Users");
+        });
+      });
+
+      describe('if smart action permissions are available', () => {
+        describe('if the smart action is not allowed to be executed', () => {
+          it('should return a rejected promise', async () => {
+            expect.assertions(1);
+
+            PermissionsChecker.resetExpiration(1);
+            PermissionsChecker.cleanCache();
+            nock.cleanAll();
+            nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {
+              Users: {
+                collection: {},
+                actions: {
+                  1: {
+                    allowed: false,
+                    users: null,
+                  },
+                },
+              },
+            });
+
+            const smartActionParameters = {
+              actionId: 1,
+              userId: 1,
+            };
+
+            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform())
+              .rejects.toThrow("'smart action' access forbidden on Users");
+          });
+        });
+
+        describe('if the smart action is allowed to everyone', () => {
+          it('should return a resolved promise', async () => {
+            expect.assertions(1);
+
+            PermissionsChecker.resetExpiration(1);
+            PermissionsChecker.cleanCache();
+            nock.cleanAll();
+            nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {
+              Users: {
+                collection: {},
+                actions: {
+                  1: {
+                    allowed: true,
+                    users: null,
+                  },
+                },
+              },
+            });
+
+            const smartActionParameters = {
+              actionId: 1,
+              userId: 1,
+            };
+
+            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform();
+            expect(result).toBeUndefined();
+          });
+        });
+
+        describe('if the smart action is restricted to some users', () => {
+          it('should accept allowed users', async () => {
+            expect.assertions(1);
+
+            PermissionsChecker.resetExpiration(1);
+            PermissionsChecker.cleanCache();
+            nock.cleanAll();
+            nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {
+              Users: {
+                collection: {},
+                actions: {
+                  1: {
+                    allowed: true,
+                    users: [1],
+                  },
+                },
+              },
+            });
+
+            const smartActionParameters = {
+              actionId: 1,
+              userId: 1,
+            };
+
+            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform();
+            expect(result).toBeUndefined();
+          });
+
+          it('should refuse not allowed users', async () => {
+            expect.assertions(1);
+
+            PermissionsChecker.resetExpiration(1);
+            PermissionsChecker.cleanCache();
+            nock.cleanAll();
+            nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {
+              Users: {
+                collection: {},
+                actions: {
+                  1: {
+                    allowed: true,
+                    users: [1],
+                  },
+                },
+              },
+            });
+
+            const smartActionParameters = {
+              actionId: 1,
+              userId: 2,
+            };
+
+            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform())
+              .rejects.toThrow("'smart action' access forbidden on Users");
+          });
+        });
+
+        describe('handling the user triggering the action', () => {
+          it('should handle the user id as string', async () => {
+            expect.assertions(1);
+
+            PermissionsChecker.resetExpiration(1);
+            PermissionsChecker.cleanCache();
+            nock.cleanAll();
+            nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {
+              Users: {
+                collection: {},
+                actions: {
+                  1: {
+                    allowed: true,
+                    users: [1],
+                  },
+                },
+              },
+            });
+
+            const smartActionParameters = {
+              actionId: 1,
+              userId: '1',
+            };
+
+            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform();
+            expect(result).toBeUndefined();
+          });
+        });
+      });
+    });
   });
 
   describe('check expiration', () => {

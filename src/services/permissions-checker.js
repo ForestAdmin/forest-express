@@ -5,8 +5,29 @@ const forestServerRequester = require('./forest-server-requester');
 
 let permissionsPerRendering = {};
 
-function PermissionsChecker(environmentSecret, renderingId, collectionName, permissionName) {
+function PermissionsChecker(
+  environmentSecret,
+  renderingId,
+  collectionName,
+  permissionName,
+  smartActionParameters = undefined,
+) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
+
+  function isSmartActionAllowed(smartActionsPermissions) {
+    if (!smartActionParameters
+      || !smartActionParameters.userId
+      || !smartActionParameters.actionId
+      || !smartActionsPermissions
+      || !smartActionsPermissions[smartActionParameters.actionId]) {
+      return false;
+    }
+
+    const { userId, actionId } = smartActionParameters;
+    const { allowed, users } = smartActionsPermissions[actionId];
+
+    return allowed && (!users || users.includes(parseInt(userId, 10)));
+  }
 
   function isAllowed() {
     const permissions = permissionsPerRendering[renderingId]
@@ -16,6 +37,9 @@ function PermissionsChecker(environmentSecret, renderingId, collectionName, perm
       return false;
     }
 
+    if (permissionName === 'smart action') {
+      return isSmartActionAllowed(permissions[collectionName].actions);
+    }
     return permissions[collectionName].collection[permissionName];
   }
 
