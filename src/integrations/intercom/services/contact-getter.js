@@ -1,9 +1,7 @@
 const logger = require('../../../services/logger');
 
-const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
 function getContactQueryParameter(targetFieldValue) {
-  const targetField = targetFieldValue.match(EMAIL_REGEX) ? 'email' : 'external_id';
+  const targetField = targetFieldValue.includes('@') ? 'email' : 'external_id';
 
   return {
     query: {
@@ -15,12 +13,12 @@ function getContactQueryParameter(targetFieldValue) {
 }
 
 class ContactGetter {
-  static async getContact(intercomClient, Implementation, mappingValue, customerId) {
+  static async getContact(intercomClient, Implementation, mappingValue, recordId) {
     // NOTICE: `modelFieldName` is expected to be a sequelize/mongoose field
     //         (ie. camelCase formatted)
     const [modelName, modelFieldName] = mappingValue.split('.');
     const model = Implementation.getModels()[modelName];
-    const customer = await Implementation.Intercom.getCustomer(model, customerId);
+    const customer = await Implementation.Intercom.getCustomer(model, recordId);
     const targetFieldValue = customer[modelFieldName];
 
     if (!targetFieldValue) {
@@ -28,7 +26,8 @@ class ContactGetter {
       if (targetFieldValue === undefined) {
         logger.error(`Intercom Integration Error: No field "${modelFieldName}" on model "${modelName}"`);
       }
-      // TODO: A 404 (no intercom data for this record) should be returned here.
+      // TODO: An info log should be shown here: no "mapping value" and so no intercom info
+      //       can be retrieved in this context
       return null;
     }
 

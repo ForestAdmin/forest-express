@@ -45,8 +45,9 @@ function ConversationsGetter(Implementation, params, opts, mappingValue) {
     ContactGetter
       .getContact(intercom, Implementation, mappingValue, params.recordId)
       .then((contact) => {
-        if (!contact.body.data) {
-          throw new Error('No intercom contact matches the given key');
+        if (!contact || !contact.body || !contact.body.data || !contact.body.data[0]) {
+          logger.error('Cannot access to Intercom conversations: No intercom contact matches the given key');
+          return [0, []];
         }
         return intercom.conversations
           .list({
