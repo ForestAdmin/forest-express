@@ -37,7 +37,7 @@ function PermissionsChecker(
       return false;
     }
 
-    if (permissionName === 'smart action') {
+    if (permissionName === 'actions') {
       return isSmartActionAllowed(permissions[collectionName].actions);
     }
     return permissions[collectionName].collection[permissionName];

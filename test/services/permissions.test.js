@@ -127,7 +127,7 @@ describe('services > permissions', () => {
             userId: 1,
           };
 
-          await expect(new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform())
+          await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
             .rejects.toThrow("'smart action' access forbidden on Users");
         });
       });
@@ -157,7 +157,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform())
+            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
               .rejects.toThrow("'smart action' access forbidden on Users");
           });
         });
@@ -186,7 +186,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform();
+            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform();
             expect(result).toBeUndefined();
           });
         });
@@ -215,7 +215,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform();
+            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform();
             expect(result).toBeUndefined();
           });
 
@@ -242,7 +242,7 @@ describe('services > permissions', () => {
               userId: 2,
             };
 
-            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform())
+            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
               .rejects.toThrow("'smart action' access forbidden on Users");
           });
         });
@@ -271,7 +271,7 @@ describe('services > permissions', () => {
               userId: '1',
             };
 
-            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'smart action', smartActionParameters).perform();
+            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform();
             expect(result).toBeUndefined();
           });
         });

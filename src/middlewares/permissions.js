@@ -24,7 +24,7 @@ class PermissionMiddlewareCreator {
       const renderingId = getRenderingIdFromUser(request.user);
       let smartActionInfo;
 
-      if (permissionName === 'smart action') {
+      if (permissionName === 'actions') {
         smartActionInfo = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
       }
 
@@ -74,7 +74,7 @@ class PermissionMiddlewareCreator {
   }
 
   smartAction() {
-    return this._checkPermission('smart action');
+    return this._checkPermission('actions');
   }
 }
 
