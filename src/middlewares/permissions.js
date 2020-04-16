@@ -11,16 +11,29 @@ class PermissionMiddlewareCreator {
     this.configStore = ConfigStore.getInstance();
   }
 
+  static _getSmartActionInfoFromRequest(request) {
+    return {
+      userId: request.user.id,
+      actionId: request.body.data.attributes.smart_action_id,
+    };
+  }
+
   _checkPermission(permissionName) {
     return (request, response, next) => {
       const environmentSecret = this.configStore.lianaOptions.envSecret;
       const renderingId = getRenderingIdFromUser(request.user);
+      let smartActionInfo;
+
+      if (permissionName === 'actions') {
+        smartActionInfo = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
+      }
 
       return new PermissionsChecker(
         environmentSecret,
         renderingId,
         this.collectionName,
         permissionName,
+        smartActionInfo,
       )
         .perform()
         .then(next)
@@ -58,6 +71,10 @@ class PermissionMiddlewareCreator {
 
   delete() {
     return this._checkPermission('delete');
+  }
+
+  smartAction() {
+    return this._checkPermission('actions');
   }
 }
 
