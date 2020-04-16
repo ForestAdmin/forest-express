@@ -128,7 +128,7 @@ describe('services > permissions', () => {
           };
 
           await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
-            .rejects.toThrow("'smart action' access forbidden on Users");
+            .rejects.toThrow("'actions' access forbidden on Users");
         });
       });
 
@@ -158,7 +158,7 @@ describe('services > permissions', () => {
             };
 
             await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
-              .rejects.toThrow("'smart action' access forbidden on Users");
+              .rejects.toThrow("'actions' access forbidden on Users");
           });
         });
 
@@ -243,7 +243,7 @@ describe('services > permissions', () => {
             };
 
             await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
-              .rejects.toThrow("'smart action' access forbidden on Users");
+              .rejects.toThrow("'actions' access forbidden on Users");
           });
         });
 
