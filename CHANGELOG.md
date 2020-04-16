@@ -1,3 +1,10 @@
+# [7.2.0](https://github.com/ForestAdmin/forest-express/compare/v7.1.0...v7.2.0) (2020-04-16)
+
+
+### Features
+
+* **smart-action:** allow users to protect their smart-action APIs from unauthorized usage ([#375](https://github.com/ForestAdmin/forest-express/issues/375)) ([4971ea7](https://github.com/ForestAdmin/forest-express/commit/4971ea73f2abc3f86a9206d61a72eae1cf62a273))
+
 # [7.1.0](https://github.com/ForestAdmin/forest-express/compare/v7.0.7...v7.1.0) (2020-04-14)
 
 
