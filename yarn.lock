@@ -3170,12 +3170,10 @@ cssstyle@^2.0.0:
   dependencies:
     cssom "~0.3.6"
 
-csv-stringify@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-1.0.4.tgz#bc18bab9ad4cef3195fd257980b58b479c42d3e5"
-  integrity sha1-vBi6ua1M7zGV/SV5gLWLR5xC0+U=
-  dependencies:
-    lodash.get "^4.0.0"
+csv-stringify@5.4.3:
+  version "5.4.3"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-5.4.3.tgz#68f2e59652af7bb27bb06fe05a8237ff95bd13f9"
+  integrity sha512-WJLgRJQcVjPK45jXS1xfnkwVbw9bOjg2F2BQRa9OkG7Di2W/geclPZNlcQTwxbzn1nEDI2ane2AubTdTd6gCvw==
 
 currently-unhandled@^0.4.1:
   version "0.4.1"
@@ -6248,11 +6246,6 @@ lodash.escaperegexp@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.escaperegexp/-/lodash.escaperegexp-4.1.2.tgz#64762c48618082518ac3df4ccf5d5886dae20347"
   integrity sha1-ZHYsSGGAglGKw99Mz11YhtriA0c=
-
-lodash.get@^4.0.0:
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
-  integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
 lodash.includes@^4.3.0:
   version "4.3.0"
