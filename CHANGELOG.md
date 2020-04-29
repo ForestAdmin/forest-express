@@ -1,3 +1,10 @@
+## [7.2.1](https://github.com/ForestAdmin/forest-express/compare/v7.2.0...v7.2.1) (2020-04-29)
+
+
+### Bug Fixes
+
+* **security:** patch dependencies vulnerabilities (minimist, acorn) ([#380](https://github.com/ForestAdmin/forest-express/issues/380)) ([9a4c9c4](https://github.com/ForestAdmin/forest-express/commit/9a4c9c4ed175a0a2383ad948c4d24d9779f3aa45))
+
 # [7.2.0](https://github.com/ForestAdmin/forest-express/compare/v7.1.0...v7.2.0) (2020-04-16)
 
 
