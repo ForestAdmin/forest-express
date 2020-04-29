@@ -1,7 +1,4 @@
-sudo: required
-
 language: node_js
-
 node_js: lts/*
 
 stages:
@@ -36,7 +33,6 @@ jobs:
       script: skip
       deploy:
         provider: script
-        skip_cleanup: true
         on:
           branch: master
         script:
