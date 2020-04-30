@@ -13,22 +13,6 @@ To do it at every js file change in the `src` folder:
 
 `yarn build:watch`
 
-## Release
-
-To increment the version and push to devel and master:
-
-- `yarn release --patch`
-- `yarn release --minor`
-- `yarn release --major`
-
-Then, for public release:
-
-`npm publish`
-
-or, for beta release:
-
-`npm publish --tag beta`
-
 ## Lint
 
 `yarn lint`
