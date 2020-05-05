@@ -3,9 +3,7 @@ node_js: lts/*
 
 stages:
   - Lint & Tests
-  - build
-  - publish (dry run)
-  - publish
+  - Build & Publish
 
 jobs:
   include:
@@ -16,19 +14,13 @@ jobs:
       name: Lint JavaScript
     - script: yarn test
       name: Tests
-    # build only for master and devel (tmp: "improvement/semantic-release").
-    - stage: build
-      if: branch IN ("master", "devel")
+    - stage: Build & Publish
+      if: branch = master
       script:
         - yarn
         - yarn build
-    # publish for master only thanks to semantic-release
-    - stage: publish
-      if: branch IN ("master") AND type != pull_request
-      script: skip
       deploy:
         provider: script
         on:
           branch: master
-        script:
-          - yarn && yarn build && npx semantic-release
+        script: npx semantic-release
