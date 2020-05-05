@@ -1,3 +1,10 @@
+## [7.2.2](https://github.com/ForestAdmin/forest-express/compare/v7.2.1...v7.2.2) (2020-05-05)
+
+
+### Bug Fixes
+
+* **vulnerability:** patch a vulnerability using the latest sinon dependency version 9.0.2 ([#385](https://github.com/ForestAdmin/forest-express/issues/385)) ([d8077f4](https://github.com/ForestAdmin/forest-express/commit/d8077f4a5edb5f5893bca53a3cf6df61185bed20))
+
 ## [7.2.1](https://github.com/ForestAdmin/forest-express/compare/v7.2.0...v7.2.1) (2020-04-29)
 
 
