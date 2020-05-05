@@ -6,5 +6,12 @@ module.exports = {
     '@semantic-release/git',
     '@semantic-release/npm',
     '@semantic-release/github',
+    [
+      'semantic-release-slack-bot',
+      {
+        notifyOnSuccess: true,
+        notifyOnFail: false,
+      }
+    ],
   ],
 }
