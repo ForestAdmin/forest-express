@@ -46,7 +46,7 @@
     "otplib": "11.0.1",
     "require-all": "3.0.0",
     "semver": "6.3.0",
-    "superagent": "3.7.0",
+    "superagent": "5.2.2",
     "uuid": "3.3.3",
     "verror": "1.10.0",
     "winston": "3.2.1"
