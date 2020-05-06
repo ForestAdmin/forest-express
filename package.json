@@ -60,7 +60,7 @@
     "@babel/preset-env": "7.8.3",
     "@babel/register": "7.8.3",
     "@commitlint/cli": "8.2.0",
-    "@commitlint/config-conventional": "8.2.0",
+    "@commitlint/config-conventional": "8.3.4",
     "@commitlint/travis-cli": "8.3.5",
     "@forestadmin/devops": "2.0.0",
     "@semantic-release/changelog": "5.0.0",
