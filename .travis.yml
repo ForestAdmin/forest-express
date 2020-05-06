@@ -2,25 +2,20 @@ language: node_js
 node_js: lts/*
 
 stages:
-  - lint
-  - commit-lint
-  - test
+  - Lint & Tests
   - build
   - publish (dry run)
   - publish
 
 jobs:
   include:
-    # run eslint on all files.
-    - stage: lint
-      script: yarn lint
-    # run tests.
-    - stage: test
-      script: yarn test
-    # devel and master require clean commit messages.
-    - stage: commit-lint
-      if: branch IN ("master", "devel") AND type != pull_request
+    - stage: Lint & Tests
+      name: Lint commit messages
       script: commitlint-travis
+    - script: yarn lint
+      name: Lint JavaScript
+    - script: yarn test
+      name: Tests
     # build only for master and devel (tmp: "improvement/semantic-release").
     - stage: build
       if: branch IN ("master", "devel")
