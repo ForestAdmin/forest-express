@@ -1,3 +1,10 @@
+## [7.2.3](https://github.com/ForestAdmin/forest-express/compare/v7.2.2...v7.2.3) (2020-05-06)
+
+
+### Bug Fixes
+
+* **build:** update the package version on deploy ([a640ea3](https://github.com/ForestAdmin/forest-express/commit/a640ea33cd386c6351cdf0a02abfdf02b38703e9))
+
 ## [7.2.2](https://github.com/ForestAdmin/forest-express/compare/v7.2.1...v7.2.2) (2020-05-05)
 
 
