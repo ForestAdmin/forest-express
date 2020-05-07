@@ -9,8 +9,33 @@ module.exports = {
     [
       'semantic-release-slack-bot',
       {
+        markdownReleaseNotes: true,
         notifyOnSuccess: true,
         notifyOnFail: false,
+        onSuccessTemplate: {
+          text: "📦 $package_name@$npm_package_version has been released!",
+          blocks: [{
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*New `$package_name` package released!*'
+            }
+          }, {
+            type: 'context',
+            elements: [{
+              type: 'mrkdwn',
+              text: "📦  *Version:* <$repo_url/releases/tag/v$npm_package_version|$npm_package_version>"
+            }]
+          }, {
+            type: 'divider',
+          }, {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '$release_notes'
+            }
+          }],
+        },
         packageName: 'forest-express',
       }
     ],
