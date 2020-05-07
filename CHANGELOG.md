@@ -1,3 +1,10 @@
+## [7.2.4](https://github.com/ForestAdmin/forest-express/compare/v7.2.3...v7.2.4) (2020-05-07)
+
+
+### Bug Fixes
+
+* **readme:** fix the test coverage displayed in the readme ([bfae8d7](https://github.com/ForestAdmin/forest-express/commit/bfae8d7d330d2052e4f29fafa66effe8d8bacbd8))
+
 ## [7.2.3](https://github.com/ForestAdmin/forest-express/compare/v7.2.2...v7.2.3) (2020-05-06)
 
 
