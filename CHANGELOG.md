@@ -1,3 +1,10 @@
+## [7.2.5](https://github.com/ForestAdmin/forest-express/compare/v7.2.4...v7.2.5) (2020-05-07)
+
+
+### Bug Fixes
+
+* **build:** fix final issues with the slack message format ([467b460](https://github.com/ForestAdmin/forest-express/commit/467b460e98fa91646a66c43c77a3af699d41b86c))
+
 ## [7.2.4](https://github.com/ForestAdmin/forest-express/compare/v7.2.3...v7.2.4) (2020-05-07)
 
 
