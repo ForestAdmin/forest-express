@@ -24,4 +24,4 @@ jobs:
         cleanup: false
         on:
           branch: master
-        script: npx semantic-release
+        script: yarn && npx semantic-release
