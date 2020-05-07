@@ -11,6 +11,7 @@ module.exports = {
       {
         notifyOnSuccess: true,
         notifyOnFail: false,
+        packageName: 'forest-express',
       }
     ],
   ],
