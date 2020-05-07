@@ -24,16 +24,21 @@ module.exports = {
             type: 'context',
             elements: [{
               type: 'mrkdwn',
-              text: "📦  *Version:* <$repo_url/releases/tag/v$npm_package_version|$npm_package_version>"
+              text: "📦  *<$repo_url/releases/tag/v$npm_package_version|New Version>*",
+              // TODO: Reactivate once this issue https://github.com/juliuscc/semantic-release-slack-bot/issues/45 is solved.
+              // text: "📦  *Version:* <$repo_url/releases/tag/v$npm_package_version|$npm_package_version>"
             }]
           }, {
             type: 'divider',
-          }, {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '$release_notes'
-            }
+          }],
+          attachments: [{
+            blocks: [{
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: '*Changes* of version $release_notes',
+              },
+            }],
           }],
         },
         packageName: 'forest-express',
