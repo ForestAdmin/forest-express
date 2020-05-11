@@ -24,9 +24,7 @@ module.exports = {
             type: 'context',
             elements: [{
               type: 'mrkdwn',
-              text: "📦  *<$repo_url/releases/tag/v$npm_package_version|New Version>*",
-              // TODO: Reactivate once this issue https://github.com/juliuscc/semantic-release-slack-bot/issues/45 is solved.
-              // text: "📦  *Version:* <$repo_url/releases/tag/v$npm_package_version|$npm_package_version>"
+              text: "📦  *Version:* <$repo_url/releases/tag/v$npm_package_version|$npm_package_version>"
             }]
           }, {
             type: 'divider',
