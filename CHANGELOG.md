@@ -1,3 +1,10 @@
+## [7.2.6](https://github.com/ForestAdmin/forest-express/compare/v7.2.5...v7.2.6) (2020-05-13)
+
+
+### Bug Fixes
+
+* **package:** publish on NPM with all the necessary code ([#406](https://github.com/ForestAdmin/forest-express/issues/406)) ([7d4b912](https://github.com/ForestAdmin/forest-express/commit/7d4b9125a15f5eb6703edb76a8f299364d7fdd16))
+
 ## [7.2.5](https://github.com/ForestAdmin/forest-express/compare/v7.2.4...v7.2.5) (2020-05-07)
 
 
