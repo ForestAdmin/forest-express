@@ -1,7 +1,9 @@
 const P = require('bluebird');
 const moment = require('moment');
 const VError = require('verror');
+const _ = require('lodash');
 const forestServerRequester = require('./forest-server-requester');
+const { parseFiltersString, perform } = require('./base-filters-parser');
 
 let permissionsPerRendering = {};
 
@@ -11,6 +13,7 @@ function PermissionsChecker(
   collectionName,
   permissionName,
   smartActionParameters = undefined,
+  collectionListParameters = undefined,
 ) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
@@ -29,7 +32,42 @@ function PermissionsChecker(
     return allowed && (!users || users.includes(parseInt(userId, 10)));
   }
 
-  function isAllowed() {
+  function computeCollectionListScopeForUser(userId, collectionListScope) {
+    const computedCollectionListFilters = parseFiltersString(collectionListScope.filter);
+    computedCollectionListFilters.conditions.forEach((condition) => {
+      if (condition.value.startsWith('$')) {
+        condition.value = computedCollectionListFilters
+          .dynamicScopesValues
+          .users[userId][condition.value];
+      }
+    });
+    delete computedCollectionListFilters.dynamicScopesValues;
+    return computedCollectionListFilters;
+  }
+
+  async function isCollectionListAllowed(collectionListScope) {
+    if (collectionListScope && collectionListScope.length > 0) {
+      const serverGeneratedConditionFilter = computeCollectionListScopeForUser(
+        collectionListParameters.userId,
+        collectionListScope,
+      );
+      let canList = false;
+      await perform(collectionListParameters.filters, (aggregator, conditions) => {
+        if (aggregator === serverGeneratedConditionFilter.filter.aggregator
+          && _.xorWith(
+            conditions,
+            serverGeneratedConditionFilter.filter.conditions,
+            _.isEqual,
+          ).length === 0) {
+          canList = true;
+        }
+      }, (i) => i);
+      return canList;
+    }
+    return true;
+  }
+
+  async function isAllowed() {
     const permissions = permissionsPerRendering[renderingId]
       && permissionsPerRendering[renderingId].data;
 
@@ -39,6 +77,9 @@ function PermissionsChecker(
 
     if (permissionName === 'actions') {
       return isSmartActionAllowed(permissions[collectionName].actions);
+    }
+    if (permissionName === 'list' && permissions[collectionName].collection[permissionName]) {
+      return isCollectionListAllowed(permissions[collectionName].scope);
     }
     return permissions[collectionName].collection[permissionName];
   }
@@ -73,26 +114,24 @@ function PermissionsChecker(
     return elapsedSeconds >= EXPIRATION_IN_SECONDS;
   }
 
-  function retrievePermissionsAndCheckAllowed(resolve, reject) {
-    return retrievePermissions()
-      .then(() => (isAllowed()
-        ? resolve()
-        : reject(new Error(`'${permissionName}' access forbidden on ${collectionName}`))))
-      .catch(reject);
+  async function retrievePermissionsAndCheckAllowed() {
+    await retrievePermissions();
+    const ok = await isAllowed();
+    if (!ok) {
+      throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
+    }
   }
 
-  this.perform = () =>
-    new P((resolve, reject) => {
-      if (isPermissionExpired()) {
-        return retrievePermissionsAndCheckAllowed(resolve, reject);
-      }
+  this.perform = async () => {
+    if (isPermissionExpired()) {
+      return retrievePermissionsAndCheckAllowed();
+    }
 
-      if (!isAllowed(collectionName, permissionName)) {
-        return retrievePermissionsAndCheckAllowed(resolve, reject);
-      }
-
-      return resolve();
-    });
+    if (!(await isAllowed(collectionName, permissionName))) {
+      return retrievePermissionsAndCheckAllowed();
+    }
+    return Promise.resolve();
+  };
 }
 
 PermissionsChecker.cleanCache = () => {
