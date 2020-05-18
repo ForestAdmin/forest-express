@@ -8845,10 +8845,10 @@ simple-git@1.78.0:
   dependencies:
     debug "^2.6.7"
 
-simple-git@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/simple-git/-/simple-git-2.3.0.tgz#fe74d4b8783d05b0007c8901947d9ab67ceec318"
-  integrity sha512-hyDbcdwB8mLMv1EhSGcJ5jv1SMrCLMzLzRoNPhSV6RBvtw7gGEldnxJtYcqudQdBxV+4lMwNd4UOrUjFrmPrDQ==
+simple-git@2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/simple-git/-/simple-git-2.5.0.tgz#538b14b25f83916a56f30eca53f13796db6712f6"
+  integrity sha512-4gmtMqfIL9bsBNJDP/rDwZe3GsQL/tp85Qv5cmRc8iIDNOZJS4IX1oPfcqp9b7BGPc5bfuw4yd1i3lQacvuqDQ==
   dependencies:
     "@kwsites/exec-p" "^0.4.0"
     debug "^4.0.1"
