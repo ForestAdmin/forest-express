@@ -3,7 +3,7 @@ const moment = require('moment');
 const VError = require('verror');
 const _ = require('lodash');
 const forestServerRequester = require('./forest-server-requester');
-const { parseFiltersString, perform } = require('./base-filters-parser');
+const { perform } = require('./base-filters-parser');
 
 let permissionsPerRendering = {};
 
@@ -13,7 +13,7 @@ function PermissionsChecker(
   collectionName,
   permissionName,
   smartActionParameters = undefined,
-  collectionListParameters = undefined,
+  collectionListRequest = undefined,
 ) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
@@ -32,36 +32,59 @@ function PermissionsChecker(
     return allowed && (!users || users.includes(parseInt(userId, 10)));
   }
 
-  function computeCollectionListScopeForUser(userId, collectionListScope) {
-    const computedCollectionListFilters = parseFiltersString(collectionListScope.filter);
-    computedCollectionListFilters.conditions.forEach((condition) => {
+  // NOTICE: Compute a scope to replace $currentUser variables with
+  //         the actual user values. This will generate the expected
+  //         conditions filters when applied on the server scope response
+  function computeConditionFiltersFromScope(userId, collectionListScope) {
+    const computedConditionFilters = _.clone(collectionListScope.filter);
+    computedConditionFilters.conditions.forEach((condition) => {
       if (condition.value.startsWith('$')) {
-        condition.value = computedCollectionListFilters
+        condition.value = collectionListScope
           .dynamicScopesValues
           .users[userId][condition.value];
       }
     });
-    delete computedCollectionListFilters.dynamicScopesValues;
-    return computedCollectionListFilters;
+    delete computedConditionFilters.dynamicScopesValues;
+    return computedConditionFilters;
+  }
+
+  // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
+  //         `actualConditionFilters`
+  function ensureValidFilterConditions(expectedFilterConditions, actualFilterConditions) {
+    return _.xorWith(expectedFilterConditions, actualFilterConditions, _.isEqual).length === 0;
+  }
+
+  function ensureValidFilterConditionsAndAggregation(
+    expectedFilters,
+    actualFiltersConditions,
+    actualFilterAggregator,
+  ) {
+    return actualFilterAggregator === expectedFilters.aggregator
+      && ensureValidFilterConditions(expectedFilters.conditions, actualFiltersConditions);
   }
 
   async function isCollectionListAllowed(collectionListScope) {
-    if (collectionListScope && collectionListScope.length > 0) {
-      const serverGeneratedConditionFilter = computeCollectionListScopeForUser(
-        collectionListParameters.userId,
+    if (collectionListScope) {
+      const expectedConditionFilters = computeConditionFiltersFromScope(
+        collectionListRequest.userId,
         collectionListScope,
       );
       let canList = false;
-      await perform(collectionListParameters.filters, (aggregator, conditions) => {
-        if (aggregator === serverGeneratedConditionFilter.filter.aggregator
-          && _.xorWith(
-            conditions,
-            serverGeneratedConditionFilter.filter.conditions,
-            _.isEqual,
-          ).length === 0) {
+      await perform(collectionListRequest.filters, (aggregator, conditions) => {
+        if (ensureValidFilterConditionsAndAggregation(
+          expectedConditionFilters,
+          conditions,
+          aggregator,
+        )) {
           canList = true;
         }
-      }, (i) => i);
+      }, (condition) => {
+        if (expectedConditionFilters.conditions.length === 1
+          && ensureValidFilterConditions(expectedConditionFilters.conditions, [condition])) {
+          canList = true;
+        }
+        return condition;
+      });
       return canList;
     }
     return true;
