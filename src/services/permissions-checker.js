@@ -69,7 +69,9 @@ function PermissionsChecker(
         collectionListRequest.userId,
         collectionListScope,
       );
+
       let canList = false;
+      // NOTICE: Perform a travel to find the scope in filters
       await perform(collectionListRequest.filters, (aggregator, conditions) => {
         if (ensureValidFilterConditionsAndAggregation(
           expectedConditionFilters,
@@ -79,6 +81,7 @@ function PermissionsChecker(
           canList = true;
         }
       }, (condition) => {
+        // NOTICE: In the case of one filter only, client app does not contains an aggregator
         if (expectedConditionFilters.conditions.length === 1
           && ensureValidFilterConditions(expectedConditionFilters.conditions, [condition])) {
           canList = true;
