@@ -378,13 +378,10 @@ describe('services > permissions', () => {
               { field: 'name', operator: 'equal', value: 'valueThatIWantToGet' },
               {
                 aggregator: 'and',
-                conditions: [{
-                  aggregator: 'and',
-                  conditions: [
-                    { field: 'name', operator: 'equal', value: 'John' },
-                    { field: 'name', operator: 'equal', value: 'Admin' },
-                  ],
-                }],
+                conditions: [
+                  { field: 'name', operator: 'equal', value: 'John' },
+                  { field: 'name', operator: 'equal', value: 'Admin' },
+                ],
               },
             ],
           }),

@@ -71,8 +71,10 @@ function PermissionsChecker(
       );
 
       let canList = false;
-      // NOTICE: Perform a travel to find the scope in filters
-      await perform(collectionListRequest.filters, (aggregator, conditions) => {
+      let aggregatorEncountered = 0;
+
+      const formatAggregation = (aggregator, conditions) => {
+        aggregatorEncountered += 1;
         if (ensureValidFilterConditionsAndAggregation(
           expectedConditionFilters,
           conditions,
@@ -80,14 +82,26 @@ function PermissionsChecker(
         )) {
           canList = true;
         }
-      }, (condition) => {
-        // NOTICE: In the case of one filter only, client app does not contains an aggregator
+        return { aggregator, conditions };
+      };
+
+      const formatCondition = (condition) => {
+        // NOTICE: In the case of one scope filter only, client app does not contains an aggregator
         if (expectedConditionFilters.conditions.length === 1
           && ensureValidFilterConditions(expectedConditionFilters.conditions, [condition])) {
           canList = true;
         }
         return condition;
-      });
+      };
+      // NOTICE: Perform a travel to find the scope in filters
+      const parsedFilters = await perform(
+        collectionListRequest.filters,
+        formatAggregation,
+        formatCondition,
+      );
+      if (aggregatorEncountered > 1 && parsedFilters.aggregator !== 'and') {
+        canList = false;
+      }
       return canList;
     }
     return true;
