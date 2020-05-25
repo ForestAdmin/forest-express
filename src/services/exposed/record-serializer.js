@@ -3,7 +3,7 @@ const AbstractRecordService = require('./abstract-records-service');
 class RecordSerializer extends AbstractRecordService {
   constructor(model) {
     if (!model) {
-      throw new Error('Missing required parameters `model` passed to constructor');
+      throw new Error('RecordSerializer initialization error: missing first argument "model"');
     }
     if (!(model instanceof Object)) {
       throw new Error('Parameter passed to RecordSerializer constructor should be an object (ex: `{ name: "myModel" }`)');
