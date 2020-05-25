@@ -311,10 +311,27 @@ describe('services > permissions', () => {
           },
         },
       },
+      Posts: {
+        collection: {
+          list: true,
+        },
+        scope: {
+          filter: {
+            aggregator: 'and',
+            conditions: [
+              {
+                field: 'name',
+                value: 'toto',
+                operator: 'equal',
+              },
+            ],
+          },
+        },
+      },
     };
 
     describe('when the request match with the expected parameters', () => {
-      it('should return undefined', async () => {
+      it('should return undefined when using aggregator', async () => {
         expect.assertions(1);
 
         PermissionsChecker.resetExpiration(1);
@@ -336,10 +353,29 @@ describe('services > permissions', () => {
         const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform();
         expect(result).toBeUndefined();
       });
+
+      it('should return undefined when using direct filters', async () => {
+        expect.assertions(1);
+
+        PermissionsChecker.resetExpiration(1);
+        PermissionsChecker.cleanCache();
+        nock.cleanAll();
+        nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, scopedCollectionResponse);
+
+        const collectionListParameters = {
+          userId: 100,
+          filters: JSON.stringify(
+            { field: 'name', operator: 'equal', value: 'toto' },
+          ),
+        };
+
+        const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', null, collectionListParameters).perform();
+        expect(result).toBeUndefined();
+      });
     });
 
     describe('when the request does not match with the expected parameters', () => {
-      it('should throw an error when editing direct values', async () => {
+      it('should return a rejected promise when editing direct values', async () => {
         expect.assertions(1);
 
         PermissionsChecker.resetExpiration(1);
@@ -362,7 +398,7 @@ describe('services > permissions', () => {
           .rejects.toThrow("'list' access forbidden on Users");
       });
 
-      it('should throw an error if scope is ignored', async () => {
+      it('should return a rejected promise if scope is ignored', async () => {
         expect.assertions(1);
 
         PermissionsChecker.resetExpiration(1);

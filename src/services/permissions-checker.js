@@ -50,17 +50,11 @@ function PermissionsChecker(
 
   // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
   //         `actualConditionFilters`
-  function ensureValidFilterConditions(expectedFilterConditions, actualFilterConditions) {
-    return _.xorWith(expectedFilterConditions, actualFilterConditions, _.isEqual).length === 0;
-  }
-
-  function ensureValidFilterConditionsAndAggregation(
-    expectedFilters,
-    actualFiltersConditions,
-    actualFilterAggregator,
-  ) {
-    return actualFilterAggregator === expectedFilters.aggregator
-      && ensureValidFilterConditions(expectedFilters.conditions, actualFiltersConditions);
+  function isConditionFromScope(expectedFilterConditions, actualFilterCondition) {
+    return expectedFilterConditions.filter((expectedCondition) =>
+      expectedCondition.value === actualFilterCondition.value
+      && expectedCondition.operator === actualFilterCondition.operator
+      && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
   async function isCollectionListAllowed(collectionListScope) {
@@ -70,39 +64,29 @@ function PermissionsChecker(
         collectionListScope,
       );
 
-      let canList = false;
-      let aggregatorEncountered = 0;
-
       const formatAggregation = (aggregator, conditions) => {
-        aggregatorEncountered += 1;
-        if (ensureValidFilterConditionsAndAggregation(
-          expectedConditionFilters,
-          conditions,
-          aggregator,
-        )) {
-          canList = true;
+        const areConditionsFromScopes = conditions.every((condition) => condition.isFromScope);
+        if (areConditionsFromScopes && aggregator === expectedConditionFilters.aggregator) {
+          return { aggregator, conditions, isFromScope: true };
         }
         return { aggregator, conditions };
       };
 
-      const formatCondition = (condition) => {
-        // NOTICE: In the case of one scope filter only, client app does not contains an aggregator
-        if (expectedConditionFilters.conditions.length === 1
-          && ensureValidFilterConditions(expectedConditionFilters.conditions, [condition])) {
-          canList = true;
-        }
-        return condition;
-      };
+      const formatCondition = (condition) => ({
+        ...condition,
+        isFromScope: isConditionFromScope(expectedConditionFilters.conditions, condition),
+      });
       // NOTICE: Perform a travel to find the scope in filters
       const parsedFilters = await perform(
         collectionListRequest.filters,
         formatAggregation,
         formatCondition,
       );
-      if (aggregatorEncountered > 1 && parsedFilters.aggregator !== 'and') {
-        canList = false;
-      }
-      return canList;
+
+      return parsedFilters.isFromScope
+        || (parsedFilters.conditions
+          && parsedFilters.aggregator === 'and'
+          && parsedFilters.conditions.find((condition) => condition.isFromScope));
     }
     return true;
   }
