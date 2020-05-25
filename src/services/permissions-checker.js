@@ -38,13 +38,12 @@ function PermissionsChecker(
   function computeConditionFiltersFromScope(userId, collectionListScope) {
     const computedConditionFilters = _.clone(collectionListScope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
-      if (condition.value.startsWith('$')) {
+      if (condition.value.startsWith('$') && collectionListScope.dynamicScopesValues.users[userId]) {
         condition.value = collectionListScope
           .dynamicScopesValues
           .users[userId][condition.value];
       }
     });
-    delete computedConditionFilters.dynamicScopesValues;
     return computedConditionFilters;
   }
 
@@ -59,34 +58,38 @@ function PermissionsChecker(
 
   async function isCollectionListAllowed(collectionListScope) {
     if (collectionListScope) {
-      const expectedConditionFilters = computeConditionFiltersFromScope(
-        collectionListRequest.userId,
-        collectionListScope,
-      );
+      try {
+        const expectedConditionFilters = computeConditionFiltersFromScope(
+          collectionListRequest.userId,
+          collectionListScope,
+        );
 
-      const formatAggregation = (aggregator, conditions) => {
-        const areConditionsFromScopes = conditions.every((condition) => condition.isFromScope);
-        if (areConditionsFromScopes && aggregator === expectedConditionFilters.aggregator) {
-          return { aggregator, conditions, isFromScope: true };
-        }
-        return { aggregator, conditions };
-      };
+        const formatAggregation = (aggregator, conditions) => {
+          const areConditionsFromScopes = conditions.every((condition) => condition.isFromScope);
+          if (areConditionsFromScopes && aggregator === expectedConditionFilters.aggregator) {
+            return { aggregator, conditions, isFromScope: true };
+          }
+          return { aggregator, conditions };
+        };
 
-      const formatCondition = (condition) => ({
-        ...condition,
-        isFromScope: isConditionFromScope(expectedConditionFilters.conditions, condition),
-      });
-      // NOTICE: Perform a travel to find the scope in filters
-      const parsedFilters = await perform(
-        collectionListRequest.filters,
-        formatAggregation,
-        formatCondition,
-      );
+        const formatCondition = (condition) => ({
+          ...condition,
+          isFromScope: isConditionFromScope(expectedConditionFilters.conditions, condition),
+        });
+        // NOTICE: Perform a travel to find the scope in filters
+        const parsedFilters = await perform(
+          collectionListRequest.filters,
+          formatAggregation,
+          formatCondition,
+        );
 
-      return parsedFilters.isFromScope
-        || (parsedFilters.conditions
-          && parsedFilters.aggregator === 'and'
-          && parsedFilters.conditions.find((condition) => condition.isFromScope));
+        return parsedFilters.isFromScope
+          || (parsedFilters.conditions
+            && parsedFilters.aggregator === 'and'
+            && parsedFilters.conditions.find((condition) => condition.isFromScope));
+      } catch (error) {
+        return false;
+      }
     }
     return true;
   }
@@ -140,8 +143,8 @@ function PermissionsChecker(
 
   async function retrievePermissionsAndCheckAllowed() {
     await retrievePermissions();
-    const ok = await isAllowed();
-    if (!ok) {
+    const allowed = await isAllowed();
+    if (!allowed) {
       throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
     }
   }

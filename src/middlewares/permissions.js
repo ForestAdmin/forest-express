@@ -57,6 +57,7 @@ class PermissionMiddlewareCreator {
     return (request, response, next) => {
       const { searchToEdit } = request.query;
       const permissionName = searchToEdit ? 'searchToEdit' : 'list';
+
       return this._checkPermission(permissionName)(request, response, next);
     };
   }
