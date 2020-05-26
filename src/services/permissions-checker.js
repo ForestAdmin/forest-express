@@ -38,7 +38,9 @@ function PermissionsChecker(
   function computeConditionFiltersFromScope(userId, collectionListScope) {
     const computedConditionFilters = _.clone(collectionListScope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
-      if (condition.value.startsWith('$') && collectionListScope.dynamicScopesValues.users[userId]) {
+      if (condition.value
+        && condition.value.startsWith('$')
+        && collectionListScope.dynamicScopesValues.users[userId]) {
         condition.value = collectionListScope
           .dynamicScopesValues
           .users[userId][condition.value];
@@ -57,44 +59,51 @@ function PermissionsChecker(
   }
 
   async function isCollectionListAllowed(collectionListScope) {
-    if (collectionListScope) {
-      try {
-        const expectedConditionFilters = computeConditionFiltersFromScope(
-          collectionListRequest.userId,
-          collectionListScope,
-        );
-
-        const formatAggregation = (aggregator, conditions) => {
-          const areConditionsFromScopes = conditions.every((condition) => condition.isFromScope);
-          if (areConditionsFromScopes && aggregator === expectedConditionFilters.aggregator) {
-            return { aggregator, conditions, isFromScope: true };
-          }
-          return { aggregator, conditions };
-        };
-
-        const formatCondition = (condition) => ({
-          ...condition,
-          isFromScope: isConditionFromScope(expectedConditionFilters.conditions, condition),
-        });
-        // NOTICE: Perform a travel to find the scope in filters
-        const parsedFilters = await perform(
-          collectionListRequest.filters,
-          formatAggregation,
-          formatCondition,
-        );
-
-        return parsedFilters.isFromScope
-          || (parsedFilters.conditions
-            && parsedFilters.aggregator === 'and'
-            && parsedFilters.conditions.find(
-              (condition) => condition.aggregator && condition.isFromScope,
-            )
-          );
-      } catch (error) {
-        return false;
-      }
+    if (!collectionListScope) {
+      return true;
     }
-    return true;
+
+    try {
+      const expectedConditionFilters = computeConditionFiltersFromScope(
+        collectionListRequest.userId,
+        collectionListScope,
+      );
+
+      const formatAggregation = (aggregator, conditions) => {
+        const filtredConditions = conditions.filter(Boolean);
+        // NOTICE: Exit case - filtredConditions[0] should be the scope
+        if (filtredConditions.length === 1
+          && filtredConditions[0].aggregator
+          && aggregator === 'and') {
+          return filtredConditions[0];
+        }
+
+        // NOTICE: During the tree travel, check if `conditions` & `aggregator`
+        //         match with expectations
+        return filtredConditions.length === expectedConditionFilters.conditions.length
+          && (aggregator === expectedConditionFilters.aggregator || aggregator === 'and')
+          ? { aggregator, conditions: filtredConditions }
+          : null;
+      };
+
+      const formatCondition = (condition) =>
+        isConditionFromScope(expectedConditionFilters.conditions, condition);
+      // NOTICE: Perform a travel to find the scope in filters
+      const scopeFound = await perform(
+        collectionListRequest.filters,
+        formatAggregation,
+        formatCondition,
+      );
+      if (expectedConditionFilters.conditions.length === 1) {
+        return scopeFound;
+      }
+
+      return scopeFound.aggregator === expectedConditionFilters.aggregator
+        && scopeFound.conditions
+        && scopeFound.conditions.length === expectedConditionFilters.conditions.length;
+    } catch (error) {
+      return false;
+    }
   }
 
   async function isAllowed() {

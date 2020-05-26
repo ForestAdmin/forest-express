@@ -287,7 +287,7 @@ describe('services > permissions', () => {
         },
         scope: {
           filter: {
-            aggregator: 'and',
+            aggregator: 'or',
             conditions: [
               {
                 field: 'name',
@@ -330,8 +330,83 @@ describe('services > permissions', () => {
       },
     };
 
-    describe('when the request match with the expected parameters', () => {
-      it('should return undefined when using aggregator', async () => {
+    describe('when the request match with the expected scope', () => {
+      describe('without additional filters', () => {
+        it('should return undefined', async () => {
+          expect.assertions(1);
+
+          PermissionsChecker.resetExpiration(1);
+          PermissionsChecker.cleanCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, scopedCollectionResponse);
+
+          const collectionListParameters = {
+            userId: 100,
+            filters: JSON.stringify({
+              aggregator: 'or',
+              conditions: [
+                { field: 'name', operator: 'equal', value: 'John' },
+                { field: 'name', operator: 'equal', value: 'Admin' },
+              ],
+            }),
+          };
+
+          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform();
+          expect(result).toBeUndefined();
+        });
+
+        it('should return undefined when scope uses a single scope', async () => {
+          expect.assertions(1);
+
+          PermissionsChecker.resetExpiration(1);
+          PermissionsChecker.cleanCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, scopedCollectionResponse);
+
+          const collectionListParameters = {
+            userId: 100,
+            filters: JSON.stringify(
+              { field: 'name', operator: 'equal', value: 'toto' },
+            ),
+          };
+
+          const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', null, collectionListParameters).perform();
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('with additional filters', () => {
+        it('should return undefined when sending scope and manual filters', async () => {
+          expect.assertions(1);
+
+          PermissionsChecker.resetExpiration(1);
+          PermissionsChecker.cleanCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, scopedCollectionResponse);
+
+          const collectionListParameters = {
+            userId: 100,
+            filters: JSON.stringify({
+              aggregator: 'and',
+              conditions: [
+                { field: 'name', operator: 'equal', value: 'Arnaud' },
+                {
+                  aggregator: 'or',
+                  conditions: [
+                    { field: 'name', operator: 'equal', value: 'John' },
+                    { field: 'name', operator: 'equal', value: 'Admin' },
+                  ],
+                },
+              ],
+            }),
+          };
+
+          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform();
+          expect(result).toBeUndefined();
+        });
+      });
+
+      it('should return undefined when scope uses a single scope', async () => {
         expect.assertions(1);
 
         PermissionsChecker.resetExpiration(1);
@@ -344,17 +419,19 @@ describe('services > permissions', () => {
           filters: JSON.stringify({
             aggregator: 'and',
             conditions: [
-              { field: 'name', operator: 'equal', value: 'John' },
-              { field: 'name', operator: 'equal', value: 'Admin' },
+              { field: 'name', operator: 'equal', value: 'toto' },
+              { field: 'name', operator: 'equal', value: 'blbl' },
             ],
           }),
         };
 
-        const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform();
+        const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', null, collectionListParameters).perform();
         expect(result).toBeUndefined();
       });
+    });
 
-      it('should return undefined when using direct filters', async () => {
+    describe('when the request does not match with the expected scope', () => {
+      it('should return a rejected promise when only a part of the scope is found', async () => {
         expect.assertions(1);
 
         PermissionsChecker.resetExpiration(1);
@@ -364,17 +441,15 @@ describe('services > permissions', () => {
 
         const collectionListParameters = {
           userId: 100,
-          filters: JSON.stringify(
-            { field: 'name', operator: 'equal', value: 'toto' },
-          ),
+          filters: JSON.stringify({
+            field: 'name', operator: 'equal', value: 'John',
+          }),
         };
 
-        const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', null, collectionListParameters).perform();
-        expect(result).toBeUndefined();
+        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform())
+          .rejects.toThrow("'list' access forbidden on Users");
       });
-    });
 
-    describe('when the request does not match with the expected parameters', () => {
       it('should return a rejected promise when editing direct values', async () => {
         expect.assertions(1);
 
