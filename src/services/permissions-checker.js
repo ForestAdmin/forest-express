@@ -86,7 +86,10 @@ function PermissionsChecker(
         return parsedFilters.isFromScope
           || (parsedFilters.conditions
             && parsedFilters.aggregator === 'and'
-            && parsedFilters.conditions.find((condition) => condition.isFromScope));
+            && parsedFilters.conditions.find(
+              (condition) => condition.aggregator && condition.isFromScope,
+            )
+          );
       } catch (error) {
         return false;
       }
