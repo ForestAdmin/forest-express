@@ -12,21 +12,20 @@ function PermissionsChecker(
   renderingId,
   collectionName,
   permissionName,
-  smartActionParameters = undefined,
-  collectionListRequest = undefined,
+  permissionInfos = undefined,
 ) {
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isSmartActionAllowed(smartActionsPermissions) {
-    if (!smartActionParameters
-      || !smartActionParameters.userId
-      || !smartActionParameters.actionId
+    if (!permissionInfos
+      || !permissionInfos.userId
+      || !permissionInfos.actionId
       || !smartActionsPermissions
-      || !smartActionsPermissions[smartActionParameters.actionId]) {
+      || !smartActionsPermissions[permissionInfos.actionId]) {
       return false;
     }
 
-    const { userId, actionId } = smartActionParameters;
+    const { userId, actionId } = permissionInfos;
     const { allowed, users } = smartActionsPermissions[actionId];
 
     return allowed && (!users || users.includes(parseInt(userId, 10)));
@@ -65,11 +64,13 @@ function PermissionsChecker(
 
     try {
       const expectedConditionFilters = computeConditionFiltersFromScope(
-        collectionListRequest.userId,
+        permissionInfos.userId,
         collectionListScope,
       );
-
-      const formatAggregation = (aggregator, conditions) => {
+      // NOTICE: Find aggregated condition. filtredConditions represent an array
+      //         of conditions that were tagged based on if it is present in the
+      //         scope
+      const isScopeAggregation = (aggregator, conditions) => {
         const filtredConditions = conditions.filter(Boolean);
         // NOTICE: Exit case - filtredConditions[0] should be the scope
         if (filtredConditions.length === 1
@@ -86,14 +87,19 @@ function PermissionsChecker(
           : null;
       };
 
-      const formatCondition = (condition) =>
+      // NOTICE: Find in a condition correspond to a scope condition or not
+      const isScopeCondition = (condition) =>
         isConditionFromScope(expectedConditionFilters.conditions, condition);
       // NOTICE: Perform a travel to find the scope in filters
       const scopeFound = await perform(
-        collectionListRequest.filters,
-        formatAggregation,
-        formatCondition,
+        permissionInfos.filters,
+        isScopeAggregation,
+        isScopeCondition,
       );
+
+      // NOTICE: In the case of only one expected condition, server will still send an aggregator
+      //         which will not match the request. If one condition is found and is from scope
+      //         then the request is valid
       if (expectedConditionFilters.conditions.length === 1) {
         return scopeFound;
       }

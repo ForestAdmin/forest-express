@@ -351,7 +351,7 @@ describe('services > permissions', () => {
             }),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform();
+          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform();
           expect(result).toBeUndefined();
         });
 
@@ -370,7 +370,7 @@ describe('services > permissions', () => {
             ),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', null, collectionListParameters).perform();
+          const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', collectionListParameters).perform();
           expect(result).toBeUndefined();
         });
       });
@@ -401,7 +401,7 @@ describe('services > permissions', () => {
             }),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform();
+          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform();
           expect(result).toBeUndefined();
         });
       });
@@ -425,7 +425,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', null, collectionListParameters).perform();
+        const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', collectionListParameters).perform();
         expect(result).toBeUndefined();
       });
     });
@@ -446,7 +446,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform())
+        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform())
           .rejects.toThrow("'list' access forbidden on Users");
       });
 
@@ -469,7 +469,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform())
+        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform())
           .rejects.toThrow("'list' access forbidden on Users");
       });
 

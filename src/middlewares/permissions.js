@@ -26,14 +26,15 @@ class PermissionMiddlewareCreator {
     return (request, response, next) => {
       const environmentSecret = this.configStore.lianaOptions.envSecret;
       const renderingId = getRenderingIdFromUser(request.user);
-      let smartActionInfo;
-      let collectionListInfo;
-      if (permissionName === 'actions') {
-        smartActionInfo = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
-      }
-
-      if (permissionName === 'list') {
-        collectionListInfo = PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+      let permissionInfos;
+      switch (permissionName) {
+        case 'actions':
+          permissionInfos = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
+          break;
+        case 'list':
+          permissionInfos = PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+          break;
+        default:
       }
 
       return new PermissionsChecker(
@@ -41,8 +42,7 @@ class PermissionMiddlewareCreator {
         renderingId,
         this.collectionName,
         permissionName,
-        smartActionInfo,
-        collectionListInfo,
+        permissionInfos,
       )
         .perform()
         .then(next)
