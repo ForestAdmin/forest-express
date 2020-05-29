@@ -1,3 +1,11 @@
+## [7.2.7](https://github.com/ForestAdmin/forest-express/compare/v7.2.6...v7.2.7) (2020-05-29)
+
+
+### Bug Fixes
+
+* **dependencies:** update babel to fix compilation error introduced by node lts 12.17.0 ([#414](https://github.com/ForestAdmin/forest-express/issues/414)) ([ef8a2a0](https://github.com/ForestAdmin/forest-express/commit/ef8a2a0cb81e68f8bd92f85b27f3006dc3abebaf))
+* **record serializer:** harmonize the usage of the RecordSerializer ([#393](https://github.com/ForestAdmin/forest-express/issues/393)) ([c5973b3](https://github.com/ForestAdmin/forest-express/commit/c5973b30dbbc2e67af5027d7078a16e9b133bf16))
+
 ## [7.2.6](https://github.com/ForestAdmin/forest-express/compare/v7.2.5...v7.2.6) (2020-05-13)
 
 
