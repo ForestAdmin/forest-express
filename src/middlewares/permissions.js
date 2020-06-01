@@ -18,14 +18,23 @@ class PermissionMiddlewareCreator {
     };
   }
 
+  static _getCollectionListInfoFromRequest(request) {
+    return { userId: request.user.id, ...request.query };
+  }
+
   _checkPermission(permissionName) {
     return (request, response, next) => {
       const environmentSecret = this.configStore.lianaOptions.envSecret;
       const renderingId = getRenderingIdFromUser(request.user);
-      let smartActionInfo;
-
-      if (permissionName === 'actions') {
-        smartActionInfo = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
+      let permissionInfos;
+      switch (permissionName) {
+        case 'actions':
+          permissionInfos = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
+          break;
+        case 'list':
+          permissionInfos = PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+          break;
+        default:
       }
 
       return new PermissionsChecker(
@@ -33,7 +42,7 @@ class PermissionMiddlewareCreator {
         renderingId,
         this.collectionName,
         permissionName,
-        smartActionInfo,
+        permissionInfos,
       )
         .perform()
         .then(next)
