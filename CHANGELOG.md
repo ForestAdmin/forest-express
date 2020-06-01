@@ -1,3 +1,10 @@
+# [7.3.0](https://github.com/ForestAdmin/forest-express/compare/v7.2.7...v7.3.0) (2020-06-01)
+
+
+### Features
+
+* **scope:** validate scope context on list request ([#409](https://github.com/ForestAdmin/forest-express/issues/409)) ([b2ec417](https://github.com/ForestAdmin/forest-express/commit/b2ec4173bcc4fbcf09ea193b5bbebed33d9207e6))
+
 ## [7.2.7](https://github.com/ForestAdmin/forest-express/compare/v7.2.6...v7.2.7) (2020-05-29)
 
 
