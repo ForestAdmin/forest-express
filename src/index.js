@@ -383,6 +383,7 @@ exports.RecordGetter = require('./services/exposed/record-getter');
 exports.RecordUpdater = require('./services/exposed/record-updater');
 exports.RecordCreator = require('./services/exposed/record-creator');
 exports.RecordRemover = require('./services/exposed/record-remover');
+exports.RecordsRemover = require('./services/exposed/records-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
