@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.10.1",
-    "@babel/core": "7.10.1",
+    "@babel/core": "7.10.3",
     "@babel/plugin-proposal-optional-chaining": "7.10.1",
     "@babel/plugin-transform-classes": "7.10.1",
     "@babel/plugin-transform-runtime": "7.10.1",
