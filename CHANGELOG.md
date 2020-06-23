@@ -1,3 +1,10 @@
+## [7.3.1](https://github.com/ForestAdmin/forest-express/compare/v7.3.0...v7.3.1) (2020-06-23)
+
+
+### Bug Fixes
+
+* **services:** create and expose records remover ([#432](https://github.com/ForestAdmin/forest-express/issues/432)) ([4d7d553](https://github.com/ForestAdmin/forest-express/commit/4d7d553936166ad12706ee4534662a66844f8b8d))
+
 # [7.3.0](https://github.com/ForestAdmin/forest-express/compare/v7.2.7...v7.3.0) (2020-06-01)
 
 
