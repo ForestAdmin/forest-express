@@ -68,7 +68,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (!record[field.field]) {
+      if (!Object.prototype.hasOwnProperty.call(record.dataValues, field.field)) {
         if (field.get || field.value) {
           if (isNotRequestedField(modelName, field.field)) {
             return null;
@@ -77,7 +77,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
           return setSmartFieldValue(record, field, modelName);
         }
         if (_.isArray(field.type)) {
-          record[field.field] = [];
+          record.dataValues[field.field] = [];
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
@@ -90,10 +90,13 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
               return null;
             }
 
-            if (!record[field.field][fieldAssociation.field]
+            if (!Object.prototype.hasOwnProperty.call(
+              record.dataValues[field.field],
+              fieldAssociation.field,
+            )
               && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
-                record[field.field],
+                record.dataValues[field.field],
                 fieldAssociation,
                 modelNameAssociation,
               );
