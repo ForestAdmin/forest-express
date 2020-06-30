@@ -1,8 +1,11 @@
 const _ = require('lodash');
+const SequelizeMock = require('sequelize-mock');
+
 const SmartFieldsValuesInjector = require('../../src/services/smart-fields-values-injector');
 const Schemas = require('../../src/generators/schemas');
 const usersSchema = require('../fixtures/users-schema.js');
 const addressesSchema = require('../fixtures/addresses-schema.js');
+
 
 describe('services > smart-fields-values-injector', () => {
   describe('without Smart Fields', () => {
@@ -22,22 +25,29 @@ describe('services > smart-fields-values-injector', () => {
 
   describe('with a simple Smart Field', () => {
     it('should inject the Smart Field value in the record', async () => {
-      expect.assertions(1);
+      expect.assertions(3);
+
       Schemas.schemas = { users: usersSchema };
-      const record = { id: 123 };
+      const DBConnectionMock = new SequelizeMock();
+      const UserMock = DBConnectionMock.define('users', { id: 123 }, { timestamps: false });
+      const record = await UserMock.findOne({ where: { id: 123 } });
       const fieldsPerModel = { users: ['id', 'smart'] };
       const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
       await injector.perform();
-      expect(record).toStrictEqual({ id: 123, smart: { foo: 'bar' } });
+      expect(record).not.toBeUndefined();
+      expect(record.id).toStrictEqual(123);
+      expect(record.smart).toStrictEqual({ foo: 'bar' });
     });
   });
 
   describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
-    const record = { id: 456 };
+    const DBConnectionMock = new SequelizeMock();
+    const UserMock = DBConnectionMock.define('users', { id: 456 }, { timestamps: false });
     const fieldsPerModel = { users: ['smart'], addresses: ['id', 'user'] };
     it('should inject the Smart Relationship reference', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const record = await UserMock.findOne({ where: { id: 456 } });
       const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
       await injector.perform();
       expect(record.user).not.toBeUndefined();
@@ -45,6 +55,7 @@ describe('services > smart-fields-values-injector', () => {
     it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const record = await UserMock.findOne({ where: { id: 456 } });
       const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
       await injector.perform();
       expect(record.user.smart).toStrictEqual({ foo: 'bar' });

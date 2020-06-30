@@ -68,7 +68,9 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (!Object.prototype.hasOwnProperty.call(record.dataValues, field.field)) {
+      if (record
+        && record.dataValues
+        && !Object.prototype.hasOwnProperty.call(record.dataValues, field.field)) {
         if (field.get || field.value) {
           if (isNotRequestedField(modelName, field.field)) {
             return null;
@@ -90,10 +92,13 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
               return null;
             }
 
-            if (!Object.prototype.hasOwnProperty.call(
-              record.dataValues[field.field],
-              fieldAssociation.field,
-            )
+            if (record
+              && record.dataValues
+              && record.dataValues[field.field]
+              && !!Object.prototype.hasOwnProperty.call(
+                record.dataValues[field.field],
+                fieldAssociation.field,
+              )
               && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
                 record.dataValues[field.field],
