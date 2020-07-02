@@ -6,6 +6,7 @@ const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 const Schemas = require('../generators/schemas');
 const logger = require('../services/logger');
+const { recursivelyAddSmartValues } = require('../utils/smart-values');
 
 function ResourceSerializer(
   Implementation,
@@ -203,16 +204,10 @@ function ResourceSerializer(
 
         if (_.isArray(recordsWithSmartFieldsValues)) {
           _.each(recordsWithSmartFieldsValues, (record) => {
-            if (record.smartValues) {
-              _.each(Object.keys(record.smartValues), (key) => {
-                record[key] = record.smartValues[key];
-              });
-            }
+            recursivelyAddSmartValues(record);
           });
-        } else if (recordsWithSmartFieldsValues.smartValues) {
-          _.each(Object.keys(recordsWithSmartFieldsValues.smartValues), (key) => {
-            recordsWithSmartFieldsValues[key] = recordsWithSmartFieldsValues.smartValues[key];
-          });
+        } else {
+          recursivelyAddSmartValues(recordsWithSmartFieldsValues);
         }
 
         return recordsWithSmartFieldsValues;

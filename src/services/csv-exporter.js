@@ -4,6 +4,8 @@ const moment = require('moment');
 const stringify = require('csv-stringify');
 const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
+const { recursivelyAddSmartValues } = require('../utils/smart-values');
+
 
 // NOTICE: Prevent bad date formatting into timestamps.
 const CSV_OPTIONS = {
@@ -40,11 +42,7 @@ function CSVExporter(params, response, modelName, recordsExporter) {
         //         ex: get{Model}s, set{Model}s, add{Model}, add{Model}s, has{Model}, has{Model}s,
         //             count{Model}s, remove{Model}, remove{Model}s, create{Model}
           _.each(recordsWithSmartFieldsValues, (record) => {
-            if (record.smartValues) {
-              _.each(Object.keys(record.smartValues), (key) => {
-                record[key] = record.smartValues[key];
-              });
-            }
+            recursivelyAddSmartValues(record);
           });
 
           return recordsWithSmartFieldsValues;

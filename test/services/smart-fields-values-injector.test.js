@@ -42,23 +42,24 @@ describe('services > smart-fields-values-injector', () => {
 
   describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
     const DBConnectionMock = new SequelizeMock();
-    const UserMock = DBConnectionMock.define('users', { id: 456 }, { timestamps: false });
-    const fieldsPerModel = { users: ['smart'], addresses: ['id', 'user'] };
-    it('should inject the Smart Relationship reference', async () => {
-      expect.assertions(1);
-      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
-      const record = await UserMock.findOne({ where: { id: 456 } });
-      const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
-      await injector.perform();
-      expect(record.smartValues.user).not.toBeUndefined();
-    });
+    const UserMock = DBConnectionMock.define('users', { id: 456, name: 'foo' }, { timestamps: false });
+    const AddressMock = DBConnectionMock.define('addresses', { id: 556 }, { timestamps: false });
+    AddressMock.belongsTo(UserMock);
+    const fieldsPerModel = { users: ['id', 'smart'], addresses: ['id', 'user'] };
     it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
-      const record = await UserMock.findOne({ where: { id: 456 } });
-      const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
+      const addressRecord = await AddressMock.findOne({ where: { id: 556 } });
+
+      // fix sequelize-mock missing relationship
+      const userRecord = await addressRecord.getUser();
+      addressRecord.user = userRecord;
+      addressRecord.dataValues.user = userRecord;
+
+      const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
       await injector.perform();
-      expect(record.smartValues.user.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
+      expect(addressRecord.user).not.toBeUndefined();
+      expect(addressRecord.user.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
     });
   });
 });
