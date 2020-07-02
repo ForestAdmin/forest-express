@@ -36,7 +36,7 @@ describe('services > smart-fields-values-injector', () => {
       await injector.perform();
       expect(record).not.toBeUndefined();
       expect(record.id).toStrictEqual(123);
-      expect(record.smart).toStrictEqual({ foo: 'bar' });
+      expect(record.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
     });
   });
 
@@ -50,7 +50,7 @@ describe('services > smart-fields-values-injector', () => {
       const record = await UserMock.findOne({ where: { id: 456 } });
       const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
       await injector.perform();
-      expect(record.user).not.toBeUndefined();
+      expect(record.smartValues.user).not.toBeUndefined();
     });
     it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
       expect.assertions(1);
@@ -58,7 +58,7 @@ describe('services > smart-fields-values-injector', () => {
       const record = await UserMock.findOne({ where: { id: 456 } });
       const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
       await injector.perform();
-      expect(record.user.smart).toStrictEqual({ foo: 'bar' });
+      expect(record.smartValues.user.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
     });
   });
 });

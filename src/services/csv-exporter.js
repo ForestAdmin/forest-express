@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const P = require('bluebird');
 const moment = require('moment');
 const stringify = require('csv-stringify');
@@ -33,6 +34,19 @@ function CSVExporter(params, response, modelName, recordsExporter) {
       .perform((records) => P
         .map(records, (record) =>
           new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform())
+        .then((recordsWithSmartFieldsValues) => {
+        // NOTICE: add smart fields inside record for correct further serialization
+        //        (will override magic accessor method created by sequelize if same name)
+        //         ex: get{Model}s, set{Model}s, add{Model}, add{Model}s, has{Model}, has{Model}s,
+        //             count{Model}s, remove{Model}, remove{Model}s, create{Model}
+          _.each(recordsWithSmartFieldsValues, (record) => {
+            _.each(Object.keys(record.smartValues), (key) => {
+              record[key] = record.smartValues[key];
+            });
+          });
+
+          return recordsWithSmartFieldsValues;
+        })
         .then((recordsWithSmartFieldsValues) =>
           new P((resolve) => {
             const CSVLines = [];
@@ -52,7 +66,7 @@ function CSVExporter(params, response, modelName, recordsExporter) {
                 } else {
                   value = record[attribute];
                 }
-                CSVLine.push(value || '');
+                CSVLine.push(_.isNil(value) ? '' : value);
               });
               CSVLines.push(CSVLine);
             });

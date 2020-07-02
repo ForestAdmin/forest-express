@@ -115,6 +115,7 @@ function ResourceSerializer(
     function formatFields(record) {
       const offsetServer = moment().utcOffset() / 60;
 
+      // NOTICE: Format Dateonly field types before serialization.
       _.each(fieldInfoDateonly, (fieldInfo) => {
         let dateonly;
         if (fieldInfo.association && record[fieldInfo.association] && fieldInfo.name
@@ -151,7 +152,6 @@ function ResourceSerializer(
 
     getAttributesFor(serializationOptions, schema.fields);
 
-    // NOTICE: Format Dateonly field types before serialization.
     if (_.isArray(records)) {
       _.each(records, (record) => { formatFields(record); });
     } else {
@@ -181,11 +181,11 @@ function ResourceSerializer(
         resolve(new SmartFieldsValuesInjector(records, modelName, fieldsPerModel).perform());
       }
     })
-      .then(() => {
+      .then((recordsWithSmartFieldsValues) => {
         let decorators = null;
         if (searchValue) {
           decorators = Implementation.RecordsDecorator.decorateForSearch(
-            records,
+            recordsWithSmartFieldsValues,
             fieldsSearched,
             searchValue,
           );
@@ -193,8 +193,30 @@ function ResourceSerializer(
             serializationOptions.meta = { decorators };
           }
         }
+        return recordsWithSmartFieldsValues;
       })
-      .then(() => new JSONAPISerializer(schema.name, records, serializationOptions));
+      .then((recordsWithSmartFieldsValues) => {
+        // NOTICE: add smart fields inside record for correct further serialization
+        //        (will override magic accessor method created by sequelize if same name)
+        //         ex: get{Model}s, set{Model}s, add{Model}, add{Model}s, has{Model}, has{Model}s,
+        //             count{Model}s, remove{Model}, remove{Model}s, create{Model}
+
+        if (_.isArray(recordsWithSmartFieldsValues)) {
+          _.each(recordsWithSmartFieldsValues, (record) => {
+            _.each(Object.keys(record.smartValues), (key) => {
+              record[key] = record.smartValues[key];
+            });
+          });
+        } else {
+          _.each(Object.keys(recordsWithSmartFieldsValues.smartValues), (key) => {
+            recordsWithSmartFieldsValues[key] = recordsWithSmartFieldsValues.smartValues[key];
+          });
+        }
+
+        return recordsWithSmartFieldsValues;
+      })
+      .then((recordsWithSmartFieldsValues) =>
+        new JSONAPISerializer(schema.name, recordsWithSmartFieldsValues, serializationOptions));
   };
 }
 

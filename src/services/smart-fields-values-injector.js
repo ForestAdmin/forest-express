@@ -48,7 +48,12 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
             await smartFieldsValuesInjector.perform();
           }
           // NOTICE: Update the record with the the Smart Field value.
-          record[field.field] = smartFieldValue;
+          //         In its own namespace `smartValues` for not overriding sequelize magic accessors
+          record.smartValues = {
+            ...record.smartValues,
+            [field.field]: smartFieldValue,
+          };
+
           // NOTICE: String fields can be highlighted.
           if (field.type === 'String') {
             fieldsForHighlightedSearch.push(field.field);
