@@ -203,11 +203,13 @@ function ResourceSerializer(
 
         if (_.isArray(recordsWithSmartFieldsValues)) {
           _.each(recordsWithSmartFieldsValues, (record) => {
-            _.each(Object.keys(record.smartValues), (key) => {
-              record[key] = record.smartValues[key];
-            });
+            if (record.smartValues) {
+              _.each(Object.keys(record.smartValues), (key) => {
+                record[key] = record.smartValues[key];
+              });
+            }
           });
-        } else {
+        } else if (recordsWithSmartFieldsValues.smartValues) {
           _.each(Object.keys(recordsWithSmartFieldsValues.smartValues), (key) => {
             recordsWithSmartFieldsValues[key] = recordsWithSmartFieldsValues.smartValues[key];
           });

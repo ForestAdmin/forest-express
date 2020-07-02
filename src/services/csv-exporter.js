@@ -40,9 +40,11 @@ function CSVExporter(params, response, modelName, recordsExporter) {
         //         ex: get{Model}s, set{Model}s, add{Model}, add{Model}s, has{Model}, has{Model}s,
         //             count{Model}s, remove{Model}, remove{Model}s, create{Model}
           _.each(recordsWithSmartFieldsValues, (record) => {
-            _.each(Object.keys(record.smartValues), (key) => {
-              record[key] = record.smartValues[key];
-            });
+            if (record.smartValues) {
+              _.each(Object.keys(record.smartValues), (key) => {
+                record[key] = record.smartValues[key];
+              });
+            }
           });
 
           return recordsWithSmartFieldsValues;
