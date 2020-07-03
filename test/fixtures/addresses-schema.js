@@ -5,7 +5,7 @@ module.exports = {
   isCompositePrimary: false,
   fields: [
     {
-      field: 'user',
+      field: 'smart_user',
       type: 'Json',
       reference: 'users.id',
       get: () => ({ dataValues: { id: 123 } }),

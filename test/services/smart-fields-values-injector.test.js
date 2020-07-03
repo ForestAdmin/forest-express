@@ -33,20 +33,15 @@ describe('services > smart-fields-values-injector', () => {
   });
 
   describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
-    const record = { id: 456 };
-    const fieldsPerModel = { users: ['smart'], addresses: ['id', 'user'] };
+    const record = { dataValues: { id: 456, user: { id: 123 } }, user: { id: 123 } };
+    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smart_user'] };
     it('should inject the Smart Relationship reference', async () => {
-      expect.assertions(1);
+      expect.assertions(3);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
       const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
       await injector.perform();
-      expect(record.user).not.toBeUndefined();
-    });
-    it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
-      expect.assertions(1);
-      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
-      const injector = new SmartFieldsValuesInjector(record, 'addresses', fieldsPerModel);
-      await injector.perform();
+      expect(record.smart_user).not.toBeUndefined();
+      expect(record.smart_user.smart).toStrictEqual({ foo: 'bar' });
       expect(record.user.smart).toStrictEqual({ foo: 'bar' });
     });
   });
