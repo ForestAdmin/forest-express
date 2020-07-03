@@ -43,6 +43,10 @@ function CSVExporter(params, response, modelName, recordsExporter) {
         //             count{Model}s, remove{Model}, remove{Model}s, create{Model}
           _.each(recordsWithSmartFieldsValues, (record) => {
             recursivelyAddSmartValues(record);
+            const referencesWithSmartValues = Object.keys(record.dataValues)
+              .filter((x) => record.dataValues[x].smartValues);
+            _.each(referencesWithSmartValues, (reference) =>
+              recursivelyAddSmartValues(record[reference]));
           });
 
           return recordsWithSmartFieldsValues;

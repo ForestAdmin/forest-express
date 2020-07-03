@@ -45,7 +45,7 @@ describe('services > smart-fields-values-injector', () => {
     const UserMock = DBConnectionMock.define('users', { id: 123, name: 'foo' }, { timestamps: false });
     const AddressMock = DBConnectionMock.define('addresses', { id: 456 }, { timestamps: false });
     AddressMock.belongsTo(UserMock);
-    const fieldsPerModel = { user: ['id'], addresses: ['id', 'user'] };
+    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user'] };
     it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
       expect.assertions(2);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };

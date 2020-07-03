@@ -205,9 +205,17 @@ function ResourceSerializer(
         if (_.isArray(recordsWithSmartFieldsValues)) {
           _.each(recordsWithSmartFieldsValues, (record) => {
             recursivelyAddSmartValues(record);
+            const referencesWithSmartValues = Object.keys(record.dataValues)
+              .filter((x) => record.dataValues[x].smartValues);
+            _.each(referencesWithSmartValues, (reference) =>
+              recursivelyAddSmartValues(record[reference]));
           });
         } else {
           recursivelyAddSmartValues(recordsWithSmartFieldsValues);
+          const referencesWithSmartValues = Object.keys(records.dataValues)
+            .filter((x) => records.dataValues[x].smartValues);
+          _.each(referencesWithSmartValues, (reference) =>
+            recursivelyAddSmartValues(records[reference]));
         }
 
         return recordsWithSmartFieldsValues;
