@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const SequelizeMock = require('sequelize-mock');
 
 const SmartFieldsValuesInjector = require('../../src/services/smart-fields-values-injector');
 const Schemas = require('../../src/generators/schemas');
@@ -15,28 +14,23 @@ describe('services > smart-fields-values-injector', () => {
       const usersSchemaWithoutSmartField = _.cloneDeep(usersSchema);
       usersSchemaWithoutSmartField.fields.shift();
       Schemas.schemas = { users: usersSchemaWithoutSmartField };
-      const record = { id: 123 };
+      const record = { dataValues: { id: 123 } };
       const fieldsPerModel = { users: ['id'] };
       const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
       await injector.perform();
-      expect(record).toStrictEqual({ id: 123 });
+      expect(record).toStrictEqual({ dataValues: { id: 123 } });
     });
   });
 
   describe('with a simple Smart Field', () => {
     it('should inject the Smart Field value in the record', async () => {
-      expect.assertions(3);
-
+      expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
-      const DBConnectionMock = new SequelizeMock();
-      const UserMock = DBConnectionMock.define('users', { id: 123 }, { timestamps: false });
-      const record = await UserMock.findOne({ where: { id: 123 } });
+      const record = { dataValues: { id: 123 } };
       const fieldsPerModel = { users: ['id', 'smart'] };
       const injector = new SmartFieldsValuesInjector(record, 'users', fieldsPerModel);
       await injector.perform();
-      expect(record).not.toBeUndefined();
-      expect(record.id).toStrictEqual(123);
-      expect(record.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
+      expect(record).toStrictEqual({ dataValues: { id: 123 }, smartValues: { smart: { foo: 'bar' } } });
     });
   });
 
@@ -46,7 +40,7 @@ describe('services > smart-fields-values-injector', () => {
     // make sure user is the same object
     const addressRecord = { dataValues: { id: 456, user: userRecord }, user: userRecord };
 
-    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smart_user'] };
+    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smart_user'], smart_user: ['smart'] };
     it('should inject the Smart Relationship reference', async () => {
       expect.assertions(4);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
