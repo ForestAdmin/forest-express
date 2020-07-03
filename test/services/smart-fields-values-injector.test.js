@@ -41,24 +41,20 @@ describe('services > smart-fields-values-injector', () => {
   });
 
   describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
-    const DBConnectionMock = new SequelizeMock();
-    const UserMock = DBConnectionMock.define('users', { id: 123, name: 'foo' }, { timestamps: false });
-    const AddressMock = DBConnectionMock.define('addresses', { id: 456 }, { timestamps: false });
-    AddressMock.belongsTo(UserMock);
-    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user'] };
-    it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
-      expect.assertions(2);
+    // mimic sequelize record
+    const userRecord = { dataValues: { id: 123 } };
+    // make sure user is the same object
+    const addressRecord = { dataValues: { id: 456, user: userRecord }, user: userRecord };
+
+    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smart_user'] };
+    it('should inject the Smart Relationship reference', async () => {
+      expect.assertions(4);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
-      const addressRecord = await AddressMock.findOne({ where: { id: 456 } });
-
-      // fix sequelize-mock missing relationship
-      const userRecord = await addressRecord.getUser();
-      addressRecord.user = userRecord;
-      addressRecord.dataValues.user = userRecord;
-
       const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
       await injector.perform();
-      expect(addressRecord.user).not.toBeUndefined();
+      expect(addressRecord.smartValues).not.toBeUndefined();
+      expect(addressRecord.smartValues.smart_user).not.toBeUndefined();
+      expect(addressRecord.smartValues.smart_user.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
       expect(addressRecord.user.smartValues).toStrictEqual({ smart: { foo: 'bar' } });
     });
   });
