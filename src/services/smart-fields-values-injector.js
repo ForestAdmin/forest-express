@@ -102,8 +102,9 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0,
             if (record
                 && record.dataValues
                 && record.dataValues[field.field]
+                && record.dataValues[field.field].dataValues
                 && !Object.prototype.hasOwnProperty.call(
-                  record.dataValues[field.field],
+                  record.dataValues[field.field].dataValues,
                   fieldAssociation.field,
                 )
                 && (fieldAssociation.get || fieldAssociation.value)) {
