@@ -5,7 +5,8 @@ const Schemas = require('../generators/schemas');
 
 const DEPTH_MAX_FOR_INJECTION = 0;
 
-function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0) {
+function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0,
+  requestedField = null) {
   const schema = Schemas.schemas[modelName];
   const fieldsForHighlightedSearch = [];
 
@@ -44,6 +45,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
               getReferencedModelName(field),
               fieldsPerModel,
               depth + 1,
+              field.field,
             );
             await smartFieldsValuesInjector.perform();
           }
@@ -72,7 +74,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
         && record.dataValues
         && !Object.prototype.hasOwnProperty.call(record.dataValues, field.field)) {
         if (field.get || field.value) {
-          if (isNotRequestedField(modelName, field.field)) {
+          if (isNotRequestedField(requestedField || modelName, field.field)) {
             return null;
           }
 
@@ -95,7 +97,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
             if (record
               && record.dataValues
               && record.dataValues[field.field]
-              && !!Object.prototype.hasOwnProperty.call(
+              && !Object.prototype.hasOwnProperty.call(
                 record.dataValues[field.field],
                 fieldAssociation.field,
               )
