@@ -65,4 +65,28 @@ describe('services > smart-fields-values-injector', () => {
       expect(addressRecord.hasUser).toBe(true);
     });
   });
+
+  describe('with a Smart Relationship that reference a collection having a Smart Field whose name is a magic accessor advanced', () => {
+    // NOTICE: note the add of the `hasUser`/`hasAddress` function, this is for
+    // mocking sequelize magic accessor
+    const userRecord = {
+      dataValues: { id: 123 },
+      hasAddress: () => false,
+    };
+
+    const addressRecord = {
+      dataValues: { id: 456, user: userRecord },
+      user: userRecord,
+      hasUser: () => false,
+    };
+    const fieldsPerModel = { addresses: ['id', 'user', 'hasUser', 'smart_user'], user: ['smart', 'hasAddress'], smart_user: ['smart', 'hasAddress'] };
+    it('should inject the Smart Relationship reference', async () => {
+      expect.assertions(2);
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
+      await injector.perform();
+      expect(addressRecord.user.hasAddress).toBe(true);
+      expect(addressRecord.smart_user.hasAddress).toBe(true);
+    });
+  });
 });
