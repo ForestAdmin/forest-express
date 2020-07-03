@@ -42,14 +42,14 @@ describe('services > smart-fields-values-injector', () => {
 
   describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
     const DBConnectionMock = new SequelizeMock();
-    const UserMock = DBConnectionMock.define('users', { id: 456, name: 'foo' }, { timestamps: false });
-    const AddressMock = DBConnectionMock.define('addresses', { id: 556 }, { timestamps: false });
+    const UserMock = DBConnectionMock.define('users', { id: 123, name: 'foo' }, { timestamps: false });
+    const AddressMock = DBConnectionMock.define('addresses', { id: 456 }, { timestamps: false });
     AddressMock.belongsTo(UserMock);
-    const fieldsPerModel = { users: ['id', 'smart'], addresses: ['id', 'user'] };
+    const fieldsPerModel = { user: ['id'], addresses: ['id', 'user'] };
     it('should inject the Smart Field of the record referenced by the Smart Relationship', async () => {
       expect.assertions(2);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
-      const addressRecord = await AddressMock.findOne({ where: { id: 556 } });
+      const addressRecord = await AddressMock.findOne({ where: { id: 456 } });
 
       // fix sequelize-mock missing relationship
       const userRecord = await addressRecord.getUser();

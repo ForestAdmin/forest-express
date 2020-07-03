@@ -91,7 +91,7 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
         const modelNameAssociation = getReferencedModelName(field);
         const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
-        if (schemaAssociation && !_.isArray(field.type)) {
+        if (schemaAssociation) {
           return P.each(schemaAssociation.fields, (fieldAssociation) => {
             if (isNotRequestedField(field.field, fieldAssociation.field)) {
               return null;
