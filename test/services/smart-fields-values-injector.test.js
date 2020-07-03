@@ -35,7 +35,7 @@ describe('services > smart-fields-values-injector', () => {
   describe('with a Smart Relationship that reference a collection having a Smart Field', () => {
     const userRecord = { dataValues: { id: 123 } };
     const addressRecord = { dataValues: { id: 456, user: userRecord }, user: userRecord };
-    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smart_user'] };
+    const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smart_user'], smart_user: ['smart'] };
     it('should inject the Smart Relationship reference', async () => {
       expect.assertions(3);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
@@ -44,6 +44,25 @@ describe('services > smart-fields-values-injector', () => {
       expect(addressRecord.smart_user).not.toBeUndefined();
       expect(addressRecord.smart_user.smart).toStrictEqual({ foo: 'bar' });
       expect(addressRecord.user.smart).toStrictEqual({ foo: 'bar' });
+    });
+  });
+
+  describe('with a Smart Relationship that reference a collection having a Smart Field whose name is a magic accessor', () => {
+    const userRecord = { dataValues: { id: 123 } };
+
+    // NOTICE: note the add of the `hasUser` function, this is for mocking sequelize magic accessor
+    const addressRecord = {
+      dataValues: { id: 456, user: userRecord },
+      user: userRecord,
+      hasUser: () => false,
+    };
+    const fieldsPerModel = { addresses: ['id', 'user', 'hasUser'] };
+    it('should inject the Smart Relationship reference', async () => {
+      expect.assertions(1);
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
+      await injector.perform();
+      expect(addressRecord.hasUser).toBe(true);
     });
   });
 });
