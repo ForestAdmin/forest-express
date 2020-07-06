@@ -5,8 +5,13 @@ const Schemas = require('../generators/schemas');
 
 const DEPTH_MAX_FOR_INJECTION = 0;
 
-function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0,
-  requestedField = null) {
+function SmartFieldsValuesInjector(
+  record,
+  modelName,
+  fieldsPerModel,
+  depth = 0,
+  requestedField = null,
+) {
   const schema = Schemas.schemas[modelName];
   const fieldsForHighlightedSearch = [];
 
