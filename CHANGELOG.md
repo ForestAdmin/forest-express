@@ -1,3 +1,10 @@
+## [7.3.3](https://github.com/ForestAdmin/forest-express/compare/v7.3.2...v7.3.3) (2020-07-13)
+
+
+### Bug Fixes
+
+* **vulnerabilities:** bump 2 dependencies of dependencies ([#450](https://github.com/ForestAdmin/forest-express/issues/450)) ([f10f222](https://github.com/ForestAdmin/forest-express/commit/f10f222ad198b38345eb4e13d9da4e33114957c3))
+
 ## [7.3.2](https://github.com/ForestAdmin/forest-express/compare/v7.3.1...v7.3.2) (2020-07-13)
 
 
