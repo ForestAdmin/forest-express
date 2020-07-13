@@ -1,3 +1,10 @@
+## [7.3.2](https://github.com/ForestAdmin/forest-express/compare/v7.3.1...v7.3.2) (2020-07-13)
+
+
+### Bug Fixes
+
+* **smart-field:** fix smart field name ([#438](https://github.com/ForestAdmin/forest-express/issues/438)) ([ba7e7f1](https://github.com/ForestAdmin/forest-express/commit/ba7e7f1b72535b79f50e221dfb2e531a3c182eba))
+
 ## [7.3.1](https://github.com/ForestAdmin/forest-express/compare/v7.3.0...v7.3.1) (2020-06-23)
 
 
