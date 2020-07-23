@@ -4,6 +4,7 @@ const logger = require('../services/logger.js');
 const UserSecretCreator = require('./user-secret-creator');
 const AuthorizationFinder = require('./authorization-finder');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
+const { is2FASaltValid } = require('../utils/token-checker');
 
 function LoginHandler({
   renderingId,
@@ -31,13 +32,10 @@ function LoginHandler({
   function getTwoFactorResponse(user) {
     const TWO_FACTOR_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
-    if (TWO_FACTOR_SECRET_SALT === undefined) {
-      logger.error('Cannot use the two factor authentication because the environment variable "FOREST_2FA_SECRET_SALT" is not set.\nYou can generate it using this command: `$ openssl rand -hex 10`');
-      throw new Error('Invalid 2FA configuration, please ask more information to your admin');
-    }
-
-    if (TWO_FACTOR_SECRET_SALT.length !== 20) {
-      logger.error('The FOREST_2FA_SECRET_SALT environment variable must be 20 characters long.\nYou can generate it using this command: `$ openssl rand -hex 10`');
+    try {
+      is2FASaltValid(TWO_FACTOR_SECRET_SALT);
+    } catch (error) {
+      logger.error(error.message);
       throw new Error('Invalid 2FA configuration, please ask more information to your admin');
     }
 
