@@ -4,7 +4,7 @@ describe('utils > token-checker', () => {
   describe('checking authenticity of 2FA token', () => {
     const INVALID_2FA_ERROR_MESSAGE = 'Your 2FA token is invalid. Please use a string of 20 hexadecimal characters. You can generate it using this command: `$ openssl rand -hex 10`';
 
-    it('should return `true`', () => {
+    it('should return `true` if the token is valid', () => {
       expect.assertions(1);
       expect(is2FASaltValid('b95be26591747d670891')).toStrictEqual(true);
     });
