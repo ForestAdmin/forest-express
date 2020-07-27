@@ -1,3 +1,10 @@
+## [7.3.4](https://github.com/ForestAdmin/forest-express/compare/v7.3.3...v7.3.4) (2020-07-27)
+
+
+### Bug Fixes
+
+* **2FA:** throw a clear error when the 2FA salt is invalid ([#456](https://github.com/ForestAdmin/forest-express/issues/456)) ([6148ad3](https://github.com/ForestAdmin/forest-express/commit/6148ad35027a31c28c91691d6da807f343e9489e))
+
 ## [7.3.3](https://github.com/ForestAdmin/forest-express/compare/v7.3.2...v7.3.3) (2020-07-13)
 
 
