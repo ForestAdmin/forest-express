@@ -1,4 +1,4 @@
-const logger = require('./logger');
+const logger = require('../logger');
 
 exports.catchIfAny = (error, request, response, next) => {
   if (error) {
