@@ -20,14 +20,14 @@ function getFilesModified(callback) {
     listFilesModified = status.files
       .filter(excludeNonCommitedFiles)
       .map((file) => {
-        if (file.index === 'R'){
+        if (file.index === 'R') {
           // NOTICE: file path equals "old/path.js -> new/path.js" for renames
           const matches = file.path.match(/^(?:.* -> )?(.*)$/);
 
           return matches[1];
         }
         
-        return file.path
+        return file.path;
       })
       .filter(Boolean)
       .filter((file) => file.endsWith('.js'));
