@@ -26,7 +26,7 @@ function getFilesModified(callback) {
 
           return matches[1];
         }
-        
+
         return file.path;
       })
       .filter(Boolean)
