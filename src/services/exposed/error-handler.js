@@ -13,7 +13,7 @@ function errorHandler({ logger } = {}) {
    */
   return function handleError(error, request, response, next) {
     if (error) {
-      // NOTICE: Send the first error if any
+      // NOTICE: Send the first error if any.
       if (error && error.errors && error.errors[0] && error.errors[0].message) {
         error.message = error.errors[0].message;
       }
