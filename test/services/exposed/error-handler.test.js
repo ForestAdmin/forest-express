@@ -52,11 +52,7 @@ describe('services › exposed › error-handler', () => {
     expect.assertions(2);
 
     const error = new Error('The error');
-
-    const logger = {
-      error: sinon.stub(),
-    };
-
+    const logger = { error: sinon.stub() };
     const handleError = errorHandler({ logger });
     const next = sinon.stub();
     const response = mockResponse();
