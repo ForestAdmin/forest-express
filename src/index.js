@@ -20,7 +20,7 @@ const SchemaSerializer = require('./serializers/schema');
 const logger = require('./services/logger');
 const pathService = require('./services/path');
 const Integrator = require('./integrations');
-const errorHandler = require('./services/error-handler');
+const errorHandler = require('./services/exposed/error-handler');
 const ApimapSender = require('./services/apimap-sender');
 const ipWhitelist = require('./services/ip-whitelist');
 const SchemaFileUpdater = require('./services/schema-file-updater');
@@ -244,7 +244,7 @@ exports.init = (Implementation) => {
       ).perform();
     })
     .then(() => new ForestRoutes(app, configStore.lianaOptions).perform())
-    .then(() => app.use(pathMounted, errorHandler.catchIfAny))
+    .then(() => app.use(pathMounted, errorHandler({ logger })))
     .then(() => {
       if (!opts.envSecret) { return; }
 
@@ -394,5 +394,7 @@ exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordsRemover = require('./services/exposed/records-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
+
+exports.errorHandler = errorHandler;
 
 exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];
