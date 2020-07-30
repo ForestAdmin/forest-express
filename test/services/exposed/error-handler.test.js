@@ -31,9 +31,7 @@ describe('services › exposed › error-handler', () => {
     };
 
     const next = sinon.stub();
-
     const response = mockResponse();
-
     const handleError = errorHandler();
 
     handleError(error, undefined, response, next);
