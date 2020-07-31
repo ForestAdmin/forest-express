@@ -38,6 +38,7 @@ const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 const configStore = ConfigStore.getInstance();
 
 let jwtAuthenticator;
@@ -158,6 +159,7 @@ exports.init = (Implementation) => {
   // Authentication
   if (opts.authSecret) {
     jwtAuthenticator = jwt({
+      algorithms: [JWT_ALGORITHM],
       secret: opts.authSecret,
       credentialsRequired: false,
       getToken: (request) => {

@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const forestExpress = require('../../src');
 
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
+
 let app;
 
 module.exports = async function createServer(envSecret, authSecret) {
@@ -16,6 +18,7 @@ module.exports = async function createServer(envSecret, authSecret) {
   app.use(bodyParser.urlencoded({ extended: false }));
 
   app.use(jwt({
+    algorithms: [JWT_ALGORITHM],
     secret: 'jwt-secret',
     credentialsRequired: false,
   }));
