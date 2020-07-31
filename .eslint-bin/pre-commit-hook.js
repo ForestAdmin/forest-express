@@ -29,7 +29,6 @@ function getFilesModified(callback) {
 
         return file.path;
       })
-      .filter(Boolean)
       .filter((file) => file.endsWith('.js'));
 
     callback();
