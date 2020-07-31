@@ -1,3 +1,10 @@
+# [7.4.0](https://github.com/ForestAdmin/forest-express/compare/v7.3.4...v7.4.0) (2020-07-30)
+
+
+### Features
+
+* **error-handling:** expose error-handler to be used in agents ([#462](https://github.com/ForestAdmin/forest-express/issues/462)) ([a20832f](https://github.com/ForestAdmin/forest-express/commit/a20832f30b8854951587ec7b562e56cddb52e81b))
+
 ## [7.3.4](https://github.com/ForestAdmin/forest-express/compare/v7.3.3...v7.3.4) (2020-07-27)
 
 
