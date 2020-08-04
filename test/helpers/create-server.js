@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const forestExpress = require('../../src');
+const { getJWTConfiguration } = require('../../src/config/jwt');
 
 let app;
 
@@ -15,10 +16,7 @@ module.exports = async function createServer(envSecret, authSecret) {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 
-  app.use(jwt({
-    secret: 'jwt-secret',
-    credentialsRequired: false,
-  }));
+  app.use(jwt(getJWTConfiguration({ secret: 'jwt-secret' })));
 
   const implementation = {
     opts: {

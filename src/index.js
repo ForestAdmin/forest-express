@@ -28,6 +28,7 @@ const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
+const { getJWTConfiguration } = require('./config/jwt');
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
@@ -157,9 +158,8 @@ exports.init = (Implementation) => {
 
   // Authentication
   if (opts.authSecret) {
-    jwtAuthenticator = jwt({
+    jwtAuthenticator = jwt(getJWTConfiguration({
       secret: opts.authSecret,
-      credentialsRequired: false,
       getToken: (request) => {
         if (request.headers) {
           if (request.headers.authorization
@@ -176,7 +176,7 @@ exports.init = (Implementation) => {
         }
         return null;
       },
-    });
+    }));
   } else {
     logger.error('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initializer?');
   }
