@@ -31,6 +31,7 @@ function SchemaSerializer() {
         'enums',
         'integration',
         'isFilterable',
+        'isGenerated',
         'isReadOnly',
         'isRequired',
         'isSortable',
