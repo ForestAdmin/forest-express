@@ -1,3 +1,10 @@
+## [7.4.1](https://github.com/ForestAdmin/forest-express/compare/v7.4.0...v7.4.1) (2020-08-04)
+
+
+### Bug Fixes
+
+* **vulnerability:** patch a potential vulnerability updating express-jwt dependency to version 6.0.0 ([#439](https://github.com/ForestAdmin/forest-express/issues/439)) ([46cce22](https://github.com/ForestAdmin/forest-express/commit/46cce22bf88c78b5f7703e8bf460c16655cf9ac1))
+
 # [7.4.0](https://github.com/ForestAdmin/forest-express/compare/v7.3.4...v7.4.0) (2020-07-30)
 
 
