@@ -1,3 +1,10 @@
+## [7.4.2](https://github.com/ForestAdmin/forest-express/compare/v7.4.1...v7.4.2) (2020-08-05)
+
+
+### Bug Fixes
+
+* **2FA:** no warning message related to 2FA salt is displayed if you don't have any ([#468](https://github.com/ForestAdmin/forest-express/issues/468)) ([63be790](https://github.com/ForestAdmin/forest-express/commit/63be790033837b3ac9ea2f8af0544e7436daa2d1))
+
 ## [7.4.1](https://github.com/ForestAdmin/forest-express/compare/v7.4.0...v7.4.1) (2020-08-04)
 
 
