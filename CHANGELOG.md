@@ -1,3 +1,10 @@
+## [7.4.3](https://github.com/ForestAdmin/forest-express/compare/v7.4.2...v7.4.3) (2020-08-05)
+
+
+### Bug Fixes
+
+* **related data:** fix related data display regression introduced in v7.3.2 ([#469](https://github.com/ForestAdmin/forest-express/issues/469)) ([0437c5d](https://github.com/ForestAdmin/forest-express/commit/0437c5d2070cc042312cb602bfaacc5829177132))
+
 ## [7.4.2](https://github.com/ForestAdmin/forest-express/compare/v7.4.1...v7.4.2) (2020-08-05)
 
 
