@@ -5,13 +5,7 @@ const Schemas = require('../generators/schemas');
 
 const DEPTH_MAX_FOR_INJECTION = 0;
 
-function SmartFieldsValuesInjector(
-  record,
-  modelName,
-  fieldsPerModel,
-  depth = 0,
-  requestedField = null,
-) {
+function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0) {
   const schema = Schemas.schemas[modelName];
   const fieldsForHighlightedSearch = [];
 
@@ -50,7 +44,6 @@ function SmartFieldsValuesInjector(
               getReferencedModelName(field),
               fieldsPerModel,
               depth + 1,
-              field.field,
             );
             await smartFieldsValuesInjector.perform();
           }
@@ -75,18 +68,16 @@ function SmartFieldsValuesInjector(
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (record
-        && record.dataValues
-        && !Object.prototype.hasOwnProperty.call(record.dataValues, field.field)) {
+      if (!record[field.field]) {
         if (field.get || field.value) {
-          if (isNotRequestedField(requestedField || modelName, field.field)) {
+          if (isNotRequestedField(modelName, field.field)) {
             return null;
           }
 
           return setSmartFieldValue(record, field, modelName);
         }
         if (_.isArray(field.type)) {
-          record.dataValues[field.field] = [];
+          record[field.field] = [];
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
@@ -99,17 +90,10 @@ function SmartFieldsValuesInjector(
               return null;
             }
 
-            if (record
-              && record.dataValues
-              && record.dataValues[field.field]
-              && record.dataValues[field.field].dataValues
-              && !Object.prototype.hasOwnProperty.call(
-                record.dataValues[field.field].dataValues,
-                fieldAssociation.field,
-              )
+            if (!record[field.field][fieldAssociation.field]
               && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
-                record.dataValues[field.field],
+                record[field.field],
                 fieldAssociation,
                 modelNameAssociation,
               );
