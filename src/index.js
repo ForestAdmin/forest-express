@@ -134,10 +134,12 @@ exports.init = (Implementation) => {
     opts.authSecret = opts.authKey;
   }
 
-  try {
-    is2FASaltValid(TWO_FA_SECRET_SALT);
-  } catch (error) {
-    logger.warn(error.message);
+  if (TWO_FA_SECRET_SALT) {
+    try {
+      is2FASaltValid(TWO_FA_SECRET_SALT);
+    } catch (error) {
+      logger.warn(error.message);
+    }
   }
 
   // CORS
