@@ -109,12 +109,14 @@ function SmartFieldsValuesInjector(
             }
 
             if (record
-                && record[field.field]
-                && !Object.prototype.hasOwnProperty.call(
-                  record[field.field],
-                  fieldAssociation.field,
-                )
-                && (fieldAssociation.get || fieldAssociation.value)) {
+              && record.dataValues
+              && record.dataValues[field.field]
+              && record.dataValues[field.field].dataValues
+              && !Object.prototype.hasOwnProperty.call(
+                record.dataValues[field.field].dataValues,
+                fieldAssociation.field,
+              )
+              && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
                 record[field.field],
                 fieldAssociation,
