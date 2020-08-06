@@ -5,7 +5,13 @@ const Schemas = require('../generators/schemas');
 
 const DEPTH_MAX_FOR_INJECTION = 0;
 
-function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0) {
+function SmartFieldsValuesInjector(
+  record,
+  modelName,
+  fieldsPerModel,
+  depth = 0,
+  requestedField = null,
+) {
   const schema = Schemas.schemas[modelName];
   const fieldsForHighlightedSearch = [];
 
@@ -44,10 +50,13 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
               getReferencedModelName(field),
               fieldsPerModel,
               depth + 1,
+              field.field,
             );
             await smartFieldsValuesInjector.perform();
           }
           // NOTICE: Update the record with the the Smart Field value.
+          //         Take note it will not be inserted in record dataValues
+          //         as it is an extra field (not from the DB)
           record[field.field] = smartFieldValue;
           // NOTICE: String fields can be highlighted.
           if (field.type === 'String') {
@@ -68,16 +77,22 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (!record[field.field]) {
+      if (record
+        && record.dataValues
+        && !Object.prototype.hasOwnProperty.call(record.dataValues, field.field)) {
         if (field.get || field.value) {
-          if (isNotRequestedField(modelName, field.field)) {
+          if (isNotRequestedField(requestedField || modelName, field.field)) {
             return null;
           }
 
           return setSmartFieldValue(record, field, modelName);
         }
         if (_.isArray(field.type)) {
-          record[field.field] = [];
+          // NOTICE: when modifying a sequelize record, make sure you pass the same reference
+          //         to record and record.dataValues
+          const emptyArray = [];
+          record[field.field] = emptyArray;
+          record.dataValues[field.field] = emptyArray;
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
@@ -90,7 +105,13 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
               return null;
             }
 
-            if (!record[field.field][fieldAssociation.field]
+            if (record
+              && record[field.field]
+              && record[field.field].dataValues
+              && !Object.prototype.hasOwnProperty.call(
+                record.dataValues[field.field].dataValues,
+                fieldAssociation.field,
+              )
               && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
                 record[field.field],
