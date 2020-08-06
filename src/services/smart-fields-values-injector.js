@@ -109,9 +109,8 @@ function SmartFieldsValuesInjector(
             }
 
             if (record
-              && record.dataValues
-              && record.dataValues[field.field]
-              && record.dataValues[field.field].dataValues
+              && record[field.field]
+              && record[field.field].dataValues
               && !Object.prototype.hasOwnProperty.call(
                 record.dataValues[field.field].dataValues,
                 fieldAssociation.field,
