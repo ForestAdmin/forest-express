@@ -91,7 +91,11 @@ function SmartFieldsValuesInjector(
           return setSmartFieldValue(record, field, modelName);
         }
         if (_.isArray(field.type)) {
-          record.dataValues[field.field] = [];
+          // NOTICE: when modifying a sequelize record, make sure you pass the same reference
+          //         to record and record.dataValues
+          const emptyArray = [];
+          record[field.field] = emptyArray;
+          record.dataValues[field.field] = emptyArray;
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
@@ -114,7 +118,7 @@ function SmartFieldsValuesInjector(
                 )
                 && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
-                record.dataValues[field.field],
+                record[field.field],
                 fieldAssociation,
                 modelNameAssociation,
               );
