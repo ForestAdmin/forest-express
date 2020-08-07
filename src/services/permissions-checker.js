@@ -38,7 +38,7 @@ function PermissionsChecker(
     const computedConditionFilters = _.clone(collectionListScope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
       if (condition.value
-        && condition.value.startsWith('$')
+        && `${condition.value}`.startsWith('$')
         && collectionListScope.dynamicScopesValues.users[userId]) {
         condition.value = collectionListScope
           .dynamicScopesValues
