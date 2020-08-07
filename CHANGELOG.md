@@ -1,3 +1,10 @@
+## [7.4.4](https://github.com/ForestAdmin/forest-express/compare/v7.4.3...v7.4.4) (2020-08-07)
+
+
+### Bug Fixes
+
+* ensure scope's value is a string ([#471](https://github.com/ForestAdmin/forest-express/issues/471)) ([332acf7](https://github.com/ForestAdmin/forest-express/commit/332acf75d8130ade1298b46223ac8c210c071949))
+
 ## [7.4.3](https://github.com/ForestAdmin/forest-express/compare/v7.4.2...v7.4.3) (2020-08-05)
 
 
