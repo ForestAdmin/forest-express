@@ -92,7 +92,7 @@ function SmartFieldsValuesInjector(
           //         to record and record.dataValues
           const emptyArray = [];
           record[field.field] = emptyArray;
-          record.dataValues[field.field] = emptyArray;
+          record.setDataValue(field.field, emptyArray);
         }
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
