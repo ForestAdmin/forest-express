@@ -62,6 +62,7 @@ describe('services > smart-fields-values-injector', () => {
       hasUser: () => false,
     };
     const fieldsPerModel = { addresses: ['id', 'user', 'hasUser', 'smart_user'], user: ['smart', 'hasAddress'], smart_user: ['smart', 'hasAddress'] };
+
     it('should inject the Smart Relationship reference', async () => {
       expect.assertions(3);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
