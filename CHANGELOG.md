@@ -1,3 +1,10 @@
+## [7.4.5](https://github.com/ForestAdmin/forest-express/compare/v7.4.4...v7.4.5) (2020-08-19)
+
+
+### Bug Fixes
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#470](https://github.com/ForestAdmin/forest-express/issues/470)) ([d8a5ca0](https://github.com/ForestAdmin/forest-express/commit/d8a5ca057087b76b2dae3db57d4266e4de62e780))
+
 ## [7.4.4](https://github.com/ForestAdmin/forest-express/compare/v7.4.3...v7.4.4) (2020-08-07)
 
 
