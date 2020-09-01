@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function MessagesSerializer(messages, collectionName, meta) {
+function serializeMessages(messages, collectionName, meta) {
   function mapMessage(message) {
     // jshint camelcase: false
     message.id = message.id.replace('layer:///messages/', '');
@@ -29,4 +29,4 @@ function MessagesSerializer(messages, collectionName, meta) {
   });
 }
 
-module.exports = MessagesSerializer;
+module.exports = serializeMessages;

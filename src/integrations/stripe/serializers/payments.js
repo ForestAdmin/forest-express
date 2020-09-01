@@ -2,7 +2,7 @@ const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
 
-function PaymentsSerializer(payments, collectionName, meta) {
+function serializePayments(payments, collectionName, meta) {
   function getCustomerAttributes() {
     if (!payments.length) { return []; }
 
@@ -47,4 +47,4 @@ function PaymentsSerializer(payments, collectionName, meta) {
   });
 }
 
-module.exports = PaymentsSerializer;
+module.exports = serializePayments;

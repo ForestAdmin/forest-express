@@ -7,8 +7,8 @@ const CloseioLeadEmailsGetter = require('./services/closeio-lead-emails-getter')
 const CloseioLeadEmailGetter = require('./services/closeio-lead-email-getter');
 const CloseioCustomerLeadGetter = require('./services/closeio-customer-lead-getter');
 const CloseioLeadCreator = require('./services/closeio-lead-creator');
-const CloseioLeadsSerializer = require('./serializers/closeio-leads');
-const CloseioLeadEmailsSerializer = require('./serializers/closeio-lead-emails');
+const serializeCloseioLeads = require('./serializers/closeio-leads');
+const serializeCloseioLeadEmails = require('./serializers/closeio-lead-emails');
 
 module.exports = function Routes(app, model, Implementation, opts) {
   const modelName = Implementation.getModelName(model);
@@ -32,7 +32,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
   function closeioLead(req, res, next) {
     new CloseioLeadGetter(Implementation, _.extend(req.query, req.params), opts)
       .perform()
-      .then((lead) => new CloseioLeadsSerializer(lead, modelName))
+      .then((lead) => serializeCloseioLeads(lead, modelName))
       .then((lead) => {
         res.send(lead);
       }, next);
@@ -48,7 +48,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const emails = results[1];
 
-        return new CloseioLeadEmailsSerializer(emails, modelName, {
+        return serializeCloseioLeadEmails(emails, modelName, {
           count,
         });
       })
@@ -67,7 +67,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       .perform()
       .then((lead) => {
         if (!lead) { throw new Error('not_found'); }
-        return new CloseioLeadsSerializer(lead, modelName);
+        return serializeCloseioLeads(lead, modelName);
       })
       .then((lead) => {
         response.send(lead);
@@ -83,7 +83,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       req.params,
     ), opts)
       .perform()
-      .then((email) => new CloseioLeadEmailsSerializer(email, modelName))
+      .then((email) => serializeCloseioLeadEmails(email, modelName))
       .then((email) => {
         res.send(email);
       }, next);

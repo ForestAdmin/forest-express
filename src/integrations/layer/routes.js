@@ -3,10 +3,10 @@ const IntegrationInformationsGetter = require('../../services/integration-inform
 const path = require('../../services/path');
 const auth = require('../../services/auth');
 const ConversationsGetter = require('./services/conversations-getter');
-const ConversationsSerializer = require('./serializers/conversations');
+const serializeConversations = require('./serializers/conversations');
 const ConversationGetter = require('./services/conversation-getter');
 const MessagesGetter = require('./services/messages-getter');
-const MessagesSerializer = require('./serializers/messages');
+const serializeMessages = require('./serializers/messages');
 
 /* jshint camelcase: false */
 
@@ -39,7 +39,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const conversations = results[1];
 
-        return new ConversationsSerializer(conversations, modelName, {
+        return serializeConversations(conversations, modelName, {
           count,
         });
       })
@@ -55,7 +55,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       opts, integrationInfo,
     )
       .perform()
-      .then((conversation) => new ConversationsSerializer(conversation, modelName))
+      .then((conversation) => serializeConversations(conversation, modelName))
       .then((conversation) => {
         res.send(conversation);
       })
@@ -72,7 +72,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const messages = results[1];
 
-        return new MessagesSerializer(messages, modelName, {
+        return serializeMessages(messages, modelName, {
           count,
         });
       })

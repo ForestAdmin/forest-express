@@ -1,6 +1,6 @@
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function CloseioLeadsSerializer(attributes, collectionName, meta) {
+function serializeCloseioLeads(attributes, collectionName, meta) {
   const type = `${collectionName}_closeio_leads`;
 
   return new JSONAPISerializer(type, attributes, {
@@ -25,4 +25,4 @@ function CloseioLeadsSerializer(attributes, collectionName, meta) {
   });
 }
 
-module.exports = CloseioLeadsSerializer;
+module.exports = serializeCloseioLeads;

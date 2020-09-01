@@ -9,11 +9,11 @@ const SourceGetter = require('./services/source-getter');
 const SubscriptionsGetter = require('./services/subscriptions-getter');
 const SubscriptionGetter = require('./services/subscription-getter');
 const PaymentRefunder = require('./services/payment-refunder');
-const PaymentsSerializer = require('./serializers/payments');
-const InvoicesSerializer = require('./serializers/invoices');
-const CardsSerializer = require('./serializers/cards');
-const SubscriptionsSerializer = require('./serializers/subscriptions');
-const BankAccountsSerializer = require('./serializers/bank-accounts');
+const serializePayments = require('./serializers/payments');
+const serializeInvoices = require('./serializers/invoices');
+const serializeCards = require('./serializers/cards');
+const serializeSubscriptions = require('./serializers/subscriptions');
+const serializeBankAccounts = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
@@ -51,7 +51,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const payments = results[1];
 
-        return new PaymentsSerializer(payments, modelName, { count });
+        return serializePayments(payments, modelName, { count });
       })
       .then((payments) => { response.send(payments); })
       .catch(next);
@@ -65,7 +65,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then((payment) => new PaymentsSerializer(payment, modelName))
+      .then((payment) => serializePayments(payment, modelName))
       .then((payment) => { response.send(payment); })
       .catch(next);
   };
@@ -95,7 +95,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const invoices = results[1];
 
-        return new InvoicesSerializer(invoices, modelName, { count });
+        return serializeInvoices(invoices, modelName, { count });
       })
       .then((invoices) => { response.send(invoices); })
       .catch(next);
@@ -109,7 +109,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then((invoice) => new InvoicesSerializer(invoice, modelName))
+      .then((invoice) => serializeInvoices(invoice, modelName))
       .then((invoice) => { response.send(invoice); })
       .catch(next);
   };
@@ -127,7 +127,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const cards = results[1];
 
-        return new CardsSerializer(cards, modelName, { count });
+        return serializeCards(cards, modelName, { count });
       })
       .then((cards) => { response.send(cards); })
       .catch(next);
@@ -141,7 +141,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then((card) => new CardsSerializer(card, modelName))
+      .then((card) => serializeCards(card, modelName))
       .then((card) => { response.send(card); })
       .catch(next);
   };
@@ -158,7 +158,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const subscriptions = results[1];
 
-        return new SubscriptionsSerializer(subscriptions, modelName, { count });
+        return serializeSubscriptions(subscriptions, modelName, { count });
       })
       .then((subscriptions) => { response.send(subscriptions); })
       .catch(next);
@@ -172,7 +172,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       integrationInfo,
     )
       .perform()
-      .then((subscription) => new SubscriptionsSerializer(subscription, modelName))
+      .then((subscription) => serializeSubscriptions(subscription, modelName))
       .then((subscription) => { response.send(subscription); })
       .catch(next);
   };
@@ -190,7 +190,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
         const count = results[0];
         const bankAccounts = results[1];
 
-        return new BankAccountsSerializer(bankAccounts, modelName, { count });
+        return serializeBankAccounts(bankAccounts, modelName, { count });
       })
       .then((bankAccounts) => { response.send(bankAccounts); })
       .catch(next);
@@ -199,7 +199,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
   const getBankAccount = (request, response, next) => {
     new SourceGetter(Implementation, _.extend(request.query, request.params), opts, integrationInfo)
       .perform()
-      .then((bankAccount) => new BankAccountsSerializer(bankAccount, modelName))
+      .then((bankAccount) => serializeBankAccounts(bankAccount, modelName))
       .then((bankAccount) => { response.send(bankAccount); })
       .catch(next);
   };

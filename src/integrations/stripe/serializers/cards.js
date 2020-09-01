@@ -2,7 +2,7 @@ const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
 
-function CardsSerializer(cards, collectionName, meta) {
+function serializeCards(cards, collectionName, meta) {
   function getCustomerAttributes() {
     if (!cards.length) { return []; }
 
@@ -33,4 +33,4 @@ function CardsSerializer(cards, collectionName, meta) {
   });
 }
 
-module.exports = CardsSerializer;
+module.exports = serializeCards;

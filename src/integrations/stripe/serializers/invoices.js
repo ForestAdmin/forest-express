@@ -2,7 +2,7 @@ const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
 
-function InvoicesSerializer(invoices, collectionName, meta) {
+function serializeInvoices(invoices, collectionName, meta) {
   function getCustomerAttributes() {
     if (!invoices.length) { return []; }
 
@@ -57,4 +57,4 @@ function InvoicesSerializer(invoices, collectionName, meta) {
   });
 }
 
-module.exports = InvoicesSerializer;
+module.exports = serializeInvoices;
