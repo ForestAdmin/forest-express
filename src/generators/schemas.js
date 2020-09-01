@@ -11,7 +11,7 @@ module.exports = {
     const that = this;
     return P
       .each(models, (model) =>
-        new implementation.SchemaAdapter(model, opts)
+        implementation.SchemaAdapter(model, opts)
           .then((schema) => {
             integrator.defineFields(model, schema);
             integrator.defineSegments(model, schema);

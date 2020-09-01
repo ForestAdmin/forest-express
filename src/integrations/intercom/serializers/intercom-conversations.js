@@ -1,6 +1,6 @@
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function IntercomConversationsSerializer(conversations, collectionName, meta) {
+function serializeIntercomConversations(conversations, collectionName, meta) {
   conversations = conversations.map((conversation) => {
     if (conversation.conversation_message) {
       // NOTICE: Intercom API old version
@@ -30,4 +30,4 @@ function IntercomConversationsSerializer(conversations, collectionName, meta) {
   });
 }
 
-module.exports = IntercomConversationsSerializer;
+module.exports = serializeIntercomConversations;

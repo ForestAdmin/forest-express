@@ -1,6 +1,6 @@
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function IntercomAttributesSerializer(attributes, collectionName, meta) {
+function serializeIntercomAttributes(attributes, collectionName, meta) {
   const type = `${collectionName}_intercom_attributes`;
 
   return new JSONAPISerializer(type, attributes, {
@@ -29,4 +29,4 @@ function IntercomAttributesSerializer(attributes, collectionName, meta) {
   });
 }
 
-module.exports = IntercomAttributesSerializer;
+module.exports = serializeIntercomAttributes;

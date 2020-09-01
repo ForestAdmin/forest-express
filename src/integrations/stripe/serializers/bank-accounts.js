@@ -2,7 +2,7 @@ const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
 
-function BankAccountsSerializer(bankAccounts, collectionName, meta) {
+function serializeBankAccounts(bankAccounts, collectionName, meta) {
   function getCustomerAttributes() {
     if (!bankAccounts.length) { return []; }
 
@@ -32,4 +32,4 @@ function BankAccountsSerializer(bankAccounts, collectionName, meta) {
   });
 }
 
-module.exports = BankAccountsSerializer;
+module.exports = serializeBankAccounts;

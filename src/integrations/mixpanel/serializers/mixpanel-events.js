@@ -2,7 +2,7 @@ const moment = require('moment');
 const uuidV1 = require('uuid/v1');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function MixpanelEventsSerializer(events, collectionName, meta, options) {
+function serializeMixpanelEvents(events, collectionName, meta, options) {
   events = events.map((event) => {
     const MAP_PROPERTIES = {
       $city: 'city',
@@ -46,4 +46,4 @@ function MixpanelEventsSerializer(events, collectionName, meta, options) {
   });
 }
 
-module.exports = MixpanelEventsSerializer;
+module.exports = serializeMixpanelEvents;

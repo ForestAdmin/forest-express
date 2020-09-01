@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
-function ConversationsSerializer(conversations, collectionName, meta) {
+function serializeConversations(conversations, collectionName, meta) {
   function mapConversation(conversation) {
     // jshint camelcase: false
     conversation.id = conversation.id.replace('layer:///conversations/', '');
@@ -65,4 +65,4 @@ function ConversationsSerializer(conversations, collectionName, meta) {
   });
 }
 
-module.exports = ConversationsSerializer;
+module.exports = serializeConversations;

@@ -1,11 +1,11 @@
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('./services/integration-informations-getter');
 const AttributesGetter = require('./services/attributes-getter');
-const AttributesSerializer = require('./serializers/intercom-attributes');
+const serializeAttributes = require('./serializers/intercom-attributes');
 const ConversationsGetter = require('./services/conversations-getter');
-const ConversationsSerializer = require('./serializers/intercom-conversations');
+const serializeConversations = require('./serializers/intercom-conversations');
 const ConversationGetter = require('./services/conversation-getter');
-const ConversationSerializer = require('./serializers/intercom-conversation');
+const serializeConversation = require('./serializers/intercom-conversation');
 const path = require('../../services/path');
 const auth = require('../../services/auth');
 
@@ -28,7 +28,7 @@ module.exports = function Routes(app, model, Implementation, options) {
       integrationInfo,
     )
       .perform()
-      .then((attributes) => new AttributesSerializer(attributes, modelName))
+      .then((attributes) => serializeAttributes(attributes, modelName))
       .then((attributes) => {
         response.send(attributes);
       })
@@ -43,7 +43,7 @@ module.exports = function Routes(app, model, Implementation, options) {
       integrationInfo,
     )
       .perform()
-      .spread((count, conversations) => new ConversationsSerializer(
+      .spread((count, conversations) => serializeConversations(
         conversations, modelName,
         { count },
       ))
@@ -56,7 +56,7 @@ module.exports = function Routes(app, model, Implementation, options) {
   this.getConversation = (request, response, next) => {
     new ConversationGetter(Implementation, _.extend(request.query, request.params), options)
       .perform()
-      .then((conversation) => new ConversationSerializer(conversation, modelName))
+      .then((conversation) => serializeConversation(conversation, modelName))
       .then((conversation) => {
         response.send(conversation);
       })

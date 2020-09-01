@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 const MixpanelEventsGetter = require('./services/mixpanel-events-getter');
-const MixpanelEventsSerializer = require('./serializers/mixpanel-events');
+const serializeMixpanelEvents = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 
@@ -32,7 +32,7 @@ module.exports = function Routes(app, model, Implementation, options) {
       integrationInfo,
     )
       .perform()
-      .then((events) => new MixpanelEventsSerializer(events, modelName, { }, options))
+      .then((events) => serializeMixpanelEvents(events, modelName, { }, options))
       .then((events) => { response.send(events); })
       .catch(next);
   };

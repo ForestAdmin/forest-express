@@ -3,7 +3,7 @@ const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 const Schemas = require('../../../generators/schemas');
 
 // jshint camelcase: false
-function SubscriptionsSerializer(subscriptions, collectionName, meta) {
+function serializeSubscriptions(subscriptions, collectionName, meta) {
   function getCustomerAttributes() {
     if (!subscriptions.length) { return []; }
 
@@ -77,4 +77,4 @@ function SubscriptionsSerializer(subscriptions, collectionName, meta) {
   });
 }
 
-module.exports = SubscriptionsSerializer;
+module.exports = serializeSubscriptions;
