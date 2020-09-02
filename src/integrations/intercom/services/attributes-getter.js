@@ -17,6 +17,7 @@ function AttributesGetter(Implementation, params, opts, mappingValue) {
         || !contactQueryResponse.body.data
         || !contactQueryResponse.body.data[0]
       ) {
+        logger.error('Cannot access to Intercom attributes: No intercom contact matches the given key');
         return null;
       }
 
