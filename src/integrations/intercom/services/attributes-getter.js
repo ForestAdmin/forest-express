@@ -10,8 +10,13 @@ function AttributesGetter(Implementation, params, opts, mappingValue) {
       const contactQueryResponse = await ContactGetter
         .getContact(intercom, Implementation, mappingValue, params.recordId);
 
-      // NOTICE: No contact find with the given `recordId` or `mappingValue`
-      if (!contactQueryResponse || !contactQueryResponse.body || !contactQueryResponse.body.data) {
+      // NOTICE: No contact found with the given `recordId` or `mappingValue`
+      if (
+        !contactQueryResponse
+        || !contactQueryResponse.body
+        || !contactQueryResponse.body.data
+        || !contactQueryResponse.body.data[0]
+      ) {
         return null;
       }
 
