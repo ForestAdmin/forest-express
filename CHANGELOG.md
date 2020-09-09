@@ -1,3 +1,10 @@
+## [7.4.6](https://github.com/ForestAdmin/forest-express/compare/v7.4.5...v7.4.6) (2020-09-07)
+
+
+### Bug Fixes
+
+* **integration:** prevent 500 errors if Intercom record is not found ([#482](https://github.com/ForestAdmin/forest-express/issues/482)) ([942e097](https://github.com/ForestAdmin/forest-express/commit/942e097f20a7e6dfdbbc18d12c0f1e3db0508210))
+
 ## [7.4.5](https://github.com/ForestAdmin/forest-express/compare/v7.4.4...v7.4.5) (2020-08-19)
 
 
