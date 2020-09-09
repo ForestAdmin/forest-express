@@ -33,6 +33,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       }
       setDefaultValueIfNecessary(field, 'type', 'String');
       setDefaultValueIfNecessary(field, 'isRequired', false);
+      setDefaultValueIfNecessary(field, 'isPrimaryKey', false);
       setDefaultValueIfNecessary(field, 'isReadOnly', false);
       setDefaultValueIfNecessary(field, 'isSortable', true);
       setDefaultValueIfNecessary(field, 'isFilterable', true);

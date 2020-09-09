@@ -75,6 +75,7 @@ describe('services > schema-file-updater', () => {
       isFilterable: true,
       isReadOnly: false,
       isRequired: false,
+      isPrimaryKey: false,
       isSortable: true,
       isVirtual: false,
       reference: null,
@@ -85,6 +86,38 @@ describe('services > schema-file-updater', () => {
       message: null,
       type: 'is',
       value: 42,
+    });
+  });
+
+  it('should set field\'s properties', () => {
+    expect.assertions(1);
+    const schema = buildSchema([{
+      name: 'collectionName',
+      fields: [{
+        field: 'fieldA',
+        defaultValue: 5,
+        isRequired: true,
+        isReadOnly: true,
+        isFilterable: false,
+        isPrimaryKey: true,
+        isSortable: false,
+      }],
+    }]);
+    expect(schema.collections[0].fields[0]).toStrictEqual({
+      field: 'fieldA',
+      type: 'String',
+      defaultValue: 5,
+      enums: null,
+      integration: null,
+      isFilterable: false,
+      isReadOnly: true,
+      isRequired: true,
+      isPrimaryKey: true,
+      isSortable: false,
+      isVirtual: false,
+      reference: null,
+      inverseOf: null,
+      validations: [],
     });
   });
 
