@@ -1,3 +1,10 @@
+# [7.5.0](https://github.com/ForestAdmin/forest-express/compare/v7.4.6...v7.5.0) (2020-09-09)
+
+
+### Features
+
+* serialize the new property isPrimaryKey ([#483](https://github.com/ForestAdmin/forest-express/issues/483)) ([e463d70](https://github.com/ForestAdmin/forest-express/commit/e463d70253c90cab755813f3448b92018cf71e3c))
+
 ## [7.4.6](https://github.com/ForestAdmin/forest-express/compare/v7.4.5...v7.4.6) (2020-09-07)
 
 
