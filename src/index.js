@@ -30,11 +30,8 @@ const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
 
-const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
-
 const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
   || ['dev', 'development'].includes(process.env.NODE_ENV);
-const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
@@ -113,6 +110,8 @@ exports.init = (Implementation) => {
 
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
+
+  const schemaFileName = path.join(opts.absoluteRootPath || new ProjectDirectoryUtils().getAbsolutePath(), '.forestadmin-schema.json');
 
   if (opts.onlyCrudModule === true) {
     return buildSchema();
@@ -291,13 +290,13 @@ exports.init = (Implementation) => {
           framework_version: expressVersion,
           orm_version: configStore.Implementation.getOrmVersion(),
         };
-        const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
+        const content = new SchemaFileUpdater(schemaFileName, collections, meta, serializerOptions)
           .perform();
         collectionsSent = content.collections;
         metaSent = content.meta;
       } else {
         try {
-          const content = fs.readFileSync(SCHEMA_FILENAME);
+          const content = fs.readFileSync(schemaFileName);
           if (!content) {
             logger.error('The .forestadmin-schema.json file is empty.');
             logger.error('The schema cannot be synchronized with Forest Admin servers.');
