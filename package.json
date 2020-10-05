@@ -63,7 +63,6 @@
     "@commitlint/cli": "8.2.0",
     "@commitlint/config-conventional": "8.3.4",
     "@commitlint/travis-cli": "8.3.5",
-    "@forestadmin/devops": "2.0.0",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "@types/jest": "26.0.13",
@@ -86,9 +85,8 @@
   "scripts": {
     "build": "./node_modules/.bin/babel src -d dist && echo '\n\\033[0;34m[+] \\033[0;32mBuild done\\033[0m'",
     "build:watch": "onchange 'src/**/*.js' -i -- yarn build",
-    "lint": "./node_modules/eslint/bin/eslint.js .eslint-bin scripts src test",
+    "lint": "./node_modules/eslint/bin/eslint.js .eslint-bin src test",
     "pre-commit": "node ./.eslint-bin/pre-commit-hook.js",
-    "readme:update-coverage": "yarn test:coverage && node ./scripts/update-coverage.js",
     "semantic-release": "semantic-release",
     "test": "jest",
     "test:coverage": "jest --coverage"
