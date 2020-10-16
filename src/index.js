@@ -29,6 +29,7 @@ const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
+const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
   logger, pathService, errorHandler, ipWhitelist,
@@ -198,6 +199,7 @@ exports.init = (Implementation) => {
 
   new HealthCheckRoute(app, opts).perform();
   new SessionRoute(app, opts).perform();
+  initAuthenticationRoutes(app, opts, context.inject());
 
   // Init
   return buildSchema()
@@ -402,4 +404,10 @@ exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;
 
-exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];
+exports.PUBLIC_ROUTES = [
+  '/',
+  '/healthcheck',
+  '/sessions',
+  '/sessions-google',
+  ...initAuthenticationRoutes.PUBLIC_ROUTES,
+];
