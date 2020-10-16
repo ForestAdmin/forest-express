@@ -1,4 +1,3 @@
-
 class AuthenticationService {
   /** @private @readonly @type {import('openid-client')} */
   openIdClient;
