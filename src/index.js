@@ -7,9 +7,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const requireAll = require('require-all');
+const context = require('./context');
 const auth = require('./services/auth');
-
-const initContext = require('./context/init');
 
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
@@ -29,7 +28,6 @@ const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
 
-const context = initContext();
 const {
   logger, pathService, errorHandler, ipWhitelist,
 } = context.inject();

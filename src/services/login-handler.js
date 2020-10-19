@@ -2,9 +2,11 @@ const jwt = require('jsonwebtoken');
 const otplib = require('otplib');
 const logger = require('../services/logger.js');
 const UserSecretCreator = require('./user-secret-creator');
-const AuthorizationFinder = require('./authorization-finder');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
 const { is2FASaltValid } = require('../utils/token-checker');
+const context = require('../context/index.js');
+
+const { authorizationFinder } = context.inject();
 
 function LoginHandler({
   renderingId,
@@ -68,22 +70,22 @@ function LoginHandler({
   this.perform = async () => {
     let user;
     if (useGoogleAuthentication) {
-      user = await new AuthorizationFinder(
+      user = await authorizationFinder.authenticate(
         renderingId,
         envSecret,
         twoFactorRegistration,
         null,
         null,
         forestToken,
-      ).perform();
+      );
     } else {
-      user = await new AuthorizationFinder(
+      user = await authorizationFinder.authenticate(
         renderingId,
         envSecret,
         twoFactorRegistration,
         email,
         password,
-      ).perform();
+      );
     }
 
     if (user.two_factor_authentication_enabled) {
