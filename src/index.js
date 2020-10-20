@@ -8,6 +8,9 @@ const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const requireAll = require('require-all');
 const auth = require('./services/auth');
+
+const initContext = require('./context/init');
+
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
 const AssociationsRoutes = require('./routes/associations');
@@ -17,18 +20,19 @@ const ForestRoutes = require('./routes/forest');
 const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
-const logger = require('./services/logger');
-const pathService = require('./services/path');
 const Integrator = require('./integrations');
-const errorHandler = require('./services/exposed/error-handler');
 const ApimapSender = require('./services/apimap-sender');
-const ipWhitelist = require('./services/ip-whitelist');
 const SchemaFileUpdater = require('./services/schema-file-updater');
 const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
+
+const context = initContext();
+const {
+  logger, pathService, errorHandler, ipWhitelist,
+} = context.inject();
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
@@ -379,7 +383,6 @@ exports.collection = (name, opts) => {
   }
 };
 
-exports.logger = require('./services/logger');
 exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');
