@@ -5,6 +5,8 @@ const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
 const ipWhitelist = require('../services/ip-whitelist');
+const forestServerRequester = require('../services/forest-server-requester');
+const AuthorizationFinder = require('../services/authorization-finder');
 
 /**
  * @typedef {{
@@ -16,6 +18,8 @@ const ipWhitelist = require('../services/ip-whitelist');
  *  pathService: import('../services/path');
  *  errorHandler: import('../services/exposed/error-handler');
  *  ipWhitelist: import('../services/ip-whitelist');
+ *  forestServerRequester: import('../services/forest-server-requester');
+ *  authorizationFinder: import('../services/authorization-finder');
  * }} Services
  *
  * @typedef {Utils & Services} Context
@@ -36,6 +40,8 @@ function initServices(context) {
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
+  context.addInstance('forestServerRequester', forestServerRequester);
+  context.addClass(AuthorizationFinder);
 }
 
 /**

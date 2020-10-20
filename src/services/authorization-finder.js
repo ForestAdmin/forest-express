@@ -1,16 +1,59 @@
-const forestServerRequester = require('./forest-server-requester');
-const logger = require('./logger');
-const errorMessages = require('../utils/error-messages');
+class AuthorizationFinder {
+  /** @private @readonly @type {import('./forest-server-requester')} */
+  forestServerRequester;
 
-function AuthorizationFinder(
-  renderingId,
-  environmentSecret,
-  twoFactorRegistration,
-  email,
-  password,
-  forestToken,
-) {
-  this.perform = () => {
+  /** @private @readonly @type {import('./logger')} */
+  logger;
+
+  /** @private @readonly @type {import('../utils/error-messages')} */
+  errorMessages;
+
+  /**
+   * @param {import('../context/init').Context} context
+   */
+  constructor(context) {
+    this.forestServerRequester = context.forestServerRequester;
+    this.logger = context.logger;
+    this.errorMessages = context.errorMessages;
+  }
+
+  /**
+   * @private
+   * @param {Error} error
+   * @returns {string}
+   */
+  _generateAuthenticationErrorMessage(error) {
+    let errorMessageToForward;
+    switch (error.message) {
+      case this.errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
+        errorMessageToForward = error.message;
+        break;
+      case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
+        errorMessageToForward = 'Cannot retrieve the project you\'re trying to unlock. '
+            + 'Please check that you\'re using the right environment secret regarding your project and environment.';
+        break;
+      default: errorMessageToForward = undefined;
+    }
+
+    return errorMessageToForward;
+  }
+
+  /**
+   * @param {number|string} renderingId
+   * @param {string} environmentSecret
+   * @param {string|null|undefined} twoFactorRegistration
+   * @param {string} email
+   * @param {string} password
+   * @param {string} forestToken
+   */
+  async authenticate(
+    renderingId,
+    environmentSecret,
+    twoFactorRegistration,
+    email,
+    password,
+    forestToken,
+  ) {
     let pathEnd;
     let headers;
 
@@ -28,29 +71,18 @@ function AuthorizationFinder(
       url += `?two-factor-registration=${twoFactorRegistration}`;
     }
 
-    return forestServerRequester
-      .perform(url, environmentSecret, null, headers)
-      .then((result) => {
-        const user = result.data.attributes;
-        user.id = result.data.id;
-        return user;
-      })
-      .catch((error) => {
-        logger.error('Authorization error: ', error);
-        let errorMessageToForward;
-        switch (error.message) {
-          case errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
-            errorMessageToForward = error.message;
-            break;
-          case errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
-            errorMessageToForward = 'Cannot retrieve the project you\'re trying to unlock. '
-              + 'Please check that you\'re using the right environment secret regarding your project and environment.';
-            break;
-          default: errorMessageToForward = undefined;
-        }
-        throw new Error(errorMessageToForward);
-      });
-  };
+    try {
+      const result = await this.forestServerRequester
+        .perform(url, environmentSecret, null, headers);
+
+      const user = result.data.attributes;
+      user.id = result.data.id;
+      return user;
+    } catch (error) {
+      this.logger.error('Authorization error: ', error);
+      throw new Error(this._generateAuthenticationErrorMessage(error));
+    }
+  }
 }
 
 module.exports = AuthorizationFinder;
