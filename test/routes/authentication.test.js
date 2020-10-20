@@ -15,8 +15,13 @@ async function setupApp() {
 
   sandbox.stub(injections.forestServerRequester, 'perform');
 
+  const oidcConfig = {
+    issuer: 'forest-admin',
+    authorization_endpoint: 'https://app.forestadmin.com/oidc/authorization',
+  };
+
   return {
-    forestApp, sandbox, injections,
+    forestApp, sandbox, injections, oidcConfig,
   };
 }
 
@@ -32,6 +37,7 @@ function mockOpenIdClient(sandbox) {
   const injections = context.inject();
 
   sandbox.stub(injections.openIdClient, 'Issuer').returns(issuer);
+  injections.oidcConfigurationRetrieverService.clearCache();
 
   return { client };
 }
@@ -40,11 +46,17 @@ describe('routes > authentication', () => {
   describe('#POST /forest/authentication', () => {
     it('should return a valid authentication url', async () => {
       expect.assertions(2);
-      const { forestApp: app, sandbox } = await setupApp();
+      const {
+        forestApp: app, sandbox, injections, oidcConfig,
+      } = await setupApp();
 
       try {
         const test = request(app).post('/forest/authentication')
           .send({ renderingId: 42 });
+
+        injections.forestServerRequester.perform
+          .withArgs(sinon.match(/^\/oidc\//))
+          .resolves(oidcConfig);
 
         const receivedResponse = await new Promise((resolve, reject) => {
           test
@@ -79,9 +91,9 @@ describe('routes > authentication', () => {
 
   describe('#GET /forest/authentication/callback', () => {
     it('should return a new authentication token', async () => {
-      expect.assertions(5);
+      expect.assertions(6);
       const {
-        forestApp: app, sandbox, injections,
+        forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
 
       try {
@@ -102,7 +114,13 @@ describe('routes > authentication', () => {
           },
         };
 
-        injections.forestServerRequester.perform.resolves(performResponse);
+        injections.forestServerRequester.perform
+          .withArgs(sinon.match(/^\/oidc\//))
+          .resolves(oidcConfig);
+
+        injections.forestServerRequester.perform
+          .withArgs(sinon.match(/^\/liana\/v2/), sinon.match.any, sinon.match.any, sinon.match.any)
+          .resolves(performResponse);
 
         const test = request(app).get(`/forest/authentication/callback?code=THE-CODE&state=${
           encodeURIComponent(JSON.stringify({ renderingId: 42 }))
@@ -140,8 +158,10 @@ describe('routes > authentication', () => {
           lastName: 'Doe',
           team: 1,
         });
-
         expect(injections.forestServerRequester.perform.args[0]).toStrictEqual([
+          '/oidc/.well-known/openid-configuration',
+        ]);
+        expect(injections.forestServerRequester.perform.args[1]).toStrictEqual([
           '/liana/v2/renderings/42/google-authorization',
           envSecret,
           null,
