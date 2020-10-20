@@ -1,4 +1,5 @@
 const openIdClient = require('openid-client');
+const jsonwebtoken = require('jsonwebtoken');
 
 const ApplicationContext = require('./application-context');
 
@@ -11,23 +12,27 @@ const forestServerRequester = require('../services/forest-server-requester');
 const AuthorizationFinder = require('../services/authorization-finder');
 const AuthenticationService = require('../services/authentication');
 const RequestAnalyzerService = require('../services/request-analyser');
+const TokenService = require('../services/token');
 
 /**
  * @typedef {{
  *  openIdClient: import('openid-client');
+ *  jsonwebtoken: import('jsonwebtoken');
  * }} Dependencies
  *
  * @typedef {{
- *  env: {
- *    NODE_ENV: 'production' | 'development';
- *    FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
- *    FOREST_2FA_SECRET_SALT?: boolean;
- *    CORS_ORIGINS?: string;
- *    JWT_ALGORITHM: string;
- *    FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
- *    FOREST_URL: string;
- *  }
+ *   NODE_ENV: 'production' | 'development';
+ *   FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *   FOREST_2FA_SECRET_SALT?: boolean;
+ *   CORS_ORIGINS?: string;
+ *   JWT_ALGORITHM: string;
+ *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_URL: string;
  * }} Env
+ *
+ * @typedef {{
+ *  env: Env
+ * }} EnvPart
  *
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
@@ -42,9 +47,10 @@ const RequestAnalyzerService = require('../services/request-analyser');
  *  authorizationFinder: import('../services/authorization-finder');
  *  authenticationService: import('../services/authentication');
  *  requestAnalyzerService: import('../services/request-analyser');
+ *  tokenService: import('../services/token');
  * }} Services
  *
- * @typedef {Dependencies & Env & Utils & Services} Context
+ * @typedef {Dependencies & EnvPart & Utils & Services} Context
  */
 
 /**
@@ -66,6 +72,7 @@ function initEnv(context) {
  */
 function initDependencies(context) {
   context.addInstance('openIdClient', openIdClient);
+  context.addInstance('jsonwebtoken', jsonwebtoken);
 }
 
 /**
@@ -83,9 +90,10 @@ function initServices(context) {
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
+  context.addClass(RequestAnalyzerService);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addClass(AuthorizationFinder);
-  context.addClass(RequestAnalyzerService);
+  context.addClass(TokenService);
   context.addClass(AuthenticationService);
 }
 

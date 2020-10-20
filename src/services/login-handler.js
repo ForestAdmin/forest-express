@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const otplib = require('otplib');
 const logger = require('../services/logger.js');
 const UserSecretCreator = require('./user-secret-creator');
@@ -6,7 +5,7 @@ const TwoFactorRegistrationConfirmer = require('../services/two-factor-registrat
 const { is2FASaltValid } = require('../utils/token-checker');
 const context = require('../context/index.js');
 
-const { authorizationFinder } = context.inject();
+const { authorizationFinder, tokenService } = context.inject();
 
 function LoginHandler({
   renderingId,
@@ -55,16 +54,7 @@ function LoginHandler({
   }
 
   function createToken(user, sessionRenderingId) {
-    return jwt.sign({
-      id: user.id,
-      email: user.email,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      team: user.teams[0],
-      renderingId: sessionRenderingId,
-    }, authSecret, {
-      expiresIn: '14 days',
-    });
+    return tokenService.createToken(user, sessionRenderingId, { authSecret });
   }
 
   this.perform = async () => {
@@ -85,6 +75,7 @@ function LoginHandler({
         twoFactorRegistration,
         email,
         password,
+        null,
       );
     }
 
