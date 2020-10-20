@@ -10,8 +10,6 @@ const requireAll = require('require-all');
 const context = require('./context');
 const auth = require('./services/auth');
 
-const initContext = require('./context/init');
-
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
 const AssociationsRoutes = require('./routes/associations');
