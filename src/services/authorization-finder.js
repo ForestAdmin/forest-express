@@ -18,6 +18,27 @@ class AuthorizationFinder {
   }
 
   /**
+   * @private
+   * @param {Error} error
+   * @returns {string}
+   */
+  _generateAuthenticationErrorMessage(error) {
+    let errorMessageToForward;
+    switch (error.message) {
+      case this.errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
+        errorMessageToForward = error.message;
+        break;
+      case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
+        errorMessageToForward = 'Cannot retrieve the project you\'re trying to unlock. '
+            + 'Please check that you\'re using the right environment secret regarding your project and environment.';
+        break;
+      default: errorMessageToForward = undefined;
+    }
+
+    return errorMessageToForward;
+  }
+
+  /**
    * @param {number|string} renderingId
    * @param {string} environmentSecret
    * @param {string|null|undefined} twoFactorRegistration
@@ -59,18 +80,7 @@ class AuthorizationFinder {
       return user;
     } catch (error) {
       this.logger.error('Authorization error: ', error);
-      let errorMessageToForward;
-      switch (error.message) {
-        case this.errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
-          errorMessageToForward = error.message;
-          break;
-        case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
-          errorMessageToForward = 'Cannot retrieve the project you\'re trying to unlock. '
-              + 'Please check that you\'re using the right environment secret regarding your project and environment.';
-          break;
-        default: errorMessageToForward = undefined;
-      }
-      throw new Error(errorMessageToForward);
+      throw new Error(this._generateAuthenticationErrorMessage(error));
     }
   }
 }
