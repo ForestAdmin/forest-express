@@ -1,6 +1,9 @@
 const path = require('../services/path');
 const errorMessages = require('../utils/error-messages');
 const LoginHandler = require('../services/login-handler');
+const context = require('../context');
+
+const { tokenService } = context.inject();
 
 module.exports = function Sessions(app, opts) {
   const { authSecret, envSecret } = opts;
@@ -49,8 +52,7 @@ module.exports = function Sessions(app, opts) {
       // NOTICE: The token is empty at first authentication step if the 2FA option is active.
       if (responseData.token) {
         // NOTICE: Set a cookie to ensure secure authentication using export feature.
-        const twoWeeksInMilliseconds = 14 * 24 * 60 * 60;
-        response.header('Set-Cookie', `forest_session_token=${responseData.token}; Max-Age=${twoWeeksInMilliseconds}`);
+        response.cookie('forest_session_token', responseData.token, { maxAge: tokenService.expirationInSeconds });
       }
       response.send(responseData);
     } catch (error) {
