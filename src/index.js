@@ -105,7 +105,7 @@ exports.ResourcesRoute = {};
  */
 exports.ensureAuthenticated = (request, response, next) => {
   const parsedUrl = url.parse(request.originalUrl);
-  const forestPublicRoutes = this.PUBLIC_ROUTES.map((route) => `/forest${route}`);
+  const forestPublicRoutes = PUBLIC_ROUTES.map((route) => `/forest${route}`);
 
   if (forestPublicRoutes.includes(parsedUrl.pathname)) {
     next();
