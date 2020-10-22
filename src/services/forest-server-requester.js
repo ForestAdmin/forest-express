@@ -9,8 +9,11 @@ function perform(route, environmentSecret, queryParameters, headers) {
 
   return new P((resolve, reject) => {
     const request = superagent
-      .get(urlService + route)
-      .set('forest-secret-key', environmentSecret);
+      .get(urlService + route);
+
+    if (environmentSecret) {
+      request.set('forest-secret-key', environmentSecret);
+    }
 
     if (headers) {
       request.set(headers);
