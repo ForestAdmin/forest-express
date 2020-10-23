@@ -39,7 +39,6 @@ function SchemaSerializer() {
         'reference',
         'inverseOf',
         'relationship',
-        'widget',
         'validations',
       ],
     },
