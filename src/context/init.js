@@ -1,6 +1,7 @@
 const fs = require('fs');
 const superagentRequest = require('superagent');
 const openIdClient = require('openid-client');
+const jsonwebtoken = require('jsonwebtoken');
 
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
@@ -21,6 +22,7 @@ const schemasGenerator = require('../generators/schemas');
 
 const AuthenticationService = require('../services/authentication');
 const RequestAnalyzerService = require('../services/request-analyser');
+const TokenService = require('../services/token');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -28,16 +30,18 @@ function initValue(context) {
 
 /**
  * @typedef {{
- *  env: {
- *    NODE_ENV: 'production' | 'development';
- *    FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
- *    FOREST_2FA_SECRET_SALT?: boolean;
- *    CORS_ORIGINS?: string;
- *    JWT_ALGORITHM: string;
- *    FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
- *    FOREST_URL: string;
- *  }
+ *   NODE_ENV: 'production' | 'development';
+ *   FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *   FOREST_2FA_SECRET_SALT?: boolean;
+ *   CORS_ORIGINS?: string;
+ *   JWT_ALGORITHM: string;
+ *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_URL: string;
  * }} Env
+ *
+ * @typedef {{
+ *  env: Env
+ * }} EnvPart
  *
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
@@ -59,14 +63,16 @@ function initValue(context) {
  *  schemasGenerator: import('../generators/schemas');
  *  authenticationService: import('../services/authentication');
  *  requestAnalyzerService: import('../services/request-analyser');
+ *  tokenService: import('../services/token');
  * }} Services
  *
  * @typedef {{
  *  superagentRequest: import('superagent');
  *  openIdClient: import('openid-client');
+ *  jsonwebtoken: import('jsonwebtoken');
  * }} Externals
  *
- * @typedef {Externals & Env & Utils & Services} Context
+ * @typedef {Externals & EnvPart & Utils & Services} Context
  */
 
 /**
@@ -110,6 +116,7 @@ function initServices(context) {
   context.addClass(SchemaFileUpdater);
   context.addClass(HookLoad);
   context.addClass(RequestAnalyzerService);
+  context.addClass(TokenService);
   context.addClass(AuthenticationService);
 }
 
@@ -120,6 +127,7 @@ function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
   context.addInstance('openIdClient', openIdClient);
+  context.addInstance('jsonwebtoken', jsonwebtoken);
 }
 
 /**
