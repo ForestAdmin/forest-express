@@ -9,39 +9,34 @@ class AuthenticationService {
   /** @private @readonly @type {import('./token')} */
   tokenService;
 
+  /** @private @readonly @type {import('./oidc-configuration-retriever')} */
+  oidcConfigurationRetrieverService;
+
   /** @private @readonly @type {import('../utils/error-messages')} */
   errorMessages;
-
-  /** @private @readonly @type {import('../context/init').Env} */
-  env;
 
   /**
    * @param {import("../context/init").Context} context
    */
   constructor({
-    openIdClient, env, authorizationFinder, tokenService,
-    errorMessages,
+    openIdClient, authorizationFinder, tokenService,
+    errorMessages, oidcConfigurationRetrieverService,
   }) {
     this.openIdClient = openIdClient;
     this.authorizationFinder = authorizationFinder;
     this.tokenService = tokenService;
+    this.oidcConfigurationRetrieverService = oidcConfigurationRetrieverService;
     this.errorMessages = errorMessages;
-    this.env = env;
   }
 
   /**
    * @private
    * @param {string} redirectUrl
-   * @returns {import('openid-client').Client}
+   * @returns {Promise<import('openid-client').Client>}
    */
-  _createClient(redirectUrl) {
-    const issuer = new this.openIdClient.Issuer({
-      issuer: 'forestadmin-server',
-      authorization_endpoint: `${this.env.FOREST_URL}/oidc/authorization`,
-      token_endpoint: `${this.env.FOREST_URL}/oidc/token`,
-      end_session_endpoint: `${this.env.FOREST_URL}/oidc/logout`,
-      jwks_uri: `${this.env.FOREST_URL}/oidc/jwks`,
-    });
+  async _createClient(redirectUrl) {
+    const configuration = await this.oidcConfigurationRetrieverService.retrieve();
+    const issuer = new this.openIdClient.Issuer(configuration);
 
     return new issuer.Client({
       client_id: 'forest-express-temporary-fixed-id',
@@ -81,12 +76,12 @@ class AuthenticationService {
    * Step 1 of the authentication
    * @param {string} redirectUrl
    * @param {{renderingId: string|number}} state
-   * @returns {{
+   * @returns {Promise<{
    *  authorizationUrl: string;
-   * }}
+   * }>}
    */
-  startAuthentication(redirectUrl, state) {
-    const client = this._createClient(redirectUrl);
+  async startAuthentication(redirectUrl, state) {
+    const client = await this._createClient(redirectUrl);
 
     const authorizationUrl = client.authorizationUrl({
       scope: 'openid email profile',
@@ -102,7 +97,7 @@ class AuthenticationService {
    * @param {{ envSecret: string, authSecret: string }} options
    */
   async verifyCodeAndGenerateToken(redirectUrl, params, options) {
-    const client = this._createClient(redirectUrl);
+    const client = await this._createClient(redirectUrl);
 
     const { renderingId } = this._parseState(params.state);
 

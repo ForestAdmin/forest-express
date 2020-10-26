@@ -23,6 +23,7 @@ const ModelsManager = require('../services/models-manager');
 const AuthenticationService = require('../services/authentication');
 const RequestAnalyzerService = require('../services/request-analyser');
 const TokenService = require('../services/token');
+const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -36,6 +37,7 @@ function initValue(context) {
  *   CORS_ORIGINS?: string;
  *   JWT_ALGORITHM: string;
  *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
  *   FOREST_URL: string;
  * }} Env
  *
@@ -62,6 +64,7 @@ function initValue(context) {
  *  authenticationService: import('../services/authentication');
  *  requestAnalyzerService: import('../services/request-analyser');
  *  tokenService: import('../services/token');
+ *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
  * }} Services
  *
  * @typedef {{
@@ -115,6 +118,7 @@ function initServices(context) {
   context.addClass(ConfigStore);
   context.addClass(ModelsManager);
   context.addClass(TokenService);
+  context.addClass(OidcConfigurationRetrieverService);
   context.addClass(AuthenticationService);
 }
 
