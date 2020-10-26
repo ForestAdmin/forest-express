@@ -49,7 +49,7 @@ async function startAuthentication(context, request, response, next) {
 
     const originalUrl = context.requestAnalyzerService.extractOriginalUrlWithoutQuery(request);
     response.json(
-      context.authenticationService.startAuthentication(
+      await context.authenticationService.startAuthentication(
         `${originalUrl}/callback`,
         { renderingId },
       ),

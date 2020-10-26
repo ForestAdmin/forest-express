@@ -29,6 +29,10 @@ describe('authenticationService', () => {
       },
     };
 
+    const oidcConfigurationRetrieverService = {
+      retrieve: jest.fn(),
+    };
+
     const authenticationService = new AuthenticationService({
       openIdClient: {
         Issuer,
@@ -39,6 +43,7 @@ describe('authenticationService', () => {
       authorizationFinder,
       tokenService,
       errorMessages,
+      oidcConfigurationRetrieverService,
     });
 
     return {
@@ -50,29 +55,31 @@ describe('authenticationService', () => {
       authorizationFinder,
       tokenService,
       errorMessages,
+      oidcConfigurationRetrieverService,
     };
   }
 
   describe('startAuthentication', () => {
-    it('should correctly generate the authorizationUrl', () => {
+    it('should correctly generate the authorizationUrl', async () => {
       expect.assertions(4);
       const {
-        client, authenticationService, Client, Issuer,
+        client, authenticationService, Client, Issuer, oidcConfigurationRetrieverService,
       } = setup();
 
       const generatedUrl = 'https://production.com/forest/authorization/cb?oidc=true';
       client.authorizationUrl.mockReturnValue(generatedUrl);
 
-      const redirectUrl = 'https://production.com/forest/authentication/cb';
-      const result = authenticationService.startAuthentication(redirectUrl, { renderingId: 42 });
+      const oidcConfig = { issuer: 'forest-admin' };
+      oidcConfigurationRetrieverService.retrieve.mockReturnValue(Promise.resolve(oidcConfig));
 
-      expect(Issuer).toHaveBeenCalledWith({
-        authorization_endpoint: 'https://api.development.forestadmin.com/oidc/authorization',
-        end_session_endpoint: 'https://api.development.forestadmin.com/oidc/logout',
-        issuer: 'forestadmin-server',
-        token_endpoint: 'https://api.development.forestadmin.com/oidc/token',
-        jwks_uri: 'https://api.development.forestadmin.com/oidc/jwks',
-      });
+      const redirectUrl = 'https://production.com/forest/authentication/cb';
+      const result = await authenticationService.startAuthentication(
+        redirectUrl,
+        { renderingId: 42 },
+      );
+
+
+      expect(Issuer).toHaveBeenCalledWith(oidcConfig);
 
       expect(result).toStrictEqual({ authorizationUrl: generatedUrl });
       expect(client.authorizationUrl).toHaveBeenCalledWith({
@@ -92,6 +99,7 @@ describe('authenticationService', () => {
       expect.assertions(4);
       const {
         authorizationFinder, client, tokenService, authenticationService,
+        oidcConfigurationRetrieverService,
       } = setup();
 
       client.callback.mockReturnValue(Promise.resolve({
@@ -106,8 +114,11 @@ describe('authenticationService', () => {
       };
 
       authorizationFinder.authenticate.mockReturnValue(Promise.resolve(user));
-
       tokenService.createToken.mockReturnValue('THE-TOKEN');
+
+
+      const oidcConfig = { issuer: 'forest-admin' };
+      oidcConfigurationRetrieverService.retrieve.mockReturnValue(Promise.resolve(oidcConfig));
 
       const options = {
         envSecret: 'THE-ENV-SECRET',

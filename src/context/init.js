@@ -13,6 +13,7 @@ const AuthorizationFinder = require('../services/authorization-finder');
 const AuthenticationService = require('../services/authentication');
 const RequestAnalyzerService = require('../services/request-analyser');
 const TokenService = require('../services/token');
+const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 
 /**
  * @typedef {{
@@ -27,6 +28,7 @@ const TokenService = require('../services/token');
  *   CORS_ORIGINS?: string;
  *   JWT_ALGORITHM: string;
  *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
  *   FOREST_URL: string;
  * }} Env
  *
@@ -48,6 +50,7 @@ const TokenService = require('../services/token');
  *  authenticationService: import('../services/authentication');
  *  requestAnalyzerService: import('../services/request-analyser');
  *  tokenService: import('../services/token');
+ *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
  * }} Services
  *
  * @typedef {Dependencies & EnvPart & Utils & Services} Context
@@ -94,6 +97,7 @@ function initServices(context) {
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addClass(AuthorizationFinder);
   context.addClass(TokenService);
+  context.addClass(OidcConfigurationRetrieverService);
   context.addClass(AuthenticationService);
 }
 
