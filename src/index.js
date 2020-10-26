@@ -24,6 +24,7 @@ const Integrator = require('./integrations');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
+const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
   logger,
@@ -238,6 +239,7 @@ exports.init = async (Implementation) => {
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
   new SessionRoute(app, configStore.lianaOptions).perform();
+  initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
 
   // Init
   try {
@@ -361,4 +363,10 @@ exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;
 
-exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];
+exports.PUBLIC_ROUTES = [
+  '/',
+  '/healthcheck',
+  '/sessions',
+  '/sessions-google',
+  ...initAuthenticationRoutes.PUBLIC_ROUTES,
+];

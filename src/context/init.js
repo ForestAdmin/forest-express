@@ -1,6 +1,9 @@
 const fs = require('fs');
 const superagentRequest = require('superagent');
 const path = require('path');
+const openIdClient = require('openid-client');
+
+const ApplicationContext = require('./application-context');
 
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
@@ -18,12 +21,26 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
 const schemasGenerator = require('../generators/schemas');
 const ConfigStore = require('../services/config-store');
 const ModelsManager = require('../services/models-manager');
+const AuthenticationService = require('../services/authentication');
+const RequestAnalyzerService = require('../services/request-analyser');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
 }
 
 /**
+ * @typedef {{
+ *  env: {
+ *    NODE_ENV: 'production' | 'development';
+ *    FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *    FOREST_2FA_SECRET_SALT?: boolean;
+ *    CORS_ORIGINS?: string;
+ *    JWT_ALGORITHM: string;
+ *    FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *    FOREST_URL: string;
+ *  }
+ * }} Env
+ *
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
@@ -40,14 +57,33 @@ function initValue(context) {
  *  schemaFileUpdater: import('../services/schema-file-updater');
  *  apimapSender: import('../services/apimap-sender');
  *  schemasGenerator: import('../generators/schemas');
+ *  authenticationService: import('../services/authentication');
+ *  requestAnalyzerService: import('../services/request-analyser');
  * }} Services
  *
  * @typedef {{
  *  superagentRequest: import('superagent');
+ *  openIdClient: import('openid-client');
  * }} Externals
  *
  * @typedef {Utils & Services & Externals} Context
+ *
+ * @typedef {Env & Utils & Services & Externals} Context
  */
+
+/**
+ * @param {ApplicationContext} context
+ */
+function initEnv(context) {
+  context.addInstance('env', {
+    ...process.env,
+    FOREST_URL: process.env.FOREST_URL || 'https://app.forestadmin.com',
+    JWT_ALGORITHM: process.env.JWT_ALGORITHM || 'HS256',
+    NODE_ENV: ['dev', 'development'].includes(process.env.NODE_ENV)
+      ? 'development'
+      : 'production',
+  });
+}
 
 /**
  * @param {ApplicationContext} context
@@ -75,6 +111,8 @@ function initServices(context) {
   context.addClass(SchemaFileUpdater);
   context.addClass(ConfigStore);
   context.addClass(ModelsManager);
+  context.addClass(RequestAnalyzerService);
+  context.addClass(AuthenticationService);
 }
 
 /**
@@ -84,14 +122,16 @@ function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
   context.addInstance('path', path);
+  context.addInstance('openIdClient', openIdClient);
 }
 
 /**
- * @returns {ApplicationContext<Context>}
+ * @param {ApplicationContext<Context>} context
  */
 function initContext(context) {
   initExternals(context);
   initValue(context);
+  initEnv(context);
   initUtils(context);
   initServices(context);
 }
