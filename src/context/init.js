@@ -2,8 +2,7 @@ const fs = require('fs');
 const superagentRequest = require('superagent');
 const path = require('path');
 const openIdClient = require('openid-client');
-
-const ApplicationContext = require('./application-context');
+const jsonwebtoken = require('jsonwebtoken');
 
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
@@ -23,6 +22,7 @@ const ConfigStore = require('../services/config-store');
 const ModelsManager = require('../services/models-manager');
 const AuthenticationService = require('../services/authentication');
 const RequestAnalyzerService = require('../services/request-analyser');
+const TokenService = require('../services/token');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -30,16 +30,18 @@ function initValue(context) {
 
 /**
  * @typedef {{
- *  env: {
- *    NODE_ENV: 'production' | 'development';
- *    FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
- *    FOREST_2FA_SECRET_SALT?: boolean;
- *    CORS_ORIGINS?: string;
- *    JWT_ALGORITHM: string;
- *    FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
- *    FOREST_URL: string;
- *  }
+ *   NODE_ENV: 'production' | 'development';
+ *   FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *   FOREST_2FA_SECRET_SALT?: boolean;
+ *   CORS_ORIGINS?: string;
+ *   JWT_ALGORITHM: string;
+ *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_URL: string;
  * }} Env
+ *
+ * @typedef {{
+ *  env: Env
+ * }} EnvPart
  *
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
@@ -59,20 +61,20 @@ function initValue(context) {
  *  schemasGenerator: import('../generators/schemas');
  *  authenticationService: import('../services/authentication');
  *  requestAnalyzerService: import('../services/request-analyser');
+ *  tokenService: import('../services/token');
  * }} Services
  *
  * @typedef {{
  *  superagentRequest: import('superagent');
  *  openIdClient: import('openid-client');
+ *  jsonwebtoken: import('jsonwebtoken');
  * }} Externals
  *
- * @typedef {Utils & Services & Externals} Context
- *
- * @typedef {Env & Utils & Services & Externals} Context
+ * @typedef {EnvPart & Utils & Services & Externals} Context
  */
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initEnv(context) {
   context.addInstance('env', {
@@ -86,7 +88,7 @@ function initEnv(context) {
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
@@ -95,13 +97,14 @@ function initUtils(context) {
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initServices(context) {
   context.addInstance('logger', logger);
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
+  context.addClass(RequestAnalyzerService);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addClass(ApimapFieldsFormater);
@@ -111,22 +114,23 @@ function initServices(context) {
   context.addClass(SchemaFileUpdater);
   context.addClass(ConfigStore);
   context.addClass(ModelsManager);
-  context.addClass(RequestAnalyzerService);
+  context.addClass(TokenService);
   context.addClass(AuthenticationService);
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
   context.addInstance('path', path);
   context.addInstance('openIdClient', openIdClient);
+  context.addInstance('jsonwebtoken', jsonwebtoken);
 }
 
 /**
- * @param {ApplicationContext<Context>} context
+ * @param {import('./application-context')<Context>} context
  */
 function initContext(context) {
   initExternals(context);
