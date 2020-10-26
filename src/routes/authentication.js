@@ -69,16 +69,32 @@ async function startAuthentication(context, request, response, next) {
 async function authenticationCallback({
   authenticationService,
   requestAnalyzerService,
+  tokenService,
 }, options, request, response, next) {
   try {
     const originalUrl = requestAnalyzerService.extractOriginalUrlWithoutQuery(request);
-    response.json(
-      await authenticationService.verifyCodeAndGenerateToken(
-        `${originalUrl}`,
-        request.query,
-        options,
-      ),
+    const token = await authenticationService.verifyCodeAndGenerateToken(
+      `${originalUrl}`,
+      request.query,
+      options,
     );
+
+    // Cookies with secure=true & sameSite:'none' will only work
+    // on localhost or https
+    // These are the only 2 supported situations for agents, that's
+    // why the token is not returned inside the body
+    response.cookie(
+      'forest_session_token',
+      token,
+      {
+        httpOnly: true,
+        secure: true,
+        maxAge: tokenService.expirationInSeconds,
+        sameSite: 'none',
+      },
+    );
+    response.status(204);
+    response.send();
   } catch (e) {
     next(e);
   }
