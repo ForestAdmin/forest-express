@@ -1,5 +1,7 @@
 const fs = require('fs');
 const superagentRequest = require('superagent');
+const openIdClient = require('openid-client');
+
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
@@ -17,16 +19,31 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
 const HookLoad = require('../services/hook-load');
 const schemasGenerator = require('../generators/schemas');
 
+const AuthenticationService = require('../services/authentication');
+const RequestAnalyzerService = require('../services/request-analyser');
+
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
 }
 
 /**
  * @typedef {{
+ *  env: {
+ *    NODE_ENV: 'production' | 'development';
+ *    FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *    FOREST_2FA_SECRET_SALT?: boolean;
+ *    CORS_ORIGINS?: string;
+ *    JWT_ALGORITHM: string;
+ *    FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *    FOREST_URL: string;
+ *  }
+ * }} Env
+ *
+ * @typedef {{
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
  *  errorUtils: import('../utils/error');
- *  isSameDataStructure: import('../utils/object-have-same-keys')
+ *  isSameDataStructure: import('../utils/is-same-data-structure')
  * }} Utils
  *
  * @typedef {{
@@ -40,17 +57,34 @@ function initValue(context) {
  *  apimapSender: import('../services/apimap-sender');
  *  hookLoad: import('../services/hook-load');
  *  schemasGenerator: import('../generators/schemas');
+ *  authenticationService: import('../services/authentication');
+ *  requestAnalyzerService: import('../services/request-analyser');
  * }} Services
  *
  * @typedef {{
  *  superagentRequest: import('superagent');
+ *  openIdClient: import('openid-client');
  * }} Externals
  *
- * @typedef {Utils & Services & Externals} Context
+ * @typedef {Externals & Env & Utils & Services} Context
  */
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
+ */
+function initEnv(context) {
+  context.addInstance('env', {
+    ...process.env,
+    FOREST_URL: process.env.FOREST_URL || 'https://app.forestadmin.com',
+    JWT_ALGORITHM: process.env.JWT_ALGORITHM || 'HS256',
+    NODE_ENV: ['dev', 'development'].includes(process.env.NODE_ENV)
+      ? 'development'
+      : 'production',
+  });
+}
+
+/**
+ * @param {import('./application-context')} context
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
@@ -60,7 +94,7 @@ function initUtils(context) {
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initServices(context) {
   context.addInstance('logger', logger);
@@ -75,22 +109,26 @@ function initServices(context) {
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
   context.addClass(HookLoad);
+  context.addClass(RequestAnalyzerService);
+  context.addClass(AuthenticationService);
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
+  context.addInstance('openIdClient', openIdClient);
 }
 
 /**
- * @returns {ApplicationContext<Context>}
+ * @param {import('./application-context')<Context>} context
  */
 function initContext(context) {
   initExternals(context);
   initValue(context);
+  initEnv(context);
   initUtils(context);
   initServices(context);
 }
