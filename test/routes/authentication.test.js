@@ -91,7 +91,7 @@ describe('routes > authentication', () => {
 
   describe('#GET /forest/authentication/callback', () => {
     it('should return a new authentication token', async () => {
-      expect.assertions(6);
+      expect.assertions(7);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
@@ -139,8 +139,8 @@ describe('routes > authentication', () => {
             });
         });
 
-        expect(receivedResponse.status).toBe(204);
-        expect(receivedResponse.text).toHaveLength(0);
+        expect(receivedResponse.status).toBe(200);
+        expect(receivedResponse.text).not.toHaveLength(0);
 
         /** @type {string} */
         const sessionCookie = receivedResponse.headers['set-cookie'][0];
@@ -150,14 +150,18 @@ describe('routes > authentication', () => {
         const token = sessionCookie.match(/^forest_session_token=([^;]+);/)[1];
         const decoded = jsonwebtoken.verify(token, authSecret);
 
-        expect(decoded).toMatchObject({
+        const expectedTokenData = {
           id: 666,
           email: 'alice@forestadmin.com',
           renderingId: 42,
           firstName: 'Alice',
           lastName: 'Doe',
           team: 1,
-        });
+        };
+
+        expect(decoded).toMatchObject(expectedTokenData);
+        expect(JSON.parse(receivedResponse.text)).toStrictEqual(decoded);
+
         expect(injections.forestServerRequester.perform.args[0]).toStrictEqual([
           '/oidc/.well-known/openid-configuration',
         ]);

@@ -70,6 +70,7 @@ async function authenticationCallback({
   authenticationService,
   requestAnalyzerService,
   tokenService,
+  jsonwebtoken,
 }, options, request, response, next) {
   try {
     const originalUrl = requestAnalyzerService.extractOriginalUrlWithoutQuery(request);
@@ -93,8 +94,11 @@ async function authenticationCallback({
         sameSite: 'none',
       },
     );
-    response.status(204);
-    response.send();
+    response.status(200);
+    // The token is sent decoded, because we don't want to share the whole, signed token
+    // that is used to authenticate people
+    // but the token itself contains interesting values, such as its expiration date
+    response.send(jsonwebtoken.decode(token));
   } catch (e) {
     next(e);
   }
