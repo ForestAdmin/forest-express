@@ -6,6 +6,7 @@ const fs = require('fs');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
+const url = require('url');
 const requireAll = require('require-all');
 const context = require('./context');
 const auth = require('./services/auth');
@@ -32,6 +33,14 @@ const initAuthenticationRoutes = require('./routes/authentication');
 const {
   logger, pathService, errorHandler, ipWhitelist,
 } = context.inject();
+
+const PUBLIC_ROUTES = [
+  '/',
+  '/healthcheck',
+  '/sessions',
+  '/sessions-google',
+  ...initAuthenticationRoutes.PUBLIC_ROUTES,
+];
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
@@ -89,7 +98,20 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
+/**
+ * @param {import('express').Request} request
+ * @param {import('express').Response} response
+ * @param {import('express').NextFunction} next
+ */
 exports.ensureAuthenticated = (request, response, next) => {
+  const parsedUrl = url.parse(request.originalUrl);
+  const forestPublicRoutes = PUBLIC_ROUTES.map((route) => `/forest${route}`);
+
+  if (forestPublicRoutes.includes(parsedUrl.pathname)) {
+    next();
+    return;
+  }
+
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
@@ -402,10 +424,4 @@ exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;
 
-exports.PUBLIC_ROUTES = [
-  '/',
-  '/healthcheck',
-  '/sessions',
-  '/sessions-google',
-  ...initAuthenticationRoutes.PUBLIC_ROUTES,
-];
+exports.PUBLIC_ROUTES = PUBLIC_ROUTES;
