@@ -79,7 +79,7 @@ describe('routes > authentication', () => {
 
   describe('#GET /forest/authentication/callback', () => {
     it('should return a new authentication token', async () => {
-      expect.assertions(4);
+      expect.assertions(5);
       const {
         forestApp: app, sandbox, injections,
       } = await setupApp();
@@ -109,6 +109,7 @@ describe('routes > authentication', () => {
         }`)
           .send();
 
+        /** @type {import('superagent').Response} */
         const receivedResponse = await new Promise((resolve, reject) => {
           test
             .end((error, response) => {
@@ -120,9 +121,16 @@ describe('routes > authentication', () => {
             });
         });
 
-        expect(receivedResponse.status).toBe(200);
-        expect(receivedResponse.text).not.toHaveLength(0);
-        const decoded = jsonwebtoken.verify(JSON.parse(receivedResponse.text), authSecret);
+        expect(receivedResponse.status).toBe(204);
+        expect(receivedResponse.text).toHaveLength(0);
+
+        /** @type {string} */
+        const sessionCookie = receivedResponse.headers['set-cookie'][0];
+
+        expect(sessionCookie).toMatch(/^forest_session_token=[^;]+; Max-Age=1209; Path=\/; Expires=[^;]+; HttpOnly; Secure; SameSite=None$/);
+
+        const token = sessionCookie.match(/^forest_session_token=([^;]+);/)[1];
+        const decoded = jsonwebtoken.verify(token, authSecret);
 
         expect(decoded).toMatchObject({
           id: 666,

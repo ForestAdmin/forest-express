@@ -1,3 +1,5 @@
+const EXPIRATION_IN_DAYS = 14;
+
 class TokenService {
   /** @private @readonly @type {import('jsonwebtoken')} */
   jsonwebtoken;
@@ -7,6 +9,17 @@ class TokenService {
    */
   constructor(context) {
     this.jsonwebtoken = context.jsonwebtoken;
+  }
+
+  /** @returns {number} */
+  // eslint-disable-next-line class-methods-use-this
+  get expirationInDays() {
+    return EXPIRATION_IN_DAYS;
+  }
+
+  /** @returns {number} */
+  get expirationInSeconds() {
+    return this.expirationInDays * 24 * 3600;
   }
 
   /**
@@ -32,7 +45,7 @@ class TokenService {
       team: user.teams[0],
       renderingId,
     }, authSecret, {
-      expiresIn: '14 days',
+      expiresIn: `${this.expirationInDays} days`,
     });
   }
 }
