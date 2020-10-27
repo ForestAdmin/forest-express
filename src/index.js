@@ -169,16 +169,27 @@ exports.init = (Implementation) => {
 
   // CORS
   let allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
+  const oneDayInSeconds = 86400;
 
   if (process.env.CORS_ORIGINS) {
     allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(','));
   }
 
-  app.use(pathMounted, cors({
+  const corsOptions = {
     origin: allowedOrigins,
-    maxAge: 86400, // NOTICE: 1 day
+    maxAge: oneDayInSeconds,
     credentials: true,
+    preflightContinue: true,
+  };
+
+  app.use(pathService.generate(initAuthenticationRoutes.CALLBACK_ROUTE, opts), cors({
+    ...corsOptions,
+    // this route needs to be called after a redirection
+    // in this situation, the origin sent by the browse is "null"
+    origin: ['null', ...corsOptions.origin],
   }));
+
+  app.use(pathMounted, cors(corsOptions));
 
   // Mime type
   app.use(pathMounted, bodyParser.json());
