@@ -73,16 +73,14 @@ describe('routes > authentication', () => {
         const expectedScope = 'openid email profile';
         const expectedCallback = `${test.url}/callback`;
 
-        expect(receivedResponse.status).toBe(200);
-        expect(JSON.parse(receivedResponse.text)).toStrictEqual({
-          authorizationUrl: `https://app.forestadmin.com/oidc/authorization?client_id=${
-            encodeURI(expectedId)
-          }&scope=${
-            encodeURIComponent(expectedScope)
-          }&response_type=code&redirect_uri=${
-            encodeURIComponent(expectedCallback)
-          }&state=${encodeURIComponent(JSON.stringify({ renderingId: 42 }))}`,
-        });
+        expect(receivedResponse.status).toBe(302);
+        expect(receivedResponse.headers.location).toStrictEqual(`https://app.forestadmin.com/oidc/authorization?client_id=${
+          encodeURI(expectedId)
+        }&scope=${
+          encodeURIComponent(expectedScope)
+        }&response_type=code&redirect_uri=${
+          encodeURIComponent(expectedCallback)
+        }&state=${encodeURIComponent(JSON.stringify({ renderingId: 42 }))}`);
       } finally {
         sandbox.restore();
       }
