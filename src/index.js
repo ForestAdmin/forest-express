@@ -185,7 +185,7 @@ exports.init = (Implementation) => {
   app.use(pathService.generate(initAuthenticationRoutes.CALLBACK_ROUTE, opts), cors({
     ...corsOptions,
     // this route needs to be called after a redirection
-    // in this situation, the origin sent by the browse is "null"
+    // in this situation, the origin sent by the browser is "null"
     origin: ['null', ...corsOptions.origin],
   }));
 
