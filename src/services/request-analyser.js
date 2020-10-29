@@ -1,3 +1,5 @@
+const url = require('url');
+
 class RequestAnalyzerService {
   /**
    * @private @static
@@ -27,7 +29,9 @@ class RequestAnalyzerService {
       || (isForwarded
         ? undefined
         : RequestAnalyzerService._extractPortFromHost(request.headers.host));
-    const path = request.url;
+
+    const parsedUrl = url.parse(request.originalUrl);
+    const path = parsedUrl.pathname;
 
     return `${protocol}://${hostname}${port ? `:${port}` : ''}${path}`;
   }

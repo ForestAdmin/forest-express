@@ -13,7 +13,7 @@ describe('requestAnalyzerService', () => {
         },
         protocol: 'http',
         hostname: 'localhost.com',
-        url: '/forest/authentication',
+        originalUrl: '/forest/authentication?foo=bar&hello=world',
       };
 
       const result = service.extractOriginalUrlWithoutQuery(request);
@@ -32,7 +32,7 @@ describe('requestAnalyzerService', () => {
         },
         protocol: 'http',
         hostname: 'localhost.com',
-        url: '/forest/authentication',
+        originalUrl: '/forest/authentication?foo=bar&hello=world',
       };
 
       const result = service.extractOriginalUrlWithoutQuery(request);
@@ -54,7 +54,7 @@ describe('requestAnalyzerService', () => {
         },
         protocol: 'http',
         hostname: 'localhost.com',
-        url: '/forest/authentication',
+        originalUrl: '/forest/authentication?foo=bar&hello=world',
       };
 
       const result = service.extractOriginalUrlWithoutQuery(request);
@@ -75,7 +75,7 @@ describe('requestAnalyzerService', () => {
         },
         protocol: 'http',
         hostname: 'localhost.com',
-        url: '/forest/authentication',
+        originalUrl: '/forest/authentication?foo=bar&hello=world',
       };
 
       const result = service.extractOriginalUrlWithoutQuery(request);
