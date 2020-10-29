@@ -48,12 +48,12 @@ async function startAuthentication(context, request, response, next) {
     const renderingId = getAndCheckRenderingId(request, context);
 
     const originalUrl = context.requestAnalyzerService.extractOriginalUrlWithoutQuery(request);
-    response.json(
-      await context.authenticationService.startAuthentication(
-        `${originalUrl}/callback`,
-        { renderingId },
-      ),
+    const result = await context.authenticationService.startAuthentication(
+      `${originalUrl}/callback`,
+      { renderingId },
     );
+
+    response.redirect(result.authorizationUrl);
   } catch (e) {
     next(e);
   }
@@ -130,4 +130,5 @@ function initAuthenticationRoutes(
 }
 
 initAuthenticationRoutes.PUBLIC_ROUTES = PUBLIC_ROUTES;
+initAuthenticationRoutes.CALLBACK_ROUTE = CALLBACK_AUTHENTICATION_ROUTE;
 module.exports = initAuthenticationRoutes;
