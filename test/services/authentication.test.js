@@ -2,16 +2,10 @@ const AuthenticationService = require('../../src/services/authentication');
 
 describe('authenticationService', () => {
   function setup() {
-    const Issuer = jest.fn();
-    const Client = jest.fn();
-    const issuer = { Client };
     const client = {
       authorizationUrl: jest.fn(),
       callback: jest.fn(),
     };
-
-    Issuer.mockReturnValue(issuer);
-    Client.mockReturnValue(client);
 
     const authorizationFinder = {
       authenticate: jest.fn(),
@@ -29,48 +23,39 @@ describe('authenticationService', () => {
       },
     };
 
-    const oidcConfigurationRetrieverService = {
-      retrieve: jest.fn(),
+    const oidcClientManagerService = {
+      getClientForCallbackUrl: jest.fn().mockReturnValue(client),
     };
 
     const authenticationService = new AuthenticationService({
-      openIdClient: {
-        Issuer,
-      },
       env: {
         FOREST_URL: 'https://api.development.forestadmin.com',
       },
       authorizationFinder,
       tokenService,
       errorMessages,
-      oidcConfigurationRetrieverService,
+      oidcClientManagerService,
     });
 
     return {
       authenticationService,
       client,
-      Client,
-      issuer,
-      Issuer,
       authorizationFinder,
       tokenService,
       errorMessages,
-      oidcConfigurationRetrieverService,
+      oidcClientManagerService,
     };
   }
 
   describe('startAuthentication', () => {
     it('should correctly generate the authorizationUrl', async () => {
-      expect.assertions(4);
+      expect.assertions(3);
       const {
-        client, authenticationService, Client, Issuer, oidcConfigurationRetrieverService,
+        client, authenticationService, oidcClientManagerService,
       } = setup();
 
       const generatedUrl = 'https://production.com/forest/authorization/cb?oidc=true';
       client.authorizationUrl.mockReturnValue(generatedUrl);
-
-      const oidcConfig = { issuer: 'forest-admin' };
-      oidcConfigurationRetrieverService.retrieve.mockReturnValue(Promise.resolve(oidcConfig));
 
       const redirectUrl = 'https://production.com/forest/authentication/cb';
       const result = await authenticationService.startAuthentication(
@@ -78,28 +63,21 @@ describe('authenticationService', () => {
         { renderingId: 42 },
       );
 
-
-      expect(Issuer).toHaveBeenCalledWith(oidcConfig);
-
       expect(result).toStrictEqual({ authorizationUrl: generatedUrl });
       expect(client.authorizationUrl).toHaveBeenCalledWith({
         scope: 'openid email profile',
         state: JSON.stringify({ renderingId: 42 }),
       });
-      expect(Client).toHaveBeenCalledWith({
-        client_id: 'forest-express-temporary-fixed-id',
-        redirect_uris: [redirectUrl],
-        token_endpoint_auth_method: 'none',
-      });
+      expect(oidcClientManagerService.getClientForCallbackUrl).toHaveBeenCalledWith(redirectUrl);
     });
   });
 
   describe('verifyCodeAndGenerateToken', () => {
     it('should authenticate the user and create a token', async () => {
-      expect.assertions(4);
+      expect.assertions(5);
       const {
         authorizationFinder, client, tokenService, authenticationService,
-        oidcConfigurationRetrieverService,
+        oidcClientManagerService,
       } = setup();
 
       client.callback.mockReturnValue(Promise.resolve({
@@ -116,14 +94,11 @@ describe('authenticationService', () => {
       authorizationFinder.authenticate.mockReturnValue(Promise.resolve(user));
       tokenService.createToken.mockReturnValue('THE-TOKEN');
 
-
-      const oidcConfig = { issuer: 'forest-admin' };
-      oidcConfigurationRetrieverService.retrieve.mockReturnValue(Promise.resolve(oidcConfig));
-
       const options = {
         envSecret: 'THE-ENV-SECRET',
         authSecret: 'THE-AUTH-SECRET',
       };
+
       const result = await authenticationService.verifyCodeAndGenerateToken(
         'https://agent-url.com/forest/authentication/callback',
         {
@@ -133,6 +108,8 @@ describe('authenticationService', () => {
       );
 
       expect(result).toStrictEqual('THE-TOKEN');
+      expect(oidcClientManagerService.getClientForCallbackUrl)
+        .toHaveBeenCalledWith('https://agent-url.com/forest/authentication/callback');
       expect(client.callback).toHaveBeenCalledWith(
         'https://agent-url.com/forest/authentication/callback',
         {

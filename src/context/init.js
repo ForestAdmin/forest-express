@@ -14,6 +14,7 @@ const AuthenticationService = require('../services/authentication');
 const RequestAnalyzerService = require('../services/request-analyser');
 const TokenService = require('../services/token');
 const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
+const OidcClientManagerService = require('../services/oidc-client-manager');
 
 /**
  * @typedef {{
@@ -51,6 +52,7 @@ const OidcConfigurationRetrieverService = require('../services/oidc-configuratio
  *  requestAnalyzerService: import('../services/request-analyser');
  *  tokenService: import('../services/token');
  *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
+ *  oidcClientManagerService: import('../services/oidc-client-manager')
  * }} Services
  *
  * @typedef {Dependencies & EnvPart & Utils & Services} Context
@@ -98,6 +100,7 @@ function initServices(context) {
   context.addClass(AuthorizationFinder);
   context.addClass(TokenService);
   context.addClass(OidcConfigurationRetrieverService);
+  context.addClass(OidcClientManagerService);
   context.addClass(AuthenticationService);
 }
 
