@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const ApplicationContext = require('./application-context');
 
 const errorMessages = require('../utils/error-messages');
@@ -9,6 +12,7 @@ const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
+const ConfigStore = require('../services/config-store');
 
 /**
  * @typedef {{
@@ -38,6 +42,8 @@ function initUtils(context) {
  * @param {ApplicationContext} context
  */
 function initServices(context) {
+  context.addInstance('fs', fs);
+  context.addInstance('path', path);
   context.addInstance('logger', logger);
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
@@ -46,6 +52,7 @@ function initServices(context) {
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
+  context.addClass(ConfigStore);
 }
 
 /**
