@@ -18,6 +18,7 @@ async function setupApp() {
   const oidcConfig = {
     issuer: 'forest-admin',
     authorization_endpoint: 'https://app.forestadmin.com/oidc/authorization',
+    registration_endpoint: 'https://app.forestadmin.com/oidc/registration',
   };
 
   return {
@@ -28,18 +29,21 @@ async function setupApp() {
 function mockOpenIdClient(sandbox) {
   const client = {
     callback: sinon.stub(),
+    authorizationUrl: sinon.stub(),
   };
 
   const issuer = {
     Client: sinon.stub().returns(client),
   };
 
+  issuer.Client.register = sinon.stub().resolves(client);
+
   const injections = context.inject();
 
   sandbox.stub(injections.openIdClient, 'Issuer').returns(issuer);
   injections.oidcConfigurationRetrieverService.clearCache();
 
-  return { client };
+  return { client, issuer };
 }
 
 describe('routes > authentication', () => {
@@ -51,6 +55,10 @@ describe('routes > authentication', () => {
       } = await setupApp();
 
       try {
+        const { client } = mockOpenIdClient(sandbox);
+
+        client.authorizationUrl.returns('https://authorization');
+
         const test = request(app).post('/forest/authentication')
           .send({ renderingId: 42 });
 
@@ -69,18 +77,8 @@ describe('routes > authentication', () => {
             });
         });
 
-        const expectedId = 'forest-express-temporary-fixed-id';
-        const expectedScope = 'openid email profile';
-        const expectedCallback = `${test.url}/callback`;
-
         expect(receivedResponse.status).toBe(302);
-        expect(receivedResponse.headers.location).toStrictEqual(`https://app.forestadmin.com/oidc/authorization?client_id=${
-          encodeURI(expectedId)
-        }&scope=${
-          encodeURIComponent(expectedScope)
-        }&response_type=code&redirect_uri=${
-          encodeURIComponent(expectedCallback)
-        }&state=${encodeURIComponent(JSON.stringify({ renderingId: 42 }))}`);
+        expect(receivedResponse.headers.location).toStrictEqual('https://authorization');
       } finally {
         sandbox.restore();
       }
@@ -89,16 +87,17 @@ describe('routes > authentication', () => {
 
   describe('#GET /forest/authentication/callback', () => {
     it('should return a new authentication token', async () => {
-      expect.assertions(7);
+      expect.assertions(8);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
 
       try {
-        const { client } = mockOpenIdClient(sandbox);
+        const { client, issuer } = mockOpenIdClient(sandbox);
         client.callback.resolves({
           access_token: 'THE-ACCESS-TOKEN',
         });
+        issuer.Client.register.resolves(client);
 
         const performResponse = {
           data: {
@@ -169,6 +168,12 @@ describe('routes > authentication', () => {
           null,
           { 'forest-token': 'THE-ACCESS-TOKEN' },
         ]);
+        expect(issuer.Client.register.firstCall.args).toStrictEqual([{
+          redirect_uris: [
+            `${test.url.replace(/\?.*/, '')}`,
+          ],
+          token_endpoint_auth_method: 'none',
+        }]);
       } finally {
         sandbox.restore();
       }

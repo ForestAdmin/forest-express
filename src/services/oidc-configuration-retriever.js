@@ -38,16 +38,17 @@ class OidcConfigurationRetrieverService {
     }
 
     if (!this.cachedWellKnownConfiguration) {
-      this.cachedWellKnownConfiguration = new Promise((resolve, reject) => {
-        this._fetchConfiguration()
-          .then((configuration) => {
-            const expirationDuration = this.env.FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS
+      this.cachedWellKnownConfiguration = this._fetchConfiguration()
+        .then((configuration) => {
+          const expirationDuration = this.env.FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS
               || DEFAULT_EXPIRATION_IN_SECONDS;
-            const expiration = new Date(Date.now() + expirationDuration);
-            return { configuration, expiration };
-          })
-          .then(resolve, reject);
-      });
+          const expiration = new Date(Date.now() + expirationDuration);
+          return { configuration, expiration };
+        })
+        .catch((error) => {
+          this.cachedWellKnownConfiguration = null;
+          throw error;
+        });
     }
 
     return (await this.cachedWellKnownConfiguration).configuration;
