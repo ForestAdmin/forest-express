@@ -79,6 +79,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       setDefaultValueIfNecessary(action, 'baseUrl', null);
       setDefaultValueIfNecessary(action, 'type', 'bulk');
       setDefaultValueIfNecessary(action, 'download', false);
+      setDefaultValueIfNecessary(action, 'events', null);
 
       // NOTICE: Set a position to the Smart Actions fields.
       action.fields = action.fields.filter((field) => field.field);

@@ -61,6 +61,7 @@ function SchemaSerializer() {
         'redirect',
         'download',
         'fields',
+        'events',
       ],
       fields: {
         attributes: [
