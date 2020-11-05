@@ -1,16 +1,12 @@
-
 class AuthenticationService {
-  /** @private @readonly @type {import('openid-client')} */
-  openIdClient;
-
   /** @private @readonly @type {import('./authorization-finder')} */
   authorizationFinder;
 
   /** @private @readonly @type {import('./token')} */
   tokenService;
 
-  /** @private @readonly @type {import('./oidc-configuration-retriever')} */
-  oidcConfigurationRetrieverService;
+  /** @private @readonly @type {import('./oidc-client-manager')} */
+  oidcClientManagerService;
 
   /** @private @readonly @type {import('../utils/error-messages')} */
   errorMessages;
@@ -19,30 +15,13 @@ class AuthenticationService {
    * @param {import("../context/init").Context} context
    */
   constructor({
-    openIdClient, authorizationFinder, tokenService,
-    errorMessages, oidcConfigurationRetrieverService,
+    authorizationFinder, tokenService,
+    errorMessages, oidcClientManagerService,
   }) {
-    this.openIdClient = openIdClient;
     this.authorizationFinder = authorizationFinder;
     this.tokenService = tokenService;
-    this.oidcConfigurationRetrieverService = oidcConfigurationRetrieverService;
+    this.oidcClientManagerService = oidcClientManagerService;
     this.errorMessages = errorMessages;
-  }
-
-  /**
-   * @private
-   * @param {string} redirectUrl
-   * @returns {Promise<import('openid-client').Client>}
-   */
-  async _createClient(redirectUrl) {
-    const configuration = await this.oidcConfigurationRetrieverService.retrieve();
-    const issuer = new this.openIdClient.Issuer(configuration);
-
-    return new issuer.Client({
-      client_id: 'forest-express-temporary-fixed-id',
-      redirect_uris: [redirectUrl],
-      token_endpoint_auth_method: 'none',
-    });
   }
 
   /**
@@ -81,7 +60,7 @@ class AuthenticationService {
    * }>}
    */
   async startAuthentication(redirectUrl, state) {
-    const client = await this._createClient(redirectUrl);
+    const client = await this.oidcClientManagerService.getClientForCallbackUrl(redirectUrl);
 
     const authorizationUrl = client.authorizationUrl({
       scope: 'openid email profile',
@@ -97,7 +76,7 @@ class AuthenticationService {
    * @param {{ envSecret: string, authSecret: string }} options
    */
   async verifyCodeAndGenerateToken(redirectUrl, params, options) {
-    const client = await this._createClient(redirectUrl);
+    const client = await this.oidcClientManagerService.getClientForCallbackUrl(redirectUrl);
 
     const { renderingId } = this._parseState(params.state);
 
