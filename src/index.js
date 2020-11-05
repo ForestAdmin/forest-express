@@ -1,4 +1,3 @@
-const P = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
 const cors = require('cors');
@@ -32,7 +31,6 @@ const {
   apimapFieldsFormater,
   configStore,
   fs,
-  path,
 } = context.inject();
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
@@ -46,6 +44,7 @@ const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
 let jwtAuthenticator;
+let app = null;
 
 function getModels() {
   const models = configStore.Implementation.getModels();
@@ -56,50 +55,29 @@ function getModels() {
   return _.values(models);
 }
 
-function requireAllModels(modelsDir) {
-  if (modelsDir) {
-    try {
-      const isJavascriptOrTypescriptFileName = (fileName) =>
-        fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+function loadCollections(collectionsDir) {
+  try {
+    const isJavascriptOrTypescriptFileName = (fileName) =>
+      fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
 
-      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
-      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
+    // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+    const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
 
-      requireAll({
-        dirname: modelsDir,
-        excludeDirs: /^__tests__$/,
-        filter: (fileName) =>
-          isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
-        recursive: true,
-      });
-    } catch (error) {
-      logger.error('Cannot read a file for the following reason: ', error);
-    }
-  }
-
-  // NOTICE: User didn't provide a modelsDir but may already have required them manually so they
-  //         might be available.
-  return P.resolve(getModels())
-    .catch((error) => {
-      logger.error('Cannot read a file for the following reason: ', error);
-      return P.resolve([]);
+    requireAll({
+      dirname: collectionsDir,
+      excludeDirs: /^__tests__$/,
+      filter: (fileName) =>
+        isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
+      recursive: true,
     });
+  } catch (error) {
+    logger.error('Cannot read a file for the following reason: ', error);
+  }
 }
-
-exports.Schemas = Schemas;
-exports.logger = logger;
-exports.ResourcesRoute = {};
-
-exports.ensureAuthenticated = (request, response, next) => {
-  auth.authenticate(request, response, next, jwtAuthenticator);
-};
-
-let app = null;
 
 async function buildSchema() {
   const { lianaOptions, Implementation } = configStore;
-  const absModelDirs = configStore.modelsDir ? path.resolve('.', configStore.modelsDir) : undefined;
-  const models = await requireAllModels(absModelDirs);
+  const models = getModels();
   configStore.integrator = new Integrator(lianaOptions, Implementation);
   await Schemas.perform(
     Implementation,
@@ -109,6 +87,14 @@ async function buildSchema() {
   );
   return models;
 }
+
+exports.Schemas = Schemas;
+exports.logger = logger;
+exports.ResourcesRoute = {};
+
+exports.ensureAuthenticated = (request, response, next) => {
+  auth.authenticate(request, response, next, jwtAuthenticator);
+};
 
 function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
@@ -262,18 +248,8 @@ exports.init = async (Implementation) => {
   try {
     const models = await buildSchema();
 
-    let directorySmartImplementation;
-
-    if (opts.configDir) {
-      directorySmartImplementation = path.resolve('.', opts.configDir);
-    } else {
-      directorySmartImplementation = `${path.resolve('.')}/forest`;
-    }
-
-    if (fs.existsSync(directorySmartImplementation)) {
-      await requireAllModels(directorySmartImplementation);
-    } else if (opts.configDir) {
-      logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
+    if (configStore.isConfigDirExist()) {
+      loadCollections(configStore.configDir);
     }
 
     models.forEach((model) => {

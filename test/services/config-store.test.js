@@ -84,6 +84,20 @@ describe('services > config-store', () => {
       expect(logger.warn).toHaveBeenCalledWith('onlyCrudModule is not supported anymore. Please remove this option.');
     });
 
+    it('should log a warning when modelsDir is provided', () => {
+      expect.assertions(2);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        modelsDir: '../models',
+      };
+
+      expect(() => configStore.validateOptions()).not.toThrow();
+      expect(logger.warn).toHaveBeenCalledWith('The use of modelsDir is deprecated. Please remove the option in the Forest initialization.');
+    });
+
     it('should log a warning when configDir does not exist', () => {
       expect.assertions(2);
       jest.clearAllMocks();

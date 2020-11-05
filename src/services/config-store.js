@@ -9,10 +9,6 @@ class ConfigStore {
     this.path = path;
   }
 
-  get modelsDir() {
-    return this.lianaOptions && this.lianaOptions.modelsDir;
-  }
-
   get configDir() {
     if (!this.lianaOptions) return null;
 
@@ -57,6 +53,10 @@ class ConfigStore {
 
     if (options.onlyCrudModule) {
       this.logger.warn('onlyCrudModule is not supported anymore. Please remove this option.');
+    }
+
+    if (options.modelsDir) {
+      this.logger.warn('The use of modelsDir is deprecated. Please remove the option in the Forest initialization.');
     }
   }
 }
