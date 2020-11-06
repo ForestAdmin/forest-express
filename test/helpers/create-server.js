@@ -22,10 +22,11 @@ module.exports = async function createServer(envSecret, authSecret) {
     opts: {
       envSecret,
       authSecret,
+      models: {},
     },
   };
 
-  implementation.getModels = () => [];
+  implementation.getModelName = () => {};
   implementation.getLianaName = () => {};
   implementation.getLianaVersion = () => {};
   implementation.getOrmVersion = () => {};

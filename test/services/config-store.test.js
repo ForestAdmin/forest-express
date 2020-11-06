@@ -67,6 +67,59 @@ describe('services > config-store', () => {
 
       expect(() => configStore.validateOptions()).toThrow('secretKey and authKey options are not supported anymore. Please use envSecret and authSecret instead.');
     });
+
+    it('should log an error when no models are provided', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The toBeDefined option seem to be incorrect. Can you check that the option is an object and contains all models inside in the Forest initialization?');
+    });
+
+    it('should log an error when models option is not an object', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        models: [],
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The toBeDefined option seem to be incorrect. Can you check that the option is an object and contains all models inside in the Forest initialization?');
+    });
+
+    it('should log an error when using includedModels as not an array', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        models: {},
+        includedModels: 'error',
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The includedModels option seem to be incorect. Can you check it is an array of model name to includes in the Forest initialization?');
+    });
+
+    it('should log an error when using excludedModels as not an array', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        models: {},
+        excludedModels: 'error',
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The excludedModels option seem to be incorect. Can you check it is an array of model name to excludes in the Forest initialization?');
+    });
   });
 
   describe('when the given configuration is valid', () => {
@@ -77,6 +130,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        models: {},
         onlyCrudModule: true,
       };
 
@@ -91,6 +145,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        models: {},
         modelsDir: '../models',
       };
 
@@ -106,11 +161,28 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        models: {},
         configDir,
       };
 
       expect(() => configStore.validateOptions()).not.toThrow();
       expect(logger.warn).toHaveBeenCalledWith(`Your configDir ("./${configDir}") does not exist. Please make sure it is set correctly.`);
+    });
+
+    it('should log a warning when includedModels and excludedModels at used in the same time', () => {
+      expect.assertions(2);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        models: {},
+        includedModels: [],
+        excludedModels: [],
+      };
+
+      expect(() => configStore.validateOptions()).not.toThrow();
+      expect(logger.warn).toHaveBeenCalledWith('You use includedModels and excludedModels options at the same time. Only the includedModels option goes considered.');
     });
 
     it('should log nothing when a valid configuration is provided', () => {
@@ -120,6 +192,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        models: {},
         configDir: '../forest',
       };
 

@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 module.exports = class ModelsManager {
   constructor({ configStore }) {
     this.configStore = configStore;
@@ -11,12 +9,27 @@ module.exports = class ModelsManager {
     return this.models;
   }
 
+  _filterModels(models, condition) {
+    const { getModelName } = this.configStore.Implementation;
+
+    return Object.values(models).reduce((filteredModels, model) => {
+      const modelName = getModelName(model);
+      if (condition(modelName)) filteredModels[modelName] = model;
+      return filteredModels;
+    }, {});
+  }
+
   _generateModelList() {
-    const models = this.configStore.Implementation.getModels();
-    _.each(models, (model, modelName) => {
-      model.modelName = modelName;
-    });
+    const { includedModels, excludedModels, models } = this.configStore.lianaOptions;
+    const useInclude = includedModels && includedModels.length;
+    const useExclude = excludedModels && excludedModels.length;
 
     this.models = models;
+
+    if (useInclude) {
+      this.models = this._filterModels(models, (modelName) => includedModels.includes(modelName));
+    } else if (useExclude) {
+      this.models = this._filterModels(models, (modelName) => !excludedModels.includes(modelName));
+    }
   }
 };

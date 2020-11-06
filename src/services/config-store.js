@@ -47,6 +47,18 @@ class ConfigStore {
       throw new Error('Your envSecret seems incorrect (64 characters required). Please check it is correctly set in your .env file.');
     }
 
+    if (!options.models || !options.models.constructor.toString().match('Object')) {
+      throw new Error('The toBeDefined option seem to be incorrect. Can you check that the option is an object and contains all models inside in the Forest initialization?');
+    }
+
+    if (options.includedModels && !Array.isArray(options.includedModels)) {
+      throw new Error('The includedModels option seem to be incorect. Can you check it is an array of model name to includes in the Forest initialization?');
+    }
+
+    if (options.excludedModels && !Array.isArray(options.excludedModels)) {
+      throw new Error('The excludedModels option seem to be incorect. Can you check it is an array of model name to excludes in the Forest initialization?');
+    }
+
     if (!this.isConfigDirExist()) {
       this.logger.warn(`Your configDir ("${this.configDir}") does not exist. Please make sure it is set correctly.`);
     }
@@ -57,6 +69,10 @@ class ConfigStore {
 
     if (options.modelsDir) {
       this.logger.warn('modelsDir is not supported anymore. Please remove this option.');
+    }
+
+    if (options.includedModels && options.excludedModels) {
+      this.logger.warn('You use includedModels and excludedModels options at the same time. Only the includedModels option goes considered.');
     }
   }
 }
