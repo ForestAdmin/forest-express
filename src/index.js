@@ -94,23 +94,97 @@ exports.ensureAuthenticated = (request, response, next) => {
 
 let app = null;
 
-function buildSchema() {
+async function buildSchema() {
   const { lianaOptions, Implementation } = configStore;
   const absModelDirs = configStore.modelsDir ? path.resolve('.', configStore.modelsDir) : undefined;
-  return requireAllModels(absModelDirs)
-    .then(async (models) => {
-      configStore.integrator = new Integrator(lianaOptions, Implementation);
-      await Schemas.perform(
-        Implementation,
-        configStore.integrator,
-        models,
-        lianaOptions,
-      );
-      return models;
-    });
+  const models = await requireAllModels(absModelDirs);
+  configStore.integrator = new Integrator(lianaOptions, Implementation);
+  await Schemas.perform(
+    Implementation,
+    configStore.integrator,
+    models,
+    lianaOptions,
+  );
+  return models;
 }
 
-exports.init = (Implementation) => {
+function generateAndSendSchema(opts) {
+  if (!opts.envSecret) { return; }
+
+  if (opts.envSecret.length !== 64) {
+    logger.error('Your envSecret does not seem to be correct. Can you check on Forest that you copied it properly in the Forest initialization?');
+    return;
+  }
+
+  const collections = _.values(Schemas.schemas);
+  configStore.integrator.defineCollections(collections);
+
+  collections
+    .filter((collection) => collection.actions && collection.actions.length)
+    // NOTICE: Check each Smart Action declaration to detect configuration errors.
+    .forEach((collection) => {
+      const isFieldsInvalid = (action) => action.fields && !Array.isArray(action.fields);
+      collection.actions.forEach((action) => {
+        if (!action.name) {
+          logger.warn(`An unnamed Smart Action of collection "${collection.name}" has been ignored.`);
+        } else if (isFieldsInvalid(action)) {
+          logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
+        }
+      });
+      // NOTICE: Ignore actions without a name.
+      collection.actions = collection.actions.filter((action) => action.name);
+    });
+
+  const schemaSerializer = new SchemaSerializer();
+  const { options: serializerOptions } = schemaSerializer;
+  let collectionsSent;
+  let metaSent;
+
+  if (ENVIRONMENT_DEVELOPMENT) {
+    const expressVersion = process.env.npm_package_dependencies_express;
+    const meta = {
+      database_type: configStore.Implementation.getDatabaseType(),
+      liana: configStore.Implementation.getLianaName(),
+      liana_version: configStore.Implementation.getLianaVersion(),
+      engine: 'nodejs',
+      engine_version: process.versions && process.versions.node,
+      framework: expressVersion ? 'express' : 'other',
+      framework_version: expressVersion,
+      orm_version: configStore.Implementation.getOrmVersion(),
+    };
+    const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
+      .perform();
+    collectionsSent = content.collections;
+    metaSent = content.meta;
+  } else {
+    try {
+      const content = fs.readFileSync(SCHEMA_FILENAME);
+      if (!content) {
+        logger.error('The .forestadmin-schema.json file is empty.');
+        logger.error('The schema cannot be synchronized with Forest Admin servers.');
+        return;
+      }
+      const contentParsed = JSON.parse(content.toString());
+      collectionsSent = contentParsed.collections;
+      metaSent = contentParsed.meta;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        logger.error('The .forestadmin-schema.json file does not exist.');
+      } else {
+        logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
+      }
+      logger.error('The schema cannot be synchronized with Forest Admin servers.');
+      return;
+    }
+  }
+
+  if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
+
+  const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
+  new ApimapSender(opts.envSecret, schemaSent).perform();
+}
+
+exports.init = async (Implementation) => {
   const { opts } = Implementation;
 
   configStore.Implementation = Implementation;
@@ -198,26 +272,25 @@ exports.init = (Implementation) => {
   new SessionRoute(app, opts).perform();
 
   // Init
-  return buildSchema()
-    .then((models) => {
-      let directorySmartImplementation;
+  try {
+    const models = await buildSchema();
 
-      if (opts.configDir) {
-        directorySmartImplementation = path.resolve('.', opts.configDir);
-      } else {
-        directorySmartImplementation = `${path.resolve('.')}/forest`;
-      }
+    let directorySmartImplementation;
 
-      if (fs.existsSync(directorySmartImplementation)) {
-        return requireAllModels(directorySmartImplementation);
-      }
-      if (opts.configDir) {
-        logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
-      }
+    if (opts.configDir) {
+      directorySmartImplementation = path.resolve('.', opts.configDir);
+    } else {
+      directorySmartImplementation = `${path.resolve('.')}/forest`;
+    }
 
-      return models;
-    })
-    .each((model) => {
+    if (fs.existsSync(directorySmartImplementation)) {
+      await requireAllModels(directorySmartImplementation);
+    }
+    if (opts.configDir) {
+      logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
+    }
+
+    models.forEach((model) => {
       const modelName = configStore.Implementation.getModelName(model);
 
       configStore.integrator.defineRoutes(app, model, configStore.Implementation);
@@ -246,98 +319,28 @@ exports.init = (Implementation) => {
         configStore.Implementation,
         configStore.lianaOptions,
       ).perform();
-    })
-    .then(() => new ForestRoutes(app, configStore.lianaOptions).perform())
-    .then(() => app.use(pathMounted, errorHandler({ logger })))
-    .then(() => {
-      if (!opts.envSecret) { return; }
-
-      if (opts.envSecret.length !== 64) {
-        logger.error('Your envSecret does not seem to be correct. Can you check on Forest that you copied it properly in the Forest initialization?');
-        return;
-      }
-
-      const collections = _.values(Schemas.schemas);
-      configStore.integrator.defineCollections(collections);
-
-      collections
-        .filter((collection) => collection.actions && collection.actions.length)
-        // NOTICE: Check each Smart Action declaration to detect configuration errors.
-        .forEach((collection) => {
-          const isFieldsInvalid = (action) => action.fields && !Array.isArray(action.fields);
-          collection.actions.forEach((action) => {
-            if (!action.name) {
-              logger.warn(`An unnamed Smart Action of collection "${collection.name}" has been ignored.`);
-            } else if (isFieldsInvalid(action)) {
-              logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
-            }
-          });
-          // NOTICE: Ignore actions without a name.
-          collection.actions = collection.actions.filter((action) => action.name);
-        });
-
-      const schemaSerializer = new SchemaSerializer();
-      const { options: serializerOptions } = schemaSerializer;
-      let collectionsSent;
-      let metaSent;
-
-      if (ENVIRONMENT_DEVELOPMENT) {
-        const expressVersion = process.env.npm_package_dependencies_express;
-        const meta = {
-          database_type: configStore.Implementation.getDatabaseType(),
-          liana: configStore.Implementation.getLianaName(),
-          liana_version: configStore.Implementation.getLianaVersion(),
-          engine: 'nodejs',
-          engine_version: process.versions && process.versions.node,
-          framework: expressVersion ? 'express' : 'other',
-          framework_version: expressVersion,
-          orm_version: configStore.Implementation.getOrmVersion(),
-        };
-        const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
-          .perform();
-        collectionsSent = content.collections;
-        metaSent = content.meta;
-      } else {
-        try {
-          const content = fs.readFileSync(SCHEMA_FILENAME);
-          if (!content) {
-            logger.error('The .forestadmin-schema.json file is empty.');
-            logger.error('The schema cannot be synchronized with Forest Admin servers.');
-            return;
-          }
-          const contentParsed = JSON.parse(content.toString());
-          collectionsSent = contentParsed.collections;
-          metaSent = contentParsed.meta;
-        } catch (error) {
-          if (error.code === 'ENOENT') {
-            logger.error('The .forestadmin-schema.json file does not exist.');
-          } else {
-            logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
-          }
-          logger.error('The schema cannot be synchronized with Forest Admin servers.');
-          return;
-        }
-      }
-
-      if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
-
-      const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
-      new ApimapSender(opts.envSecret, schemaSent).perform();
-    })
-    .then(() => ipWhitelist
-      .retrieve(opts.envSecret)
-      // NOTICE: An error log (done by the service) is enough in case of retrieval error.
-      .catch(() => {}))
-    .then(() => {
-      if (opts.expressParentApp) {
-        opts.expressParentApp.use('/forest', app);
-      }
-      return app;
-    })
-    .catch((error) => {
-      logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
-      throw error;
     });
+
+    new ForestRoutes(app, configStore.lianaOptions).perform();
+
+    app.use(pathMounted, errorHandler({ logger }));
+
+    generateAndSendSchema(opts);
+    try {
+      await ipWhitelist.retrieve(opts.envSecret);
+    } catch (error) {
+      // NOTICE: An error log (done by the service) is enough in case of retrieval error.
+    }
+
+    if (opts.expressParentApp) {
+      opts.expressParentApp.use('/forest', app);
+    }
+
+    return app;
+  } catch (error) {
+    logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+    throw error;
+  }
 };
 
 exports.collection = (name, opts) => {
