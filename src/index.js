@@ -228,9 +228,9 @@ exports.init = async (Implementation) => {
   app.use(pathMounted, bodyParser.json());
 
   // Authentication
-  if (opts.authSecret) {
+  if (configStore.lianaOptions.authSecret) {
     jwtAuthenticator = jwt(getJWTConfiguration({
-      secret: opts.authSecret,
+      secret: configStore.lianaOptions.authSecret,
       getToken: (request) => {
         if (request.headers) {
           if (request.headers.authorization
