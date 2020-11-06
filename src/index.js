@@ -22,14 +22,17 @@ const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
 const ApimapSender = require('./services/apimap-sender');
 const SchemaFileUpdater = require('./services/schema-file-updater');
-const ApimapFieldsFormater = require('./services/apimap-fields-formater');
 const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
 
 const {
-  logger, pathService, errorHandler, ipWhitelist,
+  logger,
+  pathService,
+  errorHandler,
+  ipWhitelist,
+  apimapFieldsFormater,
 } = context.inject();
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
@@ -366,7 +369,7 @@ exports.collection = (name, opts) => {
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
     // NOTICE: Smart Field definition case
-    opts.fields = new ApimapFieldsFormater(opts.fields, name).perform();
+    opts.fields = apimapFieldsFormater.formatFieldsByCollectionName(opts.fields, name);
     Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
 
     if (opts.searchFields) {
@@ -378,7 +381,7 @@ exports.collection = (name, opts) => {
     opts.idField = 'id';
     opts.isVirtual = true;
     opts.isSearchable = !!opts.isSearchable;
-    opts.fields = new ApimapFieldsFormater(opts.fields, name).perform();
+    opts.fields = apimapFieldsFormater.formatFieldsByCollectionName(opts.fields, name);
     Schemas.schemas[name] = opts;
   }
 };

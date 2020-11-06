@@ -7,6 +7,7 @@ const errorHandler = require('../services/exposed/error-handler');
 const ipWhitelist = require('../services/ip-whitelist');
 const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
+const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 
 /**
@@ -42,6 +43,7 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
+  context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
 }
