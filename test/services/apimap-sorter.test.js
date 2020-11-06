@@ -104,7 +104,11 @@ describe('services > apimap-sorter', () => {
     }],
   };
 
-  const apimapSorted = new ApimapSorter(apimap).perform();
+  const apimapSorted = new ApimapSorter({
+    logger: {
+      warn: jest.fn(),
+    },
+  }).sort(apimap);
 
   it('should sort the apimap sections', () => {
     expect.assertions(1);

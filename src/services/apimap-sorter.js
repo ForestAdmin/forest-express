@@ -1,16 +1,19 @@
 const _ = require('lodash');
-const logger = require('../services/logger');
 
-function ApimapSorter(apimap) {
-  function sortArrayOfObjects(array) {
+class ApimapSorter {
+  constructor({ logger }) {
+    this.logger = logger;
+  }
+
+  static _sortArrayOfObjects(array) {
     return _.sortBy(array, ['type', 'id']);
   }
 
-  function sortArrayOfFields(array) {
+  static _sortArrayOfFields(array) {
     return _.sortBy(array, ['field', 'type']);
   }
 
-  function reorderKeysBasic(object) {
+  static _reorderKeysBasic(object) {
     const objectReordered = {};
 
     _.each(_.sortBy(Object.keys(object)), (key) => {
@@ -20,7 +23,7 @@ function ApimapSorter(apimap) {
     return objectReordered;
   }
 
-  function reorderKeysChild(object) {
+  static _reorderKeysChild(object) {
     const objectReorderedStart = {
       type: object.type,
       id: object.id,
@@ -30,7 +33,7 @@ function ApimapSorter(apimap) {
     return Object.assign(objectReorderedStart, object);
   }
 
-  function reorderKeysCollection(collection) {
+  static _reorderKeysCollection(collection) {
     const collectionReorderedStart = {
       name: collection.name,
     };
@@ -40,12 +43,12 @@ function ApimapSorter(apimap) {
     delete collection.name;
     delete collection.fields;
 
-    collection = reorderKeysBasic(collection);
+    collection = ApimapSorter._reorderKeysBasic(collection);
 
     return Object.assign(collectionReorderedStart, collection, collectionReorderedEnd);
   }
 
-  function reorderKeysField(field) {
+  static _reorderKeysField(field) {
     const fieldReorderedStart = {
       field: field.field,
       type: field.type,
@@ -54,50 +57,52 @@ function ApimapSorter(apimap) {
     delete field.fields;
     delete field.type;
 
-    field = reorderKeysBasic(field);
+    field = ApimapSorter._reorderKeysBasic(field);
 
     return Object.assign(fieldReorderedStart, field);
   }
 
-  this.perform = () => {
+  sort(apimap) {
     try {
-      apimap = reorderKeysBasic(apimap);
-      apimap.data = sortArrayOfObjects(apimap.data);
+      apimap = ApimapSorter._reorderKeysBasic(apimap);
+      apimap.data = ApimapSorter._sortArrayOfObjects(apimap.data);
 
       apimap.data = apimap.data.map((collection) => {
-        collection = reorderKeysChild(collection);
-        collection.attributes = reorderKeysCollection(collection.attributes);
+        collection = ApimapSorter._reorderKeysChild(collection);
+        collection.attributes = ApimapSorter._reorderKeysCollection(collection.attributes);
         if (collection.attributes.fields) {
-          collection.attributes.fields = sortArrayOfFields(collection.attributes.fields);
+          collection.attributes.fields = ApimapSorter._sortArrayOfFields(
+            collection.attributes.fields,
+          );
           collection.attributes.fields = collection.attributes.fields
-            .map((field) => reorderKeysField(field));
+            .map((field) => ApimapSorter._reorderKeysField(field));
         }
         return collection;
       });
 
       if (apimap.included) {
-        apimap.included = sortArrayOfObjects(apimap.included);
+        apimap.included = ApimapSorter._sortArrayOfObjects(apimap.included);
 
         apimap.included = apimap.included.map((include) => {
-          include = reorderKeysChild(include);
-          include.attributes = reorderKeysCollection(include.attributes);
+          include = ApimapSorter._reorderKeysChild(include);
+          include.attributes = ApimapSorter._reorderKeysCollection(include.attributes);
           if (include.attributes.fields) {
-            include.attributes.fields = sortArrayOfFields(include.attributes.fields);
+            include.attributes.fields = ApimapSorter._sortArrayOfFields(include.attributes.fields);
             include.attributes.fields = include.attributes.fields
-              .map((field) => reorderKeysField(field));
+              .map((field) => ApimapSorter._reorderKeysField(field));
           }
           return include;
         });
       }
 
-      apimap.meta = reorderKeysBasic(apimap.meta);
+      apimap.meta = ApimapSorter._reorderKeysBasic(apimap.meta);
 
       return apimap;
     } catch (error) {
-      logger.warn('An Apimap reordering issue occured: ', error);
+      this.logger.warn('An Apimap reordering issue occured: ', error);
       return apimap;
     }
-  };
+  }
 }
 
 module.exports = ApimapSorter;

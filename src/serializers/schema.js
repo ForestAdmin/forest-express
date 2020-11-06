@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
-const ApimapSorter = require('../services/apimap-sorter');
+const context = require('../context');
+
+const { apimapSorter } = context.inject();
 
 // NOTICE: If a modification is made here, don't forget to replicate it in the toolbelt.
 function SchemaSerializer() {
@@ -101,7 +103,7 @@ function SchemaSerializer() {
 
     const schema = new JSONAPISerializer('collections', collections, options);
 
-    return new ApimapSorter(schema).perform();
+    return apimapSorter.sort(schema);
   };
 }
 
