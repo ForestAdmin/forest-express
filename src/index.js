@@ -285,8 +285,7 @@ exports.init = async (Implementation) => {
 
     if (fs.existsSync(directorySmartImplementation)) {
       await requireAllModels(directorySmartImplementation);
-    }
-    if (opts.configDir) {
+    } else if (opts.configDir) {
       logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
     }
 
