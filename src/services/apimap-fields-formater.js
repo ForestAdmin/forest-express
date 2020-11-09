@@ -1,11 +1,14 @@
 const _ = require('lodash');
-const logger = require('./logger');
 
-function ApimapFieldsFormater(fields, collectionName) {
-  this.perform = () => {
+class ApimapFieldsFormater {
+  constructor({ logger }) {
+    this.logger = logger;
+  }
+
+  formatFieldsByCollectionName(fields, collectionName) {
     const fieldsValid = _.filter(fields, (field) => {
       if (_.isUndefined(field.field) || _.isNull(field.field)) {
-        logger.warn(`Bad Smart Field declaration in "${collectionName}" collection: missing "field" attribute.`);
+        this.logger.warn(`Bad Smart Field declaration in "${collectionName}" collection: missing "field" attribute.`);
         return false;
       }
       return true;
@@ -19,7 +22,7 @@ function ApimapFieldsFormater(fields, collectionName) {
 
       return field;
     });
-  };
+  }
 }
 
 module.exports = ApimapFieldsFormater;
