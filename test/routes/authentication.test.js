@@ -39,6 +39,7 @@ function mockOpenIdClient(sandbox) {
   issuer.Client.register = sinon.stub().resolves(client);
 
   const injections = context.inject();
+  injections.oidcClientManagerService.clearCache();
 
   sandbox.stub(injections.openIdClient, 'Issuer').returns(issuer);
   injections.oidcConfigurationRetrieverService.clearCache();
@@ -170,7 +171,7 @@ describe('routes > authentication', () => {
         ]);
         expect(issuer.Client.register.firstCall.args).toStrictEqual([{
           redirect_uris: [
-            `${test.url.replace(/\?.*/, '')}`,
+            'http://localhost:3310/forest/authentication/callback',
           ],
           token_endpoint_auth_method: 'none',
         }]);

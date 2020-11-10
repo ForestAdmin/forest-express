@@ -11,7 +11,6 @@ const ipWhitelist = require('../services/ip-whitelist');
 const forestServerRequester = require('../services/forest-server-requester');
 const AuthorizationFinder = require('../services/authorization-finder');
 const AuthenticationService = require('../services/authentication');
-const RequestAnalyzerService = require('../services/request-analyser');
 const TokenService = require('../services/token');
 const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 const OidcClientManagerService = require('../services/oidc-client-manager');
@@ -31,6 +30,7 @@ const OidcClientManagerService = require('../services/oidc-client-manager');
  *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
  *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
  *   FOREST_URL: string;
+ *   APPLICATION_URL: string;
  * }} Env
  *
  * @typedef {{
@@ -49,7 +49,6 @@ const OidcClientManagerService = require('../services/oidc-client-manager');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  authenticationService: import('../services/authentication');
- *  requestAnalyzerService: import('../services/request-analyser');
  *  tokenService: import('../services/token');
  *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
  *  oidcClientManagerService: import('../services/oidc-client-manager')
@@ -69,6 +68,7 @@ function initEnv(context) {
     NODE_ENV: ['dev', 'development'].includes(process.env.NODE_ENV)
       ? 'development'
       : 'production',
+    APPLICATION_URL: process.env.APPLICATION_URL || `http://localhost:${process.env.APPLICATION_PORT || 3310}`,
   });
 }
 
@@ -95,7 +95,6 @@ function initServices(context) {
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
-  context.addClass(RequestAnalyzerService);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addClass(AuthorizationFinder);
   context.addClass(TokenService);
