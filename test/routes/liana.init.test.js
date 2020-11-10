@@ -39,6 +39,7 @@ describe('liana > init', () => {
       const badConfigDir = new Date();
       const implementation = createFakeImplementation({ configDir: badConfigDir });
 
+      // NOTICE: Should be updated to the correct error
       await expect(() => forestExpress.init(implementation)).rejects.toThrow(expect.anything());
     });
   });
