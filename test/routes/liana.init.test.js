@@ -39,7 +39,7 @@ describe('liana > init', () => {
       const badConfigDir = new Date();
       const implementation = createFakeImplementation({ configDir: badConfigDir });
 
-      await expect(() => forestExpress.init(implementation)).rejects.toThrow('The "path" argument must be of type string. Received type object');
+      await expect(() => forestExpress.init(implementation)).rejects.toThrow(expect.anything());
     });
   });
 
