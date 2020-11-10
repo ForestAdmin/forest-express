@@ -136,7 +136,7 @@ describe('liana > init', () => {
         expect.assertions(1);
 
         const app = await initForestAppWithModels();
-        const response = await request(app).get('/forest/modelFoo');
+        const response = await request(app).get('/forest/modelFoo.csv');
 
         expect(response.status).not.toStrictEqual(404);
       });
