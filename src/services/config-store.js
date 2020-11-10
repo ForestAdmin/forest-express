@@ -36,27 +36,27 @@ class ConfigStore {
     }
 
     if ((options.secretKey && !options.envSecret) || (options.authKey && !options.authSecret)) {
-      throw new Error('The use of secretKey and authKey options is deprecated. Please use envSecret and authSecret instead.');
+      throw new Error('secretKey and authKey options are not supported anymore. Please use envSecret and authSecret instead.');
     }
 
     if (!options.authSecret) {
-      throw new Error('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initialization?');
+      throw new Error('Your authSecret appears to be missing. Please check it is correctly set in your .env file.');
     }
 
     if (!options.envSecret) {
-      throw new Error('Your Forest envSecret seems to be missing. Can you check that you properly set a Forest envSecret in the Forest initialization?');
+      throw new Error('Your envSecret appears to be missing. Please check it is correctly set in your .env file.');
     }
 
     if (options.envSecret.length !== 64) {
-      throw new Error('Your Forest envSecret does not seem to be correct. Can you check that you properly copied it in the Forest initialization?');
+      throw new Error('Your envSecret seems incorrect (64 characters required). Please check it is correctly set in your .env file.');
     }
 
     if (!this.isConfigDirExist()) {
-      this.logger.warn(`The Forest configDir located to "${this.configDir}" not seem to be an existing directory. Can you check that this folder exists?`);
+      this.logger.warn(`Your configDir ("${this.configDir}") does not exist. Please make sure it is set correctly.`);
     }
 
     if (options.onlyCrudModule) {
-      this.logger.warn('The use of onlyCrudModule is deprecated. Please remove the option in Forest initialization.');
+      this.logger.warn('onlyCrudModule is not supported anymore. Please remove this option.');
     }
   }
 }

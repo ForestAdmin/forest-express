@@ -35,7 +35,7 @@ describe('services > config-store', () => {
 
       configStore.lianaOptions = {};
 
-      expect(() => configStore.validateOptions()).toThrow('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initialization?');
+      expect(() => configStore.validateOptions()).toThrow('Your authSecret appears to be missing. Please check it is correctly set in your .env file.');
     });
 
     it('should log an error when no envSecret is provided', () => {
@@ -44,7 +44,7 @@ describe('services > config-store', () => {
 
       configStore.lianaOptions = { authSecret };
 
-      expect(() => configStore.validateOptions()).toThrow('Your Forest envSecret seems to be missing. Can you check that you properly set a Forest envSecret in the Forest initialization?');
+      expect(() => configStore.validateOptions()).toThrow('Your envSecret appears to be missing. Please check it is correctly set in your .env file.');
     });
 
     it('should log an error when envSecret does not match 64 length requirement', () => {
@@ -53,7 +53,7 @@ describe('services > config-store', () => {
 
       configStore.lianaOptions = { authSecret, envSecret: Array(10).join('1') };
 
-      expect(() => configStore.validateOptions()).toThrow('Your Forest envSecret does not seem to be correct. Can you check that you properly copied it in the Forest initialization?');
+      expect(() => configStore.validateOptions()).toThrow('Your envSecret seems incorrect (64 characters required). Please check it is correctly set in your .env file.');
     });
 
     it('should log an error when using secretKey and authKey', () => {
@@ -65,7 +65,7 @@ describe('services > config-store', () => {
         authKey: authSecret,
       };
 
-      expect(() => configStore.validateOptions()).toThrow('The use of secretKey and authKey options is deprecated. Please use envSecret and authSecret instead.');
+      expect(() => configStore.validateOptions()).toThrow('secretKey and authKey options are not supported anymore. Please use envSecret and authSecret instead.');
     });
   });
 
@@ -81,7 +81,7 @@ describe('services > config-store', () => {
       };
 
       expect(() => configStore.validateOptions()).not.toThrow();
-      expect(logger.warn).toHaveBeenCalledWith('The use of onlyCrudModule is deprecated. Please remove the option in Forest initialization.');
+      expect(logger.warn).toHaveBeenCalledWith('onlyCrudModule is not supported anymore. Please remove this option.');
     });
 
     it('should log a warning when configDir does not exist', () => {
@@ -96,7 +96,7 @@ describe('services > config-store', () => {
       };
 
       expect(() => configStore.validateOptions()).not.toThrow();
-      expect(logger.warn).toHaveBeenCalledWith(`The Forest configDir located to "./${configDir}" not seem to be an existing directory. Can you check that this folder exists?`);
+      expect(logger.warn).toHaveBeenCalledWith(`Your configDir ("./${configDir}") does not exist. Please make sure it is set correctly.`);
     });
 
     it('should log nothing when a valid configuration is provided', () => {
