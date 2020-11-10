@@ -1,22 +1,12 @@
 const request = require('supertest');
 const express = require('express');
 
+const resetRequireIndex = require('../helpers/reset-index');
+
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
 
 describe('liana > init', () => {
-  let forestExpress;
-
-  const resetRequireIndex = () => {
-    jest.resetModules();
-    // NOTICE: Since src/index.js is using a singleton like pattern for
-    // app, it is require to reset modules import & re-import it on each
-    // test. Not calling it would result in `Liana.init` called twice
-    // message
-    // eslint-disable-next-line global-require
-    forestExpress = require('../../src');
-  };
-
   const createFakeImplementation = (extraConfiguration, extraImplementation) => ({
     opts: {
       envSecret,
@@ -35,7 +25,7 @@ describe('liana > init', () => {
     it('should return a rejected promise', async () => {
       expect.assertions(1);
 
-      resetRequireIndex();
+      const forestExpress = resetRequireIndex();
       const badConfigDir = new Date();
       const implementation = createFakeImplementation({ configDir: badConfigDir });
 
@@ -48,7 +38,7 @@ describe('liana > init', () => {
     it('should return a promise', async () => {
       expect.assertions(1);
 
-      resetRequireIndex();
+      const forestExpress = resetRequireIndex();
       const implementation = createFakeImplementation();
 
       const app = await forestExpress.init(implementation);
@@ -61,7 +51,7 @@ describe('liana > init', () => {
     it('should expose a healthcheck route', async () => {
       expect.assertions(1);
 
-      resetRequireIndex();
+      const forestExpress = resetRequireIndex();
       const implementation = createFakeImplementation();
 
       const app = await forestExpress.init(implementation);
@@ -75,7 +65,7 @@ describe('liana > init', () => {
       it('should return the same express app', async () => {
         expect.assertions(1);
 
-        resetRequireIndex();
+        const forestExpress = resetRequireIndex();
         const implementation = createFakeImplementation();
 
         const app = await forestExpress.init(implementation);
@@ -89,7 +79,7 @@ describe('liana > init', () => {
       it('should use the generated forest app middleware', async () => {
         expect.assertions(2);
 
-        resetRequireIndex();
+        const forestExpress = resetRequireIndex();
         const expressParentApp = express();
         const useSpy = jest.spyOn(expressParentApp, 'use');
         const implementation = createFakeImplementation({ expressParentApp });
@@ -103,7 +93,7 @@ describe('liana > init', () => {
 
     describe('when providing an implementation', () => {
       const initForestAppWithModels = () => {
-        resetRequireIndex();
+        const forestExpress = resetRequireIndex();
         const implementation = createFakeImplementation({}, {
           getModels: () => ({
             modelFoo: {
