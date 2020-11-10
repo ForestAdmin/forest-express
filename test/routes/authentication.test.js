@@ -157,13 +157,13 @@ describe('routes > authentication', () => {
         };
 
         expect(decoded).toMatchObject(expectedTokenData);
-        expect(JSON.parse(receivedResponse.text)).toStrictEqual(decoded);
+        expect(JSON.parse(receivedResponse.text)).toStrictEqual({ token, tokenData: decoded });
 
         expect(injections.forestServerRequester.perform.args[0]).toStrictEqual([
           '/oidc/.well-known/openid-configuration',
         ]);
         expect(injections.forestServerRequester.perform.args[1]).toStrictEqual([
-          '/liana/v2/renderings/42/google-authorization',
+          '/liana/v2/renderings/42/authorization',
           envSecret,
           null,
           { 'forest-token': 'THE-ACCESS-TOKEN' },
