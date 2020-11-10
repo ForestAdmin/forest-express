@@ -8,6 +8,7 @@ const Schemas = require('../generators/schemas');
 const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
 const IdsFromRequestRetriever = require('../services/ids-from-request-retriever');
+const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
   const modelName = Implementation.getModelName(model);
@@ -47,6 +48,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
 
   function list(request, response, next) {
     const { params, associationModel } = getContext(request);
+    const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return new Implementation.HasManyGetter(model, associationModel, opts, params)
       .perform()
@@ -58,6 +60,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         null,
         fieldsSearched,
         params.search,
+        fieldsPerModel,
       ).perform())
       .then((records) => response.send(records))
       .catch(next);
