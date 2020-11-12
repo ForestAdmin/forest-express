@@ -69,8 +69,8 @@ describe('services > models-manager', () => {
 
       const modelsManager = new ModelsManager({ configStore });
 
-      const models = modelsManager.getModelArray();
-      const expectedReturn = [{ name: 'model1' }];
+      const models = modelsManager.getModels();
+      const expectedReturn = { model1: { name: 'model1' } };
       expect(models).toStrictEqual(expectedReturn);
     });
   });
@@ -98,8 +98,8 @@ describe('services > models-manager', () => {
 
       const modelsManager = new ModelsManager({ configStore });
 
-      const models = modelsManager.getModelArray();
-      const expectedReturn = [{ name: 'model2' }];
+      const models = modelsManager.getModels();
+      const expectedReturn = { model2: { name: 'model2' } };
       expect(models).toStrictEqual(expectedReturn);
     });
   });
@@ -127,8 +127,8 @@ describe('services > models-manager', () => {
 
       const modelsManager = new ModelsManager({ configStore });
 
-      const models = modelsManager.getModelArray();
-      const expectedReturn = [{ name: 'model1' }];
+      const models = modelsManager.getModels();
+      const expectedReturn = { model1: { name: 'model1' } };
       expect(models).toStrictEqual(expectedReturn);
     });
   });
