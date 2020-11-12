@@ -32,7 +32,7 @@ describe('routes > session Google', () => {
     });
 
     stubPerform.withArgs(
-      '/liana/v2/renderings/1/google-authorization',
+      '/liana/v2/renderings/1/authorization',
       envSecret,
       null,
       { 'forest-token': googleAccessToken },

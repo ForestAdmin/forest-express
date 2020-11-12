@@ -39,6 +39,7 @@ function mockOpenIdClient(sandbox) {
   issuer.Client.register = sinon.stub().resolves(client);
 
   const injections = context.inject();
+  injections.oidcClientManagerService.clearCache();
 
   sandbox.stub(injections.openIdClient, 'Issuer').returns(issuer);
   injections.oidcConfigurationRetrieverService.clearCache();
@@ -157,20 +158,20 @@ describe('routes > authentication', () => {
         };
 
         expect(decoded).toMatchObject(expectedTokenData);
-        expect(JSON.parse(receivedResponse.text)).toStrictEqual(decoded);
+        expect(JSON.parse(receivedResponse.text)).toStrictEqual({ token, tokenData: decoded });
 
         expect(injections.forestServerRequester.perform.args[0]).toStrictEqual([
           '/oidc/.well-known/openid-configuration',
         ]);
         expect(injections.forestServerRequester.perform.args[1]).toStrictEqual([
-          '/liana/v2/renderings/42/google-authorization',
+          '/liana/v2/renderings/42/authorization',
           envSecret,
           null,
           { 'forest-token': 'THE-ACCESS-TOKEN' },
         ]);
         expect(issuer.Client.register.firstCall.args).toStrictEqual([{
           redirect_uris: [
-            `${test.url.replace(/\?.*/, '')}`,
+            'http://localhost:3310/forest/authentication/callback',
           ],
           token_endpoint_auth_method: 'none',
         }]);
