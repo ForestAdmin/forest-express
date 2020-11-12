@@ -7,6 +7,7 @@ const { apimapSorter } = context.inject();
 // NOTICE: If a modification is made here, don't forget to replicate it in the toolbelt.
 function SchemaSerializer() {
   // WARNING: Attributes declaration order is important for .forestadmin-schema.json format.
+  //          It must be ordered by "importance" to ease the JSON reading for users.
   const options = {
     id: 'name',
     // TODO: Remove nameOld attribute once the lianas versions older than 2.0.0 are minority.
