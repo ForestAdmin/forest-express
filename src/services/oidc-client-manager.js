@@ -40,6 +40,10 @@ class OidcClientManagerService {
 
     return this.cache.get(callbackUrl);
   }
+
+  clearCache() {
+    this.cache.clear();
+  }
 }
 
 module.exports = OidcClientManagerService;

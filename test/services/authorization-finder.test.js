@@ -104,7 +104,7 @@ describe('authorization-finder', () => {
         });
         expect(forestServerRequester.perform)
           .toHaveBeenCalledWith(
-            '/liana/v2/renderings/42/google-authorization',
+            '/liana/v2/renderings/42/authorization',
             'ABCDE',
             null,
             { 'forest-token': 'THE-TOKEN' },

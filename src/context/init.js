@@ -21,7 +21,6 @@ const HookLoad = require('../services/hook-load');
 const schemasGenerator = require('../generators/schemas');
 
 const AuthenticationService = require('../services/authentication');
-const RequestAnalyzerService = require('../services/request-analyser');
 const TokenService = require('../services/token');
 const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 const OidcClientManagerService = require('../services/oidc-client-manager');
@@ -40,6 +39,7 @@ function initValue(context) {
  *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
  *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
  *   FOREST_URL: string;
+ *   APPLICATION_URL: string;
  * }} Env
  *
  * @typedef {{
@@ -65,7 +65,6 @@ function initValue(context) {
  *  hookLoad: import('../services/hook-load');
  *  schemasGenerator: import('../generators/schemas');
  *  authenticationService: import('../services/authentication');
- *  requestAnalyzerService: import('../services/request-analyser');
  *  tokenService: import('../services/token');
  *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
  *  oidcClientManagerService: import('../services/oidc-client-manager')
@@ -91,6 +90,7 @@ function initEnv(context) {
     NODE_ENV: ['dev', 'development'].includes(process.env.NODE_ENV)
       ? 'development'
       : 'production',
+    APPLICATION_URL: process.env.APPLICATION_URL || `http://localhost:${process.env.APPLICATION_PORT || 3310}`,
   });
 }
 
