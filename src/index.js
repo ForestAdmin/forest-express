@@ -1,8 +1,6 @@
 const P = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
@@ -24,7 +22,6 @@ const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
-const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
@@ -37,6 +34,9 @@ const {
   apimapFieldsFormater,
   apimapSender,
   schemaFileUpdater,
+  configStore,
+  fs,
+  path,
 } = context.inject();
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
@@ -48,7 +48,6 @@ const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
-const configStore = ConfigStore.getInstance();
 
 let jwtAuthenticator;
 
@@ -115,14 +114,7 @@ async function buildSchema() {
   return models;
 }
 
-function generateAndSendSchema(opts) {
-  if (!opts.envSecret) { return; }
-
-  if (opts.envSecret.length !== 64) {
-    logger.error('Your envSecret does not seem to be correct. Can you check on Forest that you copied it properly in the Forest initialization?');
-    return;
-  }
-
+function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
   configStore.integrator.defineCollections(collections);
 
@@ -187,7 +179,7 @@ function generateAndSendSchema(opts) {
   if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
-  apimapSender.send(opts.envSecret, schemaSent);
+  apimapSender.send(envSecret, schemaSent);
 }
 
 exports.init = async (Implementation) => {
@@ -196,25 +188,23 @@ exports.init = async (Implementation) => {
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
 
-  if (opts.onlyCrudModule === true) {
-    return buildSchema();
-  }
-
   if (app) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
     return app;
   }
 
   app = express();
-  const pathMounted = pathService.generate('*', opts);
 
-  auth.initAuth(opts);
-
-  if (opts.secretKey) {
-    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options is deprecated. Please use envSecret and authSecret instead.');
-    opts.envSecret = opts.secretKey;
-    opts.authSecret = opts.authKey;
+  try {
+    configStore.validateOptions();
+  } catch (error) {
+    logger.error(error.message);
+    return Promise.resolve(app);
   }
+
+  const pathMounted = pathService.generate('*', configStore.lianaOptions);
+
+  auth.initAuth(configStore.lianaOptions);
 
   if (TWO_FA_SECRET_SALT) {
     try {
@@ -241,9 +231,9 @@ exports.init = async (Implementation) => {
   app.use(pathMounted, bodyParser.json());
 
   // Authentication
-  if (opts.authSecret) {
+  if (configStore.lianaOptions.authSecret) {
     jwtAuthenticator = jwt(getJWTConfiguration({
-      secret: opts.authSecret,
+      secret: configStore.lianaOptions.authSecret,
       getToken: (request) => {
         if (request.headers) {
           if (request.headers.authorization
@@ -261,12 +251,6 @@ exports.init = async (Implementation) => {
         return null;
       },
     }));
-  } else {
-    logger.error('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initializer?');
-  }
-
-  if (!opts.envSecret) {
-    logger.error('Your Forest envSecret seems to be missing. Can you check that you properly set a Forest envSecret in the Forest initializer?');
   }
 
   if (jwtAuthenticator) {
@@ -274,8 +258,8 @@ exports.init = async (Implementation) => {
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
-  new HealthCheckRoute(app, opts).perform();
-  new SessionRoute(app, opts).perform();
+  new HealthCheckRoute(app, configStore.lianaOptions).perform();
+  new SessionRoute(app, configStore.lianaOptions).perform();
 
   // Init
   try {
@@ -330,15 +314,16 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    generateAndSendSchema(opts);
+    generateAndSendSchema(configStore.lianaOptions.envSecret);
+
     try {
-      await ipWhitelist.retrieve(opts.envSecret);
+      await ipWhitelist.retrieve(configStore.lianaOptions.envSecret);
     } catch (error) {
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
     }
 
-    if (opts.expressParentApp) {
-      opts.expressParentApp.use('/forest', app);
+    if (configStore.lianaOptions.expressParentApp) {
+      configStore.lianaOptions.expressParentApp.use('/forest', app);
     }
 
     return app;

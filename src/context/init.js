@@ -1,5 +1,7 @@
 const fs = require('fs');
 const superagentRequest = require('superagent');
+const path = require('path');
+
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
@@ -14,6 +16,7 @@ const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const schemasGenerator = require('../generators/schemas');
+const ConfigStore = require('../services/config-store');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -58,6 +61,8 @@ function initUtils(context) {
  * @param {ApplicationContext} context
  */
 function initServices(context) {
+  context.addInstance('fs', fs);
+  context.addInstance('path', path);
   context.addInstance('logger', logger);
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
@@ -69,6 +74,7 @@ function initServices(context) {
   context.addClass(ApimapSorter);
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
+  context.addClass(ConfigStore);
 }
 
 /**
