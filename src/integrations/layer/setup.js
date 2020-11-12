@@ -1,12 +1,14 @@
 const _ = require('lodash');
 const { pushIntoApimap } = require('../../utils/integrations');
+const context = require('../../context');
 
 const INTEGRATION_NAME = 'layer';
 
 exports.createCollections = (Implementation, apimap, collectionAndFieldName) => {
+  const { modelsManager } = context.inject();
   // jshint camelcase: false
   const collectionName = collectionAndFieldName.split('.')[0];
-  const model = Implementation.getModels()[collectionName];
+  const model = modelsManager.getModels()[collectionName];
   const referenceName = `${Implementation.getModelName(model)}.id`;
   const collectionDisplayName = _.capitalize(collectionName);
 

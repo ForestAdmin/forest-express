@@ -16,8 +16,10 @@ const serializeSubscriptions = require('./serializers/subscriptions');
 const serializeBankAccounts = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
+const context = require('../../context');
 
 module.exports = function Routes(app, model, Implementation, opts) {
+  const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -33,7 +35,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
     const SEPARATOR = '.';
     const integrationValues = integrationInfo.split(SEPARATOR);
     integrationInfo = {
-      collection: Implementation.getModels()[integrationValues[0]],
+      collection: modelsManager.getModels()[integrationValues[0]],
       field: integrationValues[1],
       embeddedPath: integrationValues.slice(2).join(SEPARATOR) || null,
     };

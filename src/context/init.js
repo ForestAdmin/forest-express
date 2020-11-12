@@ -13,6 +13,7 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const ConfigStore = require('../services/config-store');
+const ModelsManager = require('../services/models-manager');
 
 /**
  * @typedef {{
@@ -53,6 +54,7 @@ function initServices(context) {
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
   context.addClass(ConfigStore);
+  context.addClass(ModelsManager);
 }
 
 /**

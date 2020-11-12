@@ -5,6 +5,7 @@ const error = require('../services/error');
 const path = require('../services/path');
 const StatSerializer = require('../serializers/stat');
 const Schemas = require('../generators/schemas');
+const context = require('../context');
 
 const CHART_TYPE_VALUE = 'Value';
 const CHART_TYPE_PIE = 'Pie';
@@ -13,6 +14,7 @@ const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
 module.exports = function Stats(app, model, Implementation, opts) {
+  const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
 
   this.get = (request, response, next) => {
@@ -25,7 +27,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
         [relatedModelName] = field.reference.split('.');
       }
 
-      const models = Implementation.getModels();
+      const models = modelsManager.getModels();
       return _.find(
         models,
         (currentModel) => Implementation.getModelName(currentModel) === relatedModelName,

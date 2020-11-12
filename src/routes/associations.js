@@ -8,8 +8,10 @@ const Schemas = require('../generators/schemas');
 const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
 const IdsFromRequestRetriever = require('../services/ids-from-request-retriever');
+const context = require('../context');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
+  const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
   const schema = Schemas.schemas[modelName];
 
@@ -37,7 +39,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   function getContext(request) {
     const association = getAssociation(request);
     const params = _.extend(request.query, request.params, association);
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(models, (refModel) =>
       Implementation.getModelName(refModel) === associationField);
@@ -92,7 +94,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   function add(request, response, next) {
     const params = _.extend(request.params, getAssociation(request));
     const data = request.body;
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
       models,
@@ -164,7 +166,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   function update(request, response, next) {
     const params = _.extend(request.params, getAssociation(request));
     const data = request.body;
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(
       models,
