@@ -56,7 +56,7 @@ class ConfigStore {
     }
 
     if (options.modelsDir) {
-      this.logger.warn('The use of modelsDir is deprecated. Please remove the option in the Forest initialization.');
+      this.logger.warn('modelsDir is not supported anymore. Please remove this option.');
     }
   }
 }

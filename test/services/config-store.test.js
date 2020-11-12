@@ -95,7 +95,7 @@ describe('services > config-store', () => {
       };
 
       expect(() => configStore.validateOptions()).not.toThrow();
-      expect(logger.warn).toHaveBeenCalledWith('The use of modelsDir is deprecated. Please remove the option in the Forest initialization.');
+      expect(logger.warn).toHaveBeenCalledWith('modelsDir is not supported anymore. Please remove this option.');
     });
 
     it('should log a warning when configDir does not exist', () => {
