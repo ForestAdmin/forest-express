@@ -1,3 +1,10 @@
+## [7.5.1](https://github.com/ForestAdmin/forest-express/compare/v7.5.0...v7.5.1) (2020-11-12)
+
+
+### Bug Fixes
+
+* don't compute smart fields when not requested on associated records ([#519](https://github.com/ForestAdmin/forest-express/issues/519)) ([996515b](https://github.com/ForestAdmin/forest-express/commit/996515ba5bdf340bdf2abb1a2c44d60f4c4db978))
+
 # [7.5.0](https://github.com/ForestAdmin/forest-express/compare/v7.4.6...v7.5.0) (2020-09-09)
 
 
