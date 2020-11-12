@@ -146,6 +146,7 @@ describe('services > schema-file-updater', () => {
       redirect: null,
       download: false,
       fields: [],
+      hooks: { load: false, change: [] },
     });
     expect(schema.collections[0].actions[1].fields[0]).toStrictEqual({
       field: 'someOtherField',
