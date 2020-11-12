@@ -6,6 +6,12 @@ const PUBLIC_ROUTES = [
   `/${CALLBACK_AUTHENTICATION_ROUTE}`,
 ];
 
+function getCallbackUrl(applicationUrl) {
+  const url = new URL(`/forest/${CALLBACK_AUTHENTICATION_ROUTE}`, applicationUrl);
+
+  return url.toString();
+}
+
 /**
  * @param {{
  *  authSecret: string;
@@ -47,9 +53,8 @@ async function startAuthentication(context, request, response, next) {
   try {
     const renderingId = getAndCheckRenderingId(request, context);
 
-    const originalUrl = context.requestAnalyzerService.extractOriginalUrlWithoutQuery(request);
     const result = await context.authenticationService.startAuthentication(
-      `${originalUrl}/callback`,
+      getCallbackUrl(context.env.APPLICATION_URL),
       { renderingId },
     );
 
@@ -67,15 +72,14 @@ async function startAuthentication(context, request, response, next) {
  * @param {import('express').NextFunction} next
  */
 async function authenticationCallback({
+  env,
   authenticationService,
-  requestAnalyzerService,
   tokenService,
   jsonwebtoken,
 }, options, request, response, next) {
   try {
-    const originalUrl = requestAnalyzerService.extractOriginalUrlWithoutQuery(request);
     const token = await authenticationService.verifyCodeAndGenerateToken(
-      `${originalUrl}`,
+      getCallbackUrl(env.APPLICATION_URL),
       request.query,
       options,
     );
@@ -98,7 +102,13 @@ async function authenticationCallback({
     // The token is sent decoded, because we don't want to share the whole, signed token
     // that is used to authenticate people
     // but the token itself contains interesting values, such as its expiration date
-    response.send(jsonwebtoken.decode(token));
+    response.send({
+      ...(!env.APPLICATION_URL.startsWith('https://')
+        ? { token }
+        : {}
+      ),
+      tokenData: jsonwebtoken.decode(token),
+    });
   } catch (e) {
     next(e);
   }
