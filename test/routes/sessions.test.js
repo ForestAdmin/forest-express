@@ -4,7 +4,7 @@ const P = require('bluebird');
 const nock = require('nock');
 const otplib = require('otplib');
 const request = require('../helpers/request');
-const ServiceUrlGetter = require('../../src/services/service-url-getter');
+const forestUrlGetter = require('../../src/utils/forest-url-getter');
 const UserSecretCreator = require('../../src/services/user-secret-creator');
 const createServer = require('../helpers/create-server');
 
@@ -149,7 +149,7 @@ async function setupApp() {
 }
 
 async function setupNock() {
-  const urlService = new ServiceUrlGetter().perform();
+  const urlService = forestUrlGetter();
   return nock(urlService);
 }
 

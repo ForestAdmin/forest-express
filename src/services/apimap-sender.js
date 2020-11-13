@@ -1,10 +1,12 @@
 const request = require('superagent');
-const ServiceUrlGetter = require('./service-url-getter');
+const context = require('../context');
 const logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
+  const { forestUrlGetter } = context.inject();
+
   this.perform = () => {
-    const urlService = new ServiceUrlGetter().perform();
+    const urlService = forestUrlGetter();
 
     request
       .post(`${urlService}/forest/apimaps`)

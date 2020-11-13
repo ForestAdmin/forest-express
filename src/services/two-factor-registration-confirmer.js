@@ -1,7 +1,7 @@
 const P = require('bluebird');
 const request = require('superagent');
-const ServiceUrlGetter = require('./service-url-getter');
 const logger = require('./logger');
+const context = require('../context');
 
 function TwoFactorRegistrationConfirmer({
   projectId,
@@ -10,9 +10,11 @@ function TwoFactorRegistrationConfirmer({
   email,
   forestToken,
 }) {
+  const { forestUrlGetter } = context.inject();
+
   this.perform = () =>
     new P((resolve, reject) => {
-      const forestUrl = new ServiceUrlGetter().perform();
+      const forestUrl = forestUrlGetter();
       const bodyData = { useGoogleAuthentication };
 
       if (useGoogleAuthentication) {

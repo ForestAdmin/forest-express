@@ -1,6 +1,7 @@
 const ApplicationContext = require('./application-context');
 
 const errorMessages = require('../utils/error-messages');
+const forestUrlGetter = require('../utils/forest-url-getter');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -32,6 +33,7 @@ const AuthorizationFinder = require('../services/authorization-finder');
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
+  context.addInstance('forestUrlGetter', forestUrlGetter);
 }
 
 /**

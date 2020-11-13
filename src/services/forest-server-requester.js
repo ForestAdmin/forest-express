@@ -1,11 +1,12 @@
 const P = require('bluebird');
 const superagent = require('superagent');
 const VError = require('verror');
-const ServiceUrlGetter = require('./service-url-getter');
 const errorMessages = require('../utils/error-messages');
+const context = require('../context');
 
 function perform(route, environmentSecret, queryParameters, headers) {
-  const urlService = new ServiceUrlGetter().perform();
+  const { forestUrlGetter } = context.inject();
+  const urlService = forestUrlGetter();
 
   return new P((resolve, reject) => {
     const request = superagent

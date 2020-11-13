@@ -1,8 +1,8 @@
 const request = require('supertest');
 const nock = require('nock');
-const ServiceUrlGetter = require('../../src/services/service-url-getter');
+const forestUrlGetter = require('../../src/utils/forest-url-getter');
 
-const urlService = new ServiceUrlGetter().perform();
+const urlService = forestUrlGetter();
 
 nock(urlService)
   .persist()

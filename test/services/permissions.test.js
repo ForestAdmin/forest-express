@@ -1,9 +1,9 @@
 const nock = require('nock');
 const PermissionsChecker = require('../../src/services/permissions-checker');
-const ServiceUrlGetter = require('../../src/services/service-url-getter');
+const forestUrlGetter = require('../../src/utils/forest-url-getter');
 
 describe('services > permissions', () => {
-  const urlService = new ServiceUrlGetter().perform();
+  const urlService = forestUrlGetter();
   const nockObj = nock(urlService);
 
   describe('check permissions', () => {
