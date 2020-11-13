@@ -1,31 +1,34 @@
 const _ = require('lodash');
 const fs = require('fs');
-const logger = require('../services/logger');
 const { parameterize } = require('../utils/string');
 const { prettyPrint } = require('../utils/json');
 
-function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
-  const formatObject = (object, attributes) => {
-    const objectFormated = {};
-    const objectOrdered = _.sortBy(
-      Object.keys(object),
-      (attribute) => attributes.indexOf(attribute),
-    );
-    _.each(objectOrdered, (attribute) => {
-      if (attributes.includes(attribute)) {
-        objectFormated[attribute] = object[attribute];
-      }
-    });
-    return objectFormated;
-  };
-
-  function setDefaultValueIfNecessary(object, property, value) {
-    if (!Object.prototype.hasOwnProperty.call(object, property)) {
-      object[property] = value;
+function formatObject(object, attributes) {
+  const objectFormated = {};
+  const objectOrdered = _.sortBy(
+    Object.keys(object),
+    (attribute) => attributes.indexOf(attribute),
+  );
+  _.each(objectOrdered, (attribute) => {
+    if (attributes.includes(attribute)) {
+      objectFormated[attribute] = object[attribute];
     }
+  });
+  return objectFormated;
+}
+
+function setDefaultValueIfNecessary(object, property, value) {
+  if (!Object.prototype.hasOwnProperty.call(object, property)) {
+    object[property] = value;
+  }
+}
+
+class SchemaFileUpdater {
+  constructor({ logger }) {
+    this.logger = logger;
   }
 
-  const cleanFields = (fields) => {
+  static cleanFields(fields) {
     fields = fields.filter((field) => field.field);
     fields.forEach((field) => {
       if (field.defaultValue === undefined) {
@@ -56,19 +59,21 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     });
 
     return fields;
-  };
+  }
 
-  const cleanSegments = (segments) => segments.filter((segment) => segment.name);
+  static cleanSegments(segments) {
+    return segments.filter((segment) => segment.name);
+  }
 
-  const cleanActions = (actions) => {
+  cleanActions(actions) {
     actions = actions.filter((action) => action.name);
     actions.forEach((action) => {
       if (action.global) {
-        logger.warn(`REMOVED OPTION: The support for Smart Action "global" option is now removed. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
+        this.logger.warn(`REMOVED OPTION: The support for Smart Action "global" option is now removed. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
       }
 
       if (action.type && !_.includes(['bulk', 'global', 'single'], action.type)) {
-        logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
+        this.logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
         action.type = null;
       }
 
@@ -98,9 +103,9 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     });
 
     return actions;
-  };
+  }
 
-  const cleanCollection = (collection) => {
+  cleanCollection(collection) {
     if (_.isNil(collection.isSearchable)) {
       collection.isSearchable = true;
     }
@@ -115,14 +120,14 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     setDefaultValueIfNecessary(collection, 'segments', []);
     setDefaultValueIfNecessary(collection, 'actions', []);
 
-    collection.fields = cleanFields(collection.fields);
-    collection.segments = cleanSegments(collection.segments);
-    collection.actions = cleanActions(collection.actions);
-  };
+    collection.fields = SchemaFileUpdater.cleanFields(collection.fields);
+    collection.segments = SchemaFileUpdater.cleanSegments(collection.segments);
+    collection.actions = this.cleanActions(collection.actions);
+  }
 
-  this.perform = () => {
+  update(filename, collections, meta, serializerOptions) {
     collections = collections.map((collection) => {
-      cleanCollection(collection);
+      this.cleanCollection(collection);
       const collectionFormatted = formatObject(collection, serializerOptions.attributes);
 
       collectionFormatted.fields = collectionFormatted.fields || [];
@@ -158,7 +163,7 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
     const schema = { collections, meta };
     fs.writeFileSync(filename, prettyPrint(schema));
     return schema;
-  };
+  }
 }
 
 module.exports = SchemaFileUpdater;

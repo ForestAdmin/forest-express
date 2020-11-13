@@ -21,7 +21,7 @@ describe('services > schema-file-updater', () => {
   const schemaSerializer = new SchemaSerializer();
   const { options: serializerOptions } = schemaSerializer;
   const buildSchema = (collection, metas = meta) =>
-    new SchemaFileUpdater('test.json', collection, metas, serializerOptions).perform();
+    new SchemaFileUpdater({ logger }).update('test.json', collection, metas, serializerOptions);
 
   // NOTICE: Expecting `fs.writeFileSync` second parameter to be valid JSON.
   it('should call fs.writeFileSync with a valid JSON as data', () => {

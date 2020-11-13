@@ -155,8 +155,8 @@ function generateAndSendSchema(opts) {
       framework_version: expressVersion,
       orm_version: configStore.Implementation.getOrmVersion(),
     };
-    const content = new SchemaFileUpdater(SCHEMA_FILENAME, collections, meta, serializerOptions)
-      .perform();
+    const content = new SchemaFileUpdater({ logger })
+      .update(SCHEMA_FILENAME, collections, meta, serializerOptions);
     collectionsSent = content.collections;
     metaSent = content.meta;
   } else {
