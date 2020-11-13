@@ -1,11 +1,11 @@
 const _ = require('lodash');
-const fs = require('fs');
 const { parameterize } = require('../utils/string');
 const { prettyPrint } = require('../utils/json');
 
 class SchemaFileUpdater {
-  constructor({ logger }) {
+  constructor({ logger, writeFileSync }) {
     this.logger = logger;
+    this.writeFileSync = writeFileSync;
   }
 
   static formatObject(object, attributes) {
@@ -164,7 +164,7 @@ class SchemaFileUpdater {
       collection1.name.localeCompare(collection2.name));
 
     const schema = { collections, meta };
-    fs.writeFileSync(filename, prettyPrint(schema));
+    this.writeFileSync(filename, prettyPrint(schema));
     return schema;
   }
 }

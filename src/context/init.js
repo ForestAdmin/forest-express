@@ -1,5 +1,5 @@
+const fs = require('fs');
 const ApplicationContext = require('./application-context');
-
 const errorMessages = require('../utils/error-messages');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
@@ -45,6 +45,7 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
+  context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
