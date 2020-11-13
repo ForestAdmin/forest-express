@@ -20,4 +20,20 @@ function init() {
     });
 }
 
-module.exports = { init, request };
+function addNock(url, method, route, reqheaders = {}) {
+  return nock(url, { reqheaders })[method](route);
+}
+
+function addForestNock(method, route, reqheaders = {}) {
+  const { forestUrl } = context.inject();
+
+  return addNock(forestUrl, method, route, reqheaders);
+}
+
+
+module.exports = {
+  addNock,
+  addForestNock,
+  init,
+  request,
+};

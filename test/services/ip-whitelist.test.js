@@ -3,25 +3,31 @@ const {
   isIpValid,
   isIpWhitelistRetrieved,
 } = require('../../src/services/ip-whitelist');
-const forestServerRequester = require('../../src/services/forest-server-requester');
-
-jest.mock('../../src/services/forest-server-requester');
+const context = require('../../src/context');
 
 describe('utils › services', () => {
-  forestServerRequester.perform.mockResolvedValue({
-    data: {
-      attributes: {
-        use_ip_whitelist: true,
-        rules: [
-          {
-            type: 1,
-            ip_minimum: '1.0.0.0',
-            ip_maximum: '1.2.0.0',
+  const servicesBuilder = (applicationContext) => {
+    applicationContext.addInstance('forestServerRequester', {
+      perform: jest
+        .fn()
+        .mockResolvedValue({
+          data: {
+            attributes: {
+              use_ip_whitelist: true,
+              rules: [
+                {
+                  type: 1,
+                  ip_minimum: '1.0.0.0',
+                  ip_maximum: '1.2.0.0',
+                },
+              ],
+            },
           },
-        ],
-      },
-    },
-  });
+        }),
+    });
+  };
+
+  context.init(servicesBuilder);
   it('should consider valid IP as valid', async () => {
     expect.assertions(4);
     await retrieve();
