@@ -21,7 +21,6 @@ const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
 const ApimapSender = require('./services/apimap-sender');
-const SchemaFileUpdater = require('./services/schema-file-updater');
 const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
@@ -33,6 +32,7 @@ const {
   errorHandler,
   ipWhitelist,
   apimapFieldsFormater,
+  schemaFileUpdater,
 } = context.inject();
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
@@ -155,8 +155,7 @@ function generateAndSendSchema(opts) {
       framework_version: expressVersion,
       orm_version: configStore.Implementation.getOrmVersion(),
     };
-    const content = new SchemaFileUpdater({ logger })
-      .update(SCHEMA_FILENAME, collections, meta, serializerOptions);
+    const content = schemaFileUpdater.update(SCHEMA_FILENAME, collections, meta, serializerOptions);
     collectionsSent = content.collections;
     metaSent = content.meta;
   } else {
