@@ -1,5 +1,5 @@
+const superagentRequest = require('superagent');
 const ApplicationContext = require('./application-context');
-
 const errorMessages = require('../utils/error-messages');
 const forestUrlGetter = require('../utils/forest-url-getter');
 const logger = require('../services/logger');
@@ -8,6 +8,7 @@ const errorHandler = require('../services/exposed/error-handler');
 const ipWhitelist = require('../services/ip-whitelist');
 const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
+const ApimapSender = require('../services/apimap-sender');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 
@@ -45,9 +46,11 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
+  context.addInstance('superagentRequest', superagentRequest);
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
+  context.addClass(ApimapSender);
 }
 
 /**

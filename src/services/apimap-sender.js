@@ -1,35 +1,39 @@
-const request = require('superagent');
-const context = require('../context');
-const logger = require('./logger');
+class ApimapSender {
+  constructor({ forestUrlGetter, logger, superagentRequest }) {
+    this.forestUrlGetter = forestUrlGetter;
+    this.superagentRequest = superagentRequest;
+    this.logger = logger;
+  }
 
-function ApimapSender(envSecret, apimap) {
-  const { forestUrlGetter } = context.inject();
+  handleResult(result) {
+    if (!result) return;
 
-  this.perform = () => {
-    const urlService = forestUrlGetter();
+    if ([200, 202, 204].includes(result.status)) {
+      if (result.body && result.body.warning) {
+        this.logger.warn(result.body.warning);
+      }
+    } else if (result.status === 0) {
+      this.logger.warn('Cannot send the apimap to Forest. Are you online?');
+    } else if (result.status === 404) {
+      this.logger.error('Cannot find the project related to the envSecret you configured. Can you check on Forest that you copied it properly in the Forest initialization?');
+    } else if (result.status === 503) {
+      this.logger.warn('Forest is in maintenance for a few minutes. We are upgrading your experience in the forest. We just need a few more minutes to get it right.');
+    } else {
+      this.logger.error('An error occured with the apimap sent to Forest. Please contact support@forestadmin.com for further investigations.');
+    }
+  }
 
-    request
+  send(envSecret, apimap) {
+    const urlService = this.forestUrlGetter;
+
+    this.superagentRequest
       .post(`${urlService}/forest/apimaps`)
       .send(apimap)
       .set('forest-secret-key', envSecret)
-      .end((error, result) => {
-        if (result) {
-          if ([200, 202, 204].indexOf(result.status) !== -1) {
-            if (result.body && result.body.warning) {
-              logger.warn(result.body.warning);
-            }
-          } else if (result.status === 0) {
-            logger.warn('Cannot send the apimap to Forest. Are you online?');
-          } else if (result.status === 404) {
-            logger.error('Cannot find the project related to the envSecret you configured. Can you check on Forest that you copied it properly in the Forest initialization?');
-          } else if (result.status === 503) {
-            logger.warn('Forest is in maintenance for a few minutes. We are upgrading your experience in the forest. We just need a few more minutes to get it right.');
-          } else {
-            logger.error('An error occured with the apimap sent to Forest. Please contact support@forestadmin.com for further investigations.');
-          }
-        }
+      .end((_error, result) => {
+        this.handleResult(result);
       });
-  };
+  }
 }
 
 module.exports = ApimapSender;
