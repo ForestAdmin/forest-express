@@ -125,38 +125,48 @@ class SchemaFileUpdater {
     collection.actions = this.cleanActions(collection.actions);
   }
 
+  static formatFields(collection, serializerOptions) {
+    collection.fields = collection.fields || [];
+    collection.fields = collection.fields.map((field) => {
+      const fieldFormatted = SchemaFileUpdater
+        .formatObject(field, serializerOptions.fields.attributes);
+
+      fieldFormatted.validations = fieldFormatted.validations.map((validation) =>
+        SchemaFileUpdater.formatObject(validation, serializerOptions.validations.attributes));
+      return fieldFormatted;
+    });
+    collection.fields = _.sortBy(collection.fields, ['field', 'type']);
+  }
+
+  static formatSegments(collection, serializerOptions) {
+    collection.segments = collection.segments || [];
+    collection.segments = collection.segments.map((segment) =>
+      SchemaFileUpdater.formatObject(segment, serializerOptions.segments.attributes));
+    collection.segments = _.sortBy(collection.segments, ['name']);
+  }
+
+  static formatActions(collection, serializerOptions) {
+    collection.actions = collection.actions || [];
+    collection.actions = collection.actions.map((action) => {
+      const actionFormatted = SchemaFileUpdater
+        .formatObject(action, serializerOptions.actions.attributes);
+      actionFormatted.fields = actionFormatted.fields || [];
+      actionFormatted.fields = actionFormatted.fields.map((field) =>
+        SchemaFileUpdater.formatObject(field, serializerOptions.actions.fields.attributes));
+      return actionFormatted;
+    });
+    collection.actions = _.sortBy(collection.actions, ['name']);
+  }
+
   update(filename, collections, meta, serializerOptions) {
     collections = collections.map((collection) => {
       this.cleanCollection(collection);
       const collectionFormatted = SchemaFileUpdater
         .formatObject(collection, serializerOptions.attributes);
 
-      collectionFormatted.fields = collectionFormatted.fields || [];
-      collectionFormatted.fields = collectionFormatted.fields.map((field) => {
-        const fieldFormatted = SchemaFileUpdater
-          .formatObject(field, serializerOptions.fields.attributes);
-
-        fieldFormatted.validations = fieldFormatted.validations.map((validation) =>
-          SchemaFileUpdater.formatObject(validation, serializerOptions.validations.attributes));
-        return fieldFormatted;
-      });
-      collectionFormatted.fields = _.sortBy(collectionFormatted.fields, ['field', 'type']);
-
-      collectionFormatted.segments = collectionFormatted.segments || [];
-      collectionFormatted.segments = collectionFormatted.segments.map((segment) =>
-        SchemaFileUpdater.formatObject(segment, serializerOptions.segments.attributes));
-      collectionFormatted.segments = _.sortBy(collectionFormatted.segments, ['name']);
-
-      collectionFormatted.actions = collectionFormatted.actions || [];
-      collectionFormatted.actions = collectionFormatted.actions.map((action) => {
-        const actionFormatted = SchemaFileUpdater
-          .formatObject(action, serializerOptions.actions.attributes);
-        actionFormatted.fields = actionFormatted.fields || [];
-        actionFormatted.fields = actionFormatted.fields.map((field) =>
-          SchemaFileUpdater.formatObject(field, serializerOptions.actions.fields.attributes));
-        return actionFormatted;
-      });
-      collectionFormatted.actions = _.sortBy(collectionFormatted.actions, ['name']);
+      SchemaFileUpdater.formatFields(collectionFormatted, serializerOptions);
+      SchemaFileUpdater.formatSegments(collectionFormatted, serializerOptions);
+      SchemaFileUpdater.formatActions(collectionFormatted, serializerOptions);
 
       return collectionFormatted;
     });
