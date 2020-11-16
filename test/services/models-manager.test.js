@@ -8,11 +8,14 @@ describe('services > models-manager', () => {
         excludedModels: [],
         connections: {
           db1: {
-            models: [{
-              name: 'model1',
-            }, {
-              name: 'model2',
-            }],
+            models: {
+              model1: {
+                name: 'model1',
+              },
+              model2: {
+                name: 'model2',
+              },
+            },
           },
         },
       },
@@ -56,11 +59,14 @@ describe('services > models-manager', () => {
           excludedModels: [],
           connections: {
             db1: {
-              models: [{
-                name: 'model1',
-              }, {
-                name: 'model2',
-              }],
+              models: {
+                model1: {
+                  name: 'model1',
+                },
+                model2: {
+                  name: 'model2',
+                },
+              },
             },
           },
         },
@@ -86,11 +92,14 @@ describe('services > models-manager', () => {
           excludedModels: ['model1'],
           connections: {
             db1: {
-              models: [{
-                name: 'model1',
-              }, {
-                name: 'model2',
-              }],
+              models: {
+                model1: {
+                  name: 'model1',
+                },
+                model2: {
+                  name: 'model2',
+                },
+              },
             },
           },
         },
@@ -116,11 +125,14 @@ describe('services > models-manager', () => {
           excludedModels: ['model1'],
           connections: {
             db1: {
-              models: [{
-                name: 'model1',
-              }, {
-                name: 'model2',
-              }],
+              models: {
+                model1: {
+                  name: 'model1',
+                },
+                model2: {
+                  name: 'model2',
+                },
+              },
             },
           },
         },

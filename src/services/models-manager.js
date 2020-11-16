@@ -8,7 +8,7 @@ module.exports = class ModelsManager {
     const { connections } = this.configStore.lianaOptions;
 
     return Object.values(connections)
-      .reduce((models, connection) => models.concat(connection.models), []);
+      .reduce((models, connection) => models.concat(Object.values(connection.models)), []);
   }
 
   _filterModels(models, condition) {
@@ -29,7 +29,6 @@ module.exports = class ModelsManager {
   _generateModelList() {
     const { includedModels, excludedModels } = this.configStore.lianaOptions;
     let models = this._flatConnectionsModels();
-    console.log(models);
     const useInclude = includedModels && includedModels.length;
     const useExclude = excludedModels && excludedModels.length;
 

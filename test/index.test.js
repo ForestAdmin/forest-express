@@ -117,9 +117,11 @@ describe('liana > index', () => {
           const implementation = createFakeImplementation({
             connections: {
               db1: {
-                models: [{
-                  modelName: 'modelFoo',
-                }],
+                models: {
+                  modelFoo: {
+                    modelName: 'modelFoo',
+                  },
+                },
               },
             },
           }, {
