@@ -17,6 +17,7 @@ const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const schemasGenerator = require('../generators/schemas');
 const ConfigStore = require('../services/config-store');
+const ModelsManager = require('../services/models-manager');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -75,6 +76,7 @@ function initServices(context) {
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
   context.addClass(ConfigStore);
+  context.addClass(ModelsManager);
 }
 
 /**

@@ -34,6 +34,7 @@ const {
   apimapSender,
   schemaFileUpdater,
   configStore,
+  modelsManager,
   fs,
 } = context.inject();
 
@@ -49,15 +50,6 @@ const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
 let jwtAuthenticator;
 let app = null;
-
-function getModels() {
-  const models = configStore.Implementation.getModels();
-  _.each(models, (model, modelName) => {
-    model.modelName = modelName;
-  });
-
-  return _.values(models);
-}
 
 function loadCollections(collectionsDir) {
   try {
@@ -81,7 +73,7 @@ function loadCollections(collectionsDir) {
 
 async function buildSchema() {
   const { lianaOptions, Implementation } = configStore;
-  const models = getModels();
+  const models = Object.values(modelsManager.getModels());
   configStore.integrator = new Integrator(lianaOptions, Implementation);
   await Schemas.perform(
     Implementation,
