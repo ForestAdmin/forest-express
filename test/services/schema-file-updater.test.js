@@ -171,8 +171,8 @@ describe('services > schema-file-updater', () => {
     const INVALID_LOAD_HOOK = 'Action With Invalid Load Hook';
     const INVALID_CHANGE_HOOK = 'Action With Invalid Change Hook';
     const VALID_HOOKS = 'Action With Valid Hooks';
-    const VALID_ONLY_LOAD_HOOK = 'Action With Valid Only a Load Hook';
-    const VALID_ONLY_CHANGE_HOOK = 'Action With Valid Only a Change Hook';
+    const VALID_ONLY_LOAD_HOOK = 'Action With Only a Load Hook';
+    const VALID_ONLY_CHANGE_HOOK = 'Action With Only a Change Hook';
 
     const schema = buildSchema([{
       name: 'collectionName',
