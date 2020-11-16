@@ -25,6 +25,7 @@ const stringUtils = require('../utils/string');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
+ *  stringUtils: import('../utils/string');
  * }} Services
  *
  * @typedef {Utils & Services} Context
