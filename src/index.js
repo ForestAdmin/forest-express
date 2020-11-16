@@ -69,7 +69,7 @@ function loadCollections(collectionsDir) {
 
 async function buildSchema() {
   const { lianaOptions, Implementation } = configStore;
-  const models = modelsManager.getModelArray();
+  const models = Object.values(modelsManager.getModels());
   configStore.integrator = new Integrator(lianaOptions, Implementation);
   await Schemas.perform(
     Implementation,

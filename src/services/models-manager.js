@@ -11,10 +11,6 @@ module.exports = class ModelsManager {
     return this.models;
   }
 
-  getModelArray() {
-    return _.values(this.getModels());
-  }
-
   _generateModelList() {
     const models = this.configStore.Implementation.getModels();
     _.each(models, (model, modelName) => {
