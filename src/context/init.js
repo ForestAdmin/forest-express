@@ -1,5 +1,5 @@
+const fs = require('fs');
 const ApplicationContext = require('./application-context');
-
 const errorMessages = require('../utils/error-messages');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
@@ -9,6 +9,7 @@ const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
+const SchemaFileUpdater = require('../services/schema-file-updater');
 
 /**
  * @typedef {{
@@ -22,6 +23,7 @@ const AuthorizationFinder = require('../services/authorization-finder');
  *  ipWhitelist: import('../services/ip-whitelist');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
+ *  schemaFileUpdater: import('../services/schema-file-updater');
  * }} Services
  *
  * @typedef {Utils & Services} Context
@@ -43,9 +45,11 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
+  context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
+  context.addClass(SchemaFileUpdater);
 }
 
 /**

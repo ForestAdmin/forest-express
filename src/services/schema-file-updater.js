@@ -1,11 +1,14 @@
 const _ = require('lodash');
-const fs = require('fs');
-const logger = require('../services/logger');
 const { parameterize } = require('../utils/string');
 const { prettyPrint } = require('../utils/json');
 
-function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
-  const formatObject = (object, attributes) => {
+class SchemaFileUpdater {
+  constructor({ logger, writeFileSync }) {
+    this.logger = logger;
+    this.writeFileSync = writeFileSync;
+  }
+
+  static formatObject(object, attributes) {
     const objectFormated = {};
     const objectOrdered = _.sortBy(
       Object.keys(object),
@@ -17,68 +20,70 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       }
     });
     return objectFormated;
-  };
+  }
 
-  function setDefaultValueIfNecessary(object, property, value) {
+  static setDefaultValueIfNecessary(object, property, value) {
     if (!Object.prototype.hasOwnProperty.call(object, property)) {
       object[property] = value;
     }
   }
 
-  const cleanFields = (fields) => {
+  static cleanFields(fields) {
     fields = fields.filter((field) => field.field);
     fields.forEach((field) => {
       if (field.defaultValue === undefined) {
         field.defaultValue = null;
       }
-      setDefaultValueIfNecessary(field, 'type', 'String');
-      setDefaultValueIfNecessary(field, 'isRequired', false);
-      setDefaultValueIfNecessary(field, 'isPrimaryKey', false);
-      setDefaultValueIfNecessary(field, 'isReadOnly', false);
-      setDefaultValueIfNecessary(field, 'isSortable', true);
-      setDefaultValueIfNecessary(field, 'isFilterable', true);
-      setDefaultValueIfNecessary(field, 'isVirtual', false);
-      setDefaultValueIfNecessary(field, 'description', null);
-      setDefaultValueIfNecessary(field, 'reference', null);
-      setDefaultValueIfNecessary(field, 'inverseOf', null);
-      setDefaultValueIfNecessary(field, 'relationships', null);
-      setDefaultValueIfNecessary(field, 'enums', null);
-      setDefaultValueIfNecessary(field, 'validations', null);
-      setDefaultValueIfNecessary(field, 'integration', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'type', 'String');
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isRequired', false);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isPrimaryKey', false);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isReadOnly', false);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isSortable', true);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isFilterable', true);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isVirtual', false);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'description', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'reference', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'inverseOf', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'relationships', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'enums', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'validations', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(field, 'integration', null);
 
       field.validations = field.validations || [];
       field.validations.forEach((validation) => {
         if (validation.message === undefined) {
           validation.message = null;
         }
-        setDefaultValueIfNecessary(validation, 'value', null);
+        SchemaFileUpdater.setDefaultValueIfNecessary(validation, 'value', null);
       });
     });
 
     return fields;
-  };
+  }
 
-  const cleanSegments = (segments) => segments.filter((segment) => segment.name);
+  static cleanSegments(segments) {
+    return segments.filter((segment) => segment.name);
+  }
 
-  const cleanActions = (actions) => {
+  cleanActions(actions) {
     actions = actions.filter((action) => action.name);
     actions.forEach((action) => {
       if (action.global) {
-        logger.warn(`REMOVED OPTION: The support for Smart Action "global" option is now removed. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
+        this.logger.warn(`REMOVED OPTION: The support for Smart Action "global" option is now removed. Please set "type: 'global'" instead of "global: true" for the "${action.name}" Smart Action.`);
       }
 
       if (action.type && !_.includes(['bulk', 'global', 'single'], action.type)) {
-        logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
+        this.logger.warn(`Please set a valid Smart Action type ("bulk", "global" or "single") for the "${action.name}" Smart Action.`);
         action.type = null;
       }
 
-      setDefaultValueIfNecessary(action, 'endpoint', `/forest/actions/${parameterize(action.name)}`);
-      setDefaultValueIfNecessary(action, 'httpMethod', 'POST');
-      setDefaultValueIfNecessary(action, 'fields', []);
-      setDefaultValueIfNecessary(action, 'redirect', null);
-      setDefaultValueIfNecessary(action, 'baseUrl', null);
-      setDefaultValueIfNecessary(action, 'type', 'bulk');
-      setDefaultValueIfNecessary(action, 'download', false);
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'endpoint', `/forest/actions/${parameterize(action.name)}`);
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'httpMethod', 'POST');
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'fields', []);
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'redirect', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'baseUrl', null);
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'type', 'bulk');
+      SchemaFileUpdater.setDefaultValueIfNecessary(action, 'download', false);
 
       // NOTICE: Set a position to the Smart Actions fields.
       action.fields = action.fields.filter((field) => field.field);
@@ -88,67 +93,80 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
         if (field.defaultValue === undefined) {
           field.defaultValue = null;
         }
-        setDefaultValueIfNecessary(field, 'type', 'String');
-        setDefaultValueIfNecessary(field, 'isRequired', false);
-        setDefaultValueIfNecessary(field, 'description', null);
-        setDefaultValueIfNecessary(field, 'reference', null);
-        setDefaultValueIfNecessary(field, 'enums', null);
-        setDefaultValueIfNecessary(field, 'widget', null);
+        SchemaFileUpdater.setDefaultValueIfNecessary(field, 'type', 'String');
+        SchemaFileUpdater.setDefaultValueIfNecessary(field, 'isRequired', false);
+        SchemaFileUpdater.setDefaultValueIfNecessary(field, 'description', null);
+        SchemaFileUpdater.setDefaultValueIfNecessary(field, 'reference', null);
+        SchemaFileUpdater.setDefaultValueIfNecessary(field, 'enums', null);
+        SchemaFileUpdater.setDefaultValueIfNecessary(field, 'widget', null);
       });
     });
 
     return actions;
-  };
+  }
 
-  const cleanCollection = (collection) => {
+  cleanCollection(collection) {
     if (_.isNil(collection.isSearchable)) {
       collection.isSearchable = true;
     }
-    setDefaultValueIfNecessary(collection, 'onlyForRelationships', false);
-    setDefaultValueIfNecessary(collection, 'isVirtual', false);
-    setDefaultValueIfNecessary(collection, 'isReadOnly', false);
-    setDefaultValueIfNecessary(collection, 'paginationType', 'page');
-    setDefaultValueIfNecessary(collection, 'icon', null);
-    setDefaultValueIfNecessary(collection, 'nameOld', collection.name);
-    setDefaultValueIfNecessary(collection, 'integration', null);
-    setDefaultValueIfNecessary(collection, 'fields', []);
-    setDefaultValueIfNecessary(collection, 'segments', []);
-    setDefaultValueIfNecessary(collection, 'actions', []);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'onlyForRelationships', false);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'isVirtual', false);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'isReadOnly', false);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'paginationType', 'page');
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'icon', null);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'nameOld', collection.name);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'integration', null);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'fields', []);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'segments', []);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'actions', []);
 
-    collection.fields = cleanFields(collection.fields);
-    collection.segments = cleanSegments(collection.segments);
-    collection.actions = cleanActions(collection.actions);
-  };
+    collection.fields = SchemaFileUpdater.cleanFields(collection.fields);
+    collection.segments = SchemaFileUpdater.cleanSegments(collection.segments);
+    collection.actions = this.cleanActions(collection.actions);
+  }
 
-  this.perform = () => {
+  static formatFields(collection, serializerOptions) {
+    collection.fields = collection.fields || [];
+    collection.fields = collection.fields.map((field) => {
+      const fieldFormatted = SchemaFileUpdater
+        .formatObject(field, serializerOptions.fields.attributes);
+
+      fieldFormatted.validations = fieldFormatted.validations.map((validation) =>
+        SchemaFileUpdater.formatObject(validation, serializerOptions.validations.attributes));
+      return fieldFormatted;
+    });
+    collection.fields = _.sortBy(collection.fields, ['field', 'type']);
+  }
+
+  static formatSegments(collection, serializerOptions) {
+    collection.segments = collection.segments || [];
+    collection.segments = collection.segments.map((segment) =>
+      SchemaFileUpdater.formatObject(segment, serializerOptions.segments.attributes));
+    collection.segments = _.sortBy(collection.segments, ['name']);
+  }
+
+  static formatActions(collection, serializerOptions) {
+    collection.actions = collection.actions || [];
+    collection.actions = collection.actions.map((action) => {
+      const actionFormatted = SchemaFileUpdater
+        .formatObject(action, serializerOptions.actions.attributes);
+      actionFormatted.fields = actionFormatted.fields || [];
+      actionFormatted.fields = actionFormatted.fields.map((field) =>
+        SchemaFileUpdater.formatObject(field, serializerOptions.actions.fields.attributes));
+      return actionFormatted;
+    });
+    collection.actions = _.sortBy(collection.actions, ['name']);
+  }
+
+  update(filename, collections, meta, serializerOptions) {
     collections = collections.map((collection) => {
-      cleanCollection(collection);
-      const collectionFormatted = formatObject(collection, serializerOptions.attributes);
+      this.cleanCollection(collection);
+      const collectionFormatted = SchemaFileUpdater
+        .formatObject(collection, serializerOptions.attributes);
 
-      collectionFormatted.fields = collectionFormatted.fields || [];
-      collectionFormatted.fields = collectionFormatted.fields.map((field) => {
-        const fieldFormatted = formatObject(field, serializerOptions.fields.attributes);
-
-        fieldFormatted.validations = fieldFormatted.validations.map((validation) =>
-          formatObject(validation, serializerOptions.validations.attributes));
-        return fieldFormatted;
-      });
-      collectionFormatted.fields = _.sortBy(collectionFormatted.fields, ['field', 'type']);
-
-      collectionFormatted.segments = collectionFormatted.segments || [];
-      collectionFormatted.segments = collectionFormatted.segments.map((segment) =>
-        formatObject(segment, serializerOptions.segments.attributes));
-      collectionFormatted.segments = _.sortBy(collectionFormatted.segments, ['name']);
-
-      collectionFormatted.actions = collectionFormatted.actions || [];
-      collectionFormatted.actions = collectionFormatted.actions.map((action) => {
-        const actionFormatted = formatObject(action, serializerOptions.actions.attributes);
-        actionFormatted.fields = actionFormatted.fields || [];
-        actionFormatted.fields = actionFormatted.fields.map((field) =>
-          formatObject(field, serializerOptions.actions.fields.attributes));
-        return actionFormatted;
-      });
-      collectionFormatted.actions = _.sortBy(collectionFormatted.actions, ['name']);
+      SchemaFileUpdater.formatFields(collectionFormatted, serializerOptions);
+      SchemaFileUpdater.formatSegments(collectionFormatted, serializerOptions);
+      SchemaFileUpdater.formatActions(collectionFormatted, serializerOptions);
 
       return collectionFormatted;
     });
@@ -156,9 +174,9 @@ function SchemaFileUpdater(filename, collections, meta, serializerOptions) {
       collection1.name.localeCompare(collection2.name));
 
     const schema = { collections, meta };
-    fs.writeFileSync(filename, prettyPrint(schema));
+    this.writeFileSync(filename, prettyPrint(schema));
     return schema;
-  };
+  }
 }
 
 module.exports = SchemaFileUpdater;
