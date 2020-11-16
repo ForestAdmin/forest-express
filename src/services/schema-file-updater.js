@@ -100,9 +100,19 @@ class SchemaFileUpdater {
         SchemaFileUpdater.setDefaultValueIfNecessary(field, 'enums', null);
         SchemaFileUpdater.setDefaultValueIfNecessary(field, 'widget', null);
       });
+
+      SchemaFileUpdater.cleanActionHooks(action);
     });
 
     return actions;
+  }
+
+  static cleanActionHooks(action) {
+    const load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
+    const change = action.hooks && action.hooks.change && typeof action.hooks.change === 'object'
+      ? Object.keys(action.hooks.change)
+      : [];
+    action.hooks = { load, change };
   }
 
   cleanCollection(collection) {
