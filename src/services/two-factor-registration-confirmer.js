@@ -10,11 +10,10 @@ function TwoFactorRegistrationConfirmer({
   email,
   forestToken,
 }) {
-  const { forestUrlGetter } = context.inject();
+  const { forestUrl } = context.inject();
 
   this.perform = () =>
     new P((resolve, reject) => {
-      const forestUrl = forestUrlGetter();
       const bodyData = { useGoogleAuthentication };
 
       if (useGoogleAuthentication) {

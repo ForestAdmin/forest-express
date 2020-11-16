@@ -1,7 +1,6 @@
 const ApplicationContext = require('./application-context');
 
 const errorMessages = require('../utils/error-messages');
-const forestUrlGetter = require('../utils/forest-url-getter');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -10,6 +9,10 @@ const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
+
+function initValue(context) {
+  context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
+}
 
 /**
  * @typedef {{
@@ -33,7 +36,6 @@ const AuthorizationFinder = require('../services/authorization-finder');
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
-  context.addInstance('forestUrlGetter', forestUrlGetter);
 }
 
 /**
@@ -57,6 +59,7 @@ function initContext() {
   /** @type {ApplicationContext<Context>} */
   const context = new ApplicationContext();
 
+  initValue(context);
   initUtils(context);
   initServices(context);
 

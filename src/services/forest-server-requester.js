@@ -5,12 +5,11 @@ const errorMessages = require('../utils/error-messages');
 const context = require('../context');
 
 function perform(route, environmentSecret, queryParameters, headers) {
-  const { forestUrlGetter } = context.inject();
-  const urlService = forestUrlGetter();
+  const { forestUrl } = context.inject();
 
   return new P((resolve, reject) => {
     const request = superagent
-      .get(urlService + route)
+      .get(forestUrl + route)
       .set('forest-secret-key', environmentSecret);
 
     if (headers) {

@@ -3,13 +3,11 @@ const context = require('../context');
 const logger = require('./logger');
 
 function ApimapSender(envSecret, apimap) {
-  const { forestUrlGetter } = context.inject();
+  const { forestUrl } = context.inject();
 
   this.perform = () => {
-    const urlService = forestUrlGetter();
-
     request
-      .post(`${urlService}/forest/apimaps`)
+      .post(`${forestUrl}/forest/apimaps`)
       .send(apimap)
       .set('forest-secret-key', envSecret)
       .end((error, result) => {
