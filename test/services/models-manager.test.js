@@ -47,7 +47,7 @@ describe('services > models-manager', () => {
   });
 
   describe('when using includedModels', () => {
-    it('should return only wanted models', () => {
+    it('should return only included models', () => {
       expect.assertions(1);
       const configStore = {
         lianaOptions: {
@@ -76,7 +76,7 @@ describe('services > models-manager', () => {
   });
 
   describe('when using excludedModels', () => {
-    it('should return only wanted models', () => {
+    it('should return models that were not excluded', () => {
       expect.assertions(1);
       const configStore = {
         lianaOptions: {
