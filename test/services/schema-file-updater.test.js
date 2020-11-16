@@ -165,12 +165,14 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format action hooks', () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     const INVALID_HOOKS = 'Action With Invalid Hooks';
     const INVALID_LOAD_HOOK = 'Action With Invalid Load Hook';
     const INVALID_CHANGE_HOOK = 'Action With Invalid Change Hook';
     const VALID_HOOKS = 'Action With Valid Hooks';
+    const VALID_ONLY_LOAD_HOOK = 'Action With Valid Only a Load Hook';
+    const VALID_ONLY_CHANGE_HOOK = 'Action With Valid Only a Change Hook';
 
     const schema = buildSchema([{
       name: 'collectionName',
@@ -201,16 +203,44 @@ describe('services > schema-file-updater', () => {
             },
           },
         },
+        {
+          name: VALID_ONLY_LOAD_HOOK,
+          type: 'single',
+          hooks: { load: () => { } },
+        },
+        {
+          name: VALID_ONLY_CHANGE_HOOK,
+          type: 'single',
+          hooks: {
+            change: {
+              foo: () => { },
+              bar: () => { },
+            },
+          },
+        },
       ],
     }]);
 
     const { actions } = schema.collections[0];
     const findAction = (name) => actions.find((action) => action.name === name);
 
-    expect(findAction(INVALID_HOOKS)).toMatchObject({ hooks: { load: false, change: [] } });
-    expect(findAction(INVALID_LOAD_HOOK)).toMatchObject({ hooks: { load: false, change: ['foo'] } });
-    expect(findAction(INVALID_CHANGE_HOOK)).toMatchObject({ hooks: { load: true, change: [] } });
-    expect(findAction(VALID_HOOKS)).toMatchObject({ hooks: { load: true, change: ['foo', 'bar'] } });
+    expect(findAction(INVALID_HOOKS))
+      .toMatchObject({ hooks: { load: false, change: [] } });
+
+    expect(findAction(INVALID_LOAD_HOOK))
+      .toMatchObject({ hooks: { load: false, change: ['foo'] } });
+
+    expect(findAction(INVALID_CHANGE_HOOK))
+      .toMatchObject({ hooks: { load: true, change: [] } });
+
+    expect(findAction(VALID_HOOKS))
+      .toMatchObject({ hooks: { load: true, change: ['foo', 'bar'] } });
+
+    expect(findAction(VALID_ONLY_LOAD_HOOK))
+      .toMatchObject({ hooks: { load: true, change: [] } });
+
+    expect(findAction(VALID_ONLY_CHANGE_HOOK))
+      .toMatchObject({ hooks: { load: false, change: ['foo', 'bar'] } });
   });
 
   it('should format segments', () => {
