@@ -22,7 +22,11 @@ module.exports = async function createServer(envSecret, authSecret) {
     opts: {
       envSecret,
       authSecret,
-      models: {},
+      connections: {
+        db1: {
+          models: [],
+        },
+      },
     },
   };
 

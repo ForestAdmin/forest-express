@@ -6,12 +6,13 @@ describe('services > models-manager', () => {
       lianaOptions: {
         includedModels: [],
         excludedModels: [],
-        models: {
-          model1: {
-            name: 'model1',
-          },
-          model2: {
-            name: 'model2',
+        connections: {
+          db1: {
+            models: [{
+              name: 'model1',
+            }, {
+              name: 'model2',
+            }],
           },
         },
       },
@@ -53,12 +54,13 @@ describe('services > models-manager', () => {
         lianaOptions: {
           includedModels: ['model1'],
           excludedModels: [],
-          models: {
-            model1: {
-              name: 'model1',
-            },
-            model2: {
-              name: 'model2',
+          connections: {
+            db1: {
+              models: [{
+                name: 'model1',
+              }, {
+                name: 'model2',
+              }],
             },
           },
         },
@@ -82,12 +84,13 @@ describe('services > models-manager', () => {
         lianaOptions: {
           includedModels: [],
           excludedModels: ['model1'],
-          models: {
-            model1: {
-              name: 'model1',
-            },
-            model2: {
-              name: 'model2',
+          connections: {
+            db1: {
+              models: [{
+                name: 'model1',
+              }, {
+                name: 'model2',
+              }],
             },
           },
         },
@@ -111,12 +114,13 @@ describe('services > models-manager', () => {
         lianaOptions: {
           includedModels: ['model1'],
           excludedModels: ['model1'],
-          models: {
-            model1: {
-              name: 'model1',
-            },
-            model2: {
-              name: 'model2',
+          connections: {
+            db1: {
+              models: [{
+                name: 'model1',
+              }, {
+                name: 'model2',
+              }],
             },
           },
         },

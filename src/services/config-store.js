@@ -47,16 +47,16 @@ class ConfigStore {
       throw new Error('Your envSecret seems incorrect (64 characters required). Please check it is correctly set in your .env file.');
     }
 
-    if (!options.models || !options.models.constructor.toString().match('Object')) {
-      throw new Error('The toBeDefined option seem to be incorrect. Can you check that the option is an object and contains all models inside in the Forest initialization?');
+    if (!options.connections || !options.connections.constructor.toString().match('Object')) {
+      throw new Error('The connections option seems incorectly set. Please check it is an object of named connections.');
     }
 
     if (options.includedModels && !Array.isArray(options.includedModels)) {
-      throw new Error('The includedModels option seem to be incorect. Can you check it is an array of model name to includes in the Forest initialization?');
+      throw new Error('The includedModels option seems incorrectly set. Please check it is an array of model names.');
     }
 
     if (options.excludedModels && !Array.isArray(options.excludedModels)) {
-      throw new Error('The excludedModels option seem to be incorect. Can you check it is an array of model name to excludes in the Forest initialization?');
+      throw new Error('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
     }
 
     if (!this.isConfigDirExist()) {
@@ -72,7 +72,7 @@ class ConfigStore {
     }
 
     if (options.includedModels && options.excludedModels) {
-      this.logger.warn('You use includedModels and excludedModels options at the same time. Only the includedModels option goes considered.');
+      this.logger.warn('includedModels and excludedModels options cannot be used simultaneously. Only the includedModels option will be taken into account.');
     }
   }
 }

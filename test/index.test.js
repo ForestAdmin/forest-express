@@ -26,13 +26,19 @@ describe('liana > index', () => {
       opts: {
         envSecret,
         authSecret,
-        models: {},
+        connections: {
+          db1: {
+            models: {},
+          },
+        },
         ...extraConfiguration,
       },
+      getModelName: (model) => model.modelName,
       getLianaName: () => {},
       getLianaVersion: () => {},
       getOrmVersion: () => {},
       getDatabaseType: () => {},
+      SchemaAdapter: () => Promise.resolve({}),
       ...extraImplementation,
     });
 
@@ -109,9 +115,11 @@ describe('liana > index', () => {
         const initForestAppWithModels = () => {
           const forestExpress = resetRequireIndex();
           const implementation = createFakeImplementation({
-            models: {
-              modelFoo: {
-                modelName: 'modelFoo',
+            connections: {
+              db1: {
+                models: [{
+                  modelName: 'modelFoo',
+                }],
               },
             },
           }, {
