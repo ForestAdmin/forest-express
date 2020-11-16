@@ -10,6 +10,7 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
+const stringUtils = require('../utils/string');
 
 /**
  * @typedef {{
@@ -46,6 +47,7 @@ function initServices(context) {
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
+  context.addInstance('stringUtils', stringUtils);
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
