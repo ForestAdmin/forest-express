@@ -27,7 +27,7 @@ class RecordsGetter extends AbstractRecordService {
     const recordsGetter = async (attributes) => {
       const { parentCollectionId, parentCollectionName, parentAssociationName } = attributes;
       if (isRelatedData(attributes)) {
-        const parentModel = this.Implementation.getModels()[parentCollectionName];
+        const parentModel = this.modelsManager.getModels()[parentCollectionName];
         const [records] = await new this.Implementation.HasManyGetter(
           parentModel,
           this.model,
@@ -48,7 +48,7 @@ class RecordsGetter extends AbstractRecordService {
     const recordsCounter = async (attributes) => {
       const { parentCollectionId, parentCollectionName, parentAssociationName } = attributes;
       if (isRelatedData(attributes)) {
-        const parentModel = this.Implementation.getModels()[parentCollectionName];
+        const parentModel = this.modelsManager.getModels()[parentCollectionName];
         return new this.Implementation.HasManyGetter(
           parentModel,
           this.model,

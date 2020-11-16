@@ -28,7 +28,7 @@ describe('liana > index', () => {
         authSecret,
         ...extraConfiguration,
       },
-      getModels: () => {},
+      getModels: () => [],
       getLianaName: () => {},
       getLianaVersion: () => {},
       getOrmVersion: () => {},

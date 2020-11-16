@@ -9,8 +9,10 @@ const CloseioCustomerLeadGetter = require('./services/closeio-customer-lead-gett
 const CloseioLeadCreator = require('./services/closeio-lead-creator');
 const serializeCloseioLeads = require('./serializers/closeio-leads');
 const serializeCloseioLeadEmails = require('./serializers/closeio-lead-emails');
+const context = require('../../context');
 
 module.exports = function Routes(app, model, Implementation, opts) {
+  const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -24,7 +26,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
   if (integrationInfo) {
     const integrationValues = integrationInfo.split('.');
     integrationInfo = {
-      collection: Implementation.getModels()[integrationValues[0]],
+      collection: modelsManager.getModels()[integrationValues[0]],
       field: integrationValues[1],
     };
   }

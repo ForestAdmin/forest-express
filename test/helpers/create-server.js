@@ -25,7 +25,7 @@ module.exports = async function createServer(envSecret, authSecret) {
     },
   };
 
-  implementation.getModels = () => {};
+  implementation.getModels = () => [];
   implementation.getLianaName = () => {};
   implementation.getLianaVersion = () => {};
   implementation.getOrmVersion = () => {};

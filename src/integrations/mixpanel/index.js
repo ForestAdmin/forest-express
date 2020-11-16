@@ -2,8 +2,10 @@ const _ = require('lodash');
 const logger = require('../../services/logger');
 const Setup = require('./setup');
 const Routes = require('./routes');
+const context = require('../../context');
 
 function Checker(options, Implementation) {
+  const { modelsManager } = context.inject();
   let integrationValid = false;
 
   function hasIntegration() {
@@ -18,7 +20,7 @@ function Checker(options, Implementation) {
   }
 
   function isMappingValid() {
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
     let mappingValid = true;
     _.map(options.integrations.mixpanel.mapping, (mappingValue) => {
       const collectionName = mappingValue.split('.')[0];
@@ -43,7 +45,7 @@ function Checker(options, Implementation) {
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return false; }
 
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
 
     const collectionModelNames = _.map(integration.mapping, (mappingValue) => {
       const collectionName = mappingValue.split('.')[0];
