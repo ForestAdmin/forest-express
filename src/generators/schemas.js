@@ -1,8 +1,7 @@
 const P = require('bluebird');
-const _ = require('lodash');
 
 function isArray(object) {
-  return object && _.isArray(object);
+  return object && Array.isArray(object);
 }
 
 module.exports = {
@@ -24,16 +23,14 @@ module.exports = {
             if (that.schemas[modelName]) {
               const currentSchema = that.schemas[modelName];
 
-              schema.fields = _.concat(schema.fields || [], currentSchema.fields || []);
-              schema.actions = _.concat(schema.actions || [], currentSchema.actions || []);
-              schema.segments = _.concat(schema.segments || [], currentSchema.segments || []);
+              schema.fields = (schema.fields || []).concat(currentSchema.fields || []);
+              schema.actions = (schema.actions || []).concat(currentSchema.actions || []);
+              schema.segments = (schema.segments || []).concat(currentSchema.segments || []);
 
               // NOTICE: Set this value only if searchFields property as been declared somewhere.
               if (isArray(schema.searchFields) || isArray(currentSchema.searchFields)) {
-                schema.searchFields = _.concat(
-                  schema.searchFields || [],
-                  currentSchema.searchFields || [],
-                );
+                schema.searchFields = (schema.searchFields || [])
+                  .concat(currentSchema.searchFields || []);
               }
             }
 

@@ -10,6 +10,7 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
+const schemasGenerator = require('../generators/schemas');
 
 /**
  * @typedef {{
@@ -24,6 +25,7 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
+ *  schemasGenerator: import('../generators/schemas');
  * }} Services
  *
  * @typedef {Utils & Services} Context
@@ -46,6 +48,7 @@ function initServices(context) {
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
+  context.addInstance('schemasGenerator', schemasGenerator);
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
