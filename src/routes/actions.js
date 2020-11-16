@@ -1,9 +1,11 @@
-const _ = require('lodash');
-const { parameterize } = require('../utils/string');
-const auth = require('../services/auth');
-const path = require('../services/path');
-const logger = require('../services/logger');
-const Schemas = require('../generators/schemas');
+// I need to migrate this class to the new DI framework.
+// Still I need to prepare other services first.
+const _ = require('lodash'); // I would love to remove it.
+const { parameterize } = require('../utils/string'); // In progress see: https://github.com/ForestAdmin/forest-express/pull/537
+const auth = require('../services/auth'); // Can be injected "manually" in perform without redesigning.
+const path = require('../services/path'); // Is a service.
+const logger = require('../services/logger'); // Is a service.
+const Schemas = require('../generators/schemas'); // TODO
 
 module.exports = function Actions(app, model, Implementation, integrator, options) {
   const modelName = Implementation.getModelName(model);
