@@ -5,7 +5,7 @@ const { parameterize } = require('../utils/string'); // In progress see: https:/
 const auth = require('../services/auth'); // Can be injected "manually" in perform without redesigning.
 const path = require('../services/path'); // Is a service.
 const logger = require('../services/logger'); // Is a service.
-const Schemas = require('../generators/schemas'); // TODO
+const Schemas = require('../generators/schemas'); // In progress see: https://github.com/ForestAdmin/forest-express/pull/539
 
 module.exports = function Actions(app, model, Implementation, integrator, options) {
   const modelName = Implementation.getModelName(model);
