@@ -1,5 +1,5 @@
 const { compose } = require('compose-middleware');
-const error = require('./error');
+const error = require('../utils/error');
 const logger = require('./logger');
 const createIpAuthorizer = require('../middlewares/ip-whitelist');
 
