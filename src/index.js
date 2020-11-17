@@ -311,13 +311,14 @@ exports.init = async (Implementation) => {
         configStore.integrator,
         configStore.lianaOptions,
       ).perform();
-      new ActionsRoutes(
+      new ActionsRoutes().perform(
         app,
         model,
         configStore.Implementation,
-        configStore.integrator,
         configStore.lianaOptions,
-      ).perform();
+        auth,
+        Schemas.schemas,
+      );
       new StatRoutes(
         app,
         model,
