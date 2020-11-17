@@ -31,13 +31,15 @@ class Actions {
   perform(app, model, Implementation, options, auth, schemas) {
     const modelName = Implementation.getModelName(model);
     const schema = schemas[modelName];
-    (schema.actions || [])
+
+    if (!schema.actions) return;
+
+    schema.actions
       .filter((action) => action.values)
       .forEach((action) => {
         const route = action.endpoint
           ? this.path.generateForSmartActionCustomEndpoint(`${action.endpoint}/values`, options)
           : this.path.generate(`actions/${this.stringUtils.parameterize(action.name)}/values`, options);
-
         app.post(route, auth.ensureAuthenticated, this.getFormValuesController(action));
       });
   }
