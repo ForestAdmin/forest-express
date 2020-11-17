@@ -14,10 +14,6 @@ const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const schemasGenerator = require('../generators/schemas');
 
-function initValue(context) {
-  context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
-}
-
 /**
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
@@ -72,7 +68,6 @@ function initContext() {
   /** @type {ApplicationContext<Context>} */
   const context = new ApplicationContext();
 
-  initValue(context);
   initUtils(context);
   initServices(context);
 

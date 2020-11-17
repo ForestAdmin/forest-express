@@ -1,15 +1,15 @@
 const P = require('bluebird');
 const superagent = require('superagent');
 const VError = require('verror');
+const ServiceUrlGetter = require('./service-url-getter');
 const errorMessages = require('../utils/error-messages');
-const context = require('../context');
 
 function perform(route, environmentSecret, queryParameters, headers) {
-  const { forestUrl } = context.inject();
+  const urlService = new ServiceUrlGetter().perform();
 
   return new P((resolve, reject) => {
     const request = superagent
-      .get(forestUrl + route)
+      .get(urlService + route)
       .set('forest-secret-key', environmentSecret);
 
     if (headers) {

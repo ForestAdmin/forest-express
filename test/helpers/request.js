@@ -1,10 +1,10 @@
 const request = require('supertest');
 const nock = require('nock');
-const context = require('../../src/context');
+const ServiceUrlGetter = require('../../src/services/service-url-getter');
 
-const { forestUrl } = context.inject();
+const urlService = new ServiceUrlGetter().perform();
 
-nock(forestUrl)
+nock(urlService)
   .persist()
   .get('/liana/v1/ip-whitelist-rules')
   .reply(200, {
