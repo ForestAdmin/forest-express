@@ -5,7 +5,6 @@ describe('services > apimap-sender', () => {
   const context = new ApplicationContext();
   const superagentRequestEndFunction = jest.fn();
   context.init((ctx) => ctx
-    .addInstance('forestUrlGetter', jest.fn())
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
     .addInstance('superagentRequest', {
       post: () => ({ send: () => ({ set: () => ({ end: superagentRequestEndFunction }) }) }),
@@ -16,7 +15,7 @@ describe('services > apimap-sender', () => {
 
 
   describe('send', () => {
-    it('should post content then get response from forestUrlGetter', () => {
+    it('should post content then get response from forestUrl', () => {
       expect.assertions(1);
       apimapSender.send();
       expect(superagentRequestEndFunction).toHaveBeenCalledTimes(1);
@@ -51,25 +50,25 @@ describe('services > apimap-sender', () => {
     it('should log a warning when having a 0 status', () => {
       expect.assertions(1);
       apimapSender.handleResult({ status: 0 });
-      expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Are you online'));
+      expect(logger.warn).toHaveBeenCalledWith('Cannot send the apimap to Forest. Are you online?');
     });
 
     it('should log an error when having a 404 status', () => {
       expect.assertions(1);
       apimapSender.handleResult({ status: 404 });
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('Cannot find'));
+      expect(logger.error).toHaveBeenCalledWith('Cannot find the project related to the envSecret you configured. Can you check on Forest that you copied it properly in the Forest initialization?');
     });
 
     it('should log a warning when having a 503 status', () => {
       expect.assertions(1);
       apimapSender.handleResult({ status: 503 });
-      expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Forest is in maintenance'));
+      expect(logger.warn).toHaveBeenCalledWith('Forest is in maintenance for a few minutes. We are upgrading your experience in the forest. We just need a few more minutes to get it right.');
     });
 
     it('should log an error when having an unhandled status', () => {
       expect.assertions(1);
       apimapSender.handleResult({ status: 12345 });
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('An error occured'));
+      expect(logger.error).toHaveBeenCalledWith('An error occured with the apimap sent to Forest. Please contact support@forestadmin.com for further investigations.');
     });
   });
 });

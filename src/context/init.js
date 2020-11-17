@@ -32,9 +32,14 @@ function initValue(context) {
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
+ *  apiMapSender: import('../services/apimap-sender');
  * }} Services
  *
- * @typedef {Utils & Services} Context
+ * @typedef {{
+ *  superagentRequest: import('superagent');
+ * }} Externals
+ *
+ * @typedef {Utils & Services & Externals} Context
  */
 
 /**
@@ -64,6 +69,13 @@ function initServices(context) {
 }
 
 /**
+ * @param {ApplicationContext} context
+ */
+function initExternals(context) {
+  context.addInstance('superagentRequest', superagentRequest);
+}
+
+/**
  * @returns {ApplicationContext<Context>}
  */
 function initContext() {
@@ -73,6 +85,7 @@ function initContext() {
   initValue(context);
   initUtils(context);
   initServices(context);
+  initExternals(context);
 
   return context;
 }
