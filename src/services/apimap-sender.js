@@ -1,6 +1,6 @@
 class ApimapSender {
-  constructor({ forestUrlGetter, logger, superagentRequest }) {
-    this.forestUrlGetter = forestUrlGetter;
+  constructor({ forestUrl, logger, superagentRequest }) {
+    this.forestUrl = forestUrl;
     this.superagentRequest = superagentRequest;
     this.logger = logger;
   }
@@ -24,10 +24,10 @@ class ApimapSender {
   }
 
   send(envSecret, apimap) {
-    const urlService = this.forestUrlGetter;
+    const forestUrl = this.forestUrl;
 
     this.superagentRequest
-      .post(`${urlService}/forest/apimaps`)
+      .post(`${forestUrl}/forest/apimaps`)
       .send(apimap)
       .set('forest-secret-key', envSecret)
       .end((_error, result) => {

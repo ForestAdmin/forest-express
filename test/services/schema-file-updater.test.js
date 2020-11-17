@@ -1,12 +1,13 @@
-const fs = require('fs');
-
-const logger = require('../../src/services/logger');
 const SchemaFileUpdater = require('../../src/services/schema-file-updater');
 const SchemaSerializer = require('../../src/serializers/schema');
+const ApplicationContext = require('../../src/context/application-context');
 
 describe('services > schema-file-updater', () => {
-  const fsWriteFileSyncSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation();
-  const loggerWarnSpy = jest.spyOn(logger, 'warn');
+  const context = new ApplicationContext();
+  context.init((ctx) => ctx
+    .addInstance('writeFileSync', jest.fn())
+    .addInstance('logger', { warn: jest.fn() })
+    .addClass(SchemaFileUpdater));
 
   const meta = {
     database_type: 'some-db-type',
@@ -20,15 +21,17 @@ describe('services > schema-file-updater', () => {
   };
   const schemaSerializer = new SchemaSerializer();
   const { options: serializerOptions } = schemaSerializer;
+  const { schemaFileUpdater } = context.inject();
   const buildSchema = (collection, metas = meta) =>
-    new SchemaFileUpdater('test.json', collection, metas, serializerOptions).perform();
+    schemaFileUpdater.update('test.json', collection, metas, serializerOptions);
 
   // NOTICE: Expecting `fs.writeFileSync` second parameter to be valid JSON.
   it('should call fs.writeFileSync with a valid JSON as data', () => {
     expect.assertions(2);
+    const { writeFileSync } = context.inject();
     buildSchema([], {});
-    expect(fsWriteFileSyncSpy).toHaveBeenCalledTimes(1);
-    const jsonStringSchema = fsWriteFileSyncSpy.mock.calls[0][1];
+    expect(writeFileSync).toHaveBeenCalledTimes(1);
+    const jsonStringSchema = writeFileSync.mock.calls[0][1];
     expect(() => JSON.parse(jsonStringSchema)).not.toThrow();
   });
 
@@ -146,6 +149,7 @@ describe('services > schema-file-updater', () => {
       redirect: null,
       download: false,
       fields: [],
+      hooks: { load: false, change: [] },
     });
     expect(schema.collections[0].actions[1].fields[0]).toStrictEqual({
       field: 'someOtherField',
@@ -158,6 +162,85 @@ describe('services > schema-file-updater', () => {
       position: 0,
       widget: null,
     });
+  });
+
+  it('should format action hooks', () => {
+    expect.assertions(6);
+
+    const INVALID_HOOKS = 'Action With Invalid Hooks';
+    const INVALID_LOAD_HOOK = 'Action With Invalid Load Hook';
+    const INVALID_CHANGE_HOOK = 'Action With Invalid Change Hook';
+    const VALID_HOOKS = 'Action With Valid Hooks';
+    const VALID_ONLY_LOAD_HOOK = 'Action With Only a Load Hook';
+    const VALID_ONLY_CHANGE_HOOK = 'Action With Only a Change Hook';
+
+    const schema = buildSchema([{
+      name: 'collectionName',
+      actions: [
+        {
+          name: INVALID_HOOKS,
+          type: 'single',
+          hooks: { load: 'oops', change: null },
+        },
+        {
+          name: INVALID_LOAD_HOOK,
+          type: 'single',
+          hooks: { load: 'oops', change: { foo: () => { } } },
+        },
+        {
+          name: INVALID_CHANGE_HOOK,
+          type: 'single',
+          hooks: { load: () => { }, change: null },
+        },
+        {
+          name: VALID_HOOKS,
+          type: 'single',
+          hooks: {
+            load: () => { },
+            change: {
+              foo: () => { },
+              bar: () => { },
+            },
+          },
+        },
+        {
+          name: VALID_ONLY_LOAD_HOOK,
+          type: 'single',
+          hooks: { load: () => { } },
+        },
+        {
+          name: VALID_ONLY_CHANGE_HOOK,
+          type: 'single',
+          hooks: {
+            change: {
+              foo: () => { },
+              bar: () => { },
+            },
+          },
+        },
+      ],
+    }]);
+
+    const { actions } = schema.collections[0];
+    const findAction = (name) => actions.find((action) => action.name === name);
+
+    expect(findAction(INVALID_HOOKS))
+      .toMatchObject({ hooks: { load: false, change: [] } });
+
+    expect(findAction(INVALID_LOAD_HOOK))
+      .toMatchObject({ hooks: { load: false, change: ['foo'] } });
+
+    expect(findAction(INVALID_CHANGE_HOOK))
+      .toMatchObject({ hooks: { load: true, change: [] } });
+
+    expect(findAction(VALID_HOOKS))
+      .toMatchObject({ hooks: { load: true, change: ['foo', 'bar'] } });
+
+    expect(findAction(VALID_ONLY_LOAD_HOOK))
+      .toMatchObject({ hooks: { load: true, change: [] } });
+
+    expect(findAction(VALID_ONLY_CHANGE_HOOK))
+      .toMatchObject({ hooks: { load: false, change: ['foo', 'bar'] } });
   });
 
   it('should format segments', () => {
@@ -213,6 +296,7 @@ describe('services > schema-file-updater', () => {
 
   it('should set to null invalid action type', () => {
     expect.assertions(2);
+    const { logger } = context.inject();
     const schema = buildSchema([{
       name: 'collectionName',
       actions: [
@@ -220,20 +304,21 @@ describe('services > schema-file-updater', () => {
       ],
     }]);
     expect(schema.collections[0].actions[0].type).toBeNull();
-    expect(loggerWarnSpy).toHaveBeenCalledWith(
+    expect(logger.warn).toHaveBeenCalledWith(
       expect.stringMatching('Please set a valid Smart Action type'),
     );
   });
 
   it('should log if action.global=true is still used', () => {
     expect.assertions(1);
+    const { logger } = context.inject();
     buildSchema([{
       name: 'collectionName',
       actions: [
         { name: 'actionName', global: true },
       ],
     }]);
-    expect(loggerWarnSpy).toHaveBeenCalledWith(
+    expect(logger.warn).toHaveBeenCalledWith(
       expect.stringMatching('REMOVED OPTION: The support for Smart Action "global" option is now removed'),
     );
   });

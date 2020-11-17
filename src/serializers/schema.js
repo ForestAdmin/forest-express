@@ -64,6 +64,7 @@ function SchemaSerializer() {
         'redirect',
         'download',
         'fields',
+        'hooks',
       ],
       fields: {
         attributes: [
@@ -76,6 +77,12 @@ function SchemaSerializer() {
           'description',
           'position',
           'widget',
+        ],
+      },
+      hooks: {
+        attributes: [
+          'change',
+          'load',
         ],
       },
     },

@@ -1,10 +1,10 @@
 const nock = require('nock');
 const PermissionsChecker = require('../../src/services/permissions-checker');
-const forestUrlGetter = require('../../src/utils/forest-url-getter');
+const context = require('../../src/context/');
 
 describe('services > permissions', () => {
-  const urlService = forestUrlGetter();
-  const nockObj = nock(urlService);
+  const { forestUrl } = context.inject();
+  const nockObj = nock(forestUrl);
 
   describe('check permissions', () => {
     describe('with some good permissions data on rendering 1', () => {

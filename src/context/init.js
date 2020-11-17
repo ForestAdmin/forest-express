@@ -1,7 +1,8 @@
+const fs = require('fs');
 const superagentRequest = require('superagent');
 const ApplicationContext = require('./application-context');
 const errorMessages = require('../utils/error-messages');
-const forestUrlGetter = require('../utils/forest-url-getter');
+const stringUtils = require('../utils/string');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -11,10 +12,16 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapSender = require('../services/apimap-sender');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
+const SchemaFileUpdater = require('../services/schema-file-updater');
+
+function initValue(context) {
+  context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
+}
 
 /**
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
+ *  stringUtils: import('../utils/string');
  * }} Utils
  *
  * @typedef {{
@@ -24,6 +31,7 @@ const AuthorizationFinder = require('../services/authorization-finder');
  *  ipWhitelist: import('../services/ip-whitelist');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
+ *  schemaFileUpdater: import('../services/schema-file-updater');
  * }} Services
  *
  * @typedef {Utils & Services} Context
@@ -34,7 +42,7 @@ const AuthorizationFinder = require('../services/authorization-finder');
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
-  context.addInstance('forestUrlGetter', forestUrlGetter);
+  context.addInstance('stringUtils', stringUtils);
 }
 
 /**
@@ -47,10 +55,12 @@ function initServices(context) {
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('superagentRequest', superagentRequest);
+  context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
   context.addClass(ApimapSender);
+  context.addClass(SchemaFileUpdater);
 }
 
 /**
@@ -60,6 +70,7 @@ function initContext() {
   /** @type {ApplicationContext<Context>} */
   const context = new ApplicationContext();
 
+  initValue(context);
   initUtils(context);
   initServices(context);
 

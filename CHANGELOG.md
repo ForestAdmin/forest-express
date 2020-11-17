@@ -1,3 +1,10 @@
+# [7.6.0](https://github.com/ForestAdmin/forest-express/compare/v7.5.1...v7.6.0) (2020-11-16)
+
+
+### Features
+
+* **smart actions:** add hooks in schema file ([#535](https://github.com/ForestAdmin/forest-express/issues/535)) ([2b0283f](https://github.com/ForestAdmin/forest-express/commit/2b0283f0432b682dfef624fd06722ffae26348c5))
+
 ## [7.5.1](https://github.com/ForestAdmin/forest-express/compare/v7.5.0...v7.5.1) (2020-11-12)
 
 
