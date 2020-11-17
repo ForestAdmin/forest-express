@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ApplicationContext = require('./application-context');
 const errorMessages = require('../utils/error-messages');
+const stringUtils = require('../utils/string');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -10,11 +11,11 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
-const stringUtils = require('../utils/string');
 
 /**
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
+ *  stringUtils: import('../utils/string');
  * }} Utils
  *
  * @typedef {{
@@ -25,7 +26,6 @@ const stringUtils = require('../utils/string');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
- *  stringUtils: import('../utils/string');
  * }} Services
  *
  * @typedef {Utils & Services} Context
