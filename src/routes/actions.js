@@ -1,7 +1,7 @@
-const { inject } = require('../context');
+const context = require('../context');
 
 class Actions {
-  constructor({ logger, pathService, stringUtils } = inject()) {
+  constructor({ logger, pathService, stringUtils } = context.inject()) {
     this.path = pathService;
     this.logger = logger;
     this.stringUtils = stringUtils;
@@ -31,7 +31,7 @@ class Actions {
   perform(app, model, Implementation, options, auth, schemas) {
     const modelName = Implementation.getModelName(model);
     const schema = schemas[modelName];
-    schema.actions
+    (schema.actions || [])
       .filter((action) => action.values)
       .forEach((action) => {
         const route = action.endpoint
