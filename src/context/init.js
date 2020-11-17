@@ -36,6 +36,7 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
+  context.addInstance('stringUtils', stringUtils);
 }
 
 /**
@@ -48,7 +49,6 @@ function initServices(context) {
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
-  context.addInstance('stringUtils', stringUtils);
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
