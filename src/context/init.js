@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ApplicationContext = require('./application-context');
 const errorMessages = require('../utils/error-messages');
+const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
@@ -20,6 +21,7 @@ function initValue(context) {
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
+ *  errorUtils: import('../utils/error');
  * }} Utils
  *
  * @typedef {{
@@ -41,6 +43,7 @@ function initValue(context) {
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
   context.addInstance('stringUtils', stringUtils);
+  context.addInstance('errorUtils', errorUtils);
 }
 
 /**

@@ -1,5 +1,5 @@
 import moment from 'moment-timezone';
-import { NoMatchingOperatorError } from './error';
+import { NoMatchingOperatorError } from '../utils/error';
 
 const PERIODS = {
   yesterday: 'days',

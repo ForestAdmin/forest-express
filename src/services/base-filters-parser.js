@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { InvalidFiltersFormat } from './error';
+import { InvalidFiltersFormat } from '../utils/error';
 
 // NOTICE: Parse the given filters into a valid JSON.
 const parseFiltersString = (filtersString) => {
