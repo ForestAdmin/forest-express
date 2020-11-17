@@ -87,10 +87,10 @@ function initContext() {
   /** @type {ApplicationContext<Context>} */
   const context = new ApplicationContext();
 
+  initExternals(context);
   initValue(context);
   initUtils(context);
   initServices(context);
-  initExternals(context);
 
   return context;
 }
