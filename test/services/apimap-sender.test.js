@@ -66,7 +66,7 @@ describe('services > apimap-sender', () => {
       expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Forest is in maintenance'));
     });
 
-    it('should log an error when having a 12345 status', () => {
+    it('should log an error when having an unhandled status', () => {
       expect.assertions(1);
       apimapSender.handleResult({ status: 12345 });
       expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('An error occured'));
