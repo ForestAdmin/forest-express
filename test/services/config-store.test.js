@@ -77,7 +77,7 @@ describe('services > config-store', () => {
         envSecret,
       };
 
-      expect(() => configStore.validateOptions()).toThrow('The connections option seems incorectly set. Please check it is an object of named connections.');
+      expect(() => configStore.validateOptions()).toThrow('The connections option seems incorrectly set. Please check it is an object of named connections.');
     });
 
     it('should log an error when conncetions option is not an object', () => {
@@ -90,7 +90,7 @@ describe('services > config-store', () => {
         connections: [],
       };
 
-      expect(() => configStore.validateOptions()).toThrow('The connections option seems incorectly set. Please check it is an object of named connections.');
+      expect(() => configStore.validateOptions()).toThrow('The connections option seems incorrectly set. Please check it is an object of named connections.');
     });
 
     it('should log an error when using includedModels as not an array', () => {
