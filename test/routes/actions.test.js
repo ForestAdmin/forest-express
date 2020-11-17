@@ -1,7 +1,7 @@
 const ApplicationContext = require('../../src/context/application-context');
 const ActionsRoutes = require('../../src/routes/actions');
 
-function initContext() {
+function initContext(schema) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('logger', { warn: jest.fn() })
@@ -12,6 +12,7 @@ function initContext() {
     .addInstance('stringUtils', {
       parameterize: jest.fn((name) => name),
     })
+    .addInstance('schemasGenerator', { schemas: schema })
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })
     .addValue('implementation', { getModelName: jest.fn((m) => m.name) })
@@ -23,11 +24,9 @@ describe('routes > actions', () => {
   it('should not create a route when no actions is present', async () => {
     expect.assertions(2);
 
-    const { actions, model, implementation } = initContext().inject();
+    const { actions, model, implementation } = initContext({ users: {} }).inject();
 
-    const schemas = { users: {} };
-
-    await actions.perform({}, model, implementation, {}, {}, schemas);
+    await actions.perform({}, model, implementation, {}, {});
 
     expect(implementation.getModelName).toHaveReturnedWith('users');
     expect(implementation.getModelName).toHaveBeenCalledTimes(1);
@@ -36,13 +35,12 @@ describe('routes > actions', () => {
   it('should not create a route when no actions.values is present', async () => {
     expect.assertions(4);
 
+    const schema = { users: { actions: [{}, {}] } };
     const {
       actions, pathService, model, implementation,
-    } = initContext().inject();
+    } = initContext(schema).inject();
 
-    const schemas = { users: { actions: [{}, {}] } };
-
-    await actions.perform({}, model, implementation, {}, {}, schemas);
+    await actions.perform({}, model, implementation, {}, {});
 
     expect(implementation.getModelName).toHaveReturnedWith('users');
     expect(implementation.getModelName).toHaveBeenCalledTimes(1);
@@ -54,13 +52,12 @@ describe('routes > actions', () => {
     it('should create a route', async () => {
       expect.assertions(4);
 
+      const schema = { users: { actions: [{ values: jest.fn(() => ({ name: 'Jane' })), name: 'send invoice' }] } };
       const {
         actions, pathService, stringUtils, model, implementation, app,
-      } = initContext().inject();
+      } = initContext(schema).inject();
 
-      const schemas = { users: { actions: [{ values: jest.fn(() => ({ name: 'Jane' })), name: 'send invoice' }] } };
-
-      await actions.perform(app, model, implementation, {}, {}, schemas);
+      await actions.perform(app, model, implementation, {}, {});
 
       expect(stringUtils.parameterize).toHaveBeenCalledTimes(1);
       expect(pathService.generate).toHaveBeenCalledTimes(1);
@@ -73,16 +70,16 @@ describe('routes > actions', () => {
     it('should create a valid route callback', async () => {
       expect.assertions(4);
 
+      const schemas = { users: { actions: [{ values: jest.fn(() => ({ name: 'Jane' })), name: 'send invoice' }] } };
       const {
         actions, model, implementation, app,
-      } = initContext().inject();
+      } = initContext(schemas).inject();
 
-      const schemas = { users: { actions: [{ values: jest.fn(() => ({ name: 'Jane' })), name: 'send invoice' }] } };
       const request = { body: { data: { attributes: { values: { name: 'Jane' } } } } };
       const send = jest.fn((values) => values);
       const response = { status: jest.fn(() => ({ send })) };
 
-      await actions.perform(app, model, implementation, {}, {}, schemas);
+      await actions.perform(app, model, implementation, {}, {});
 
       const [, , callback] = app.post.mock.results[0].value;
 
@@ -97,10 +94,6 @@ describe('routes > actions', () => {
     it('should handle async values function', async () => {
       expect.assertions(4);
 
-      const {
-        actions, model, implementation, app,
-      } = initContext().inject();
-
       const schemas = {
         users: {
           actions: [
@@ -108,11 +101,15 @@ describe('routes > actions', () => {
           ],
         },
       };
+      const {
+        actions, model, implementation, app,
+      } = initContext(schemas).inject();
+
       const request = { body: { data: { attributes: { values: { name: 'Jane' } } } } };
       const send = jest.fn((values) => values);
       const response = { status: jest.fn(() => ({ send })) };
 
-      await actions.perform(app, model, implementation, {}, {}, schemas);
+      await actions.perform(app, model, implementation, {}, {});
 
       const [, , callback] = app.post.mock.results[0].value;
 

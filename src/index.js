@@ -317,7 +317,6 @@ exports.init = async (Implementation) => {
         configStore.Implementation,
         configStore.lianaOptions,
         auth,
-        Schemas.schemas,
       );
       new StatRoutes(
         app,
