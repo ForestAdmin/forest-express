@@ -1,6 +1,9 @@
 const nock = require('nock');
 const PermissionsChecker = require('../../src/services/permissions-checker');
 const context = require('../../src/context/');
+const initContext = require('../../src/context/init');
+
+context.init(initContext);
 
 describe('services > permissions', () => {
   const { forestUrl } = context.inject();

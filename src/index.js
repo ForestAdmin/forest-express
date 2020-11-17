@@ -8,6 +8,10 @@ const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const requireAll = require('require-all');
 const context = require('./context');
+const initContext = require('./context/init');
+
+context.init(initContext);
+
 const auth = require('./services/auth');
 
 const ResourcesRoutes = require('./routes/resources');

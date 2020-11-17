@@ -1,5 +1,3 @@
-const initContext = require('./init');
+const ApplicationContext = require('./application-context');
 
-const context = initContext();
-
-module.exports = context;
+module.exports = new ApplicationContext();

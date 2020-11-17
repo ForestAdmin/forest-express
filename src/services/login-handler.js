@@ -4,9 +4,7 @@ const logger = require('../services/logger.js');
 const UserSecretCreator = require('./user-secret-creator');
 const TwoFactorRegistrationConfirmer = require('../services/two-factor-registration-confirmer');
 const { is2FASaltValid } = require('../utils/token-checker');
-const context = require('../context/index.js');
-
-const { authorizationFinder } = context.inject();
+const context = require('../context');
 
 function LoginHandler({
   renderingId,
@@ -18,6 +16,7 @@ function LoginHandler({
   projectId,
   twoFactorToken,
 }) {
+  const { authorizationFinder } = context.inject();
   const { forestToken, email, password } = authData;
 
   function isTwoFactorTokenValid(user, token) {
