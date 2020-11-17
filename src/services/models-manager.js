@@ -7,6 +7,9 @@ module.exports = class ModelsManager {
   _flatConnectionsModels() {
     const { connections } = this.configStore.lianaOptions;
 
+    // Should transform connections object to an array containing all models
+    // connections => { db1: { models: { model1: {} } }, db2: { models: { model2: {} } } }
+    // return [ model1, model2 ]
     return Object.values(connections)
       .reduce((models, connection) => models.concat(Object.values(connection.models)), []);
   }
