@@ -27,6 +27,7 @@ class Actions {
     };
   }
 
+  // TODO: Inject `schemas` when https://github.com/ForestAdmin/forest-express/pull/539 is merged.
   perform(app, model, Implementation, options, auth, schemas) {
     const modelName = Implementation.getModelName(model);
     const schema = schemas[modelName];
