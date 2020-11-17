@@ -80,7 +80,7 @@ describe('services > config-store', () => {
       expect(() => configStore.validateOptions()).toThrow('The connections option seems incorrectly set. Please check it is an object of named connections.');
     });
 
-    it('should log an error when conncetions option is not an object', () => {
+    it('should log an error when connections option is not an object', () => {
       expect.assertions(1);
       jest.clearAllMocks();
 
@@ -123,6 +123,12 @@ describe('services > config-store', () => {
   });
 
   describe('when the given configuration is valid', () => {
+    const validConnections = {
+      db1: {
+        models: {},
+      },
+    };
+
     it('should log a warning when onlyCrudModule is provided', () => {
       expect.assertions(2);
       jest.clearAllMocks();
@@ -130,7 +136,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
-        connections: {},
+        connections: validConnections,
         onlyCrudModule: true,
       };
 
@@ -145,7 +151,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
-        connections: {},
+        connections: validConnections,
         modelsDir: '../models',
       };
 
@@ -161,7 +167,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
-        connections: {},
+        connections: validConnections,
         configDir,
       };
 
@@ -176,7 +182,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
-        connections: {},
+        connections: validConnections,
         includedModels: [],
         excludedModels: [],
       };
@@ -192,7 +198,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
-        connections: {},
+        connections: validConnections,
         configDir: '../forest',
       };
 

@@ -4,8 +4,6 @@ describe('services > models-manager', () => {
   describe('getModels', () => {
     const configStore = {
       lianaOptions: {
-        includedModels: [],
-        excludedModels: [],
         connections: {
           db1: {
             models: {
@@ -56,7 +54,6 @@ describe('services > models-manager', () => {
       const configStore = {
         lianaOptions: {
           includedModels: ['model1'],
-          excludedModels: [],
           connections: {
             db1: {
               models: {
@@ -88,7 +85,6 @@ describe('services > models-manager', () => {
       expect.assertions(1);
       const configStore = {
         lianaOptions: {
-          includedModels: [],
           excludedModels: ['model1'],
           connections: {
             db1: {
