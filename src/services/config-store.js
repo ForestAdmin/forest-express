@@ -48,7 +48,7 @@ class ConfigStore {
     }
 
     if (!options.connections || !options.connections.constructor.toString().match('Object')) {
-      throw new Error('The connections option seems incorectly set. Please check it is an object of named connections.');
+      throw new Error('The connections option seems incorrectly set. Please check it is an object of named connections.');
     }
 
     if (options.includedModels && !Array.isArray(options.includedModels)) {

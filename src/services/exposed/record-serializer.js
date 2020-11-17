@@ -9,6 +9,10 @@ class RecordSerializer extends AbstractRecordService {
       throw new Error('RecordSerializer initialization error: "model" argument should be an object (ex: `{ name: "myModel" }`)');
     }
 
+    if (!model.modelName) {
+      model.modelName = model.name;
+    }
+
     super(model);
   }
 }
