@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ApplicationContext = require('./application-context');
 const errorMessages = require('../utils/error-messages');
+const stringUtils = require('../utils/string');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -14,6 +15,7 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
 /**
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
+ *  stringUtils: import('../utils/string');
  * }} Utils
  *
  * @typedef {{
@@ -34,6 +36,7 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
+  context.addInstance('stringUtils', stringUtils);
 }
 
 /**
