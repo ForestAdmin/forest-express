@@ -24,10 +24,8 @@ class ApimapSender {
   }
 
   send(envSecret, apimap) {
-    const forestUrl = this.forestUrl;
-
     this.superagentRequest
-      .post(`${forestUrl}/forest/apimaps`)
+      .post(`${this.forestUrl}/forest/apimaps`)
       .send(apimap)
       .set('forest-secret-key', envSecret)
       .end((_error, result) => {
