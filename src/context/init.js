@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ApplicationContext = require('./application-context');
 const errorMessages = require('../utils/error-messages');
+const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
@@ -10,7 +11,6 @@ const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
-const errorService = require('../services/error');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 
 function initValue(context) {
@@ -21,6 +21,7 @@ function initValue(context) {
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
+ *  errorUtils: import('../utils/error');
  * }} Utils
  *
  * @typedef {{
@@ -42,6 +43,7 @@ function initValue(context) {
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
   context.addInstance('stringUtils', stringUtils);
+  context.addInstance('errorUtils', errorUtils);
 }
 
 /**
@@ -53,7 +55,6 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
-  context.addInstance('errorService', errorService);
   context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);

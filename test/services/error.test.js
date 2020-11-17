@@ -3,7 +3,7 @@ const {
   UnprocessableEntity,
   InvalidFiltersFormat,
   NoMatchingOperatorError,
-} = require('../../src/services/error');
+} = require('../../src/utils/error');
 
 describe('services > error', () => {
   describe('unauthorized', () => {
