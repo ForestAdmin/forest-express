@@ -64,7 +64,6 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
-  context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addClass(ApimapFieldsFormater);
