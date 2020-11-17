@@ -62,8 +62,6 @@ function initUtils(context) {
  * @param {ApplicationContext} context
  */
 function initServices(context) {
-  context.addInstance('fs', fs);
-  context.addInstance('path', path);
   context.addInstance('logger', logger);
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
@@ -85,6 +83,7 @@ function initServices(context) {
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
+  context.addInstance('path', path);
 }
 
 /**

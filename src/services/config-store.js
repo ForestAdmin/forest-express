@@ -47,6 +47,18 @@ class ConfigStore {
       throw new Error('Your envSecret seems incorrect (64 characters required). Please check it is correctly set in your .env file.');
     }
 
+    if (!options.connections || !options.connections.constructor.toString().match('Object')) {
+      throw new Error('The connections option seems incorrectly set. Please check it is an object of named connections.');
+    }
+
+    if (options.includedModels && !Array.isArray(options.includedModels)) {
+      throw new Error('The includedModels option seems incorrectly set. Please check it is an array of model names.');
+    }
+
+    if (options.excludedModels && !Array.isArray(options.excludedModels)) {
+      throw new Error('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
+    }
+
     if (!this.isConfigDirExist()) {
       this.logger.warn(`Your configDir ("${this.configDir}") does not exist. Please make sure it is set correctly.`);
     }
@@ -57,6 +69,10 @@ class ConfigStore {
 
     if (options.modelsDir) {
       this.logger.warn('modelsDir is not supported anymore. Please remove this option.');
+    }
+
+    if (options.includedModels && options.excludedModels) {
+      this.logger.warn('includedModels and excludedModels options cannot be used simultaneously. Only the includedModels option will be taken into account.');
     }
   }
 }

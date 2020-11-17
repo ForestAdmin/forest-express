@@ -67,9 +67,68 @@ describe('services > config-store', () => {
 
       expect(() => configStore.validateOptions()).toThrow('secretKey and authKey options are not supported anymore. Please use envSecret and authSecret instead.');
     });
+
+    it('should log an error when no connections are provided', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The connections option seems incorrectly set. Please check it is an object of named connections.');
+    });
+
+    it('should log an error when connections option is not an object', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: [],
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The connections option seems incorrectly set. Please check it is an object of named connections.');
+    });
+
+    it('should log an error when using includedModels as not an array', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: {},
+        includedModels: 'error',
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The includedModels option seems incorrectly set. Please check it is an array of model names.');
+    });
+
+    it('should log an error when using excludedModels as not an array', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: {},
+        excludedModels: 'error',
+      };
+
+      expect(() => configStore.validateOptions()).toThrow('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
+    });
   });
 
   describe('when the given configuration is valid', () => {
+    const validConnections = {
+      db1: {
+        models: {},
+      },
+    };
+
     it('should log a warning when onlyCrudModule is provided', () => {
       expect.assertions(2);
       jest.clearAllMocks();
@@ -77,6 +136,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        connections: validConnections,
         onlyCrudModule: true,
       };
 
@@ -91,6 +151,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        connections: validConnections,
         modelsDir: '../models',
       };
 
@@ -106,11 +167,28 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        connections: validConnections,
         configDir,
       };
 
       expect(() => configStore.validateOptions()).not.toThrow();
       expect(logger.warn).toHaveBeenCalledWith(`Your configDir ("./${configDir}") does not exist. Please make sure it is set correctly.`);
+    });
+
+    it('should log a warning when includedModels and excludedModels at used in the same time', () => {
+      expect.assertions(2);
+      jest.clearAllMocks();
+
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: validConnections,
+        includedModels: [],
+        excludedModels: [],
+      };
+
+      expect(() => configStore.validateOptions()).not.toThrow();
+      expect(logger.warn).toHaveBeenCalledWith('includedModels and excludedModels options cannot be used simultaneously. Only the includedModels option will be taken into account.');
     });
 
     it('should log nothing when a valid configuration is provided', () => {
@@ -120,6 +198,7 @@ describe('services > config-store', () => {
       configStore.lianaOptions = {
         authSecret,
         envSecret,
+        connections: validConnections,
         configDir: '../forest',
       };
 

@@ -3,15 +3,21 @@ const ModelsManager = require('../../src/services/models-manager');
 describe('services > models-manager', () => {
   describe('getModels', () => {
     const configStore = {
+      lianaOptions: {
+        connections: {
+          db1: {
+            models: {
+              model1: {
+                name: 'model1',
+              },
+              model2: {
+                name: 'model2',
+              },
+            },
+          },
+        },
+      },
       Implementation: {
-        getModels: jest.fn(() => ({
-          model1: {
-            name: 'model1',
-          },
-          model2: {
-            name: 'model2',
-          },
-        })),
         getModelName: jest.fn((model) => model.name),
       },
     };
@@ -39,6 +45,103 @@ describe('services > models-manager', () => {
 
       modelsManager.getModels();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when using includedModels', () => {
+    it('should return only included models', () => {
+      expect.assertions(1);
+      const configStore = {
+        lianaOptions: {
+          includedModels: ['model1'],
+          connections: {
+            db1: {
+              models: {
+                model1: {
+                  name: 'model1',
+                },
+                model2: {
+                  name: 'model2',
+                },
+              },
+            },
+          },
+        },
+        Implementation: {
+          getModelName: jest.fn((model) => model.name),
+        },
+      };
+
+      const modelsManager = new ModelsManager({ configStore });
+
+      const models = modelsManager.getModels();
+      const expectedReturn = { model1: { name: 'model1' } };
+      expect(models).toStrictEqual(expectedReturn);
+    });
+  });
+
+  describe('when using excludedModels', () => {
+    it('should return models that were not excluded', () => {
+      expect.assertions(1);
+      const configStore = {
+        lianaOptions: {
+          excludedModels: ['model1'],
+          connections: {
+            db1: {
+              models: {
+                model1: {
+                  name: 'model1',
+                },
+                model2: {
+                  name: 'model2',
+                },
+              },
+            },
+          },
+        },
+        Implementation: {
+          getModelName: jest.fn((model) => model.name),
+        },
+      };
+
+      const modelsManager = new ModelsManager({ configStore });
+
+      const models = modelsManager.getModels();
+      const expectedReturn = { model2: { name: 'model2' } };
+      expect(models).toStrictEqual(expectedReturn);
+    });
+  });
+
+  describe('when using includedModels and excludedModels', () => {
+    it('should return only included models', () => {
+      expect.assertions(1);
+      const configStore = {
+        lianaOptions: {
+          includedModels: ['model1'],
+          excludedModels: ['model1'],
+          connections: {
+            db1: {
+              models: {
+                model1: {
+                  name: 'model1',
+                },
+                model2: {
+                  name: 'model2',
+                },
+              },
+            },
+          },
+        },
+        Implementation: {
+          getModelName: jest.fn((model) => model.name),
+        },
+      };
+
+      const modelsManager = new ModelsManager({ configStore });
+
+      const models = modelsManager.getModels();
+      const expectedReturn = { model1: { name: 'model1' } };
+      expect(models).toStrictEqual(expectedReturn);
     });
   });
 });
