@@ -25,7 +25,7 @@ describe('services > apimap-sender', () => {
 
   describe('handleResult', () => {
     describe('with no result provided', () => {
-      it('should be return early', () => {
+      it('should return early', () => {
         expect.assertions(1);
         expect(apimapSender.handleResult()).toBeUndefined();
       });
