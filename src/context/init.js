@@ -1,6 +1,7 @@
+const fs = require('fs');
 const ApplicationContext = require('./application-context');
-
 const errorMessages = require('../utils/error-messages');
+const stringUtils = require('../utils/string');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -10,10 +11,16 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const errorService = require('../services/error');
+const SchemaFileUpdater = require('../services/schema-file-updater');
+
+function initValue(context) {
+  context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
+}
 
 /**
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
+ *  stringUtils: import('../utils/string');
  * }} Utils
  *
  * @typedef {{
@@ -23,6 +30,7 @@ const errorService = require('../services/error');
  *  ipWhitelist: import('../services/ip-whitelist');
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
+ *  schemaFileUpdater: import('../services/schema-file-updater');
  * }} Services
  *
  * @typedef {Utils & Services} Context
@@ -33,6 +41,7 @@ const errorService = require('../services/error');
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
+  context.addInstance('stringUtils', stringUtils);
 }
 
 /**
@@ -45,9 +54,11 @@ function initServices(context) {
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('errorService', errorService);
+  context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
+  context.addClass(SchemaFileUpdater);
 }
 
 /**
@@ -57,6 +68,7 @@ function initContext() {
   /** @type {ApplicationContext<Context>} */
   const context = new ApplicationContext();
 
+  initValue(context);
   initUtils(context);
   initServices(context);
 
