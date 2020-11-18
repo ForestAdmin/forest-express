@@ -12,6 +12,7 @@ async function setupApp() {
   const forestApp = await createServer(envSecret, authSecret);
 
   const injections = context.inject();
+  injections.env.FOREST_ENV_SECRET = 'THE-SECRET';
 
   sandbox.stub(injections.forestServerRequester, 'perform');
 
@@ -174,6 +175,8 @@ describe('routes > authentication', () => {
             'http://localhost:3310/forest/authentication/callback',
           ],
           token_endpoint_auth_method: 'none',
+        }, {
+          initialAccessToken: 'THE-SECRET',
         }]);
       } finally {
         sandbox.restore();

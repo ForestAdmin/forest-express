@@ -45,6 +45,34 @@ function getAndCheckRenderingId(request, context) {
 
 /**
  * @param {import('../context/init').Context} context
+ * @param {Error} error
+ * @param {import('express').Response} response
+ * @param {import('express').NextFunction} next
+ */
+function handleError(context, error, response, next) {
+  if (error instanceof context.openIdClient.errors.OPError) {
+    switch (error.error) {
+      case 'access_denied':
+      case 'invalid_client':
+        response.status(403).send(error);
+        break;
+      default:
+        response.status(400).send(error);
+    }
+
+    return;
+  }
+
+  if (error instanceof context.openIdClient.errors.RPError) {
+    response.status(400).send(error);
+    return;
+  }
+
+  next(error);
+}
+
+/**
+ * @param {import('../context/init').Context} context
  * @param {import('express').Request} request
  * @param {import('express').Response} response
  * @param {import('express').NextFunction} next
@@ -60,7 +88,7 @@ async function startAuthentication(context, request, response, next) {
 
     response.redirect(result.authorizationUrl);
   } catch (e) {
-    next(e);
+    handleError(context, e, response, next);
   }
 }
 
@@ -71,15 +99,10 @@ async function startAuthentication(context, request, response, next) {
  * @param {import('express').Response} response
  * @param {import('express').NextFunction} next
  */
-async function authenticationCallback({
-  env,
-  authenticationService,
-  tokenService,
-  jsonwebtoken,
-}, options, request, response, next) {
+async function authenticationCallback(context, options, request, response, next) {
   try {
-    const token = await authenticationService.verifyCodeAndGenerateToken(
-      getCallbackUrl(env.APPLICATION_URL),
+    const token = await context.authenticationService.verifyCodeAndGenerateToken(
+      getCallbackUrl(context.env.APPLICATION_URL),
       request.query,
       options,
     );
@@ -94,7 +117,7 @@ async function authenticationCallback({
       {
         httpOnly: true,
         secure: true,
-        maxAge: tokenService.expirationInSeconds,
+        maxAge: context.tokenService.expirationInSeconds,
         sameSite: 'none',
       },
     );
@@ -103,14 +126,14 @@ async function authenticationCallback({
     // that is used to authenticate people
     // but the token itself contains interesting values, such as its expiration date
     response.send({
-      ...(!env.APPLICATION_URL.startsWith('https://')
+      ...(!context.env.APPLICATION_URL.startsWith('https://')
         ? { token }
         : {}
       ),
-      tokenData: jsonwebtoken.decode(token),
+      tokenData: context.jsonwebtoken.decode(token),
     });
   } catch (e) {
-    next(e);
+    handleError(context, e, response, next);
   }
 }
 
