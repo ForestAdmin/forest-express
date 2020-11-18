@@ -40,6 +40,8 @@ function initValue(context) {
  *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
  *   FOREST_URL: string;
  *   APPLICATION_URL: string;
+ *   FOREST_AUTH_SECRET: string;
+ *   FOREST_ENV_SECRET: string;
  * }} Env
  *
  * @typedef {{
