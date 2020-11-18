@@ -11,12 +11,16 @@ class OidcClientManagerService {
   /** @private @readonly */
   openIdClient;
 
+  /** @private @readonly */
+  env;
+
   /**
    * @param {import('../context/init').Context} dependencies
    */
-  constructor({ oidcConfigurationRetrieverService, openIdClient }) {
+  constructor({ oidcConfigurationRetrieverService, openIdClient, env }) {
     this.oidcConfigurationRetrieverService = oidcConfigurationRetrieverService;
     this.openIdClient = openIdClient;
+    this.env = env;
   }
 
   /**
@@ -30,6 +34,8 @@ class OidcClientManagerService {
       const registrationPromise = issuer.Client.register({
         token_endpoint_auth_method: 'none',
         redirect_uris: [callbackUrl],
+      }, {
+        initialAccessToken: this.env.FOREST_ENV_SECRET,
       }).catch((error) => {
         this.cache.delete(callbackUrl);
         throw error;

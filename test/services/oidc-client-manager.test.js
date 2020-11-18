@@ -13,9 +13,14 @@ describe('service > OidcClientManager', () => {
     const oidcConfigurationRetrieverService = {
       retrieve: jest.fn(),
     };
+    const env = {
+      FOREST_ENV_SECRET: 'the-secret',
+    };
+
     const oidcClientManager = new OidcClientManagerService({
       openIdClient,
       oidcConfigurationRetrieverService,
+      env,
     });
 
     return {
@@ -23,6 +28,7 @@ describe('service > OidcClientManager', () => {
       oidcConfigurationRetrieverService,
       oidcClientManager,
       issuer,
+      env,
     };
   }
   describe('getClientForCallbackUrl', () => {
@@ -46,6 +52,8 @@ describe('service > OidcClientManager', () => {
       expect(issuer.Client.register).toHaveBeenCalledWith({
         token_endpoint_auth_method: 'none',
         redirect_uris: ['https://here.local'],
+      }, {
+        initialAccessToken: 'the-secret',
       });
     });
 
