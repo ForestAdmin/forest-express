@@ -24,7 +24,6 @@ const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
-const ApimapSender = require('./services/apimap-sender');
 const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
@@ -36,6 +35,7 @@ const {
   errorHandler,
   ipWhitelist,
   apimapFieldsFormater,
+  apimapSender,
   schemaFileUpdater,
 } = context.inject();
 
@@ -187,7 +187,7 @@ function generateAndSendSchema(opts) {
   if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
-  new ApimapSender(opts.envSecret, schemaSent).perform();
+  apimapSender.send(opts.envSecret, schemaSent);
 }
 
 exports.init = async (Implementation) => {

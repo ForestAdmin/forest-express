@@ -1,4 +1,5 @@
 const fs = require('fs');
+const superagentRequest = require('superagent');
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
@@ -8,6 +9,7 @@ const errorHandler = require('../services/exposed/error-handler');
 const ipWhitelist = require('../services/ip-whitelist');
 const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
+const ApimapSender = require('../services/apimap-sender');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
@@ -32,10 +34,15 @@ function initValue(context) {
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
+ *  apimapSender: import('../services/apimap-sender');
  *  schemasGenerator: import('../generators/schemas');
  * }} Services
  *
- * @typedef {Utils & Services} Context
+ * @typedef {{
+ *  superagentRequest: import('superagent');
+ * }} Externals
+ *
+ * @typedef {Utils & Services & Externals} Context
  */
 
 /**
@@ -61,13 +68,22 @@ function initServices(context) {
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
+  context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
+}
+
+/**
+ * @param {ApplicationContext} context
+ */
+function initExternals(context) {
+  context.addInstance('superagentRequest', superagentRequest);
 }
 
 /**
  * @returns {ApplicationContext<Context>}
  */
 function initContext(context) {
+  initExternals(context);
   initValue(context);
   initUtils(context);
   initServices(context);
