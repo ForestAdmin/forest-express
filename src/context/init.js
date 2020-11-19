@@ -34,7 +34,7 @@ function initValue(context) {
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
- *  apiMapSender: import('../services/apimap-sender');
+ *  apimapSender: import('../services/apimap-sender');
  *  schemasGenerator: import('../generators/schemas');
  * }} Services
  *
