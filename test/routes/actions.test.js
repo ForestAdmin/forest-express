@@ -16,36 +16,42 @@ function initContext(schema) {
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })
     .addValue('implementation', { getModelName: jest.fn((m) => m.name) })
-    .addValue('app', { post: jest.fn((...params) => params) }));
+    .addValue('app', { post: jest.fn() }));
   return context;
 }
 
 describe('routes > actions', () => {
   it('should not create a route when no actions is present', async () => {
-    expect.assertions(2);
+    expect.assertions(4);
 
-    const { actions, model, implementation } = initContext({ users: {} }).inject();
+    const {
+      actions, model, implementation, pathService, app,
+    } = initContext({ users: {} }).inject();
 
     await actions.perform({}, model, implementation, {}, {});
 
-    expect(implementation.getModelName).toHaveReturnedWith('users');
-    expect(implementation.getModelName).toHaveBeenCalledTimes(1);
+    expect(implementation.getModelName).toHaveNthReturnedWith(1, 'users');
+    expect(pathService.generate).not.toHaveBeenCalled();
+    expect(pathService.generateForSmartActionCustomEndpoint).not.toHaveBeenCalled();
+    expect(app.post).not.toHaveBeenCalled();
   });
+
+  // loremIpsumDolorSitAmetSuperLong
 
   it('should not create a route when no actions.values is present', async () => {
     expect.assertions(4);
 
     const schema = { users: { actions: [{}, {}] } };
     const {
-      actions, pathService, model, implementation,
+      actions, pathService, model, implementation, app,
     } = initContext(schema).inject();
 
     await actions.perform({}, model, implementation, {}, {});
 
-    expect(implementation.getModelName).toHaveReturnedWith('users');
-    expect(implementation.getModelName).toHaveBeenCalledTimes(1);
+    expect(implementation.getModelName).toHaveNthReturnedWith(1, 'users');
     expect(pathService.generate).not.toHaveBeenCalled();
     expect(pathService.generateForSmartActionCustomEndpoint).not.toHaveBeenCalled();
+    expect(app.post).not.toHaveBeenCalled();
   });
 
   describe('when actions.values is present', () => {
@@ -63,7 +69,7 @@ describe('routes > actions', () => {
       expect(pathService.generate).toHaveBeenCalledTimes(1);
       expect(app.post).toHaveBeenCalledTimes(1);
 
-      const [path] = app.post.mock.results[0].value;
+      const [path] = app.post.mock.calls[0];
       expect(path).toBe('actions/send invoice/values');
     });
 
@@ -81,7 +87,7 @@ describe('routes > actions', () => {
 
       await actions.perform(app, model, implementation, {}, {});
 
-      const [, , callback] = app.post.mock.results[0].value;
+      const [, , callback] = app.post.mock.calls[0];
 
       const result = await callback(request, response);
 
@@ -111,7 +117,7 @@ describe('routes > actions', () => {
 
       await actions.perform(app, model, implementation, {}, {});
 
-      const [, , callback] = app.post.mock.results[0].value;
+      const [, , callback] = app.post.mock.calls[0];
 
       const result = await callback(request, response);
 
