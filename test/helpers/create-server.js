@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const forestExpress = require('../../src');
 const { getJWTConfiguration } = require('../../src/config/jwt');
+const request = require('./request');
 
 let app;
 
@@ -33,6 +34,7 @@ module.exports = async function createServer(envSecret, authSecret) {
 
   const forestApp = await forestExpress.init(implementation);
   app.use(forestApp);
+  request.init();
 
   return app;
 };

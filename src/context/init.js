@@ -1,6 +1,5 @@
 const fs = require('fs');
 const superagentRequest = require('superagent');
-const ApplicationContext = require('./application-context');
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
@@ -83,16 +82,11 @@ function initExternals(context) {
 /**
  * @returns {ApplicationContext<Context>}
  */
-function initContext() {
-  /** @type {ApplicationContext<Context>} */
-  const context = new ApplicationContext();
-
+function initContext(context) {
   initExternals(context);
   initValue(context);
   initUtils(context);
   initServices(context);
-
-  return context;
 }
 
 module.exports = initContext;

@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const jsonwebtoken = require('jsonwebtoken');
 const P = require('bluebird');
-const request = require('../helpers/request');
+const { request } = require('../helpers/request');
 const createServer = require('../helpers/create-server');
 
 const envSecret = Array(65).join('0');
