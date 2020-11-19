@@ -11,9 +11,24 @@ describe('token service', () => {
       jsonwebtoken,
     };
 
+    const request = {
+      headers: {
+        cookie: 'forest_session_token=my_value_token',
+      },
+    };
+
+    const response = {
+      cookie: jest.fn(),
+    };
+
     const tokenService = new TokenService(context);
 
-    return { tokenService, jsonwebtoken };
+    return {
+      tokenService,
+      jsonwebtoken,
+      request,
+      response,
+    };
   }
 
   it("should sign a token with user's data", () => {
@@ -48,5 +63,25 @@ describe('token service', () => {
     },
     'THIS IS SECRET',
     { expiresIn: '14 days' });
+  });
+
+  it('should update the expiration date of a token in the past', () => {
+    expect.assertions(2);
+
+    const { request, response, tokenService } = setup();
+    response.cookie.mockReturnValue('SET COOKIE IN THE PAST');
+    const result = tokenService.deleteToken(request, response);
+
+    expect(result).toStrictEqual('SET COOKIE IN THE PAST');
+    expect(response.cookie).toHaveBeenCalledWith(
+      'forest_session_token',
+      'my_value_token',
+      {
+        expires: new Date(0),
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      },
+    );
   });
 });
