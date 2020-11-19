@@ -36,8 +36,6 @@ describe('routes > actions', () => {
     expect(app.post).not.toHaveBeenCalled();
   });
 
-  // loremIpsumDolorSitAmetSuperLong
-
   it('should not create a route when no actions.values is present', async () => {
     expect.assertions(4);
 
