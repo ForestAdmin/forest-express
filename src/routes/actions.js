@@ -1,47 +1,50 @@
-const _ = require('lodash');
-const { parameterize } = require('../utils/string');
-const auth = require('../services/auth');
-const path = require('../services/path');
-const logger = require('../services/logger');
-const Schemas = require('../generators/schemas');
+const context = require('../context');
 
-module.exports = function Actions(app, model, Implementation, integrator, options) {
-  const modelName = Implementation.getModelName(model);
-  const schema = Schemas.schemas[modelName];
+class Actions {
+  constructor({
+    logger, pathService, stringUtils, schemasGenerator,
+  } = context.inject()) {
+    this.path = pathService;
+    this.logger = logger;
+    this.stringUtils = stringUtils;
+    this.schemasGenerator = schemasGenerator;
+  }
 
-  function getFormValuesController(action) {
+  getFormValuesController(action) {
     return (request, response) => {
       let values = action.values ? action.values(request.body.data.attributes.values) : {};
 
-      if (_.isFunction(values.then)) {
-        return values
-          .then((valuesComputed) => {
-            values = valuesComputed;
-          })
-          .catch((error) => {
-            logger.error(`Cannot send the values of the "${action.name}" Smart Actions because of an unexpected error: `, error);
-            values = {};
-          })
-          .finally(() => response.status(200).send(values));
+      if (!(values.then && typeof func === 'function')) {
+        return response.status(200).send(values);
       }
 
-      return response.status(200).send(values);
+      return values
+        .then((valuesComputed) => {
+          values = valuesComputed;
+        })
+        .catch((error) => {
+          this.logger.error(`Cannot send the values of the "${action.name}" Smart Actions because of an unexpected error: `, error);
+          values = {};
+        })
+        .finally(() => response.status(200).send(values));
     };
   }
 
-  this.perform = () => {
-    _.each(schema.actions, (action) => {
-      if (action.values) {
-        let route;
+  perform(app, model, Implementation, options, auth) {
+    const modelName = Implementation.getModelName(model);
+    const schema = this.schemasGenerator.schemas[modelName];
 
-        if (action.endpoint) {
-          route = path.generateForSmartActionCustomEndpoint(`${action.endpoint}/values`, options);
-        } else {
-          route = path.generate(`actions/${parameterize(action.name)}/values`, options);
-        }
+    if (!schema.actions) return;
 
-        app.post(route, auth.ensureAuthenticated, getFormValuesController(action));
-      }
-    });
-  };
-};
+    schema.actions
+      .filter((action) => action.values)
+      .forEach((action) => {
+        const route = action.endpoint
+          ? this.path.generateForSmartActionCustomEndpoint(`${action.endpoint}/values`, options)
+          : this.path.generate(`actions/${this.stringUtils.parameterize(action.name)}/values`, options);
+        app.post(route, auth.ensureAuthenticated, this.getFormValuesController(action));
+      });
+  }
+}
+
+module.exports = Actions;
