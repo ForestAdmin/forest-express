@@ -4,13 +4,15 @@ const VError = require('verror');
 const ipUtil = require('forest-ip-utils');
 const logger = require('../services/logger');
 const errorMessages = require('../utils/error-messages');
-const forestServerRequester = require('./forest-server-requester');
 const IpWhitelistDeserializer = require('../deserializers/ip-whitelist');
+const context = require('../context');
 
 let ipWhitelistRules = null;
 let useIpWhitelist = true;
 
 function retrieve(environmentSecret) {
+  const { forestServerRequester } = context.inject();
+
   return forestServerRequester
     .perform('/liana/v1/ip-whitelist-rules', environmentSecret)
     .then((responseBody) => {

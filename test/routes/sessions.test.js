@@ -1,43 +1,20 @@
-const sinon = require('sinon');
 const jsonwebtoken = require('jsonwebtoken');
-const P = require('bluebird');
-const nock = require('nock');
 const otplib = require('otplib');
-const { request } = require('../helpers/request');
+const { request, addForestNock } = require('../helpers/request');
 const UserSecretCreator = require('../../src/services/user-secret-creator');
-const context = require('../../src/context');
 const createServer = require('../helpers/create-server');
 
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
 const twoFactorAuthenticationSecret = '00000000000000000000';
-let stubPerform;
 
 async function setupApp() {
-  const sandbox = sinon.createSandbox();
-  // eslint-disable-next-line global-require
-  const forestServerRequester = require('../../src/services/forest-server-requester');
-  const forestApp = await createServer(envSecret, authSecret);
-
-  if (!stubPerform) {
-    stubPerform = sandbox.stub(forestServerRequester, 'perform');
-
-    stubPerform.withArgs('/liana/v1/ip-whitelist-rules').returns({
-      then: () => P.resolve({
-        data: {
-          attributes: {
-            use_ip_whitelist: false,
-          },
-        },
-      }),
-    });
-
-    stubPerform.withArgs(
-      '/liana/v2/renderings/1/authorization',
-      envSecret,
-      null,
-      { email: 'user@email.com', password: 'user-password' },
-    ).resolves({
+  addForestNock(
+    'get',
+    '/liana/v2/renderings/1/authorization',
+    { email: 'user@email.com', password: 'user-password' },
+  )
+    .reply(200, {
       data: {
         id: '125',
         type: 'users',
@@ -58,12 +35,12 @@ async function setupApp() {
       },
     });
 
-    stubPerform.withArgs(
-      '/liana/v2/renderings/1/authorization',
-      envSecret,
-      null,
-      { email: 'user2@email.com', password: 'user2-password' },
-    ).resolves({
+  addForestNock(
+    'get',
+    '/liana/v2/renderings/1/authorization',
+    { email: 'user2@email.com', password: 'user2-password' },
+  )
+    .reply(200, {
       data: {
         id: '126',
         type: 'users',
@@ -87,12 +64,12 @@ async function setupApp() {
       },
     });
 
-    stubPerform.withArgs(
-      '/liana/v2/renderings/1/authorization?two-factor-registration=true',
-      envSecret,
-      null,
-      { email: 'user3@email.com', password: 'user3-password' },
-    ).resolves({
+  addForestNock(
+    'get',
+    '/liana/v2/renderings/1/authorization?two-factor-registration=true',
+    { email: 'user3@email.com', password: 'user3-password' },
+  )
+    .reply(200, {
       data: {
         id: '127',
         type: 'users',
@@ -116,12 +93,12 @@ async function setupApp() {
       },
     });
 
-    stubPerform.withArgs(
-      '/liana/v2/renderings/1/authorization',
-      envSecret,
-      null,
-      { email: 'user4@email.com', password: 'user4-password' },
-    ).resolves({
+  addForestNock(
+    'get',
+    '/liana/v2/renderings/1/authorization',
+    { email: 'user4@email.com', password: 'user4-password' },
+  )
+    .reply(200, {
       data: {
         id: '128',
         type: 'users',
@@ -143,48 +120,36 @@ async function setupApp() {
         },
       },
     });
-  }
 
-  return forestApp;
-}
-
-async function setupNock() {
-  const { forestUrl } = context.inject();
-  return nock(forestUrl);
+  return createServer(envSecret, authSecret);
 }
 
 describe('routes > sessions', () => {
   describe('#POST /forest/sessions', () => {
     describe('with 2FA disabled', () => {
       it('should return a valid jwt', async () => {
-        expect.assertions(3);
+        expect.assertions(2);
         const app = await setupApp();
-        await new Promise((done) => {
-          request(app)
-            .post('/forest/sessions')
-            .send({
-              renderingId: 1,
-              email: 'user@email.com',
-              password: 'user-password',
-            })
-            .end((error, response) => {
-              expect(response.status).toStrictEqual(200);
-              expect(error).toBeNull();
+        const response = await request(app)
+          .post('/forest/sessions')
+          .send({
+            renderingId: 1,
+            email: 'user@email.com',
+            password: 'user-password',
+          });
 
-              const { token } = response.body;
-              const decodedJWT = jsonwebtoken.verify(token, authSecret);
+        expect(response.status).toStrictEqual(200);
 
-              expect(decodedJWT).toMatchObject({
-                id: '125',
-                email: 'user@email.com',
-                firstName: 'user',
-                lastName: 'last',
-                team: 'Operations',
-                renderingId: 1,
-              });
+        const { token } = response.body;
+        const decodedJWT = jsonwebtoken.verify(token, authSecret);
 
-              done();
-            });
+        expect(decodedJWT).toMatchObject({
+          id: '125',
+          email: 'user@email.com',
+          firstName: 'user',
+          lastName: 'last',
+          team: 'Operations',
+          renderingId: 1,
         });
       });
     });
@@ -192,40 +157,33 @@ describe('routes > sessions', () => {
     describe('with 2FA enabled but not active', () => {
       describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "user secret"', async () => {
-          expect.assertions(5);
+          expect.assertions(4);
           const app = await setupApp();
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
 
-          await new Promise((done) => {
-            request(app)
-              .post('/forest/sessions')
-              .send({
-                renderingId: 1,
-                email: 'user2@email.com',
-                password: 'user2-password',
-              })
-              .end((error, response) => {
-                expect(response.status).toStrictEqual(200);
-                expect(error).toBeNull();
+          const response = await request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              email: 'user2@email.com',
+              password: 'user2-password',
+            });
+          expect(response.status).toStrictEqual(200);
 
-                const {
-                  token,
-                  twoFactorAuthenticationEnabled,
-                  userSecret,
-                } = response.body;
+          const {
+            token,
+            twoFactorAuthenticationEnabled,
+            userSecret,
+          } = response.body;
 
-                const expectedUserSecret = new UserSecretCreator(
-                  twoFactorAuthenticationSecret,
-                  process.env.FOREST_2FA_SECRET_SALT,
-                ).perform();
+          const expectedUserSecret = new UserSecretCreator(
+            twoFactorAuthenticationSecret,
+            process.env.FOREST_2FA_SECRET_SALT,
+          ).perform();
 
-                expect(token).toBeUndefined();
-                expect(twoFactorAuthenticationEnabled).toStrictEqual(true);
-                expect(userSecret).toStrictEqual(expectedUserSecret);
-
-                done();
-              });
-          });
+          expect(token).toBeUndefined();
+          expect(twoFactorAuthenticationEnabled).toStrictEqual(true);
+          expect(userSecret).toStrictEqual(expectedUserSecret);
         });
       });
 
@@ -233,31 +191,25 @@ describe('routes > sessions', () => {
         it('should return a 401', async () => {
           expect.assertions(1);
           const app = await setupApp();
-          await new Promise((done) => {
-            request(app)
-              .post('/forest/sessions')
-              .send({
-                renderingId: 1,
-                email: 'user@email.com',
-                password: 'user-password',
-                twoFactorRegistration: true,
-              })
-              .end((error, response) => {
-                expect(response.status).toStrictEqual(401);
-                done();
-              });
-          });
+          const response = await request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
+              twoFactorRegistration: true,
+            });
+          expect(response.status).toStrictEqual(401);
         });
       });
 
       describe('with a token', () => {
         it('should return a jwt token', async () => {
-          expect.assertions(3);
+          expect.assertions(2);
           const app = await setupApp();
-          const nockObj = await setupNock();
 
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
-          nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
+          addForestNock('post', '/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
           const expectedUserSecret = new UserSecretCreator(
             twoFactorAuthenticationSecret,
@@ -266,24 +218,18 @@ describe('routes > sessions', () => {
 
           const token = otplib.authenticator.generate(expectedUserSecret);
 
-          await new Promise((done) => {
-            request(app)
-              .post('/forest/sessions')
-              .send({
-                renderingId: 1,
-                projectId: 1,
-                email: 'user3@email.com',
-                password: 'user3-password',
-                token,
-                twoFactorRegistration: true,
-              })
-              .end((error, response) => {
-                expect(response.status).toStrictEqual(200);
-                expect(error).toBeNull();
-                expect(response.body.token).not.toBeUndefined();
-                done();
-              });
-          });
+          const response = await request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              projectId: 1,
+              email: 'user3@email.com',
+              password: 'user3-password',
+              token,
+              twoFactorRegistration: true,
+            });
+          expect(response.status).toStrictEqual(200);
+          expect(response.body.token).not.toBeUndefined();
         });
       });
     });
@@ -291,45 +237,37 @@ describe('routes > sessions', () => {
     describe('with 2FA enabled and active', () => {
       describe('with no token and "twoFactorRegistration" "false"', () => {
         it('should return the "twoFactorAuthenticationEnabled" set to "true"', async () => {
-          expect.assertions(5);
+          expect.assertions(4);
           const app = await setupApp();
 
-          await new Promise((done) => {
-            request(app)
-              .post('/forest/sessions')
-              .send({
-                renderingId: 1,
-                email: 'user4@email.com',
-                password: 'user4-password',
-              })
-              .end((error, response) => {
-                expect(response.status).toStrictEqual(200);
-                expect(error).toBeNull();
+          const response = await request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              email: 'user4@email.com',
+              password: 'user4-password',
+            });
+          expect(response.status).toStrictEqual(200);
 
-                const {
-                  token,
-                  twoFactorAuthenticationEnabled,
-                  userSecret,
-                } = response.body;
+          const {
+            token,
+            twoFactorAuthenticationEnabled,
+            userSecret,
+          } = response.body;
 
-                expect(token).toBeUndefined();
-                expect(userSecret).toBeUndefined();
-                expect(twoFactorAuthenticationEnabled).toStrictEqual(true);
-
-                done();
-              });
-          });
+          expect(token).toBeUndefined();
+          expect(userSecret).toBeUndefined();
+          expect(twoFactorAuthenticationEnabled).toStrictEqual(true);
         });
       });
 
       describe('with a token', () => {
         it('should return a jwt token', async () => {
-          expect.assertions(3);
+          expect.assertions(2);
           const app = await setupApp();
-          const nockObj = await setupNock();
 
           process.env.FOREST_2FA_SECRET_SALT = '11111111111111111111';
-          nockObj.post('/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
+          addForestNock('post', '/liana/v2/projects/1/two-factor-registration-confirm').reply(200);
 
           const expectedUserSecret = new UserSecretCreator(
             twoFactorAuthenticationSecret,
@@ -338,23 +276,17 @@ describe('routes > sessions', () => {
 
           const token = otplib.authenticator.generate(expectedUserSecret);
 
-          await new Promise((done) => {
-            request(app)
-              .post('/forest/sessions')
-              .send({
-                renderingId: 1,
-                projectId: 1,
-                email: 'user@email.com',
-                password: 'user-password',
-                token,
-              })
-              .end((error, response) => {
-                expect(response.status).toStrictEqual(200);
-                expect(error).toBeNull();
-                expect(response.body.token).not.toBeUndefined();
-                done();
-              });
-          });
+          const response = await request(app)
+            .post('/forest/sessions')
+            .send({
+              renderingId: 1,
+              projectId: 1,
+              email: 'user@email.com',
+              password: 'user-password',
+              token,
+            });
+          expect(response.status).toStrictEqual(200);
+          expect(response.body.token).not.toBeUndefined();
         });
       });
     });
@@ -365,19 +297,14 @@ describe('routes > sessions', () => {
         process.env.FOREST_2FA_SECRET_SALT = '00';
         const app = await setupApp();
 
-        await new Promise((done) => {
-          request(app)
-            .post('/forest/sessions')
-            .send({
-              renderingId: 1,
-              email: 'user2@email.com',
-              password: 'user2-password',
-            })
-            .end((error, response) => {
-              expect(response.status).toStrictEqual(401);
-              done();
-            });
-        });
+        const response = await request(app)
+          .post('/forest/sessions')
+          .send({
+            renderingId: 1,
+            email: 'user2@email.com',
+            password: 'user2-password',
+          });
+        expect(response.status).toStrictEqual(401);
       });
     });
   });

@@ -2,8 +2,8 @@ const P = require('bluebird');
 const moment = require('moment');
 const VError = require('verror');
 const _ = require('lodash');
-const forestServerRequester = require('./forest-server-requester');
 const { perform } = require('./base-filters-parser');
+const context = require('../context');
 
 let permissionsPerRendering = {};
 
@@ -14,6 +14,8 @@ function PermissionsChecker(
   permissionName,
   permissionInfos = undefined,
 ) {
+  const { forestServerRequester } = context.inject();
+
   const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
   function isSmartActionAllowed(smartActionsPermissions) {

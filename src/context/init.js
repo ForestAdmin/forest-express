@@ -7,11 +7,11 @@ const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
 const ipWhitelist = require('../services/ip-whitelist');
-const forestServerRequester = require('../services/forest-server-requester');
 const ApimapSorter = require('../services/apimap-sorter');
 const ApimapSender = require('../services/apimap-sender');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
+const ForestServerRequester = require('../services/forest-server-requester');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const schemasGenerator = require('../generators/schemas');
 
@@ -61,8 +61,8 @@ function initServices(context) {
   context.addInstance('logger', logger);
   context.addInstance('pathService', pathService);
   context.addInstance('errorHandler', errorHandler);
+  context.addClass(ForestServerRequester);
   context.addInstance('ipWhitelist', ipWhitelist);
-  context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addClass(ApimapFieldsFormater);
