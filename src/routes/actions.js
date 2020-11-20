@@ -62,14 +62,11 @@ class Actions {
    */
   getHookLoadController(action, model, Implementation) {
     return async (request, response) => {
-      const fail = (message) => {
-        this.logger.error('Error in smart action load hook: ', message);
-        return response.status(500).send({ message });
-      };
-
       const recordId = request.body.data.attributes.recordsId[0];
       const record = await new Implementation.ResourceGetter(model, { recordId }).perform();
-      const fields = action.field.map((field) => ({ ...field, value: null }));
+      const fields = Object.fromEntries(
+        action.fields.map((field) => [field.field, { ...field, value: null }]),
+      );
 
       try {
         if (typeof action.hooks.load !== 'function') throw new Error('load must be a function');
@@ -83,8 +80,9 @@ class Actions {
         }
 
         return response.status(200).send({ fields: result });
-      } catch (e) {
-        return fail(e.message);
+      } catch ({ message }) {
+        this.logger.error('Error in smart action load hook: ', message);
+        return response.status(500).send({ message });
       }
     };
   }
