@@ -1,5 +1,6 @@
 const EXPIRATION_IN_DAYS = 14;
 const PAST_DATE = new Date(0);
+
 class TokenService {
   /** @private @readonly @type {import('jsonwebtoken')} */
   jsonwebtoken;
