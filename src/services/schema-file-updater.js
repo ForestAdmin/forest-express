@@ -3,9 +3,9 @@ const { parameterize } = require('../utils/string');
 const { prettyPrint } = require('../utils/json');
 
 class SchemaFileUpdater {
-  constructor({ logger, writeFileSync }) {
+  constructor({ logger, fs }) {
     this.logger = logger;
-    this.writeFileSync = writeFileSync;
+    this.fs = fs;
   }
 
   static formatObject(object, attributes) {
@@ -184,7 +184,7 @@ class SchemaFileUpdater {
       collection1.name.localeCompare(collection2.name));
 
     const schema = { collections, meta };
-    this.writeFileSync(filename, prettyPrint(schema));
+    this.fs.writeFileSync(filename, prettyPrint(schema));
     return schema;
   }
 }

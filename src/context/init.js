@@ -63,7 +63,6 @@ function initServices(context) {
   context.addInstance('errorHandler', errorHandler);
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
-  context.addInstance('writeFileSync', (...args) => fs.writeFileSync(...args));
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
@@ -77,6 +76,7 @@ function initServices(context) {
  */
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
+  context.addInstance('fs', fs);
 }
 
 /**
