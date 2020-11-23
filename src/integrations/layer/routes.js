@@ -7,10 +7,12 @@ const serializeConversations = require('./serializers/conversations');
 const ConversationGetter = require('./services/conversation-getter');
 const MessagesGetter = require('./services/messages-getter');
 const serializeMessages = require('./serializers/messages');
+const context = require('../../context');
 
 /* jshint camelcase: false */
 
 module.exports = function Routes(app, model, Implementation, opts) {
+  const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -24,7 +26,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
   if (integrationInfo) {
     const integrationValues = integrationInfo.split('.');
     integrationInfo = {
-      collection: Implementation.getModels()[integrationValues[0]],
+      collection: modelsManager.getModels()[integrationValues[0]],
       field: integrationValues[1],
     };
   }

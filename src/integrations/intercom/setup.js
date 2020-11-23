@@ -1,11 +1,13 @@
 const _ = require('lodash');
 const { pushIntoApimap } = require('../../utils/integrations');
+const context = require('../../context');
 
 const INTEGRATION_NAME = 'intercom';
 
 exports.createCollections = (Implementation, apimap, collectionName) => {
+  const { modelsManager } = context.inject();
   const collectionDisplayName = _.capitalize(collectionName);
-  const model = Implementation.getModels()[collectionName];
+  const model = modelsManager.getModels()[collectionName];
   // jshint camelcase: false
   pushIntoApimap(apimap, {
     name: `${Implementation.getModelName(model)}_intercom_conversations`,

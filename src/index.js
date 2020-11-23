@@ -1,8 +1,5 @@
-const P = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
@@ -24,7 +21,6 @@ const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
-const ConfigStore = require('./services/config-store');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
@@ -37,6 +33,9 @@ const {
   apimapFieldsFormater,
   apimapSender,
   schemaFileUpdater,
+  configStore,
+  modelsManager,
+  fs,
 } = context.inject();
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
@@ -48,63 +47,33 @@ const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
-const configStore = ConfigStore.getInstance();
 
 let jwtAuthenticator;
-
-function getModels() {
-  const models = configStore.Implementation.getModels();
-  _.each(models, (model, modelName) => {
-    model.modelName = modelName;
-  });
-
-  return _.values(models);
-}
-
-function requireAllModels(modelsDir) {
-  if (modelsDir) {
-    try {
-      const isJavascriptOrTypescriptFileName = (fileName) =>
-        fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
-
-      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
-      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
-
-      requireAll({
-        dirname: modelsDir,
-        excludeDirs: /^__tests__$/,
-        filter: (fileName) =>
-          isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
-        recursive: true,
-      });
-    } catch (error) {
-      logger.error('Cannot read a file for the following reason: ', error);
-    }
-  }
-
-  // NOTICE: User didn't provide a modelsDir but may already have required them manually so they
-  //         might be available.
-  return P.resolve(getModels())
-    .catch((error) => {
-      logger.error('Cannot read a file for the following reason: ', error);
-      return P.resolve([]);
-    });
-}
-
-exports.Schemas = Schemas;
-exports.logger = logger;
-exports.ResourcesRoute = {};
-
-exports.ensureAuthenticated = (request, response, next) => {
-  auth.authenticate(request, response, next, jwtAuthenticator);
-};
-
 let app = null;
+
+function loadCollections(collectionsDir) {
+  try {
+    const isJavascriptOrTypescriptFileName = (fileName) =>
+      fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+
+    // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+    const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
+
+    requireAll({
+      dirname: collectionsDir,
+      excludeDirs: /^__tests__$/,
+      filter: (fileName) =>
+        isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
+      recursive: true,
+    });
+  } catch (error) {
+    logger.error('Cannot read a file for the following reason: ', error);
+  }
+}
 
 async function buildSchema() {
   const { lianaOptions, Implementation } = configStore;
-  const absModelDirs = configStore.modelsDir ? path.resolve('.', configStore.modelsDir) : undefined;
-  const models = await requireAllModels(absModelDirs);
+  const models = Object.values(modelsManager.getModels());
   configStore.integrator = new Integrator(lianaOptions, Implementation);
   await Schemas.perform(
     Implementation,
@@ -115,14 +84,15 @@ async function buildSchema() {
   return models;
 }
 
-function generateAndSendSchema(opts) {
-  if (!opts.envSecret) { return; }
+exports.Schemas = Schemas;
+exports.logger = logger;
+exports.ResourcesRoute = {};
 
-  if (opts.envSecret.length !== 64) {
-    logger.error('Your envSecret does not seem to be correct. Can you check on Forest that you copied it properly in the Forest initialization?');
-    return;
-  }
+exports.ensureAuthenticated = (request, response, next) => {
+  auth.authenticate(request, response, next, jwtAuthenticator);
+};
 
+function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
   configStore.integrator.defineCollections(collections);
 
@@ -187,7 +157,7 @@ function generateAndSendSchema(opts) {
   if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
-  apimapSender.send(opts.envSecret, schemaSent);
+  apimapSender.send(envSecret, schemaSent);
 }
 
 exports.init = async (Implementation) => {
@@ -196,25 +166,23 @@ exports.init = async (Implementation) => {
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
 
-  if (opts.onlyCrudModule === true) {
-    return buildSchema();
-  }
-
   if (app) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
     return app;
   }
 
   app = express();
-  const pathMounted = pathService.generate('*', opts);
 
-  auth.initAuth(opts);
-
-  if (opts.secretKey) {
-    logger.warn('DEPRECATION WARNING: The use of secretKey and authKey options is deprecated. Please use envSecret and authSecret instead.');
-    opts.envSecret = opts.secretKey;
-    opts.authSecret = opts.authKey;
+  try {
+    configStore.validateOptions();
+  } catch (error) {
+    logger.error(error.message);
+    return Promise.resolve(app);
   }
+
+  const pathMounted = pathService.generate('*', configStore.lianaOptions);
+
+  auth.initAuth(configStore.lianaOptions);
 
   if (TWO_FA_SECRET_SALT) {
     try {
@@ -241,9 +209,9 @@ exports.init = async (Implementation) => {
   app.use(pathMounted, bodyParser.json());
 
   // Authentication
-  if (opts.authSecret) {
+  if (configStore.lianaOptions.authSecret) {
     jwtAuthenticator = jwt(getJWTConfiguration({
-      secret: opts.authSecret,
+      secret: configStore.lianaOptions.authSecret,
       getToken: (request) => {
         if (request.headers) {
           if (request.headers.authorization
@@ -261,12 +229,6 @@ exports.init = async (Implementation) => {
         return null;
       },
     }));
-  } else {
-    logger.error('Your Forest authSecret seems to be missing. Can you check that you properly set a Forest authSecret in the Forest initializer?');
-  }
-
-  if (!opts.envSecret) {
-    logger.error('Your Forest envSecret seems to be missing. Can you check that you properly set a Forest envSecret in the Forest initializer?');
   }
 
   if (jwtAuthenticator) {
@@ -274,25 +236,15 @@ exports.init = async (Implementation) => {
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
-  new HealthCheckRoute(app, opts).perform();
-  new SessionRoute(app, opts).perform();
+  new HealthCheckRoute(app, configStore.lianaOptions).perform();
+  new SessionRoute(app, configStore.lianaOptions).perform();
 
   // Init
   try {
     const models = await buildSchema();
 
-    let directorySmartImplementation;
-
-    if (opts.configDir) {
-      directorySmartImplementation = path.resolve('.', opts.configDir);
-    } else {
-      directorySmartImplementation = `${path.resolve('.')}/forest`;
-    }
-
-    if (fs.existsSync(directorySmartImplementation)) {
-      await requireAllModels(directorySmartImplementation);
-    } else if (opts.configDir) {
-      logger.error('The Forest configDir option you configured does not seem to be an existing directory.');
+    if (configStore.isConfigDirExist()) {
+      loadCollections(configStore.configDir);
     }
 
     models.forEach((model) => {
@@ -330,15 +282,16 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    generateAndSendSchema(opts);
+    generateAndSendSchema(configStore.lianaOptions.envSecret);
+
     try {
-      await ipWhitelist.retrieve(opts.envSecret);
+      await ipWhitelist.retrieve(configStore.lianaOptions.envSecret);
     } catch (error) {
       // NOTICE: An error log (done by the service) is enough in case of retrieval error.
     }
 
-    if (opts.expressParentApp) {
-      opts.expressParentApp.use('/forest', app);
+    if (configStore.lianaOptions.expressParentApp) {
+      configStore.lianaOptions.expressParentApp.use('/forest', app);
     }
 
     return app;

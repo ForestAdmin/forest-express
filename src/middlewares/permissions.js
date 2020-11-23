@@ -1,14 +1,14 @@
 const httpError = require('http-errors');
 const PermissionsChecker = require('../services/permissions-checker');
 const logger = require('../services/logger');
-const ConfigStore = require('../services/config-store');
+const context = require('../context');
 
 const getRenderingIdFromUser = (user) => user.renderingId;
 
 class PermissionMiddlewareCreator {
-  constructor(collectionName) {
+  constructor(collectionName, { configStore } = context.inject()) {
     this.collectionName = collectionName;
-    this.configStore = ConfigStore.getInstance();
+    this.configStore = configStore;
   }
 
   static _getSmartActionInfoFromRequest(request) {

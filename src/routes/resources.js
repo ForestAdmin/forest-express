@@ -5,12 +5,11 @@ const ResourceDeserializer = require('../deserializers/resource');
 const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const PermissionMiddlewareCreator = require('../middlewares/permissions');
-const ConfigStore = require('../services/config-store');
+const context = require('../context');
 const RecordsGetter = require('../services/exposed/records-getter.js');
 
-const configStore = ConfigStore.getInstance();
-
 module.exports = function Resources(app, model) {
+  const { configStore } = context.inject();
   const { Implementation, integrator, lianaOptions } = configStore;
   const modelName = Implementation.getModelName(model);
 

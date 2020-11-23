@@ -2,8 +2,10 @@ const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
 const Setup = require('./setup');
+const context = require('../../context');
 
 function Checker(opts, Implementation) {
+  const { modelsManager } = context.inject();
   let integrationValid = false;
 
   function hasIntegration() {
@@ -30,7 +32,7 @@ function Checker(opts, Implementation) {
   }
 
   function isMappingValid() {
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
     let mappingValid = true;
     _.map(opts.integrations.stripe.mapping, (mappingValue) => {
       const collectionName = mappingValue.split('.')[0];
@@ -55,7 +57,7 @@ function Checker(opts, Implementation) {
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return false; }
 
-    const models = Implementation.getModels();
+    const models = modelsManager.getModels();
 
     const collectionModelNames = _.map(
       integration.mapping,
