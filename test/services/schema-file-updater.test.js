@@ -5,7 +5,7 @@ const ApplicationContext = require('../../src/context/application-context');
 describe('services > schema-file-updater', () => {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
-    .addInstance('writeFileSync', jest.fn())
+    .addInstance('fs', { writeFileSync: jest.fn() })
     .addInstance('logger', { warn: jest.fn() })
     .addClass(SchemaFileUpdater));
 
@@ -28,10 +28,10 @@ describe('services > schema-file-updater', () => {
   // NOTICE: Expecting `fs.writeFileSync` second parameter to be valid JSON.
   it('should call fs.writeFileSync with a valid JSON as data', () => {
     expect.assertions(2);
-    const { writeFileSync } = context.inject();
+    const { fs } = context.inject();
     buildSchema([], {});
-    expect(writeFileSync).toHaveBeenCalledTimes(1);
-    const jsonStringSchema = writeFileSync.mock.calls[0][1];
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
+    const jsonStringSchema = fs.writeFileSync.mock.calls[0][1];
     expect(() => JSON.parse(jsonStringSchema)).not.toThrow();
   });
 
