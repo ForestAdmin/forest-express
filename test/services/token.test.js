@@ -66,22 +66,16 @@ describe('token service', () => {
   });
 
   it('should update the expiration date of a token in the past', () => {
-    expect.assertions(2);
+    expect.assertions(1);
 
-    const { request, response, tokenService } = setup();
-    response.cookie.mockReturnValue('SET COOKIE IN THE PAST');
-    const result = tokenService.deleteToken(request, response);
+    const { tokenService } = setup();
+    const result = tokenService.deleteToken();
 
-    expect(result).toStrictEqual('SET COOKIE IN THE PAST');
-    expect(response.cookie).toHaveBeenCalledWith(
-      'forest_session_token',
-      'my_value_token',
-      {
-        expires: new Date(0),
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-      },
-    );
+    expect(result).toStrictEqual({
+      expires: new Date(0),
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    });
   });
 });
