@@ -145,7 +145,9 @@ async function authenticationCallback(context, options, request, response, next)
  * @param {import('express').Response} response
  */
 async function logout(context, request, response) {
-  context.tokenService.deleteToken(request, response);
+  const deletedToken = context.tokenService.deleteToken();
+  const token = request.headers.cookie.split('=')[1];
+  response.cookie('forest_session_token', token, deletedToken);
   response.status(204).send();
 }
 /**

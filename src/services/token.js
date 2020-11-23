@@ -55,14 +55,13 @@ class TokenService {
    * @param {import('express').Response} response
    */
   // eslint-disable-next-line class-methods-use-this
-  deleteToken(request, response) {
-    const token = request.headers.cookie.split('=')[1];
-    return response.cookie('forest_session_token', token, {
+  deleteToken() {
+    return {
       expires: PAST_DATE,
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-    });
+    };
   }
 }
 
