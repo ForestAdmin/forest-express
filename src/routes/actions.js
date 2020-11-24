@@ -5,27 +5,13 @@ const context = require('../context');
  */
 class Actions {
   constructor({
-    logger, pathService, stringUtils, schemasGenerator,
+    logger, pathService, stringUtils, schemasGenerator, hookLoad,
   } = context.inject()) {
     this.path = pathService;
     this.logger = logger;
     this.stringUtils = stringUtils;
     this.schemasGenerator = schemasGenerator;
-  }
-
-  /**
-   * Compare two sets of fields keys, returns true if both have the same keys.
-   * An error has to be thrown in getHookLoadController() when a field is deleted or added
-   * (new key or missing key in fields).
-   *
-   * @param {Object} fields The fields we want to compare
-   * @param {Object} previousFields The fields we want to compare
-   * @see getHookLoadController() for usage
-   */
-  static areFieldsConsistant(fields, previousFields) {
-    const containsAll = (left, right) =>
-      Object.keys(left).every((key) => Object.keys(right).includes(key));
-    return containsAll(fields, previousFields) && containsAll(previousFields, fields);
+    this.hookLoad = hookLoad;
   }
 
   /**
@@ -41,7 +27,7 @@ class Actions {
       const successResponse = (object) => response.status(200).send(object);
       const values = action.values ? action.values(request.body.data.attributes.values) : {};
 
-      if (!(values.then && typeof func === 'function')) return successResponse(values);
+      if (!(values.then && typeof values.then === 'function')) return successResponse(values);
 
       return values
         .then((valuesComputed) => successResponse(valuesComputed))
@@ -64,22 +50,15 @@ class Actions {
     return async (request, response) => {
       const recordId = request.body.data.attributes.recordsId[0];
       const record = await new Implementation.ResourceGetter(model, { recordId }).perform();
-      const fields = Object.fromEntries(
-        action.fields.map((field) => [field.field, { ...field, value: null }]),
-      );
 
       try {
-        if (typeof action.hooks.load !== 'function') throw new Error('load must be a function');
+        const updatedFields = await this.hookLoad.getResponse(
+          action.hooks.load,
+          action.fields,
+          record,
+        );
 
-        const result = await action.hooks.load({ record, fields });
-
-        if (!(result && typeof result === 'object')) {
-          throw new Error('load hook must return an object');
-        } else if (!Actions.areFieldsConsistant(result, fields)) {
-          throw new Error('fields must be unchanged (no addition nor deletion allowed)');
-        }
-
-        return response.status(200).send({ fields: result });
+        return response.status(200).send(updatedFields);
       } catch ({ message }) {
         this.logger.error('Error in smart action load hook: ', message);
         return response.status(500).send({ message });

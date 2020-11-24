@@ -1,7 +1,7 @@
 const ApplicationContext = require('../../src/context/application-context');
 const ActionsRoutes = require('../../src/routes/actions');
 
-function initContext(schema) {
+function initContext(schema, hookLoadGetResponse) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
@@ -13,6 +13,7 @@ function initContext(schema) {
       parameterize: jest.fn((name) => name),
     })
     .addInstance('schemasGenerator', { schemas: schema })
+    .addInstance('hookLoad', { getResponse: hookLoadGetResponse })
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })
     .addValue('implementation', { getModelName: jest.fn((m) => m.name) })
@@ -20,7 +21,7 @@ function initContext(schema) {
   return context;
 }
 
-async function callLoadHook(load) {
+async function callLoadHook(load, hookLoadGetResponse) {
   const schemas = {
     users: {
       actions: [{
@@ -32,7 +33,7 @@ async function callLoadHook(load) {
   };
   const {
     actions, model, app, logger,
-  } = initContext(schemas).inject();
+  } = initContext(schemas, hookLoadGetResponse).inject();
 
   const request = { body: { data: { attributes: { recordsId: [1] } } } };
   const send = jest.fn((values) => values);
@@ -70,7 +71,7 @@ describe('routes > actions', () => {
     expect(app.post).not.toHaveBeenCalled();
   });
 
-  it('should not create a route when actions.values or actions.hooks.* are missing present', async () => {
+  it('should not create a route when actions.values or actions.hooks.* are missing', async () => {
     expect.assertions(4);
 
     const schema = { users: { actions: [{}, {}] } };
@@ -181,78 +182,44 @@ describe('routes > actions', () => {
       });
 
       describe('when calling the route controller', () => {
-        describe('when action.hooks.load is invalid', () => {
-          it('should fail with message when action.hooks.load is not a function', async () => {
-            expect.assertions(3);
+        it('should call the load hook service', async () => {
+          expect.assertions(2);
 
-            const {
-              send, response, model, implementation,
-            } = await callLoadHook('oops');
-            expect(implementation.ResourceGetter)
-              .toHaveBeenNthCalledWith(1, model, { recordId: 1 });
-            expect(response.status).toHaveBeenNthCalledWith(1, 500);
-            expect(send).toHaveBeenNthCalledWith(1, { message: 'load must be a function' });
-          });
+          const load = jest.fn();
+          const hookLoadGetResponse = jest.fn();
+          const { model, implementation } = await callLoadHook(load, hookLoadGetResponse);
 
-          it('should fail with message when action.hooks.load does not return an object', async () => {
-            expect.assertions(4);
-
-            const load = jest.fn();
-            const {
-              send, response, model, implementation,
-            } = await callLoadHook(load);
-
-            expect(implementation.ResourceGetter)
-              .toHaveBeenNthCalledWith(1, model, { recordId: 1 });
-            expect(response.status).toHaveBeenNthCalledWith(1, 500);
-            expect(load).toHaveBeenNthCalledWith(1, {
-              fields: {
-                'invoice number': { field: 'invoice number', type: 'String', value: null },
-              },
-              record: { id: 1, name: 'Jane' },
-            });
-            expect(send).toHaveBeenNthCalledWith(1, { message: 'load hook must return an object' });
-          });
-
-          it('should fail with message when action.hooks.load returned fields are not consistent', async () => {
-            expect.assertions(2);
-
-            const newFields = {
-              'MODIFIED invoice number': { field: 'MODIFIED invoice number', type: 'String', value: null },
-            };
-            const load = jest.fn(() => newFields);
-            const {
-              send, response,
-            } = await callLoadHook(load);
-
-            expect(response.status).toHaveBeenNthCalledWith(1, 500);
-            expect(send).toHaveBeenNthCalledWith(1, { message: 'fields must be unchanged (no addition nor deletion allowed)' });
-          });
+          expect(implementation.ResourceGetter).toHaveBeenNthCalledWith(1, model, { recordId: 1 });
+          expect(hookLoadGetResponse).toHaveBeenNthCalledWith(
+            1,
+            load,
+            [{ field: 'invoice number', type: 'String' }],
+            { id: 1, name: 'Jane' },
+          );
         });
-        describe('when action.hooks.load is valid', () => {
-          it('should respond success with the updated fields', async () => {
-            expect.assertions(4);
 
-            const newFields = {
-              'invoice number': { field: 'invoice number', type: 'String', value: 'hello from load' },
-            };
+        it('should fail with message when load hook service throws', async () => {
+          expect.assertions(2);
 
-            const load = jest.fn(() => newFields);
-            const {
-              send, response, model, implementation,
-            } = await callLoadHook(load);
+          const load = jest.fn();
+          const hookLoadGetResponse = jest.fn(() => { throw new Error('oops'); });
+          const { send, response } = await callLoadHook(load, hookLoadGetResponse);
 
-            expect(implementation.ResourceGetter)
-              .toHaveBeenNthCalledWith(1, model, { recordId: 1 });
-            expect(response.status).toHaveBeenNthCalledWith(1, 200);
-            expect(load).toHaveBeenNthCalledWith(1, {
-              fields: {
-                'invoice number': { field: 'invoice number', type: 'String', value: null },
-              },
-              record: { id: 1, name: 'Jane' },
-            });
-            expect(send).toHaveBeenNthCalledWith(1, { fields: newFields });
-          });
+          expect(response.status).toHaveBeenNthCalledWith(1, 500);
+          expect(send).toHaveBeenNthCalledWith(1, { message: 'oops' });
+        });
+
+        it('should succeed with the updated fields when load hook service response', async () => {
+          expect.assertions(2);
+
+          const newFields = [{ field: 'invoice number', type: 'String', value: 'hello from load' }];
+
+          const load = jest.fn();
+          const hookLoadGetResponse = jest.fn(() => newFields);
+          const { send, response } = await callLoadHook(load, hookLoadGetResponse);
+
+          expect(response.status).toHaveBeenNthCalledWith(1, 200);
+          expect(send).toHaveBeenNthCalledWith(1, newFields);
         });
       });
     });
