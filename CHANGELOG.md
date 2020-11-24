@@ -1,3 +1,10 @@
+# [8.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.1...v8.0.0-beta.2) (2020-11-24)
+
+
+### Features
+
+* authenticate with openid connect ([#555](https://github.com/ForestAdmin/forest-express/issues/555)) ([72b2cc8](https://github.com/ForestAdmin/forest-express/commit/72b2cc86510caeb1e7de6593f9163b59d536bbeb))
+
 # [8.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v8.0.0-beta.1) (2020-11-24)
 
 
