@@ -35,7 +35,7 @@ async function callLoadHook(load, hookLoadGetResponse) {
     actions, model, app, logger,
   } = initContext(schemas, hookLoadGetResponse).inject();
 
-  const request = { body: { data: { attributes: { recordsId: [1] } } } };
+  const request = { body: { data: { recordsId: [1] } } };
   const send = jest.fn((values) => values);
   const response = { status: jest.fn(() => ({ send })) };
   const perform = jest.fn(() => ({ id: 1, name: 'Jane' }));

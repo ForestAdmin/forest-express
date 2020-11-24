@@ -48,7 +48,7 @@ class Actions {
    */
   getHookLoadController(action, model, Implementation) {
     return async (request, response) => {
-      const recordId = request.body.data.attributes.recordsId[0];
+      const recordId = request.body.data.recordsId[0];
       const record = await new Implementation.ResourceGetter(model, { recordId }).perform();
 
       try {
