@@ -219,7 +219,7 @@ describe('routes > actions', () => {
           const { send, response } = await callLoadHook(load, hookLoadGetResponse);
 
           expect(response.status).toHaveBeenNthCalledWith(1, 200);
-          expect(send).toHaveBeenNthCalledWith(1, newFields);
+          expect(send).toHaveBeenNthCalledWith(1, { fields: newFields });
         });
       });
     });
