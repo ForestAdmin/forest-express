@@ -1,3 +1,14 @@
+# [8.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v8.0.0-beta.1) (2020-11-24)
+
+
+* feat!: ease the multi-database setup by providing a map of connections on liana.init (#525) ([2e9dc94](https://github.com/ForestAdmin/forest-express/commit/2e9dc94dc6ba7366798f045c457d297308c20b33)), closes [#525](https://github.com/ForestAdmin/forest-express/issues/525)
+
+
+### BREAKING CHANGES
+
+* onlyCrudModule, modelsDir, secretKey, authKey options are not supported anymore by Liana.init().
+Instead of sequelize/mongoose & Sequelize/Mongoose, connections & objectMapping are now required.
+
 # [7.6.0](https://github.com/ForestAdmin/forest-express/compare/v7.5.1...v7.6.0) (2020-11-16)
 
 
