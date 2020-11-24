@@ -54,18 +54,15 @@ class AuthorizationFinder {
     password,
     forestToken,
   ) {
-    let pathEnd;
     let headers;
 
     if (email && password) {
-      pathEnd = 'authorization';
       headers = { email, password };
     } else if (forestToken) {
-      pathEnd = 'google-authorization';
       headers = { 'forest-token': forestToken };
     }
 
-    let url = `/liana/v2/renderings/${renderingId}/${pathEnd}`;
+    let url = `/liana/v2/renderings/${renderingId}/authorization`;
 
     if (twoFactorRegistration) {
       url += `?two-factor-registration=${twoFactorRegistration}`;

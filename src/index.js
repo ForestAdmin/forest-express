@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
+const url = require('url');
 const requireAll = require('require-all');
 const context = require('./context');
 const initContext = require('./context/init');
@@ -24,6 +25,7 @@ const Integrator = require('./integrations');
 const ProjectDirectoryUtils = require('./utils/project-directory');
 const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
+const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
   logger,
@@ -37,6 +39,14 @@ const {
   modelsManager,
   fs,
 } = context.inject();
+
+const PUBLIC_ROUTES = [
+  '/',
+  '/healthcheck',
+  '/sessions',
+  '/sessions-google',
+  ...initAuthenticationRoutes.PUBLIC_ROUTES,
+];
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
@@ -88,7 +98,20 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
+/**
+ * @param {import('express').Request} request
+ * @param {import('express').Response} response
+ * @param {import('express').NextFunction} next
+ */
 exports.ensureAuthenticated = (request, response, next) => {
+  const parsedUrl = url.parse(request.originalUrl);
+  const forestPublicRoutes = PUBLIC_ROUTES.map((route) => `/forest${route}`);
+
+  if (forestPublicRoutes.includes(parsedUrl.pathname)) {
+    next();
+    return;
+  }
+
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
@@ -194,16 +217,27 @@ exports.init = async (Implementation) => {
 
   // CORS
   let allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
+  const oneDayInSeconds = 86400;
 
   if (process.env.CORS_ORIGINS) {
     allowedOrigins = allowedOrigins.concat(process.env.CORS_ORIGINS.split(','));
   }
 
-  app.use(pathMounted, cors({
+  const corsOptions = {
     origin: allowedOrigins,
-    maxAge: 86400, // NOTICE: 1 day
+    maxAge: oneDayInSeconds,
     credentials: true,
+    preflightContinue: true,
+  };
+
+  app.use(pathService.generate(initAuthenticationRoutes.CALLBACK_ROUTE, opts), cors({
+    ...corsOptions,
+    // this route needs to be called after a redirection
+    // in this situation, the origin sent by the browser is "null"
+    origin: ['null', ...corsOptions.origin],
   }));
+
+  app.use(pathMounted, cors(corsOptions));
 
   // Mime type
   app.use(pathMounted, bodyParser.json());
@@ -238,6 +272,7 @@ exports.init = async (Implementation) => {
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
   new SessionRoute(app, configStore.lianaOptions).perform();
+  initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
 
   // Init
   try {
@@ -361,4 +396,4 @@ exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;
 
-exports.PUBLIC_ROUTES = ['/', '/healthcheck', '/sessions', '/sessions-google'];
+exports.PUBLIC_ROUTES = PUBLIC_ROUTES;

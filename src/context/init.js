@@ -1,6 +1,8 @@
 const fs = require('fs');
 const superagentRequest = require('superagent');
 const path = require('path');
+const openIdClient = require('openid-client');
+const jsonwebtoken = require('jsonwebtoken');
 
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
@@ -18,12 +20,34 @@ const SchemaFileUpdater = require('../services/schema-file-updater');
 const schemasGenerator = require('../generators/schemas');
 const ConfigStore = require('../services/config-store');
 const ModelsManager = require('../services/models-manager');
+const AuthenticationService = require('../services/authentication');
+const TokenService = require('../services/token');
+const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
+const OidcClientManagerService = require('../services/oidc-client-manager');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
 }
 
 /**
+ * @typedef {{
+ *   NODE_ENV: 'production' | 'development';
+ *   FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *   FOREST_2FA_SECRET_SALT?: boolean;
+ *   CORS_ORIGINS?: string;
+ *   JWT_ALGORITHM: string;
+ *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_URL: string;
+ *   APPLICATION_URL: string;
+ *   FOREST_AUTH_SECRET: string;
+ *   FOREST_ENV_SECRET: string;
+ * }} Env
+ *
+ * @typedef {{
+ *  env: Env
+ * }} EnvPart
+ *
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
@@ -40,17 +64,38 @@ function initValue(context) {
  *  schemaFileUpdater: import('../services/schema-file-updater');
  *  apimapSender: import('../services/apimap-sender');
  *  schemasGenerator: import('../generators/schemas');
+ *  authenticationService: import('../services/authentication');
+ *  tokenService: import('../services/token');
+ *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
+ *  oidcClientManagerService: import('../services/oidc-client-manager')
  * }} Services
  *
  * @typedef {{
  *  superagentRequest: import('superagent');
+ *  openIdClient: import('openid-client');
+ *  jsonwebtoken: import('jsonwebtoken');
  * }} Externals
  *
- * @typedef {Utils & Services & Externals} Context
+ * @typedef {EnvPart & Utils & Services & Externals} Context
  */
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
+ */
+function initEnv(context) {
+  context.addInstance('env', {
+    ...process.env,
+    FOREST_URL: process.env.FOREST_URL || 'https://api.forestadmin.com',
+    JWT_ALGORITHM: process.env.JWT_ALGORITHM || 'HS256',
+    NODE_ENV: ['dev', 'development'].includes(process.env.NODE_ENV)
+      ? 'development'
+      : 'production',
+    APPLICATION_URL: process.env.APPLICATION_URL || `http://localhost:${process.env.APPLICATION_PORT || 3310}`,
+  });
+}
+
+/**
+ * @param {import('./application-context')} context
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
@@ -59,7 +104,7 @@ function initUtils(context) {
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initServices(context) {
   context.addInstance('logger', logger);
@@ -75,23 +120,30 @@ function initServices(context) {
   context.addClass(SchemaFileUpdater);
   context.addClass(ConfigStore);
   context.addClass(ModelsManager);
+  context.addClass(TokenService);
+  context.addClass(OidcConfigurationRetrieverService);
+  context.addClass(OidcClientManagerService);
+  context.addClass(AuthenticationService);
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
   context.addInstance('path', path);
+  context.addInstance('openIdClient', openIdClient);
+  context.addInstance('jsonwebtoken', jsonwebtoken);
 }
 
 /**
- * @returns {ApplicationContext<Context>}
+ * @param {import('./application-context')<Context>} context
  */
 function initContext(context) {
   initExternals(context);
   initValue(context);
+  initEnv(context);
   initUtils(context);
   initServices(context);
 }

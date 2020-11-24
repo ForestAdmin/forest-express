@@ -7,4 +7,9 @@ exports.SERVER_TRANSACTION = {
   SERVER_DOWN: 'Cannot retrieve the data from the Forest server. Forest API seems to be down right now.',
   SECRET_NOT_FOUND: 'Cannot retrieve the data from the Forest server. Can you check that you properly copied the Forest envSecret in the Liana initializer?',
   UNEXPECTED: 'Cannot retrieve the data from the Forest server. An error occured in Forest API.',
+  INVALID_STATE_MISSING: 'Invalid response from the authentication server: the state parameter is missing',
+  INVALID_STATE_FORMAT: 'Invalid response from the authentication server: the state parameter is not at the right format',
+  INVALID_STATE_RENDERING_ID: 'Invalid response from the authentication server: the state does not contain a renderingId',
+  MISSING_RENDERING_ID: 'Authentication request must contain a renderingId',
+  INVALID_RENDERING_ID: 'The parameter renderingId is not valid',
 };
