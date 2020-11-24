@@ -249,7 +249,7 @@ describe('routes > authentication', () => {
         const invalidatedCookie = receivedResponseLogout.headers['set-cookie'][0];
 
         expect(receivedResponseLogout.status).toBe(204);
-        expect(invalidatedCookie).toMatch(/^forest_session_token=[^;]+Max-Age; Path=\/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=None$/);
+        expect(invalidatedCookie).toMatch(/^forest_session_token=[^;]+; Path=\/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=None$/);
       } finally {
         sandbox.restore();
       }

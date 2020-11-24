@@ -2,6 +2,8 @@ const START_AUTHENTICATION_ROUTE = 'authentication';
 const CALLBACK_AUTHENTICATION_ROUTE = 'authentication/callback';
 const LOGOUT_ROUTE = 'authentication/logout';
 
+const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
+
 const PUBLIC_ROUTES = [
   `/${START_AUTHENTICATION_ROUTE}`,
   `/${CALLBACK_AUTHENTICATION_ROUTE}`,
@@ -145,11 +147,27 @@ async function authenticationCallback(context, options, request, response, next)
  * @param {import('express').Response} response
  */
 async function logout(context, request, response) {
-  const deletedToken = context.tokenService.deleteToken();
-  const token = request.headers.cookie.split('=')[1];
-  response.cookie('forest_session_token', token, deletedToken);
-  response.status(204).send();
+  const cookies = request.headers.cookie;
+  const isLocalhost = request.headers.host.match(/localhost:([0-9]+)$/);
+
+  if (isLocalhost) {
+    response.status(204).send();
+  } else if (cookies) {
+    const deletedToken = context.tokenService.deleteToken();
+    const match = cookies.match(REGEX_COOKIE_SESSION_TOKEN);
+
+    if (match && match[1]) {
+      const forestToken = match[1];
+      response.cookie('forest_session_token', forestToken, deletedToken);
+      response.status(204).send();
+    } else {
+      response.status(400).send();
+    }
+  } else {
+    response.status(400).send();
+  }
 }
+
 /**
  * @param {import('express').Application} app
  * @param {{
