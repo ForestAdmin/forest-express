@@ -29,7 +29,7 @@ describe('services > hook-load', () => {
         .rejects.toThrow('load hook must return an object');
     });
 
-    it('should throw with message when objectsHaveSameKeys returns false', async () => {
+    it('should throw with message when fields have changed', async () => {
       expect.assertions(1);
 
       const { hookLoad } = initContext(jest.fn(() => false)).inject();
@@ -38,19 +38,46 @@ describe('services > hook-load', () => {
         .rejects.toThrow('fields must be unchanged (no addition nor deletion allowed)');
     });
 
-    it('should return an array of fields', async () => {
-      expect.assertions(1);
+    it('should throw with message when fields properties have changed', async () => {
+      expect.assertions(3);
 
-      const { hookLoad } = initContext(jest.fn(() => true)).inject();
+      const objectsHaveSameKeys = jest.fn();
+      objectsHaveSameKeys.mockReturnValueOnce(true).mockReturnValue(false);
+
+      const { hookLoad } = initContext(objectsHaveSameKeys).inject();
+
+      const load = jest.fn(() => ({
+        myField: {
+          field: 'myField',
+          type: 'String',
+          foo: 'bar', // This has been added by load function.
+        },
+      }));
+      await expect(hookLoad.getResponse(load, {}, [{
+        field: 'myField',
+        type: 'String',
+      }]))
+        .rejects.toThrow('fields properties must be unchanged (no addition nor deletion allowed)');
+      expect(objectsHaveSameKeys)
+        .toHaveBeenNthCalledWith(1, { myField: { field: 'myField', type: 'String', value: null } }, { myField: { field: 'myField', type: 'String', foo: 'bar' } });
+      expect(objectsHaveSameKeys)
+        .toHaveBeenNthCalledWith(2, { field: 'myField', type: 'String', value: null }, { field: 'myField', type: 'String', foo: 'bar' });
+    });
+
+    it('should return an array of fields', async () => {
+      expect.assertions(3);
+
+      const objectsHaveSameKeys = jest.fn(() => true);
+      const { hookLoad } = initContext(objectsHaveSameKeys).inject();
       const fields = [{
         field: 'myField',
         type: 'String',
       }];
-      const expected = [{
+      const expected = {
         field: 'myField',
         type: 'String',
         value: 'foo',
-      }];
+      };
 
       const load = jest.fn(() => ({
         myField: {
@@ -61,7 +88,17 @@ describe('services > hook-load', () => {
       }));
 
       const response = await hookLoad.getResponse(load, {}, fields);
-      await expect(response).toStrictEqual(expected);
+      await expect(response).toStrictEqual([expected]);
+      expect(objectsHaveSameKeys).toHaveBeenNthCalledWith(
+        1,
+        { myField: { ...expected, value: null } },
+        { myField: expected },
+      );
+      expect(objectsHaveSameKeys).toHaveBeenNthCalledWith(
+        2,
+        { ...expected, value: null },
+        expected,
+      );
     });
   });
 });
