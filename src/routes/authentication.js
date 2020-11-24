@@ -3,6 +3,7 @@ const CALLBACK_AUTHENTICATION_ROUTE = 'authentication/callback';
 const LOGOUT_ROUTE = 'authentication/logout';
 
 const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
+const REGEX_LOCALHOST = /localhost:([0-9]+)$/;
 
 const PUBLIC_ROUTES = [
   `/${START_AUTHENTICATION_ROUTE}`,
@@ -148,16 +149,17 @@ async function authenticationCallback(context, options, request, response, next)
  */
 async function logout(context, request, response) {
   const cookies = request.headers.cookie;
-  const isLocalhost = request.headers.host.match(/localhost:([0-9]+)$/);
+  const isLocalhost = request.headers.host.match(REGEX_LOCALHOST);
 
   if (isLocalhost) {
     response.status(204).send();
   } else if (cookies) {
-    const deletedToken = context.tokenService.deleteToken();
     const match = cookies.match(REGEX_COOKIE_SESSION_TOKEN);
 
     if (match && match[1]) {
       const forestToken = match[1];
+      const deletedToken = context.tokenService.deleteToken();
+
       response.cookie('forest_session_token', forestToken, deletedToken);
       response.status(204).send();
     } else {
