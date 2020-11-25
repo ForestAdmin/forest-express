@@ -3,7 +3,7 @@ const moment = require('moment');
 const VError = require('verror');
 const _ = require('lodash');
 const forestServerRequester = require('./forest-server-requester');
-const { perform } = require('./base-filters-parser');
+const { perform: parseFilters } = require('./base-filters-parser');
 
 const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
@@ -57,48 +57,54 @@ class PermissionsChecker {
 
   // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
   //         `actualConditionFilters`
-  static _isConditionFromScope(expectedFilterConditions, actualFilterCondition) {
+  static _isConditionFromScope(actualFilterCondition, expectedFilterConditions) {
     return expectedFilterConditions.filter((expectedCondition) =>
       expectedCondition.value === actualFilterCondition.value
       && expectedCondition.operator === actualFilterCondition.operator
       && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
-  async _isCollectionListAllowed(collectionListScope) {
-    if (!collectionListScope) {
-      return true;
+  static _isAggregationFromScope(aggregator, conditions, expectedConditionFilters) {
+    const filtredConditions = conditions.filter(Boolean);
+    // NOTICE: Exit case - filtredConditions[0] should be the scope
+    if (filtredConditions.length === 1
+          && filtredConditions[0].aggregator
+          && aggregator === 'and') {
+      return filtredConditions[0];
     }
+
+    // NOTICE: During the tree travel, check if `conditions` & `aggregator`
+    //         match with expectations
+    return filtredConditions.length === expectedConditionFilters.conditions.length
+      && (aggregator === expectedConditionFilters.aggregator || aggregator === 'and')
+      ? { aggregator, conditions: filtredConditions }
+      : null;
+  }
+
+
+  async _isCollectionListAllowed(collectionList) {
+    if (!collectionList.collection.list) return false;
+
+    if (!collectionList.scope) return true;
 
     try {
       const expectedConditionFilters = PermissionsChecker._computeConditionFiltersFromScope(
         this.permissionInfos.userId,
-        collectionListScope,
+        collectionList.scope,
       );
-        // NOTICE: Find aggregated condition. filtredConditions represent an array
-        //         of conditions that were tagged based on if it is present in the
-        //         scope
-      const isScopeAggregation = (aggregator, conditions) => {
-        const filtredConditions = conditions.filter(Boolean);
-        // NOTICE: Exit case - filtredConditions[0] should be the scope
-        if (filtredConditions.length === 1
-          && filtredConditions[0].aggregator
-          && aggregator === 'and') {
-          return filtredConditions[0];
-        }
 
-        // NOTICE: During the tree travel, check if `conditions` & `aggregator`
-        //         match with expectations
-        return filtredConditions.length === expectedConditionFilters.conditions.length
-          && (aggregator === expectedConditionFilters.aggregator || aggregator === 'and')
-          ? { aggregator, conditions: filtredConditions }
-          : null;
-      };
+      // NOTICE: Find aggregated condition. filtredConditions represent an array
+      //         of conditions that were tagged based on if it is present in the
+      //         scope
+      const isScopeAggregation = (aggregator, conditions) => PermissionsChecker
+        ._isAggregationFromScope(aggregator, conditions, expectedConditionFilters);
 
       // NOTICE: Find in a condition correspond to a scope condition or not
-      const isScopeCondition = (condition) =>
-        PermissionsChecker._isConditionFromScope(expectedConditionFilters.conditions, condition);
-        // NOTICE: Perform a travel to find the scope in filters
-      const scopeFound = await perform(
+      const isScopeCondition = (condition) => PermissionsChecker
+        ._isConditionFromScope(condition, expectedConditionFilters.conditions);
+
+      // NOTICE: Perform a travel to find the scope in filters
+      const scopeFound = await parseFilters(
         this.permissionInfos.filters,
         isScopeAggregation,
         isScopeCondition,
@@ -130,8 +136,8 @@ class PermissionsChecker {
     if (this.permissionName === 'actions') {
       return this._isSmartActionAllowed(permissions[this.collectionName].actions);
     }
-    if (this.permissionName === 'list' && permissions[this.collectionName].collection[this.permissionName]) {
-      return this._isCollectionListAllowed(permissions[this.collectionName].scope);
+    if (this.permissionName === 'list') {
+      return this._isCollectionListAllowed(permissions[this.collectionName]);
     }
     return permissions[this.collectionName].collection[this.permissionName];
   }
