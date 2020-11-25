@@ -4,18 +4,14 @@ const VError = require('verror');
 const _ = require('lodash');
 const forestServerRequester = require('./forest-server-requester');
 const { perform: parseFilters } = require('./base-filters-parser');
+const logger = require('./logger');
 
 const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
 class PermissionsChecker {
-  constructor(
-    environmentSecret, renderingId, collectionName, permissionName, permissionInfos = undefined,
-  ) {
+  constructor(environmentSecret, renderingId) {
     this.environmentSecret = environmentSecret;
     this.renderingId = renderingId;
-    this.collectionName = collectionName;
-    this.permissionName = permissionName;
-    this.permissionInfos = permissionInfos;
   }
 
   static expirationInSeconds = EXPIRATION_IN_SECONDS;
@@ -23,16 +19,48 @@ class PermissionsChecker {
   // This permissionsPerRendering is the cache, shared by all instances of PermissionsChecker.
   static permissionsPerRendering = {};
 
-  _isSmartActionAllowed(smartActionsPermissions) {
-    if (!this.permissionInfos
-      || !this.permissionInfos.userId
-      || !this.permissionInfos.actionId
+  static cleanCache() {
+    PermissionsChecker.permissionsPerRendering = {};
+  }
+
+  static getPermissionsData(renderingId) {
+    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
+      return null;
+    }
+
+    return PermissionsChecker.permissionsPerRendering[renderingId].data;
+  }
+
+  static _setPermissionsInRendering(renderingId, objectValue) {
+    PermissionsChecker.permissionsPerRendering[renderingId] = objectValue;
+  }
+
+  static getLastRetrieveTime(renderingId) {
+    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
+      return null;
+    }
+
+    return PermissionsChecker.permissionsPerRendering[renderingId].lastRetrieve;
+  }
+
+  static resetExpiration(renderingId) {
+    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(renderingId);
+
+    if (lastRetrieve) {
+      PermissionsChecker.permissionsPerRendering[renderingId].lastRetrieve = null;
+    }
+  }
+
+  static _isSmartActionAllowed(smartActionsPermissions, permissionInfos) {
+    if (!permissionInfos
+      || !permissionInfos.userId
+      || !permissionInfos.actionId
       || !smartActionsPermissions
-      || !smartActionsPermissions[this.permissionInfos.actionId]) {
+      || !smartActionsPermissions[permissionInfos.actionId]) {
       return false;
     }
 
-    const { userId, actionId } = this.permissionInfos;
+    const { userId, actionId } = permissionInfos;
     const { allowed, users } = smartActionsPermissions[actionId];
 
     return allowed && (!users || users.includes(parseInt(userId, 10)));
@@ -55,15 +83,6 @@ class PermissionsChecker {
     return computedConditionFilters;
   }
 
-  // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
-  //         `actualConditionFilters`
-  static _isConditionFromScope(actualFilterCondition, expectedFilterConditions) {
-    return expectedFilterConditions.filter((expectedCondition) =>
-      expectedCondition.value === actualFilterCondition.value
-      && expectedCondition.operator === actualFilterCondition.operator
-      && expectedCondition.field === actualFilterCondition.field).length > 0;
-  }
-
   static _isAggregationFromScope(aggregator, conditions, expectedConditionFilters) {
     const filtredConditions = conditions.filter(Boolean);
     // NOTICE: Exit case - filtredConditions[0] should be the scope
@@ -81,15 +100,22 @@ class PermissionsChecker {
       : null;
   }
 
+  // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
+  //         `actualConditionFilters`
+  static _isConditionFromScope(actualFilterCondition, expectedFilterConditions) {
+    return expectedFilterConditions.filter((expectedCondition) =>
+      expectedCondition.value === actualFilterCondition.value
+      && expectedCondition.operator === actualFilterCondition.operator
+      && expectedCondition.field === actualFilterCondition.field).length > 0;
+  }
 
-  async _isCollectionListAllowed(collectionList) {
+  static async _isCollectionListAllowed(collectionList, permissionInfos) {
     if (!collectionList.collection.list) return false;
-
     if (!collectionList.scope) return true;
 
     try {
       const expectedConditionFilters = PermissionsChecker._computeConditionFiltersFromScope(
-        this.permissionInfos.userId,
+        permissionInfos.userId,
         collectionList.scope,
       );
 
@@ -105,7 +131,7 @@ class PermissionsChecker {
 
       // NOTICE: Perform a travel to find the scope in filters
       const scopeFound = await parseFilters(
-        this.permissionInfos.filters,
+        permissionInfos.filters,
         isScopeAggregation,
         isScopeCondition,
       );
@@ -113,33 +139,42 @@ class PermissionsChecker {
       // NOTICE: In the case of only one expected condition, server will still send an aggregator
       //         which will not match the request. If one condition is found and is from scope
       //         then the request is valid
-      if (expectedConditionFilters.conditions.length === 1) {
-        return scopeFound;
-      }
+      const isValidSingleConditionScope = !!scopeFound
+        && expectedConditionFilters.conditions.length === 1;
 
-      return scopeFound.aggregator === expectedConditionFilters.aggregator
-        && scopeFound.conditions
+      const isSameScope = !!scopeFound
+        && scopeFound.aggregator === expectedConditionFilters.aggregator
+        && !!scopeFound.conditions
         && scopeFound.conditions.length === expectedConditionFilters.conditions.length;
+
+      return isValidSingleConditionScope || isSameScope;
     } catch (error) {
+      logger.error(error);
       return false;
     }
   }
 
-  async _isAllowed() {
+  async _isAllowed(collectionName, permissionName, permissionInfos) {
     const permissions = PermissionsChecker.getPermissionsData(this.renderingId);
 
-    if (!permissions || !permissions[this.collectionName]
-      || !permissions[this.collectionName].collection) {
+    if (!permissions || !permissions[collectionName]
+      || !permissions[collectionName].collection) {
       return false;
     }
 
-    if (this.permissionName === 'actions') {
-      return this._isSmartActionAllowed(permissions[this.collectionName].actions);
+    if (permissionName === 'actions') {
+      return PermissionsChecker._isSmartActionAllowed(
+        permissions[collectionName].actions,
+        permissionInfos,
+      );
     }
-    if (this.permissionName === 'list') {
-      return this._isCollectionListAllowed(permissions[this.collectionName]);
+    if (permissionName === 'list') {
+      return PermissionsChecker._isCollectionListAllowed(
+        permissions[collectionName],
+        permissionInfos,
+      );
     }
-    return permissions[this.collectionName].collection[this.permissionName];
+    return permissions[collectionName].collection[permissionName];
   }
 
   _retrievePermissions() {
@@ -166,59 +201,29 @@ class PermissionsChecker {
     return elapsedSeconds >= PermissionsChecker.expirationInSeconds;
   }
 
-  async _retrievePermissionsAndCheckAllowed() {
+  async _retrievePermissionsAndCheckAllowed(collectionName, permissionName, permissionInfos) {
     await this._retrievePermissions();
-    const allowed = await this._isAllowed();
+    const allowed = await this._isAllowed(collectionName, permissionName, permissionInfos);
     if (!allowed) {
-      throw new Error(`'${this.permissionName}' access forbidden on ${this.collectionName}`);
+      throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
     }
   }
 
-  static _setPermissionsInRendering(renderingId, objectValue) {
-    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
-      PermissionsChecker.permissionsPerRendering[renderingId] = objectValue;
-    } else {
-      Object.keys(objectValue).forEach((key) => {
-        PermissionsChecker.permissionsPerRendering[renderingId][key] = objectValue[key];
-      });
-    }
-  }
-
-  static resetExpiration(renderingId) {
-    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(renderingId);
-
-    if (lastRetrieve) {
-      PermissionsChecker._setPermissionsInRendering(renderingId, { lastRetrieve: null });
-    }
-  }
-
-  static getPermissionsData(renderingId) {
-    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
-      return null;
-    }
-
-    return PermissionsChecker.permissionsPerRendering[renderingId].data;
-  }
-
-  static getLastRetrieveTime(renderingId) {
-    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
-      return null;
-    }
-
-    return PermissionsChecker.permissionsPerRendering[renderingId].lastRetrieve;
-  }
-
-  static cleanCache() {
-    PermissionsChecker.permissionsPerRendering = {};
-  }
-
-  async checkPermissions() {
+  async checkPermissions(collectionName, permissionName, permissionInfos) {
     if (this._isPermissionExpired()) {
-      return this._retrievePermissionsAndCheckAllowed();
+      return this._retrievePermissionsAndCheckAllowed(
+        collectionName,
+        permissionName,
+        permissionInfos,
+      );
     }
 
-    if (!(await this._isAllowed(this.collectionName, this.permissionName))) {
-      return this._retrievePermissionsAndCheckAllowed();
+    if (!(await this._isAllowed(collectionName, permissionName))) {
+      return this._retrievePermissionsAndCheckAllowed(
+        collectionName,
+        permissionName,
+        permissionInfos,
+      );
     }
     return Promise.resolve();
   }

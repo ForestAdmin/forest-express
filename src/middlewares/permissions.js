@@ -37,14 +37,8 @@ class PermissionMiddlewareCreator {
         default:
       }
 
-      return new PermissionsChecker(
-        environmentSecret,
-        renderingId,
-        this.collectionName,
-        permissionName,
-        permissionInfos,
-      )
-        .checkPermissions()
+      return new PermissionsChecker(environmentSecret, renderingId)
+        .checkPermissions(this.collectionName, permissionName, permissionInfos)
         .then(next)
         .catch((error) => {
           logger.error(error.message);
