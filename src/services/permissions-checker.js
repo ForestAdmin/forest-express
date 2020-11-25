@@ -5,27 +5,34 @@ const _ = require('lodash');
 const forestServerRequester = require('./forest-server-requester');
 const { perform } = require('./base-filters-parser');
 
-let permissionsPerRendering = {};
+const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
-function PermissionsChecker(
-  environmentSecret,
-  renderingId,
-  collectionName,
-  permissionName,
-  permissionInfos = undefined,
-) {
-  const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
+class PermissionsChecker {
+  constructor(
+    environmentSecret, renderingId, collectionName, permissionName, permissionInfos = undefined,
+  ) {
+    this.environmentSecret = environmentSecret;
+    this.renderingId = renderingId;
+    this.collectionName = collectionName;
+    this.permissionName = permissionName;
+    this.permissionInfos = permissionInfos;
+  }
 
-  function isSmartActionAllowed(smartActionsPermissions) {
-    if (!permissionInfos
-      || !permissionInfos.userId
-      || !permissionInfos.actionId
+  static expirationInSeconds = EXPIRATION_IN_SECONDS;
+
+  // This permissionsPerRendering is the cache, shared by all instances of PermissionsChecker.
+  static permissionsPerRendering = {};
+
+  _isSmartActionAllowed(smartActionsPermissions) {
+    if (!this.permissionInfos
+      || !this.permissionInfos.userId
+      || !this.permissionInfos.actionId
       || !smartActionsPermissions
-      || !smartActionsPermissions[permissionInfos.actionId]) {
+      || !smartActionsPermissions[this.permissionInfos.actionId]) {
       return false;
     }
 
-    const { userId, actionId } = permissionInfos;
+    const { userId, actionId } = this.permissionInfos;
     const { allowed, users } = smartActionsPermissions[actionId];
 
     return allowed && (!users || users.includes(parseInt(userId, 10)));
@@ -34,7 +41,7 @@ function PermissionsChecker(
   // NOTICE: Compute a scope to replace $currentUser variables with
   //         the actual user values. This will generate the expected
   //         conditions filters when applied on the server scope response
-  function computeConditionFiltersFromScope(userId, collectionListScope) {
+  static _computeConditionFiltersFromScope(userId, collectionListScope) {
     const computedConditionFilters = _.clone(collectionListScope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
       if (condition.value
@@ -50,26 +57,26 @@ function PermissionsChecker(
 
   // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
   //         `actualConditionFilters`
-  function isConditionFromScope(expectedFilterConditions, actualFilterCondition) {
+  static _isConditionFromScope(expectedFilterConditions, actualFilterCondition) {
     return expectedFilterConditions.filter((expectedCondition) =>
       expectedCondition.value === actualFilterCondition.value
       && expectedCondition.operator === actualFilterCondition.operator
       && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
-  async function isCollectionListAllowed(collectionListScope) {
+  async _isCollectionListAllowed(collectionListScope) {
     if (!collectionListScope) {
       return true;
     }
 
     try {
-      const expectedConditionFilters = computeConditionFiltersFromScope(
-        permissionInfos.userId,
+      const expectedConditionFilters = PermissionsChecker._computeConditionFiltersFromScope(
+        this.permissionInfos.userId,
         collectionListScope,
       );
-      // NOTICE: Find aggregated condition. filtredConditions represent an array
-      //         of conditions that were tagged based on if it is present in the
-      //         scope
+        // NOTICE: Find aggregated condition. filtredConditions represent an array
+        //         of conditions that were tagged based on if it is present in the
+        //         scope
       const isScopeAggregation = (aggregator, conditions) => {
         const filtredConditions = conditions.filter(Boolean);
         // NOTICE: Exit case - filtredConditions[0] should be the scope
@@ -89,10 +96,10 @@ function PermissionsChecker(
 
       // NOTICE: Find in a condition correspond to a scope condition or not
       const isScopeCondition = (condition) =>
-        isConditionFromScope(expectedConditionFilters.conditions, condition);
-      // NOTICE: Perform a travel to find the scope in filters
+        PermissionsChecker._isConditionFromScope(expectedConditionFilters.conditions, condition);
+        // NOTICE: Perform a travel to find the scope in filters
       const scopeFound = await perform(
-        permissionInfos.filters,
+        this.permissionInfos.filters,
         isScopeAggregation,
         isScopeCondition,
       );
@@ -112,100 +119,103 @@ function PermissionsChecker(
     }
   }
 
-  async function isAllowed() {
-    const permissions = permissionsPerRendering[renderingId]
-      && permissionsPerRendering[renderingId].data;
+  async _isAllowed() {
+    const permissions = PermissionsChecker.getPermissionsData(this.renderingId);
 
-    if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
+    if (!permissions || !permissions[this.collectionName]
+      || !permissions[this.collectionName].collection) {
       return false;
     }
 
-    if (permissionName === 'actions') {
-      return isSmartActionAllowed(permissions[collectionName].actions);
+    if (this.permissionName === 'actions') {
+      return this._isSmartActionAllowed(permissions[this.collectionName].actions);
     }
-    if (permissionName === 'list' && permissions[collectionName].collection[permissionName]) {
-      return isCollectionListAllowed(permissions[collectionName].scope);
+    if (this.permissionName === 'list' && permissions[this.collectionName].collection[this.permissionName]) {
+      return this._isCollectionListAllowed(permissions[this.collectionName].scope);
     }
-    return permissions[collectionName].collection[permissionName];
+    return permissions[this.collectionName].collection[this.permissionName];
   }
 
-  function retrievePermissions() {
+  _retrievePermissions() {
     return forestServerRequester
-      .perform('/liana/v2/permissions', environmentSecret, { renderingId })
+      .perform('/liana/v2/permissions', this.environmentSecret, { renderingId: this.renderingId })
       .then((responseBody) => {
-        permissionsPerRendering[renderingId] = {
-          data: responseBody,
-          lastRetrieve: moment(),
-        };
+        PermissionsChecker._setPermissionsInRendering(
+          this.renderingId,
+          { data: responseBody, lastRetrieve: moment() },
+        );
       })
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
 
-  function isPermissionExpired() {
-    if (!permissionsPerRendering[renderingId]
-      || !permissionsPerRendering[renderingId].lastRetrieve) {
-      return true;
-    }
-
-    const { lastRetrieve } = permissionsPerRendering[renderingId];
+  _isPermissionExpired() {
     const currentTime = moment();
+    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(this.renderingId);
 
     if (!lastRetrieve) {
       return true;
     }
 
     const elapsedSeconds = currentTime.diff(lastRetrieve, 'seconds');
-
-    return elapsedSeconds >= EXPIRATION_IN_SECONDS;
+    return elapsedSeconds >= PermissionsChecker.expirationInSeconds;
   }
 
-  async function retrievePermissionsAndCheckAllowed() {
-    await retrievePermissions();
-    const allowed = await isAllowed();
+  async _retrievePermissionsAndCheckAllowed() {
+    await this._retrievePermissions();
+    const allowed = await this._isAllowed();
     if (!allowed) {
-      throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
+      throw new Error(`'${this.permissionName}' access forbidden on ${this.collectionName}`);
     }
   }
 
-  this.perform = async () => {
-    if (isPermissionExpired()) {
-      return retrievePermissionsAndCheckAllowed();
+  static _setPermissionsInRendering(renderingId, objectValue) {
+    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
+      PermissionsChecker.permissionsPerRendering[renderingId] = objectValue;
+    } else {
+      Object.keys(objectValue).forEach((key) => {
+        PermissionsChecker.permissionsPerRendering[renderingId][key] = objectValue[key];
+      });
+    }
+  }
+
+  static resetExpiration(renderingId) {
+    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(renderingId);
+
+    if (lastRetrieve) {
+      PermissionsChecker._setPermissionsInRendering(renderingId, { lastRetrieve: null });
+    }
+  }
+
+  static getPermissionsData(renderingId) {
+    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
+      return null;
     }
 
-    if (!(await isAllowed(collectionName, permissionName))) {
-      return retrievePermissionsAndCheckAllowed();
+    return PermissionsChecker.permissionsPerRendering[renderingId].data;
+  }
+
+  static getLastRetrieveTime(renderingId) {
+    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
+      return null;
+    }
+
+    return PermissionsChecker.permissionsPerRendering[renderingId].lastRetrieve;
+  }
+
+  static cleanCache() {
+    PermissionsChecker.permissionsPerRendering = {};
+  }
+
+  async checkPermissions() {
+    if (this._isPermissionExpired()) {
+      return this._retrievePermissionsAndCheckAllowed();
+    }
+
+    if (!(await this._isAllowed(this.collectionName, this.permissionName))) {
+      return this._retrievePermissionsAndCheckAllowed();
     }
     return Promise.resolve();
-  };
+  }
 }
-
-PermissionsChecker.cleanCache = () => {
-  permissionsPerRendering = {};
-};
-
-PermissionsChecker.resetExpiration = (renderingId) => {
-  const permissions = permissionsPerRendering[renderingId]
-    && permissionsPerRendering[renderingId].data;
-
-  if (permissions) {
-    permissions.lastRetrieve = null;
-  }
-};
-
-PermissionsChecker.getLastRetrieveTime = (renderingId) => {
-  if (!permissionsPerRendering[renderingId]) {
-    return null;
-  }
-
-  return permissionsPerRendering[renderingId].lastRetrieve;
-};
-
-PermissionsChecker.getPermissions = (renderingId) => {
-  if (!permissionsPerRendering[renderingId]) {
-    return null;
-  }
-
-  return permissionsPerRendering[renderingId].data;
-};
 
 module.exports = PermissionsChecker;

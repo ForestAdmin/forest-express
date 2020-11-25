@@ -44,7 +44,7 @@ class PermissionMiddlewareCreator {
         permissionName,
         permissionInfos,
       )
-        .perform()
+        .checkPermissions()
         .then(next)
         .catch((error) => {
           logger.error(error.message);
