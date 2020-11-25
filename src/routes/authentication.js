@@ -150,10 +150,10 @@ async function logout(context, request, response) {
   if (cookies) {
     const forestSessionToken = context.tokenService.forestSessionToken(cookies);
 
-    if (forestSessionToken && forestSessionToken[1]) {
+    if (forestSessionToken) {
       const deletedToken = context.tokenService.deleteToken();
 
-      response.cookie('forest_session_token', forestSessionToken[1], deletedToken);
+      response.cookie('forest_session_token', forestSessionToken, deletedToken);
     }
   }
   response.status(204).send();

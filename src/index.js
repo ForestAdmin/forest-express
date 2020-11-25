@@ -205,9 +205,9 @@ exports.init = (Implementation) => {
           }
           // NOTICE: Necessary for downloads authentication.
           if (request.headers.cookie) {
-            const match = tokenService.forestSessionToken(request.headers.cookie);
-            if (match && match[1]) {
-              return match[1];
+            const forestSessionToken = tokenService.forestSessionToken(request.headers.cookie);
+            if (forestSessionToken) {
+              return forestSessionToken;
             }
           }
         }
