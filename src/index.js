@@ -38,6 +38,7 @@ const {
   configStore,
   modelsManager,
   fs,
+  tokenService,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -55,7 +56,6 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
 let jwtAuthenticator;
@@ -254,9 +254,10 @@ exports.init = async (Implementation) => {
           }
           // NOTICE: Necessary for downloads authentication.
           if (request.headers.cookie) {
-            const match = request.headers.cookie.match(REGEX_COOKIE_SESSION_TOKEN);
-            if (match && match[1]) {
-              return match[1];
+            const forestSessionToken = tokenService
+              .extractForestSessionToken(request.headers.cookie);
+            if (forestSessionToken) {
+              return forestSessionToken;
             }
           }
         }

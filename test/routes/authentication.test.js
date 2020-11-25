@@ -183,4 +183,76 @@ describe('routes > authentication', () => {
       }
     });
   });
+
+  describe('#POST /forest/authentication/logout', () => {
+    it('should invalidate token from browser', async () => {
+      expect.assertions(2);
+
+      const {
+        forestApp: app, sandbox, injections,
+      } = await setupApp();
+
+      try {
+        const performResponse = {
+          data: {
+            id: 666,
+            attributes: {
+              first_name: 'Alice',
+              last_name: 'Doe',
+              email: 'alice@forestadmin.com',
+              teams: [1, 2, 3],
+            },
+          },
+        };
+
+        injections.forestServerRequester.perform
+          .withArgs(sinon.match(/^\/liana\/v2/), sinon.match.any, sinon.match.any, sinon.match.any)
+          .resolves(performResponse);
+
+        const login = request(app).get(`/forest/authentication/callback?code=THE-CODE&state=${
+          encodeURIComponent(JSON.stringify({ renderingId: 42 }))
+        }`)
+          .send();
+
+        /** @type {import('superagent').Response} */
+        const receivedResponse = await new Promise((resolve, reject) => {
+          login
+            .end((error, response) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(response);
+              }
+            });
+        });
+
+        const sessionCookie = receivedResponse.headers['set-cookie'][0];
+        const test = request(app).post('/forest/authentication/logout')
+          .set({
+            'content-type': 'application/json; charset=utf-8',
+            cookie: sessionCookie,
+          })
+          .send();
+
+        /** @type {import('superagent').Response} */
+        const receivedResponseLogout = await new Promise((resolve, reject) => {
+          test
+            .end((error, response) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(response);
+              }
+            });
+        });
+
+        const invalidatedCookie = receivedResponseLogout.headers['set-cookie'][0];
+
+        expect(receivedResponseLogout.status).toBe(204);
+        expect(invalidatedCookie).toMatch(/^forest_session_token=[^;]+; Path=\/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=None$/);
+      } finally {
+        sandbox.restore();
+      }
+    });
+  });
 });

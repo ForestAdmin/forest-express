@@ -1,4 +1,7 @@
 const EXPIRATION_IN_DAYS = 14;
+const PAST_DATE = new Date(0);
+const FOREST_SESSION_TOKEN = 'forest_session_token';
+const REGEX_COOKIE_SESSION_TOKEN = new RegExp(`${FOREST_SESSION_TOKEN}=([^;]*)`);
 
 class TokenService {
   /** @private @readonly @type {import('jsonwebtoken')} */
@@ -20,6 +23,12 @@ class TokenService {
   /** @returns {number} */
   get expirationInSeconds() {
     return this.expirationInDays * 24 * 3600;
+  }
+
+  /** @returns {string} */
+  // eslint-disable-next-line class-methods-use-this
+  get forestCookieName() {
+    return FOREST_SESSION_TOKEN;
   }
 
   /**
@@ -47,6 +56,28 @@ class TokenService {
     }, authSecret, {
       expiresIn: `${this.expirationInDays} days`,
     });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  deleteToken() {
+    return {
+      expires: PAST_DATE,
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    };
+  }
+
+  /**
+   * @param {string} cookies
+   */
+  // eslint-disable-next-line class-methods-use-this
+  extractForestSessionToken(cookies) {
+    const forestSession = cookies.match(REGEX_COOKIE_SESSION_TOKEN);
+    if (forestSession && forestSession[1]) {
+      return forestSession[1];
+    }
+    return null;
   }
 }
 
