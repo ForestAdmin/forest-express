@@ -148,7 +148,7 @@ async function logout(context, request, response) {
   const cookies = request.headers.cookie;
 
   if (cookies) {
-    const forestSessionToken = context.tokenService.forestSessionToken(cookies);
+    const forestSessionToken = context.tokenService.extractForestSessionToken(cookies);
 
     if (forestSessionToken) {
       const deletedToken = context.tokenService.deleteToken();

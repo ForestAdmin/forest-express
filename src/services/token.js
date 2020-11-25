@@ -65,7 +65,7 @@ class TokenService {
    * @param {string} cookies
    */
   // eslint-disable-next-line class-methods-use-this
-  forestSessionToken(cookies) {
+  extractForestSessionToken(cookies) {
     const forestSession = cookies.match(REGEX_COOKIE_SESSION_TOKEN);
     if (forestSession && forestSession[1]) {
       return forestSession[1];

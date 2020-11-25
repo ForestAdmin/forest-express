@@ -205,7 +205,8 @@ exports.init = (Implementation) => {
           }
           // NOTICE: Necessary for downloads authentication.
           if (request.headers.cookie) {
-            const forestSessionToken = tokenService.forestSessionToken(request.headers.cookie);
+            const forestSessionToken = tokenService
+              .extractForestSessionToken(request.headers.cookie);
             if (forestSessionToken) {
               return forestSessionToken;
             }
