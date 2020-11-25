@@ -171,11 +171,11 @@ class PermissionsChecker {
 
   _retrievePermissions() {
     return forestServerRequester
-      .perform('/liana/v2/permissions', this.environmentSecret, { renderingId: this.renderingId })
+      .perform('/liana/v3/permissions', this.environmentSecret, { renderingId: this.renderingId })
       .then((responseBody) => {
         PermissionsChecker._setPermissionsInRendering(
           this.renderingId,
-          { data: responseBody, lastRetrieve: moment() },
+          { data: responseBody.data, lastRetrieve: moment() },
         );
       })
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
