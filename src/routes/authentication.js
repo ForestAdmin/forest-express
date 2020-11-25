@@ -114,7 +114,7 @@ async function authenticationCallback(context, options, request, response, next)
     // These are the only 2 supported situations for agents, that's
     // why the token is not returned inside the body
     response.cookie(
-      'forest_session_token',
+      context.tokenService.forestCookieName,
       token,
       {
         httpOnly: true,
@@ -153,7 +153,7 @@ async function logout(context, request, response) {
     if (forestSessionToken) {
       const deletedToken = context.tokenService.deleteToken();
 
-      response.cookie('forest_session_token', forestSessionToken, deletedToken);
+      response.cookie(context.tokenService.forestCookieName, forestSessionToken, deletedToken);
     }
   }
   response.status(204).send();
