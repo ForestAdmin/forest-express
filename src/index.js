@@ -31,7 +31,7 @@ const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
-  logger, pathService, errorHandler, ipWhitelist,
+  logger, pathService, errorHandler, ipWhitelist, tokenService,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -49,7 +49,6 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 const configStore = ConfigStore.getInstance();
 
@@ -206,7 +205,7 @@ exports.init = (Implementation) => {
           }
           // NOTICE: Necessary for downloads authentication.
           if (request.headers.cookie) {
-            const match = request.headers.cookie.match(REGEX_COOKIE_SESSION_TOKEN);
+            const match = tokenService.forestSessionToken(request.headers.cookie);
             if (match && match[1]) {
               return match[1];
             }

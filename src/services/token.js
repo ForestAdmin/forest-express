@@ -1,5 +1,6 @@
 const EXPIRATION_IN_DAYS = 14;
 const PAST_DATE = new Date(0);
+const REGEX_COOKIE_SESSION_TOKEN = /forest_session_token=([^;]*)/;
 
 class TokenService {
   /** @private @readonly @type {import('jsonwebtoken')} */
@@ -50,10 +51,6 @@ class TokenService {
     });
   }
 
-  /**
-   * @param {import('express').Request} request
-   * @param {import('express').Response} response
-   */
   // eslint-disable-next-line class-methods-use-this
   deleteToken() {
     return {
@@ -62,6 +59,14 @@ class TokenService {
       secure: true,
       sameSite: 'none',
     };
+  }
+
+  /**
+   * @param {string} cookies
+   */
+  // eslint-disable-next-line class-methods-use-this
+  forestSessionToken(cookies) {
+    return cookies.match(REGEX_COOKIE_SESSION_TOKEN);
   }
 }
 
