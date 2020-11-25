@@ -114,10 +114,8 @@ class PermissionsChecker {
     if (!collectionList.scope) return true;
 
     try {
-      const expectedConditionFilters = PermissionsChecker._computeConditionFiltersFromScope(
-        permissionInfos.userId,
-        collectionList.scope,
-      );
+      const expectedConditionFilters = PermissionsChecker
+        ._computeConditionFiltersFromScope(permissionInfos.userId, collectionList.scope);
 
       // NOTICE: Find aggregated condition. filtredConditions represent an array
       //         of conditions that were tagged based on if it is present in the
