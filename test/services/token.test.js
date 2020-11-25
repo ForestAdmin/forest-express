@@ -23,11 +23,17 @@ describe('token service', () => {
 
     const tokenService = new TokenService(context);
 
+    const cookiesWithForestSessionToken = 'ajs_anonymous_id=%221d8dca9c-df5a-4c05-9bf7-0100df608603%22; _uc_referrer=direct; _ga=GA1.2.426771952.1606302064; _gid=GA1.2.263801298.1606302064; forest_session_token=myForestToken';
+
+    const cookiesWithoutForestSessionToken = 'ajs_anonymous_id=%221d8dca9c-df5a-4c05-9bf7-0100df608603%22; _uc_referrer=direct; _ga=GA1.2.426771952.1606302064; _gid=GA1.2.263801298.1606302064';
+
     return {
       tokenService,
       jsonwebtoken,
       request,
       response,
+      cookiesWithForestSessionToken,
+      cookiesWithoutForestSessionToken,
     };
   }
 
@@ -77,5 +83,23 @@ describe('token service', () => {
       secure: true,
       sameSite: 'none',
     });
+  });
+
+  it('should return null when there is no forest session cookie', () => {
+    expect.assertions(1);
+
+    const { tokenService, cookiesWithoutForestSessionToken } = setup();
+    const result = tokenService.extractForestSessionToken(cookiesWithoutForestSessionToken);
+
+    expect(result).toBeNull();
+  });
+
+  it('should return the forest session cookie', () => {
+    expect.assertions(1);
+
+    const { tokenService, cookiesWithForestSessionToken } = setup();
+    const result = tokenService.extractForestSessionToken(cookiesWithForestSessionToken);
+
+    expect(result).toStrictEqual('myForestToken');
   });
 });
