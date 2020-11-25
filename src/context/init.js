@@ -122,7 +122,6 @@ function initServices(context) {
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
   context.addClass(HookLoad);
-  context.addClass(RequestAnalyzerService);
   context.addClass(TokenService);
   context.addClass(OidcConfigurationRetrieverService);
   context.addClass(OidcClientManagerService);
