@@ -10,13 +10,14 @@ describe('utils › isSameDataStructure', () => {
     });
 
     it('should return false when objects does not have the same keys', () => {
-      expect.assertions(5);
+      expect.assertions(6);
 
       expect(isSameDataStructure({ a: 'b', c: 'd' }, { a: 'e', z: null })).toBe(false);
       expect(isSameDataStructure({ a: 'b', c: 'd' }, { a: 'e' })).toBe(false);
       expect(isSameDataStructure({ c: 'd' }, { a: 'e', z: 'f' })).toBe(false);
       expect(isSameDataStructure({ c: 'd' }, { a: 'e' })).toBe(false);
       expect(isSameDataStructure({ c: { d: 'e' } }, { a: { d: null } })).toBe(false);
+      expect(isSameDataStructure(null, { a: 'a' })).toBe(false);
     });
   });
   describe('when using a level of deepness', () => {
