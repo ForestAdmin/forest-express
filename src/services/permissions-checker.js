@@ -16,30 +16,68 @@ class PermissionsChecker {
 
   static expirationInSeconds = EXPIRATION_IN_SECONDS;
 
-  // This permissionsPerRendering is the cache, shared by all instances of PermissionsChecker.
-  static permissionsPerRendering = {};
+  static isrolesACLActivated;
+
+  // This permissions object is the cache, shared by all instances of PermissionsChecker.
+  static permissions = {
+    collections: {},
+    renderings: {},
+  };
+
 
   static cleanCache() {
-    PermissionsChecker.permissionsPerRendering = {};
+    PermissionsChecker.permissions = {
+      collections: {},
+      renderings: {},
+    };
   }
 
-  static getPermissions(renderingId) {
-    return PermissionsChecker.permissionsPerRendering[renderingId];
+  // In the teamACL format, the collections permissions are stored by rendering.
+  // Which is not the case for the rolesACL format.
+  static getCollectionsPermissions(renderingId) {
+    if (PermissionsChecker.isrolesACLActivated) {
+      return PermissionsChecker.permissions.collections;
+    }
+    return PermissionsChecker.permissions.renderings[renderingId]
+      ? PermissionsChecker.permissions.renderings[renderingId].data
+      : null;
   }
 
-  static _setPermissionsInRendering(renderingId, permissions) {
-    PermissionsChecker.permissionsPerRendering[renderingId] = permissions;
+  _getScopePermissions(collectionName) {
+    if (PermissionsChecker.permissions.renderings[this.renderingId]
+      && PermissionsChecker.permissions.renderings[this.renderingId].data
+      && PermissionsChecker.permissions.renderings[this.renderingId].data[collectionName]
+    ) {
+      return PermissionsChecker.permissions.renderings[this.renderingId].data[collectionName].scope;
+    }
+    return null;
+  }
+
+  static _setPermissions(renderingId, data) {
+    if (PermissionsChecker.isrolesACLActivated) {
+      PermissionsChecker.permissions.collections = data.collections;
+      PermissionsChecker.permissions.renderings[renderingId] = {
+        data: data.renderings[renderingId],
+        lastRetrieve: moment(),
+      };
+    } else {
+      PermissionsChecker.permissions.renderings[renderingId] = { data, lastRetrieve: moment() };
+    }
   }
 
   static getLastRetrieveTime(renderingId) {
-    const permissions = PermissionsChecker.getPermissions(renderingId);
-    return permissions ? permissions.lastRetrieve : null;
+    if (!PermissionsChecker.permissions) return null;
+
+    return PermissionsChecker.permissions.renderings[renderingId]
+      ? PermissionsChecker.permissions.renderings[renderingId].lastRetrieve
+      : null;
   }
 
   static resetExpiration(renderingId) {
-    const permissions = PermissionsChecker.getPermissions(renderingId);
-    if (permissions) {
-      permissions.lastRetrieve = null;
+    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(renderingId);
+
+    if (lastRetrieve) {
+      PermissionsChecker.permissions.renderings[renderingId].lastRetrieve = null;
     }
   }
 
@@ -101,13 +139,16 @@ class PermissionsChecker {
       && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
-  static async _isCollectionListAllowed(collectionList, permissionInfos) {
+  static async _isCollectionListAllowed(collectionList, permissionInfos, scope) {
+    // console.log('@@@here', scope);
     if (!collectionList.collection.list) return false;
-    if (!collectionList.scope) return true;
+    if (!scope) return true;
 
     try {
-      const expectedConditionFilters = PermissionsChecker
-        ._computeConditionFiltersFromScope(permissionInfos.userId, collectionList.scope);
+      const expectedConditionFilters = PermissionsChecker._computeConditionFiltersFromScope(
+        permissionInfos.userId,
+        scope,
+      );
 
       // NOTICE: Find aggregated condition. filtredConditions represent an array
       //         of conditions that were tagged based on if it is present in the
@@ -145,38 +186,36 @@ class PermissionsChecker {
   }
 
   async _isAllowed(collectionName, permissionName, permissionInfos) {
-    const permissions = PermissionsChecker.getPermissions(this.renderingId);
+    const collectionsPermissions = PermissionsChecker.getCollectionsPermissions(this.renderingId);
 
-    if (!permissions
-      || !permissions.data
-      || !permissions.data[collectionName]
-      || !permissions.data[collectionName].collection) {
+    if (!collectionsPermissions
+      || !collectionsPermissions[collectionName]
+      || !collectionsPermissions[collectionName].collection) {
       return false;
     }
 
     if (permissionName === 'actions') {
       return PermissionsChecker._isSmartActionAllowed(
-        permissions.data[collectionName].actions,
+        collectionsPermissions[collectionName].actions,
         permissionInfos,
       );
     }
     if (permissionName === 'list') {
       return PermissionsChecker._isCollectionListAllowed(
-        permissions.data[collectionName],
+        collectionsPermissions[collectionName],
         permissionInfos,
+        this._getScopePermissions(collectionName),
       );
     }
-    return permissions.data[collectionName].collection[permissionName];
+    return collectionsPermissions[collectionName].collection[permissionName];
   }
 
   _retrievePermissions() {
     return forestServerRequester
       .perform('/liana/v3/permissions', this.environmentSecret, { renderingId: this.renderingId })
       .then((responseBody) => {
-        PermissionsChecker._setPermissionsInRendering(
-          this.renderingId,
-          { data: responseBody.data, lastRetrieve: moment() },
-        );
+        PermissionsChecker.isrolesACLActivated = responseBody.rolesACLActivated;
+        PermissionsChecker._setPermissions(this.renderingId, responseBody.data);
       })
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
