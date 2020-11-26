@@ -1,6 +1,6 @@
 class HookLoad {
-  constructor({ objectsHaveSameKeys }) {
-    this.objectsHaveSameKeys = objectsHaveSameKeys;
+  constructor({ isSameDataStructure }) {
+    this.isSameDataStructure = isSameDataStructure;
   }
 
   /**
@@ -11,43 +11,25 @@ class HookLoad {
    * @param {Array} fields the array of fields.
    */
   async getResponse(hook, record, fields) {
-    // Initiate fields with empty (null) value properties.
-    const fieldsWithValue = fields.map((field) => ({ ...field, value: null }));
-    // Transform incomming fields from array to an object to ease usage in hook.
-    const fieldsAsObject = Object.fromEntries(fieldsWithValue.map((field) => [field.field, field]));
+    // Transform fields from array to an object to ease usage in hook, adds null value.
+    const fieldsForUser = fields.reduce((previous, current) => ({
+      ...previous,
+      [current.field]: { ...current, value: null },
+    }), {});
 
     if (typeof hook !== 'function') throw new Error('load must be a function');
 
     // Call the user-defined load hook.
-    const result = await hook({ record, fields: fieldsAsObject });
+    const result = await hook({ record, fields: fieldsForUser });
 
     if (!(result && typeof result === 'object')) {
       throw new Error('load hook must return an object');
-    } else if (!this.objectsHaveSameKeys(fieldsAsObject, result)) {
+    } else if (!this.isSameDataStructure(fieldsForUser, result, 1)) {
       throw new Error('fields must be unchanged (no addition nor deletion allowed)');
     }
 
-    const updatedFields = fields.map((field) => result[field.field]);
-
-    // Check if fields properties have changed.
-    if (this.haveFieldsPropertiesChanged(fieldsWithValue, updatedFields)) {
-      throw new Error('fields properties must be unchanged (no addition nor deletion allowed)');
-    }
-
     // Apply result on fields (transform the object back to an array), preserve order.
-    return updatedFields;
-  }
-
-  /**
-   * Check if fields properties have changed.
-   *
-   * @param {Array} fieldsWithValue
-   * @param {Array} updatedFields
-   * @return {Boolean}
-   */
-  haveFieldsPropertiesChanged(fieldsWithValue, updatedFields) {
-    return updatedFields
-      .some((field, key) => !this.objectsHaveSameKeys(fieldsWithValue[key], field));
+    return fields.map((field) => result[field.field]);
   }
 }
 

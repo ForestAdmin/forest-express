@@ -3,7 +3,7 @@ const superagentRequest = require('superagent');
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
-const objectsHaveSameKeys = require('../utils/objects-have-same-keys');
+const isSameDataStructure = require('../utils/is-same-data-structure');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -26,7 +26,7 @@ function initValue(context) {
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
  *  errorUtils: import('../utils/error');
- *  objectsHaveSameKeys: import('../utils/object-have-same-keys')
+ *  isSameDataStructure: import('../utils/object-have-same-keys')
  * }} Utils
  *
  * @typedef {{
@@ -56,7 +56,7 @@ function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
   context.addInstance('stringUtils', stringUtils);
   context.addInstance('errorUtils', errorUtils);
-  context.addInstance('objectsHaveSameKeys', objectsHaveSameKeys);
+  context.addInstance('isSameDataStructure', isSameDataStructure);
 }
 
 /**
