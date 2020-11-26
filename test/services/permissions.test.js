@@ -519,10 +519,10 @@ describe('services > permissions', () => {
         expect.assertions(4);
         resetNock();
         let lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-        let retrievedPermissions = PermissionsChecker.getPermissionsData(1);
+        let retrievedPermissions = PermissionsChecker.getPermissions(1);
 
         expect(lastRetrieve).toBeNull();
-        expect(retrievedPermissions).toBeNull();
+        expect(retrievedPermissions).toBeUndefined();
 
         const permissions = {
           Users: {
@@ -537,7 +537,7 @@ describe('services > permissions', () => {
         await new PermissionsChecker('envSecret', 1)
           .checkPermissions('Users', 'list')
           .then(() => {
-            retrievedPermissions = PermissionsChecker.getPermissionsData(1);
+            retrievedPermissions = PermissionsChecker.getPermissions(1).data;
             lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
             expect(lastRetrieve).not.toBeNull();
@@ -553,10 +553,10 @@ describe('services > permissions', () => {
         PermissionsChecker.expirationInSeconds = 1;
 
         const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-        const initialRetrievedPermissions = PermissionsChecker.getPermissionsData(1);
+        const initialRetrievedPermissions = PermissionsChecker.getPermissions(1);
 
         expect(intialLastRetrieve).toBeNull();
-        expect(initialRetrievedPermissions).toBeNull();
+        expect(initialRetrievedPermissions).toBeUndefined();
 
         const permissions1 = {
           Users: {
@@ -583,7 +583,7 @@ describe('services > permissions', () => {
 
         await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list');
 
-        const firstRetrievedPermissions = PermissionsChecker.getPermissionsData(1);
+        const firstRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
         const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
         expect(firstRetrievedPermissions).toStrictEqual(permissions1);
@@ -595,7 +595,7 @@ describe('services > permissions', () => {
         await new PermissionsChecker('envSecret', 1)
           .checkPermissions('Users', 'list')
           .then(() => {
-            const secondRetrievedPermissions = PermissionsChecker.getPermissionsData(1);
+            const secondRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
             const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
             expect(secondRetrievedPermissions).toStrictEqual(permissions2);
@@ -611,10 +611,10 @@ describe('services > permissions', () => {
         PermissionsChecker.expirationInSeconds = 1000;
 
         const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-        const initialRetrievedPermissions = PermissionsChecker.getPermissionsData(1);
+        const initialRetrievedPermissions = PermissionsChecker.getPermissions(1);
 
         expect(intialLastRetrieve).toBeNull();
-        expect(initialRetrievedPermissions).toBeNull();
+        expect(initialRetrievedPermissions).toBeUndefined();
 
         const permissions1 = {
           Users: {
@@ -641,7 +641,7 @@ describe('services > permissions', () => {
 
         await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list');
 
-        const firstRetrievedPermissions = PermissionsChecker.getPermissionsData(1);
+        const firstRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
         const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
         expect(firstRetrievedPermissions).toStrictEqual(permissions1);
@@ -650,7 +650,7 @@ describe('services > permissions', () => {
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
         new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list');
-        const secondRetrievedPermissions = PermissionsChecker.getPermissionsData(1);
+        const secondRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
         const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
         expect(secondRetrievedPermissions).toStrictEqual(permissions1);

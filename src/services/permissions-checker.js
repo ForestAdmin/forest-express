@@ -23,31 +23,23 @@ class PermissionsChecker {
     PermissionsChecker.permissionsPerRendering = {};
   }
 
-  static getPermissionsData(renderingId) {
-    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
-      return null;
-    }
-
-    return PermissionsChecker.permissionsPerRendering[renderingId].data;
+  static getPermissions(renderingId) {
+    return PermissionsChecker.permissionsPerRendering[renderingId];
   }
 
-  static _setPermissionsInRendering(renderingId, objectValue) {
-    PermissionsChecker.permissionsPerRendering[renderingId] = objectValue;
+  static _setPermissionsInRendering(renderingId, permissions) {
+    PermissionsChecker.permissionsPerRendering[renderingId] = permissions;
   }
 
   static getLastRetrieveTime(renderingId) {
-    if (!PermissionsChecker.permissionsPerRendering[renderingId]) {
-      return null;
-    }
-
-    return PermissionsChecker.permissionsPerRendering[renderingId].lastRetrieve;
+    const permissions = PermissionsChecker.getPermissions(renderingId);
+    return permissions ? permissions.lastRetrieve : null;
   }
 
   static resetExpiration(renderingId) {
-    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(renderingId);
-
-    if (lastRetrieve) {
-      PermissionsChecker.permissionsPerRendering[renderingId].lastRetrieve = null;
+    const permissions = PermissionsChecker.getPermissions(renderingId);
+    if (permissions) {
+      permissions.lastRetrieve = null;
     }
   }
 
@@ -87,8 +79,8 @@ class PermissionsChecker {
     const filtredConditions = conditions.filter(Boolean);
     // NOTICE: Exit case - filtredConditions[0] should be the scope
     if (filtredConditions.length === 1
-          && filtredConditions[0].aggregator
-          && aggregator === 'and') {
+      && filtredConditions[0].aggregator
+      && aggregator === 'and') {
       return filtredConditions[0];
     }
 
@@ -153,26 +145,28 @@ class PermissionsChecker {
   }
 
   async _isAllowed(collectionName, permissionName, permissionInfos) {
-    const permissions = PermissionsChecker.getPermissionsData(this.renderingId);
+    const permissions = PermissionsChecker.getPermissions(this.renderingId);
 
-    if (!permissions || !permissions[collectionName]
-      || !permissions[collectionName].collection) {
+    if (!permissions
+      || !permissions.data
+      || !permissions.data[collectionName]
+      || !permissions.data[collectionName].collection) {
       return false;
     }
 
     if (permissionName === 'actions') {
       return PermissionsChecker._isSmartActionAllowed(
-        permissions[collectionName].actions,
+        permissions.data[collectionName].actions,
         permissionInfos,
       );
     }
     if (permissionName === 'list') {
       return PermissionsChecker._isCollectionListAllowed(
-        permissions[collectionName],
+        permissions.data[collectionName],
         permissionInfos,
       );
     }
-    return permissions[collectionName].collection[permissionName];
+    return permissions.data[collectionName].collection[permissionName];
   }
 
   _retrievePermissions() {
@@ -223,7 +217,7 @@ class PermissionsChecker {
         permissionInfos,
       );
     }
-    return Promise.resolve();
+    return null;
   }
 }
 
