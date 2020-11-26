@@ -3,20 +3,47 @@ const moment = require('moment');
 const VError = require('verror');
 const _ = require('lodash');
 const forestServerRequester = require('./forest-server-requester');
-const { perform } = require('./base-filters-parser');
+const { perform: parseFilters } = require('./base-filters-parser');
+const logger = require('./logger');
 
-let permissionsPerRendering = {};
+const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
 
-function PermissionsChecker(
-  environmentSecret,
-  renderingId,
-  collectionName,
-  permissionName,
-  permissionInfos = undefined,
-) {
-  const EXPIRATION_IN_SECONDS = process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS || 3600;
+class PermissionsChecker {
+  constructor(environmentSecret, renderingId) {
+    this.environmentSecret = environmentSecret;
+    this.renderingId = renderingId;
+  }
 
-  function isSmartActionAllowed(smartActionsPermissions) {
+  static expirationInSeconds = EXPIRATION_IN_SECONDS;
+
+  // This permissionsPerRendering is the cache, shared by all instances of PermissionsChecker.
+  static permissionsPerRendering = {};
+
+  static cleanCache() {
+    PermissionsChecker.permissionsPerRendering = {};
+  }
+
+  static getPermissions(renderingId) {
+    return PermissionsChecker.permissionsPerRendering[renderingId];
+  }
+
+  static _setPermissionsInRendering(renderingId, permissions) {
+    PermissionsChecker.permissionsPerRendering[renderingId] = permissions;
+  }
+
+  static getLastRetrieveTime(renderingId) {
+    const permissions = PermissionsChecker.getPermissions(renderingId);
+    return permissions ? permissions.lastRetrieve : null;
+  }
+
+  static resetExpiration(renderingId) {
+    const permissions = PermissionsChecker.getPermissions(renderingId);
+    if (permissions) {
+      permissions.lastRetrieve = null;
+    }
+  }
+
+  static _isSmartActionAllowed(smartActionsPermissions, permissionInfos) {
     if (!permissionInfos
       || !permissionInfos.userId
       || !permissionInfos.actionId
@@ -34,7 +61,7 @@ function PermissionsChecker(
   // NOTICE: Compute a scope to replace $currentUser variables with
   //         the actual user values. This will generate the expected
   //         conditions filters when applied on the server scope response
-  function computeConditionFiltersFromScope(userId, collectionListScope) {
+  static _computeConditionFiltersFromScope(userId, collectionListScope) {
     const computedConditionFilters = _.clone(collectionListScope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
       if (condition.value
@@ -48,50 +75,52 @@ function PermissionsChecker(
     return computedConditionFilters;
   }
 
+  static _isAggregationFromScope(aggregator, conditions, expectedConditionFilters) {
+    const filtredConditions = conditions.filter(Boolean);
+    // NOTICE: Exit case - filtredConditions[0] should be the scope
+    if (filtredConditions.length === 1
+      && filtredConditions[0].aggregator
+      && aggregator === 'and') {
+      return filtredConditions[0];
+    }
+
+    // NOTICE: During the tree travel, check if `conditions` & `aggregator`
+    //         match with expectations
+    return filtredConditions.length === expectedConditionFilters.conditions.length
+      && (aggregator === expectedConditionFilters.aggregator || aggregator === 'and')
+      ? { aggregator, conditions: filtredConditions }
+      : null;
+  }
+
   // NOTICE: Check if `expectedConditionFilters` at least contains a definition of
   //         `actualConditionFilters`
-  function isConditionFromScope(expectedFilterConditions, actualFilterCondition) {
+  static _isConditionFromScope(actualFilterCondition, expectedFilterConditions) {
     return expectedFilterConditions.filter((expectedCondition) =>
       expectedCondition.value === actualFilterCondition.value
       && expectedCondition.operator === actualFilterCondition.operator
       && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
-  async function isCollectionListAllowed(collectionListScope) {
-    if (!collectionListScope) {
-      return true;
-    }
+  static async _isCollectionListAllowed(collectionList, permissionInfos) {
+    if (!collectionList.collection.list) return false;
+    if (!collectionList.scope) return true;
 
     try {
-      const expectedConditionFilters = computeConditionFiltersFromScope(
-        permissionInfos.userId,
-        collectionListScope,
-      );
+      const expectedConditionFilters = PermissionsChecker
+        ._computeConditionFiltersFromScope(permissionInfos.userId, collectionList.scope);
+
       // NOTICE: Find aggregated condition. filtredConditions represent an array
       //         of conditions that were tagged based on if it is present in the
       //         scope
-      const isScopeAggregation = (aggregator, conditions) => {
-        const filtredConditions = conditions.filter(Boolean);
-        // NOTICE: Exit case - filtredConditions[0] should be the scope
-        if (filtredConditions.length === 1
-          && filtredConditions[0].aggregator
-          && aggregator === 'and') {
-          return filtredConditions[0];
-        }
-
-        // NOTICE: During the tree travel, check if `conditions` & `aggregator`
-        //         match with expectations
-        return filtredConditions.length === expectedConditionFilters.conditions.length
-          && (aggregator === expectedConditionFilters.aggregator || aggregator === 'and')
-          ? { aggregator, conditions: filtredConditions }
-          : null;
-      };
+      const isScopeAggregation = (aggregator, conditions) => PermissionsChecker
+        ._isAggregationFromScope(aggregator, conditions, expectedConditionFilters);
 
       // NOTICE: Find in a condition correspond to a scope condition or not
-      const isScopeCondition = (condition) =>
-        isConditionFromScope(expectedConditionFilters.conditions, condition);
+      const isScopeCondition = (condition) => PermissionsChecker
+        ._isConditionFromScope(condition, expectedConditionFilters.conditions);
+
       // NOTICE: Perform a travel to find the scope in filters
-      const scopeFound = await perform(
+      const scopeFound = await parseFilters(
         permissionInfos.filters,
         isScopeAggregation,
         isScopeCondition,
@@ -100,112 +129,96 @@ function PermissionsChecker(
       // NOTICE: In the case of only one expected condition, server will still send an aggregator
       //         which will not match the request. If one condition is found and is from scope
       //         then the request is valid
-      if (expectedConditionFilters.conditions.length === 1) {
-        return scopeFound;
-      }
+      const isValidSingleConditionScope = !!scopeFound
+        && expectedConditionFilters.conditions.length === 1;
 
-      return scopeFound.aggregator === expectedConditionFilters.aggregator
-        && scopeFound.conditions
+      const isSameScope = !!scopeFound
+        && scopeFound.aggregator === expectedConditionFilters.aggregator
+        && !!scopeFound.conditions
         && scopeFound.conditions.length === expectedConditionFilters.conditions.length;
+
+      return isValidSingleConditionScope || isSameScope;
     } catch (error) {
+      logger.error(error);
       return false;
     }
   }
 
-  async function isAllowed() {
-    const permissions = permissionsPerRendering[renderingId]
-      && permissionsPerRendering[renderingId].data;
+  async _isAllowed(collectionName, permissionName, permissionInfos) {
+    const permissions = PermissionsChecker.getPermissions(this.renderingId);
 
-    if (!permissions || !permissions[collectionName] || !permissions[collectionName].collection) {
+    if (!permissions
+      || !permissions.data
+      || !permissions.data[collectionName]
+      || !permissions.data[collectionName].collection) {
       return false;
     }
 
     if (permissionName === 'actions') {
-      return isSmartActionAllowed(permissions[collectionName].actions);
+      return PermissionsChecker._isSmartActionAllowed(
+        permissions.data[collectionName].actions,
+        permissionInfos,
+      );
     }
-    if (permissionName === 'list' && permissions[collectionName].collection[permissionName]) {
-      return isCollectionListAllowed(permissions[collectionName].scope);
+    if (permissionName === 'list') {
+      return PermissionsChecker._isCollectionListAllowed(
+        permissions.data[collectionName],
+        permissionInfos,
+      );
     }
-    return permissions[collectionName].collection[permissionName];
+    return permissions.data[collectionName].collection[permissionName];
   }
 
-  function retrievePermissions() {
+  _retrievePermissions() {
     return forestServerRequester
-      .perform('/liana/v2/permissions', environmentSecret, { renderingId })
+      .perform('/liana/v2/permissions', this.environmentSecret, { renderingId: this.renderingId })
       .then((responseBody) => {
-        permissionsPerRendering[renderingId] = {
-          data: responseBody,
-          lastRetrieve: moment(),
-        };
+        PermissionsChecker._setPermissionsInRendering(
+          this.renderingId,
+          { data: responseBody, lastRetrieve: moment() },
+        );
       })
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
 
-  function isPermissionExpired() {
-    if (!permissionsPerRendering[renderingId]
-      || !permissionsPerRendering[renderingId].lastRetrieve) {
-      return true;
-    }
-
-    const { lastRetrieve } = permissionsPerRendering[renderingId];
+  _isPermissionExpired() {
     const currentTime = moment();
+    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(this.renderingId);
 
     if (!lastRetrieve) {
       return true;
     }
 
     const elapsedSeconds = currentTime.diff(lastRetrieve, 'seconds');
-
-    return elapsedSeconds >= EXPIRATION_IN_SECONDS;
+    return elapsedSeconds >= PermissionsChecker.expirationInSeconds;
   }
 
-  async function retrievePermissionsAndCheckAllowed() {
-    await retrievePermissions();
-    const allowed = await isAllowed();
+  async _retrievePermissionsAndCheckAllowed(collectionName, permissionName, permissionInfos) {
+    await this._retrievePermissions();
+    const allowed = await this._isAllowed(collectionName, permissionName, permissionInfos);
     if (!allowed) {
       throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
     }
   }
 
-  this.perform = async () => {
-    if (isPermissionExpired()) {
-      return retrievePermissionsAndCheckAllowed();
+  async checkPermissions(collectionName, permissionName, permissionInfos) {
+    if (this._isPermissionExpired()) {
+      return this._retrievePermissionsAndCheckAllowed(
+        collectionName,
+        permissionName,
+        permissionInfos,
+      );
     }
 
-    if (!(await isAllowed(collectionName, permissionName))) {
-      return retrievePermissionsAndCheckAllowed();
+    if (!(await this._isAllowed(collectionName, permissionName))) {
+      return this._retrievePermissionsAndCheckAllowed(
+        collectionName,
+        permissionName,
+        permissionInfos,
+      );
     }
-    return Promise.resolve();
-  };
+    return null;
+  }
 }
-
-PermissionsChecker.cleanCache = () => {
-  permissionsPerRendering = {};
-};
-
-PermissionsChecker.resetExpiration = (renderingId) => {
-  const permissions = permissionsPerRendering[renderingId]
-    && permissionsPerRendering[renderingId].data;
-
-  if (permissions) {
-    permissions.lastRetrieve = null;
-  }
-};
-
-PermissionsChecker.getLastRetrieveTime = (renderingId) => {
-  if (!permissionsPerRendering[renderingId]) {
-    return null;
-  }
-
-  return permissionsPerRendering[renderingId].lastRetrieve;
-};
-
-PermissionsChecker.getPermissions = (renderingId) => {
-  if (!permissionsPerRendering[renderingId]) {
-    return null;
-  }
-
-  return permissionsPerRendering[renderingId].data;
-};
 
 module.exports = PermissionsChecker;
