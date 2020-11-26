@@ -1,9 +1,11 @@
 const START_AUTHENTICATION_ROUTE = 'authentication';
 const CALLBACK_AUTHENTICATION_ROUTE = 'authentication/callback';
+const LOGOUT_ROUTE = 'authentication/logout';
 
 const PUBLIC_ROUTES = [
   `/${START_AUTHENTICATION_ROUTE}`,
   `/${CALLBACK_AUTHENTICATION_ROUTE}`,
+  `/${LOGOUT_ROUTE}`,
 ];
 
 function getCallbackUrl(applicationUrl) {
@@ -112,7 +114,7 @@ async function authenticationCallback(context, options, request, response, next)
     // These are the only 2 supported situations for agents, that's
     // why the token is not returned inside the body
     response.cookie(
-      'forest_session_token',
+      context.tokenService.forestCookieName,
       token,
       {
         httpOnly: true,
@@ -138,6 +140,26 @@ async function authenticationCallback(context, options, request, response, next)
 }
 
 /**
+ * @param {import('../context/init').Context} context
+ * @param {import('express').Request} request
+ * @param {import('express').Response} response
+ */
+async function logout(context, request, response) {
+  const cookies = request.headers.cookie;
+
+  if (cookies) {
+    const forestSessionToken = context.tokenService.extractForestSessionToken(cookies);
+
+    if (forestSessionToken) {
+      const deletedToken = context.tokenService.deleteToken();
+
+      response.cookie(context.tokenService.forestCookieName, forestSessionToken, deletedToken);
+    }
+  }
+  response.status(204).send();
+}
+
+/**
  * @param {import('express').Application} app
  * @param {{
  *  authSecret: string;
@@ -159,6 +181,10 @@ function initAuthenticationRoutes(
   app.get(
     context.pathService.generate(CALLBACK_AUTHENTICATION_ROUTE, options),
     authenticationCallback.bind(undefined, context, options),
+  );
+  app.post(
+    context.pathService.generate(LOGOUT_ROUTE, options),
+    logout.bind(undefined, context),
   );
 }
 
