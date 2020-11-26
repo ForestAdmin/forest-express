@@ -1,3 +1,10 @@
+# [8.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.2...v8.0.0-beta.3) (2020-11-26)
+
+
+### Features
+
+* delete cookie when client logout ([#545](https://github.com/ForestAdmin/forest-express/issues/545)) ([#560](https://github.com/ForestAdmin/forest-express/issues/560)) ([5188206](https://github.com/ForestAdmin/forest-express/commit/51882065163f0f295b0c35f3ae0f73db64e4ec6a))
+
 # [8.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.1...v8.0.0-beta.2) (2020-11-24)
 
 
