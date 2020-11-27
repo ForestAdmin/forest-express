@@ -909,7 +909,9 @@ describe('services > permissions', () => {
             const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
             const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
-            expect(firstRetrievedPermissions).toStrictEqual(permissions1.data.collections);
+            const updatedPermissions1 = PermissionsChecker
+              .addSearchToEditValueToRolesACLPermissions(permissions1.data.collections);
+            expect(firstRetrievedPermissions).toStrictEqual(updatedPermissions1);
             expect(firstLastRetrieve).not.toBeNull();
 
             nockObj.get('/liana/v3/permissions?renderingId=2').reply(200, permissions2);
@@ -918,7 +920,7 @@ describe('services > permissions', () => {
             const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
             const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
-            expect(secondRetrievedPermissions).toStrictEqual(permissions1.data.collections);
+            expect(secondRetrievedPermissions).toStrictEqual(updatedPermissions1);
             expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
           });
         });
@@ -1401,9 +1403,11 @@ describe('services > permissions', () => {
             .then(() => {
               retrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
               lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+              const updatedPermissions = PermissionsChecker
+                .addSearchToEditValueToRolesACLPermissions(permissions.data.collections);
 
               expect(lastRetrieve).not.toBeNull();
-              expect(retrievedPermissions).toStrictEqual(permissions.data.collections);
+              expect(retrievedPermissions).toStrictEqual(updatedPermissions);
             });
         });
       });
@@ -1472,8 +1476,10 @@ describe('services > permissions', () => {
 
           const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
           const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+          const updatedPermissions1 = PermissionsChecker
+            .addSearchToEditValueToRolesACLPermissions(permissions1.data.collections);
 
-          expect(firstRetrievedPermissions).toStrictEqual(permissions1.data.collections);
+          expect(firstRetrievedPermissions).toStrictEqual(updatedPermissions1);
           expect(firstLastRetrieve).not.toBeNull();
 
           await new Promise((resolve) => { setTimeout(() => resolve(), 1200); });
@@ -1484,8 +1490,10 @@ describe('services > permissions', () => {
             .then(() => {
               const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
               const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+              const updatedPermissions2 = PermissionsChecker
+                .addSearchToEditValueToRolesACLPermissions(permissions2.data.collections);
 
-              expect(secondRetrievedPermissions).toStrictEqual(permissions2.data.collections);
+              expect(secondRetrievedPermissions).toStrictEqual(updatedPermissions2);
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
             });
         });
@@ -1555,8 +1563,10 @@ describe('services > permissions', () => {
 
           const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
           const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+          const updatedPermissions1 = PermissionsChecker
+            .addSearchToEditValueToRolesACLPermissions(permissions1.data.collections);
 
-          expect(firstRetrievedPermissions).toStrictEqual(permissions1.data.collections);
+          expect(firstRetrievedPermissions).toStrictEqual(updatedPermissions1);
           expect(firstLastRetrieve).not.toBeNull();
 
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions2);
@@ -1565,7 +1575,7 @@ describe('services > permissions', () => {
           const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
           const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
-          expect(secondRetrievedPermissions).toStrictEqual(permissions1.data.collections);
+          expect(secondRetrievedPermissions).toStrictEqual(updatedPermissions1);
           expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
         });
       });
