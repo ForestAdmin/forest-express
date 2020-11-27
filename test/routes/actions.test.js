@@ -1,7 +1,7 @@
 const ApplicationContext = require('../../src/context/application-context');
 const ActionsRoutes = require('../../src/routes/actions');
 
-function initContext(schema, hookLoadGetResponse) {
+function initContext(schema, smartActionHookGetResponse) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
@@ -13,7 +13,7 @@ function initContext(schema, hookLoadGetResponse) {
       parameterize: jest.fn((name) => name),
     })
     .addInstance('schemasGenerator', { schemas: schema })
-    .addInstance('hookLoad', { getResponse: hookLoadGetResponse })
+    .addInstance('smartActionHook', { getResponse: smartActionHookGetResponse })
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })
     .addValue('implementation', { getModelName: jest.fn((m) => m.name) })
@@ -21,21 +21,21 @@ function initContext(schema, hookLoadGetResponse) {
   return context;
 }
 
-async function callLoadHook(load, hookLoadGetResponse) {
+async function callHook(hooks, smartActionHookGetResponse, requestBody) {
   const schemas = {
     users: {
       actions: [{
         name: 'send invoice',
-        hooks: { load },
+        hooks,
         fields: [{ field: 'invoice number', type: 'String' }],
       }],
     },
   };
   const {
     actions, model, app, logger,
-  } = initContext(schemas, hookLoadGetResponse).inject();
+  } = initContext(schemas, smartActionHookGetResponse).inject();
 
-  const request = { body: { recordsId: [1] } };
+  const request = { body: requestBody || { recordsId: [1] } };
   const send = jest.fn((values) => values);
   const response = { status: jest.fn(() => ({ send })) };
   const perform = jest.fn(() => ({ id: 1, name: 'Jane' }));
@@ -186,11 +186,11 @@ describe('routes > actions', () => {
           expect.assertions(2);
 
           const load = jest.fn();
-          const hookLoadGetResponse = jest.fn();
-          const { model, implementation } = await callLoadHook(load, hookLoadGetResponse);
+          const smartActionHookGetResponse = jest.fn();
+          const { model, implementation } = await callHook({ load }, smartActionHookGetResponse);
 
           expect(implementation.ResourceGetter).toHaveBeenNthCalledWith(1, model, { recordId: 1 });
-          expect(hookLoadGetResponse).toHaveBeenNthCalledWith(
+          expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
             1,
             load,
             [{ field: 'invoice number', type: 'String' }],
@@ -202,8 +202,8 @@ describe('routes > actions', () => {
           expect.assertions(2);
 
           const load = jest.fn();
-          const hookLoadGetResponse = jest.fn(() => { throw new Error('oops'); });
-          const { send, response } = await callLoadHook(load, hookLoadGetResponse);
+          const smartActionHookGetResponse = jest.fn(() => { throw new Error('oops'); });
+          const { send, response } = await callHook({ load }, smartActionHookGetResponse);
 
           expect(response.status).toHaveBeenNthCalledWith(1, 500);
           expect(send).toHaveBeenNthCalledWith(1, { message: 'oops' });
@@ -215,8 +215,150 @@ describe('routes > actions', () => {
           const newFields = [{ field: 'invoice number', type: 'String', value: 'hello from load' }];
 
           const load = jest.fn();
-          const hookLoadGetResponse = jest.fn(() => newFields);
-          const { send, response } = await callLoadHook(load, hookLoadGetResponse);
+          const smartActionHookGetResponse = jest.fn(() => newFields);
+          const { send, response } = await callHook({ load }, smartActionHookGetResponse);
+
+          expect(response.status).toHaveBeenNthCalledWith(1, 200);
+          expect(send).toHaveBeenNthCalledWith(1, { fields: newFields });
+        });
+      });
+    });
+    describe('when action.hooks.change is present', () => {
+      it('should create a route', async () => {
+        expect.assertions(4);
+
+        const schema = { users: { actions: [{ name: 'send invoice', hooks: { change: { foo: jest.fn() } } }] } };
+        const {
+          actions, pathService, stringUtils, model, implementation, app,
+        } = initContext(schema).inject();
+
+        await actions.perform(app, model, implementation, {}, {});
+
+        expect(stringUtils.parameterize).toHaveBeenCalledTimes(1);
+        expect(pathService.generate).toHaveBeenCalledTimes(1);
+        expect(app.post).toHaveBeenCalledTimes(1);
+
+        const [path] = app.post.mock.calls[0];
+        expect(path).toBe('actions/send invoice/hooks/change');
+      });
+
+      describe('when calling the route controller', () => {
+        it('should send undefined to hook service when change field is unreachable', async () => {
+          expect.assertions(1);
+
+          const smartActionHookGetResponse = jest.fn();
+          await callHook(
+            { change: { 'this field does not exist': jest.fn() } },
+            smartActionHookGetResponse,
+            { recordsId: [1], fields: [{ field: 'invoice number', type: 'String' }] },
+          );
+
+          expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
+            1,
+            null,
+            [{ field: 'invoice number', type: 'String' }],
+            { id: 1, name: 'Jane' },
+          );
+        });
+
+        it('should send undefined to hook service when no field has previousValue and value different', async () => {
+          expect.assertions(1);
+
+          const smartActionHookGetResponse = jest.fn();
+          const field = {
+            field: 'foo',
+            type: 'String',
+            previousValue: 'a',
+            value: 'a',
+          };
+          await callHook(
+            { change: { foo: jest.fn() } },
+            smartActionHookGetResponse,
+            {
+              recordsId: [1],
+              fields: [field],
+            },
+          );
+
+          expect(smartActionHookGetResponse)
+            .toHaveBeenNthCalledWith(1, null, [field], { id: 1, name: 'Jane' });
+        });
+
+        it('should call the change hook service', async () => {
+          expect.assertions(2);
+
+          const smartActionHookGetResponse = jest.fn();
+          const field = {
+            field: 'foo',
+            type: 'String',
+            previousValue: 'a',
+            value: 'b',
+          };
+          const change = { bar: jest.fn(), foo: jest.fn(), baz: jest.fn() };
+          const { implementation, model } = await callHook(
+            { change },
+            smartActionHookGetResponse,
+            {
+              recordsId: [1],
+              fields: [field],
+            },
+          );
+
+          expect(implementation.ResourceGetter).toHaveBeenNthCalledWith(1, model, { recordId: 1 });
+          expect(smartActionHookGetResponse)
+            .toHaveBeenNthCalledWith(1, change.foo, [field], { id: 1, name: 'Jane' });
+        });
+
+        it('should fail with message when change hook service throws', async () => {
+          expect.assertions(2);
+
+          const smartActionHookGetResponse = jest.fn(() => { throw new Error('oops'); });
+          const field = {
+            field: 'foo',
+            type: 'String',
+            previousValue: 'a',
+            value: 'b',
+          };
+          const change = { bar: jest.fn(), foo: jest.fn(), baz: jest.fn() };
+          const { send, response } = await callHook(
+            { change },
+            smartActionHookGetResponse,
+            {
+              recordsId: [1],
+              fields: [field],
+            },
+          );
+
+          expect(response.status).toHaveBeenNthCalledWith(1, 500);
+          expect(send).toHaveBeenNthCalledWith(1, { message: 'oops' });
+        });
+
+        it('should succeed with the updated fields when change hook service response', async () => {
+          expect.assertions(2);
+
+          const newFields = [{
+            field: 'invoice number',
+            type: 'String',
+            value: 'hello from load',
+            previousValue: 'a',
+          }];
+
+          const smartActionHookGetResponse = jest.fn(() => newFields);
+          const field = {
+            field: 'foo',
+            type: 'String',
+            previousValue: 'a',
+            value: 'b',
+          };
+          const change = { bar: jest.fn(), foo: jest.fn(), baz: jest.fn() };
+          const { send, response } = await callHook(
+            { change },
+            smartActionHookGetResponse,
+            {
+              recordsId: [1],
+              fields: [field],
+            },
+          );
 
           expect(response.status).toHaveBeenNthCalledWith(1, 200);
           expect(send).toHaveBeenNthCalledWith(1, { fields: newFields });

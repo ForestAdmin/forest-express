@@ -14,7 +14,7 @@ const ApimapSender = require('../services/apimap-sender');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
 const SchemaFileUpdater = require('../services/schema-file-updater');
-const HookLoad = require('../services/hook-load');
+const SmartActionHook = require('../services/smart-action-hook');
 const schemasGenerator = require('../generators/schemas');
 
 function initValue(context) {
@@ -38,7 +38,7 @@ function initValue(context) {
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
  *  apimapSender: import('../services/apimap-sender');
- *  hookLoad: import('../services/hook-load');
+ *  smartActionHook: import('../services/smart-action-hook');
  *  schemasGenerator: import('../generators/schemas');
  * }} Services
  *
@@ -74,7 +74,7 @@ function initServices(context) {
   context.addClass(ApimapSorter);
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
-  context.addClass(HookLoad);
+  context.addClass(SmartActionHook);
 }
 
 /**

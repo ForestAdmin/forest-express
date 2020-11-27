@@ -1,40 +1,40 @@
 const ApplicationContext = require('../../src/context/application-context');
-const HookLoad = require('../../src/services/hook-load');
+const SmartActionHook = require('../../src/services/smart-action-hook');
 
 function initContext(isSameDataStructure) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('isSameDataStructure', isSameDataStructure)
-    .addClass(HookLoad));
+    .addClass(SmartActionHook));
 
   return context;
 }
 
-describe('services > hook-load', () => {
+describe('services > smart-action-hook', () => {
   describe('getResponse', () => {
-    it('should throw with message when load hook is not a function', async () => {
+    it('should throw with message when hook is not a function', async () => {
       expect.assertions(1);
 
-      const { hookLoad } = initContext(jest.fn()).inject();
+      const { smartActionHook } = initContext(jest.fn()).inject();
 
-      await expect(hookLoad.getResponse(null, {}, [])).rejects.toThrow('load must be a function');
+      await expect(smartActionHook.getResponse(null, {}, [])).rejects.toThrow('hook must be a function');
     });
 
-    it('should throw with message when load hook does not return an object', async () => {
+    it('should throw with message when hook does not return an object', async () => {
       expect.assertions(1);
 
-      const { hookLoad } = initContext(jest.fn()).inject();
+      const { smartActionHook } = initContext(jest.fn()).inject();
 
-      await expect(hookLoad.getResponse(jest.fn(() => false), {}, []))
-        .rejects.toThrow('load hook must return an object');
+      await expect(smartActionHook.getResponse(jest.fn(() => false), {}, []))
+        .rejects.toThrow('hook must return an object');
     });
 
     it('should throw with message when fields have changed', async () => {
       expect.assertions(1);
 
-      const { hookLoad } = initContext(jest.fn(() => false)).inject();
+      const { smartActionHook } = initContext(jest.fn(() => false)).inject();
 
-      await expect(hookLoad.getResponse(jest.fn(() => ({})), {}, []))
+      await expect(smartActionHook.getResponse(jest.fn(() => ({})), {}, []))
         .rejects.toThrow('fields must be unchanged (no addition nor deletion allowed)');
     });
 
@@ -42,7 +42,7 @@ describe('services > hook-load', () => {
       expect.assertions(3);
 
       const isSameDataStructure = jest.fn(() => true);
-      const { hookLoad } = initContext(isSameDataStructure).inject();
+      const { smartActionHook } = initContext(isSameDataStructure).inject();
       const fields = [{
         field: 'myField',
         type: 'String',
@@ -53,7 +53,7 @@ describe('services > hook-load', () => {
         value: 'foo',
       };
 
-      const load = jest.fn(() => ({
+      const hook = jest.fn(() => ({
         myField: {
           field: 'myField',
           type: 'String',
@@ -61,9 +61,9 @@ describe('services > hook-load', () => {
         },
       }));
 
-      const response = await hookLoad.getResponse(load, {}, fields);
+      const response = await smartActionHook.getResponse(hook, {}, fields);
       await expect(response).toStrictEqual([expected]);
-      expect(load).toHaveBeenNthCalledWith(
+      expect(hook).toHaveBeenNthCalledWith(
         1,
         {
           fields: { myField: { ...expected, value: null } },
