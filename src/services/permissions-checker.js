@@ -19,21 +19,16 @@ class PermissionsChecker {
   static isrolesACLActivated;
 
   // This permissions object is the cache, shared by all instances of PermissionsChecker.
-  static permissions = {
-    collections: {},
-    renderings: {},
-  };
+  static permissions = { collections: {}, renderings: {} };
 
 
   static cleanCache() {
-    PermissionsChecker.permissions = {
-      collections: {},
-      renderings: {},
-    };
+    PermissionsChecker.permissions = { collections: {}, renderings: {} };
   }
 
-  // In the teamACL format, the collections permissions are stored by rendering.
-  // Which is not the case for the rolesACL format.
+  // In the teamACL format, all the permissions are stored by renderingId into "renderings".
+  // For the rolesACL format, the collections permissions are stored directly into "collections",
+  // and only their scopes are stored by renderingId into "renderings".
   static getCollectionsPermissions(renderingId) {
     if (PermissionsChecker.isrolesACLActivated) {
       return PermissionsChecker.permissions.collections;
@@ -53,21 +48,54 @@ class PermissionsChecker {
     return null;
   }
 
-  static _setPermissions(renderingId, data) {
+  static transformPermissionsFromOldToNewFormat(permissions) {
+    Object.keys(permissions).forEach((modelName) => {
+      permissions[modelName].collection = {
+        browseEnabled: permissions[modelName].collection.list || false,
+        readEnabled: permissions[modelName].collection.show || false,
+        editEnabled: permissions[modelName].collection.create || false,
+        addEnabled: permissions[modelName].collection.update || false,
+        deleteEnabled: permissions[modelName].collection.delete || false,
+        exportEnabled: permissions[modelName].collection.export || false,
+        // This searchToEdit permission does not exist in new format but is needed for the old one.
+        searchToEdit: permissions[modelName].collection.searchToEdit || false,
+      };
+
+      if (permissions[modelName].actions) {
+        Object.keys(permissions[modelName].actions).forEach((actionName) => {
+          permissions[modelName].actions[actionName] = {
+            triggerEnabled: permissions[modelName].actions[actionName].users
+              ? permissions[modelName].actions[actionName].allowed
+                && permissions[modelName].actions[actionName].users
+              : permissions[modelName].actions[actionName].allowed,
+          };
+        });
+      }
+    });
+
+    return permissions;
+  }
+
+  _setPermissions(permissions) {
     if (PermissionsChecker.isrolesACLActivated) {
-      PermissionsChecker.permissions.collections = data.collections;
-      PermissionsChecker.permissions.renderings[renderingId] = {
-        data: data.renderings[renderingId],
+      PermissionsChecker.permissions.collections = permissions.collections;
+      PermissionsChecker.permissions.renderings[this.renderingId] = {
+        data: permissions.renderings ? permissions.renderings[this.renderingId] : null,
         lastRetrieve: moment(),
       };
     } else {
-      PermissionsChecker.permissions.renderings[renderingId] = { data, lastRetrieve: moment() };
+      const newFormatPermissions = permissions
+        ? PermissionsChecker.transformPermissionsFromOldToNewFormat(permissions)
+        : null;
+
+      PermissionsChecker.permissions.renderings[this.renderingId] = {
+        data: newFormatPermissions,
+        lastRetrieve: moment(),
+      };
     }
   }
 
   static getLastRetrieveTime(renderingId) {
-    if (!PermissionsChecker.permissions) return null;
-
     return PermissionsChecker.permissions.renderings[renderingId]
       ? PermissionsChecker.permissions.renderings[renderingId].lastRetrieve
       : null;
@@ -84,28 +112,31 @@ class PermissionsChecker {
   static _isSmartActionAllowed(smartActionsPermissions, permissionInfos) {
     if (!permissionInfos
       || !permissionInfos.userId
-      || !permissionInfos.actionId
+      || !permissionInfos.actionName
       || !smartActionsPermissions
-      || !smartActionsPermissions[permissionInfos.actionId]) {
+      || !smartActionsPermissions[permissionInfos.actionName]) {
       return false;
     }
 
-    const { userId, actionId } = permissionInfos;
-    const { allowed, users } = smartActionsPermissions[actionId];
 
-    return allowed && (!users || users.includes(parseInt(userId, 10)));
+    const { userId, actionName } = permissionInfos;
+    const { triggerEnabled } = smartActionsPermissions[actionName];
+
+    return Array.isArray(triggerEnabled)
+      ? triggerEnabled.includes(parseInt(userId, 10))
+      : triggerEnabled;
   }
 
   // NOTICE: Compute a scope to replace $currentUser variables with
   //         the actual user values. This will generate the expected
   //         conditions filters when applied on the server scope response
-  static _computeConditionFiltersFromScope(userId, collectionListScope) {
-    const computedConditionFilters = _.clone(collectionListScope.filter);
+  static _computeConditionFiltersFromScope(userId, scope) {
+    const computedConditionFilters = _.clone(scope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
       if (condition.value
         && `${condition.value}`.startsWith('$')
-        && collectionListScope.dynamicScopesValues.users[userId]) {
-        condition.value = collectionListScope
+        && scope.dynamicScopesValues.users[userId]) {
+        condition.value = scope
           .dynamicScopesValues
           .users[userId][condition.value];
       }
@@ -139,46 +170,53 @@ class PermissionsChecker {
       && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
-  static async _isCollectionListAllowed(collectionList, permissionInfos, scope) {
-    // console.log('@@@here', scope);
-    if (!collectionList.collection.list) return false;
+  static async _isScopeValid(permissionInfos, scope) {
+    const expectedConditionFilters = PermissionsChecker
+      ._computeConditionFiltersFromScope(permissionInfos.userId, scope);
+
+    // NOTICE: Find aggregated condition. filtredConditions represent an array
+    //         of conditions that were tagged based on if it is present in the
+    //         scope
+    const isScopeAggregation = (aggregator, conditions) => PermissionsChecker
+      ._isAggregationFromScope(aggregator, conditions, expectedConditionFilters);
+
+    // NOTICE: Find in a condition correspond to a scope condition or not
+    const isScopeCondition = (condition) => PermissionsChecker
+      ._isConditionFromScope(condition, expectedConditionFilters.conditions);
+
+    // NOTICE: Perform a travel to find the scope in filters
+    const scopeFound = await parseFilters(
+      permissionInfos.filters,
+      isScopeAggregation,
+      isScopeCondition,
+    );
+
+    // NOTICE: In the case of only one expected condition, server will still send an aggregator
+    //         which will not match the request. If one condition is found and is from scope
+    //         then the request is valid
+    const isValidSingleConditionScope = !!scopeFound
+    && expectedConditionFilters.conditions.length === 1;
+
+    const isSameScope = !!scopeFound
+    && scopeFound.aggregator === expectedConditionFilters.aggregator
+    && !!scopeFound.conditions
+    && scopeFound.conditions.length === expectedConditionFilters.conditions.length;
+
+    return isValidSingleConditionScope || isSameScope;
+  }
+
+  static async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos, scope) {
+    const { browseEnabled } = collectionPermissions.collection;
+    const { userId } = permissionInfos;
+
+    if ((Array.isArray(browseEnabled) && !browseEnabled.includes(parseInt(userId, 10)))
+      || !browseEnabled) {
+      return false;
+    }
     if (!scope) return true;
 
     try {
-      const expectedConditionFilters = PermissionsChecker._computeConditionFiltersFromScope(
-        permissionInfos.userId,
-        scope,
-      );
-
-      // NOTICE: Find aggregated condition. filtredConditions represent an array
-      //         of conditions that were tagged based on if it is present in the
-      //         scope
-      const isScopeAggregation = (aggregator, conditions) => PermissionsChecker
-        ._isAggregationFromScope(aggregator, conditions, expectedConditionFilters);
-
-      // NOTICE: Find in a condition correspond to a scope condition or not
-      const isScopeCondition = (condition) => PermissionsChecker
-        ._isConditionFromScope(condition, expectedConditionFilters.conditions);
-
-      // NOTICE: Perform a travel to find the scope in filters
-      const scopeFound = await parseFilters(
-        permissionInfos.filters,
-        isScopeAggregation,
-        isScopeCondition,
-      );
-
-      // NOTICE: In the case of only one expected condition, server will still send an aggregator
-      //         which will not match the request. If one condition is found and is from scope
-      //         then the request is valid
-      const isValidSingleConditionScope = !!scopeFound
-        && expectedConditionFilters.conditions.length === 1;
-
-      const isSameScope = !!scopeFound
-        && scopeFound.aggregator === expectedConditionFilters.aggregator
-        && !!scopeFound.conditions
-        && scopeFound.conditions.length === expectedConditionFilters.conditions.length;
-
-      return isValidSingleConditionScope || isSameScope;
+      return PermissionsChecker._isScopeValid(permissionInfos, scope);
     } catch (error) {
       logger.error(error);
       return false;
@@ -186,6 +224,10 @@ class PermissionsChecker {
   }
 
   async _isAllowed(collectionName, permissionName, permissionInfos) {
+    // For the rolesACL format, the "searchToEdit" permission is not given as it is assumed that
+    // it is strictly equal to the "browseEnabled" permission.
+    if (PermissionsChecker.isrolesACLActivated && permissionName === 'searchToEdit') permissionName = 'browseEnabled';
+
     const collectionsPermissions = PermissionsChecker.getCollectionsPermissions(this.renderingId);
 
     if (!collectionsPermissions
@@ -200,22 +242,31 @@ class PermissionsChecker {
         permissionInfos,
       );
     }
-    if (permissionName === 'list') {
-      return PermissionsChecker._isCollectionListAllowed(
+
+    if (permissionName === 'browseEnabled') {
+      return PermissionsChecker._isCollectionBrowseAllowed(
         collectionsPermissions[collectionName],
         permissionInfos,
         this._getScopePermissions(collectionName),
       );
     }
-    return collectionsPermissions[collectionName].collection[permissionName];
+
+    const permissionValue = collectionsPermissions[collectionName].collection[permissionName];
+    const { userId } = permissionInfos;
+
+    return Array.isArray(permissionValue)
+      ? permissionValue.includes(parseInt(userId, 10))
+      : permissionValue;
   }
 
-  _retrievePermissions() {
+  async _retrievePermissions() {
     return forestServerRequester
       .perform('/liana/v3/permissions', this.environmentSecret, { renderingId: this.renderingId })
       .then((responseBody) => {
-        PermissionsChecker.isrolesACLActivated = responseBody.rolesACLActivated;
-        PermissionsChecker._setPermissions(this.renderingId, responseBody.data);
+        PermissionsChecker.isrolesACLActivated = responseBody.meta
+          ? responseBody.meta.rolesACLActivated
+          : false;
+        this._setPermissions(responseBody.data);
       })
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
@@ -249,7 +300,7 @@ class PermissionsChecker {
       );
     }
 
-    if (!(await this._isAllowed(collectionName, permissionName))) {
+    if (!(await this._isAllowed(collectionName, permissionName, permissionInfos))) {
       return this._retrievePermissionsAndCheckAllowed(
         collectionName,
         permissionName,
