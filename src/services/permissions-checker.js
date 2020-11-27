@@ -77,22 +77,23 @@ class PermissionsChecker {
   }
 
   _setPermissions(permissions) {
+    let permissionsPerRendering;
+
     if (PermissionsChecker.isrolesACLActivated) {
+      permissionsPerRendering = permissions.renderings
+        ? permissions.renderings[this.renderingId]
+        : null;
       PermissionsChecker.permissions.collections = permissions.collections;
-      PermissionsChecker.permissions.renderings[this.renderingId] = {
-        data: permissions.renderings ? permissions.renderings[this.renderingId] : null,
-        lastRetrieve: moment(),
-      };
     } else {
-      const newFormatPermissions = permissions
+      permissionsPerRendering = permissions
         ? PermissionsChecker.transformPermissionsFromOldToNewFormat(permissions)
         : null;
-
-      PermissionsChecker.permissions.renderings[this.renderingId] = {
-        data: newFormatPermissions,
-        lastRetrieve: moment(),
-      };
     }
+
+    PermissionsChecker.permissions.renderings[this.renderingId] = {
+      data: permissionsPerRendering,
+      lastRetrieve: moment(),
+    };
   }
 
   static getLastRetrieveTime(renderingId) {
@@ -236,27 +237,26 @@ class PermissionsChecker {
       return false;
     }
 
-    if (permissionName === 'actions') {
-      return PermissionsChecker._isSmartActionAllowed(
-        collectionsPermissions[collectionName].actions,
-        permissionInfos,
-      );
-    }
-
-    if (permissionName === 'browseEnabled') {
-      return PermissionsChecker._isCollectionBrowseAllowed(
-        collectionsPermissions[collectionName],
-        permissionInfos,
-        this._getScopePermissions(collectionName),
-      );
-    }
-
     const permissionValue = collectionsPermissions[collectionName].collection[permissionName];
     const { userId } = permissionInfos;
 
-    return Array.isArray(permissionValue)
-      ? permissionValue.includes(parseInt(userId, 10))
-      : permissionValue;
+    switch (permissionName) {
+      case 'actions':
+        return PermissionsChecker._isSmartActionAllowed(
+          collectionsPermissions[collectionName].actions,
+          permissionInfos,
+        );
+      case 'browseEnabled':
+        return PermissionsChecker._isCollectionBrowseAllowed(
+          collectionsPermissions[collectionName],
+          permissionInfos,
+          this._getScopePermissions(collectionName),
+        );
+      default:
+        return Array.isArray(permissionValue)
+          ? permissionValue.includes(parseInt(userId, 10))
+          : permissionValue;
+    }
   }
 
   async _retrievePermissions() {
