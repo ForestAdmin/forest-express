@@ -119,6 +119,43 @@ class Actions {
   }
 
   /**
+   * Build routes for each form hooks and legacy values routes.
+   *
+   * @param {Array} actions list of actions
+   */
+  buildRoutes(actions) {
+    const createDynamicRoute = (route, controller) =>
+      this.app.post(route, this.auth.ensureAuthenticated, controller);
+
+    actions.forEach((action) => {
+      // Create a `values` routes for smart actions.
+      // One route is created for each action which have a `values` property.
+      if (action.values) {
+        createDynamicRoute(
+          this.getRoute(action, 'values', this.options),
+          this.getValuesController(action),
+        );
+      }
+      // Create a `load` routes for smart actions.
+      // One route is created for each action which have a `hooks.load` property.
+      if (action.hooks && action.hooks.load) {
+        createDynamicRoute(
+          this.getRoute(action, 'hooks/load', this.options),
+          this.getHookLoadController(action),
+        );
+      }
+      // Create a `change` routes for smart actions.
+      // One route is created for each action which have a `hooks.change` property.
+      if (action.hooks && action.hooks.change) {
+        createDynamicRoute(
+          this.getRoute(action, 'hooks/change', this.options),
+          this.getHookChangeController(action),
+        );
+      }
+    });
+  }
+
+  /**
    *  Generate routes for smart action hooks (and the legacy values object).
    *
    * @param {*} app Express instance (route are attached to this object)
@@ -131,41 +168,15 @@ class Actions {
     this.implementation = Implementation;
     this.model = model;
     this.app = app;
+    this.options = options;
+    this.auth = auth;
 
     const modelName = Implementation.getModelName(model);
     const schema = this.schemasGenerator.schemas[modelName];
 
     if (!schema.actions) return;
 
-    const createDynamicRoute = (route, controller) =>
-      app.post(route, auth.ensureAuthenticated, controller);
-
-    schema.actions.forEach((action) => {
-      // Create a `values` routes for smart actions.
-      // One route is created for each action which have a `values` property.
-      if (action.values) {
-        createDynamicRoute(
-          this.getRoute(action, 'values', options),
-          this.getValuesController(action),
-        );
-      }
-      // Create a `load` routes for smart actions.
-      // One route is created for each action which have a `hooks.load` property.
-      if (action.hooks && action.hooks.load) {
-        createDynamicRoute(
-          this.getRoute(action, 'hooks/load', options),
-          this.getHookLoadController(action),
-        );
-      }
-      // Create a `change` routes for smart actions.
-      // One route is created for each action which have a `hooks.change` property.
-      if (action.hooks && action.hooks.change) {
-        createDynamicRoute(
-          this.getRoute(action, 'hooks/change', options),
-          this.getHookChangeController(action),
-        );
-      }
-    });
+    this.buildRoutes(schema.actions, options, auth);
   }
 }
 
