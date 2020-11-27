@@ -76,24 +76,46 @@ class PermissionsChecker {
     return permissions;
   }
 
-  _setPermissions(permissions) {
-    let permissionsPerRendering;
-
-    if (PermissionsChecker.isrolesACLActivated) {
-      permissionsPerRendering = permissions.renderings
-        ? permissions.renderings[this.renderingId]
-        : null;
-      PermissionsChecker.permissions.collections = permissions.collections;
-    } else {
-      permissionsPerRendering = permissions
-        ? PermissionsChecker.transformPermissionsFromOldToNewFormat(permissions)
-        : null;
-    }
+  _setTeamsACLPermissions(permissions) {
+    const newFormatPermissions = permissions
+      ? PermissionsChecker.transformPermissionsFromOldToNewFormat(permissions)
+      : null;
 
     PermissionsChecker.permissions.renderings[this.renderingId] = {
-      data: permissionsPerRendering,
+      data: newFormatPermissions,
       lastRetrieve: moment(),
     };
+  }
+
+  // For the rolesACL format, the "searchToEdit" permission is not given as it is assumed that
+  // it is strictly equal to the "browseEnabled" permission.
+  static addSearchToEditValueToRolesACLPermissions(collectionsPermissions) {
+    Object.keys(collectionsPermissions).forEach((modelName) => {
+      collectionsPermissions[modelName].collection = {
+        ...collectionsPermissions[modelName].collection,
+        searchToEdit: collectionsPermissions[modelName].collection.browseEnabled,
+      };
+    });
+    return collectionsPermissions;
+  }
+
+  _setRolesACLPermissions(permissions) {
+    const updatedCollectionsPermissions = PermissionsChecker
+      .addSearchToEditValueToRolesACLPermissions(permissions.collections);
+
+    PermissionsChecker.permissions.collections = updatedCollectionsPermissions;
+    PermissionsChecker.permissions.renderings[this.renderingId] = {
+      data: permissions.renderings ? permissions.renderings[this.renderingId] : null,
+      lastRetrieve: moment(),
+    };
+  }
+
+  _setPermissions(permissions) {
+    if (PermissionsChecker.isrolesACLActivated) {
+      this._setRolesACLPermissions(permissions);
+    } else {
+      this._setTeamsACLPermissions(permissions);
+    }
   }
 
   static getLastRetrieveTime(renderingId) {
@@ -110,6 +132,12 @@ class PermissionsChecker {
     }
   }
 
+  static _isPermissionAllowed(permissionValue, userId) {
+    return Array.isArray(permissionValue)
+      ? permissionValue.includes(parseInt(userId, 10))
+      : permissionValue;
+  }
+
   static _isSmartActionAllowed(smartActionsPermissions, permissionInfos) {
     if (!permissionInfos
       || !permissionInfos.userId
@@ -119,13 +147,10 @@ class PermissionsChecker {
       return false;
     }
 
-
     const { userId, actionName } = permissionInfos;
     const { triggerEnabled } = smartActionsPermissions[actionName];
 
-    return Array.isArray(triggerEnabled)
-      ? triggerEnabled.includes(parseInt(userId, 10))
-      : triggerEnabled;
+    return PermissionsChecker._isPermissionAllowed(triggerEnabled, userId);
   }
 
   // NOTICE: Compute a scope to replace $currentUser variables with
@@ -225,10 +250,6 @@ class PermissionsChecker {
   }
 
   async _isAllowed(collectionName, permissionName, permissionInfos) {
-    // For the rolesACL format, the "searchToEdit" permission is not given as it is assumed that
-    // it is strictly equal to the "browseEnabled" permission.
-    if (PermissionsChecker.isrolesACLActivated && permissionName === 'searchToEdit') permissionName = 'browseEnabled';
-
     const collectionsPermissions = PermissionsChecker.getCollectionsPermissions(this.renderingId);
 
     if (!collectionsPermissions
@@ -236,9 +257,6 @@ class PermissionsChecker {
       || !collectionsPermissions[collectionName].collection) {
       return false;
     }
-
-    const permissionValue = collectionsPermissions[collectionName].collection[permissionName];
-    const { userId } = permissionInfos;
 
     switch (permissionName) {
       case 'actions':
@@ -253,9 +271,10 @@ class PermissionsChecker {
           this._getScopePermissions(collectionName),
         );
       default:
-        return Array.isArray(permissionValue)
-          ? permissionValue.includes(parseInt(userId, 10))
-          : permissionValue;
+        return PermissionsChecker._isPermissionAllowed(
+          collectionsPermissions[collectionName].collection[permissionName],
+          permissionInfos.userId,
+        );
     }
   }
 
