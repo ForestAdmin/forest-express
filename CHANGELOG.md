@@ -1,3 +1,10 @@
+## [7.7.1](https://github.com/ForestAdmin/forest-express/compare/v7.7.0...v7.7.1) (2020-11-27)
+
+
+### Bug Fixes
+
+* **technical:** remove useless data property from load hook controller ([#562](https://github.com/ForestAdmin/forest-express/issues/562)) ([7465982](https://github.com/ForestAdmin/forest-express/commit/7465982ed0fe2fcc4050698e8235b2783305c54d))
+
 # [7.7.0](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v7.7.0) (2020-11-26)
 
 
