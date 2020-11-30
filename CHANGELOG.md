@@ -1,3 +1,10 @@
+# [7.8.0](https://github.com/ForestAdmin/forest-express/compare/v7.7.2...v7.8.0) (2020-11-30)
+
+
+### Features
+
+* **smart actions:** endpoint that handle forms' load hooks ([#565](https://github.com/ForestAdmin/forest-express/issues/565)) ([824a670](https://github.com/ForestAdmin/forest-express/commit/824a670ca41e2837473e6a77b79d99f800e5261c))
+
 ## [7.7.2](https://github.com/ForestAdmin/forest-express/compare/v7.7.1...v7.7.2) (2020-11-27)
 
 
