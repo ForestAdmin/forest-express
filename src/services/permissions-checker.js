@@ -31,7 +31,7 @@ class PermissionsChecker {
   // and only their scopes are stored by renderingId into "renderings".
   static getCollectionsPermissions(renderingId) {
     if (PermissionsChecker.isrolesACLActivated) {
-      return PermissionsChecker.permissions.collections;
+      return PermissionsChecker.permissions.collections.data;
     }
     return PermissionsChecker.permissions.renderings[renderingId]
       ? PermissionsChecker.permissions.renderings[renderingId].data
@@ -41,8 +41,7 @@ class PermissionsChecker {
   _getScopePermissions(collectionName) {
     if (PermissionsChecker.permissions.renderings[this.renderingId]
       && PermissionsChecker.permissions.renderings[this.renderingId].data
-      && PermissionsChecker.permissions.renderings[this.renderingId].data[collectionName]
-    ) {
+      && PermissionsChecker.permissions.renderings[this.renderingId].data[collectionName]) {
       return PermissionsChecker.permissions.renderings[this.renderingId].data[collectionName].scope;
     }
     return null;
@@ -57,7 +56,7 @@ class PermissionsChecker {
         addEnabled: permissions[modelName].collection.update || false,
         deleteEnabled: permissions[modelName].collection.delete || false,
         exportEnabled: permissions[modelName].collection.export || false,
-        // This searchToEdit permission does not exist in new format but is needed for the old one.
+        // This searchToEdit permission exists in the teamsACL format & must be taken into account.
         searchToEdit: permissions[modelName].collection.searchToEdit || false,
       };
 
@@ -103,7 +102,10 @@ class PermissionsChecker {
     const updatedCollectionsPermissions = PermissionsChecker
       .addSearchToEditValueToRolesACLPermissions(permissions.collections);
 
-    PermissionsChecker.permissions.collections = updatedCollectionsPermissions;
+    PermissionsChecker.permissions.collections = {
+      data: updatedCollectionsPermissions,
+      lastRetrieve: moment(),
+    };
     PermissionsChecker.permissions.renderings[this.renderingId] = {
       data: permissions.renderings ? permissions.renderings[this.renderingId] : null,
       lastRetrieve: moment(),
@@ -118,16 +120,23 @@ class PermissionsChecker {
     }
   }
 
-  static getLastRetrieveTime(renderingId) {
+  static getLastRetrieveTime(renderingId, permissionName) {
+    // In the case of rolesACL format and browseEnabled permission, the last retrieve to be taken
+    // into account is the one stored by rendering (because of the scope information).
+    if (PermissionsChecker.isrolesACLActivated && permissionName !== 'browseEnabled') {
+      return PermissionsChecker.permissions.collections.lastRetrieve;
+    }
     return PermissionsChecker.permissions.renderings[renderingId]
       ? PermissionsChecker.permissions.renderings[renderingId].lastRetrieve
       : null;
   }
 
   static resetExpiration(renderingId) {
-    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(renderingId);
+    if (PermissionsChecker.isrolesACLActivated && PermissionsChecker.permissions.collection) {
+      PermissionsChecker.permissions.collection.lastRetrieve = null;
+    }
 
-    if (lastRetrieve) {
+    if (PermissionsChecker.permissions.renderings[renderingId]) {
       PermissionsChecker.permissions.renderings[renderingId].lastRetrieve = null;
     }
   }
@@ -290,9 +299,9 @@ class PermissionsChecker {
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
 
-  _isPermissionExpired() {
+  _isPermissionExpired(permissionName) {
     const currentTime = moment();
-    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(this.renderingId);
+    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(this.renderingId, permissionName);
 
     if (!lastRetrieve) {
       return true;
@@ -311,7 +320,9 @@ class PermissionsChecker {
   }
 
   async checkPermissions(collectionName, permissionName, permissionInfos) {
-    if (this._isPermissionExpired()) {
+    // TODO IN NEXT PR: Distinguish collectionsPermissionExpired and scopePermissionExpired for
+    // rolesACL format and retrieve only scope when needed.
+    if (this._isPermissionExpired(permissionName)) {
       return this._retrievePermissionsAndCheckAllowed(
         collectionName,
         permissionName,
