@@ -7,10 +7,10 @@ class SmartActionHook {
    * Get the response from user-defined hook.
    *
    * @param {Function} hook the callback hook of the smart action.
-   * @param {Object} record the current record that has to be passed to load hook
    * @param {Array} fields the array of fields.
+   * @param {Object} record the current record that has to be passed to load hook.
    */
-  async getResponse(hook, record, fields) {
+  async getResponse(hook, fields, record) {
     // Transform fields from array to an object to ease usage in hook, adds null value.
     const fieldsForUser = fields.reduce((previous, current) => ({
       ...previous,

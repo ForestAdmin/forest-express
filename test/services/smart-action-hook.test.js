@@ -17,7 +17,7 @@ describe('services > smart-action-hook', () => {
 
       const { smartActionHook } = initContext(jest.fn()).inject();
 
-      await expect(smartActionHook.getResponse(null, {}, [])).rejects.toThrow('hook must be a function');
+      await expect(smartActionHook.getResponse(null, [], {})).rejects.toThrow('hook must be a function');
     });
 
     it('should throw with message when hook does not return an object', async () => {
@@ -25,7 +25,7 @@ describe('services > smart-action-hook', () => {
 
       const { smartActionHook } = initContext(jest.fn()).inject();
 
-      await expect(smartActionHook.getResponse(jest.fn(() => false), {}, []))
+      await expect(smartActionHook.getResponse(jest.fn(() => false), [], {}))
         .rejects.toThrow('hook must return an object');
     });
 
@@ -34,7 +34,7 @@ describe('services > smart-action-hook', () => {
 
       const { smartActionHook } = initContext(jest.fn(() => false)).inject();
 
-      await expect(smartActionHook.getResponse(jest.fn(() => ({})), {}, []))
+      await expect(smartActionHook.getResponse(jest.fn(() => ({})), [], {}))
         .rejects.toThrow('fields must be unchanged (no addition nor deletion allowed)');
     });
 
@@ -61,7 +61,7 @@ describe('services > smart-action-hook', () => {
         },
       }));
 
-      const response = await smartActionHook.getResponse(hook, {}, fields);
+      const response = await smartActionHook.getResponse(hook, fields, {});
       await expect(response).toStrictEqual([expected]);
       expect(hook).toHaveBeenNthCalledWith(
         1,

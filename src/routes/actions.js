@@ -176,7 +176,7 @@ class Actions {
 
     if (!schema.actions) return;
 
-    this.buildRoutes(schema.actions, options, auth);
+    this.buildRoutes(schema.actions);
   }
 }
 
