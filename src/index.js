@@ -141,15 +141,12 @@ function generateAndSendSchema(envSecret) {
   let metaSent;
 
   if (ENVIRONMENT_DEVELOPMENT) {
-    const expressVersion = process.env.npm_package_dependencies_express;
     const meta = {
       database_type: configStore.Implementation.getDatabaseType(),
       liana: configStore.Implementation.getLianaName(),
       liana_version: configStore.Implementation.getLianaVersion(),
       engine: 'nodejs',
       engine_version: process.versions && process.versions.node,
-      framework: expressVersion ? 'express' : 'other',
-      framework_version: expressVersion,
       orm_version: configStore.Implementation.getOrmVersion(),
     };
     const content = schemaFileUpdater.update(SCHEMA_FILENAME, collections, meta, serializerOptions);

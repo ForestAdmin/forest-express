@@ -22,6 +22,26 @@
 
 * onlyCrudModule, modelsDir, secretKey, authKey options are not supported anymore by Liana.init().
 Instead of sequelize/mongoose & Sequelize/Mongoose, connections & objectMapping are now required.
+## [7.7.2](https://github.com/ForestAdmin/forest-express/compare/v7.7.1...v7.7.2) (2020-11-27)
+
+
+### Bug Fixes
+
+* **schema:** do not generate `framework`, `framework_version` to ensure equality across environments ([#556](https://github.com/ForestAdmin/forest-express/issues/556)) ([30ee17a](https://github.com/ForestAdmin/forest-express/commit/30ee17aa40da86bf61290c6707914d3eaa5174eb))
+
+## [7.7.1](https://github.com/ForestAdmin/forest-express/compare/v7.7.0...v7.7.1) (2020-11-27)
+
+
+### Bug Fixes
+
+* **technical:** remove useless data property from load hook controller ([#562](https://github.com/ForestAdmin/forest-express/issues/562)) ([7465982](https://github.com/ForestAdmin/forest-express/commit/7465982ed0fe2fcc4050698e8235b2783305c54d))
+
+# [7.7.0](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v7.7.0) (2020-11-26)
+
+
+### Features
+
+* **smart actions:** endpoint that handle forms' load hooks ([#546](https://github.com/ForestAdmin/forest-express/issues/546)) ([3e3c018](https://github.com/ForestAdmin/forest-express/commit/3e3c01821e9c938a35c63fc1d606ad2494f50a0a))
 
 # [7.6.0](https://github.com/ForestAdmin/forest-express/compare/v7.5.1...v7.6.0) (2020-11-16)
 
