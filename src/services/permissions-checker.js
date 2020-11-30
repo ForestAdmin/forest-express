@@ -72,45 +72,42 @@ class PermissionsChecker {
     return permissions;
   }
 
-  _setTeamsACLPermissions(permissions) {
-    const newFormatPermissions = permissions
-      ? PermissionsChecker.transformPermissionsFromOldToNewFormat(permissions)
-      : null;
-
+  _setRenderingPermissions(renderingPermissions) {
     PermissionsChecker.permissions.renderings[this.renderingId] = {
-      data: newFormatPermissions,
+      data: renderingPermissions,
       lastRetrieve: moment(),
     };
   }
 
-  _setRolesACLPermissions(permissions) {
+  static _setCollectionsPermissions(collectionsPermissions) {
     PermissionsChecker.permissions.collections = {
-      data: permissions.collections,
-      lastRetrieve: moment(),
-    };
-    PermissionsChecker.permissions.renderings[this.renderingId] = {
-      data: permissions.renderings ? permissions.renderings[this.renderingId] : null,
+      data: collectionsPermissions,
       lastRetrieve: moment(),
     };
   }
 
   _setPermissions(permissions) {
     if (PermissionsChecker.isrolesACLActivated) {
-      this._setRolesACLPermissions(permissions);
+      PermissionsChecker._setCollectionsPermissions(permissions.collections);
+      if (permissions.renderings && permissions.renderings[this.renderingId]) {
+        this._setRenderingPermissions(permissions.renderings[this.renderingId]);
+      }
     } else {
-      this._setTeamsACLPermissions(permissions);
+      const newFormatPermissions = permissions
+        ? PermissionsChecker.transformPermissionsFromOldToNewFormat(permissions)
+        : null;
+      this._setRenderingPermissions(newFormatPermissions);
     }
   }
 
-  static getLastRetrieveTime(renderingId, permissionName) {
-    // In the case of rolesACL format and browseEnabled permission, the last retrieve to be taken
-    // into account is the one stored by rendering (because of the scope information).
-    if (PermissionsChecker.isrolesACLActivated && permissionName !== 'browseEnabled') {
-      return PermissionsChecker.permissions.collections.lastRetrieve;
-    }
+  static getRenderingLastRetrieveTime(renderingId) {
     return PermissionsChecker.permissions.renderings[renderingId]
       ? PermissionsChecker.permissions.renderings[renderingId].lastRetrieve
       : null;
+  }
+
+  static getCollectionsLastRetrieveTime() {
+    return PermissionsChecker.permissions.collections.lastRetrieve;
   }
 
   static resetExpiration(renderingId) {
@@ -281,20 +278,33 @@ class PermissionsChecker {
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
 
-  _isPermissionExpired(permissionName) {
+  async _retrieveRenderingOnlyPermissions() {
+    return forestServerRequester
+      .perform('/liana/v3/permissions', this.environmentSecret, { renderingId: this.renderingId, renderingSpecificOnly: true })
+      .then((responseBody) => {
+        this._setRenderingPermissions(responseBody.data.rendering);
+      })
+      .catch((error) => P.reject(new VError(error, 'Permissions error')));
+  }
+
+  static _isPermissionsExpired(lastRetrieveTime) {
+    if (!lastRetrieveTime) return true;
     const currentTime = moment();
-    const lastRetrieve = PermissionsChecker.getLastRetrieveTime(this.renderingId, permissionName);
-
-    if (!lastRetrieve) {
-      return true;
-    }
-
-    const elapsedSeconds = currentTime.diff(lastRetrieve, 'seconds');
+    const elapsedSeconds = currentTime.diff(lastRetrieveTime, 'seconds');
     return elapsedSeconds >= PermissionsChecker.expirationInSeconds;
   }
 
-  async _retrievePermissionsAndCheckAllowed(collectionName, permissionName, permissionInfos) {
-    await this._retrievePermissions();
+  static _isCollectionsPermissionsExpired() {
+    const lastRetrieve = PermissionsChecker.getCollectionsLastRetrieveTime();
+    return PermissionsChecker._isPermissionsExpired(lastRetrieve);
+  }
+
+  _isRenderingPermissionsExpired() {
+    const lastRetrieve = PermissionsChecker.getRenderingLastRetrieveTime(this.renderingId);
+    return PermissionsChecker._isPermissionsExpired(lastRetrieve);
+  }
+
+  async _checkAllowed(collectionName, permissionName, permissionInfos) {
     const allowed = await this._isAllowed(collectionName, permissionName, permissionInfos);
     if (!allowed) {
       throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
@@ -302,22 +312,26 @@ class PermissionsChecker {
   }
 
   async checkPermissions(collectionName, permissionName, permissionInfos) {
-    // TODO IN NEXT PR: Distinguish collectionsPermissionExpired and scopePermissionExpired for
-    // rolesACL format and retrieve only scope when needed.
-    if (this._isPermissionExpired(permissionName)) {
-      return this._retrievePermissionsAndCheckAllowed(
-        collectionName,
-        permissionName,
-        permissionInfos,
-      );
+    const isRegularRetrievalRequired = (PermissionsChecker.isrolesACLActivated
+      && PermissionsChecker._isCollectionsPermissionsExpired())
+      || (!PermissionsChecker.isrolesACLActivated && this._isRenderingPermissionsExpired());
+
+    const isRenderingOnlyRetrievalRequired = PermissionsChecker.isrolesACLActivated
+      && permissionName === 'browseEnabled' && this._isRenderingPermissionsExpired();
+
+    if (isRegularRetrievalRequired) {
+      await this._retrievePermissions();
+      return this._checkAllowed(collectionName, permissionName, permissionInfos);
+    }
+
+    if (isRenderingOnlyRetrievalRequired) {
+      await this._retrieveRenderingOnlyPermissions(collectionName, permissionName, permissionInfos);
+      return this._checkAllowed(collectionName, permissionName, permissionInfos);
     }
 
     if (!(await this._isAllowed(collectionName, permissionName, permissionInfos))) {
-      return this._retrievePermissionsAndCheckAllowed(
-        collectionName,
-        permissionName,
-        permissionInfos,
-      );
+      await this._retrievePermissions();
+      return this._checkAllowed(collectionName, permissionName, permissionInfos);
     }
     return null;
   }
