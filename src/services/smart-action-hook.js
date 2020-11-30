@@ -1,29 +1,29 @@
-class HookLoad {
+class SmartActionHook {
   constructor({ isSameDataStructure }) {
     this.isSameDataStructure = isSameDataStructure;
   }
 
   /**
-   * Get the response from user-defined load hook.
+   * Get the response from user-defined hook.
    *
-   * @param {Function} hook the callback load hook of the smart action.
-   * @param {Object} record the current record that has to be passed to load hook
+   * @param {Function} hook the callback hook of the smart action.
    * @param {Array} fields the array of fields.
+   * @param {Object} record the current record that has to be passed to load hook.
    */
-  async getResponse(hook, record, fields) {
+  async getResponse(hook, fields, record) {
     // Transform fields from array to an object to ease usage in hook, adds null value.
     const fieldsForUser = fields.reduce((previous, current) => ({
       ...previous,
       [current.field]: { ...current, value: null },
     }), {});
 
-    if (typeof hook !== 'function') throw new Error('load must be a function');
+    if (typeof hook !== 'function') throw new Error('hook must be a function');
 
     // Call the user-defined load hook.
     const result = await hook({ record, fields: fieldsForUser });
 
     if (!(result && typeof result === 'object')) {
-      throw new Error('load hook must return an object');
+      throw new Error('hook must return an object');
     } else if (!this.isSameDataStructure(fieldsForUser, result, 1)) {
       throw new Error('fields must be unchanged (no addition nor deletion allowed)');
     }
@@ -33,4 +33,4 @@ class HookLoad {
   }
 }
 
-module.exports = HookLoad;
+module.exports = SmartActionHook;
