@@ -49,24 +49,21 @@ class PermissionsChecker {
 
   static transformPermissionsFromOldToNewFormat(permissions) {
     Object.keys(permissions).forEach((modelName) => {
+      const { collection } = permissions[modelName];
       permissions[modelName].collection = {
-        browseEnabled: permissions[modelName].collection.list || false,
-        readEnabled: permissions[modelName].collection.show || false,
-        editEnabled: permissions[modelName].collection.create || false,
-        addEnabled: permissions[modelName].collection.update || false,
-        deleteEnabled: permissions[modelName].collection.delete || false,
-        exportEnabled: permissions[modelName].collection.export || false,
-        // This searchToEdit permission exists in the teamsACL format & must be taken into account.
-        searchToEdit: permissions[modelName].collection.searchToEdit || false,
+        browseEnabled: collection.list || collection.searchToEdit,
+        readEnabled: collection.show,
+        editEnabled: collection.create,
+        addEnabled: collection.update,
+        deleteEnabled: collection.delete,
+        exportEnabled: collection.export,
       };
 
       if (permissions[modelName].actions) {
         Object.keys(permissions[modelName].actions).forEach((actionName) => {
+          const action = permissions[modelName].actions[actionName];
           permissions[modelName].actions[actionName] = {
-            triggerEnabled: permissions[modelName].actions[actionName].users
-              ? permissions[modelName].actions[actionName].allowed
-                && permissions[modelName].actions[actionName].users
-              : permissions[modelName].actions[actionName].allowed,
+            triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
           };
         });
       }
@@ -86,24 +83,9 @@ class PermissionsChecker {
     };
   }
 
-  // For the rolesACL format, the "searchToEdit" permission is not given as it is assumed that
-  // it is strictly equal to the "browseEnabled" permission.
-  static addSearchToEditValueToRolesACLPermissions(collectionsPermissions) {
-    Object.keys(collectionsPermissions).forEach((modelName) => {
-      collectionsPermissions[modelName].collection = {
-        ...collectionsPermissions[modelName].collection,
-        searchToEdit: collectionsPermissions[modelName].collection.browseEnabled,
-      };
-    });
-    return collectionsPermissions;
-  }
-
   _setRolesACLPermissions(permissions) {
-    const updatedCollectionsPermissions = PermissionsChecker
-      .addSearchToEditValueToRolesACLPermissions(permissions.collections);
-
     PermissionsChecker.permissions.collections = {
-      data: updatedCollectionsPermissions,
+      data: permissions.collections,
       lastRetrieve: moment(),
     };
     PermissionsChecker.permissions.renderings[this.renderingId] = {
