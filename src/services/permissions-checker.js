@@ -1,18 +1,19 @@
 const _ = require('lodash');
 const { perform: parseFilters } = require('./base-filters-parser');
 const logger = require('./logger');
-const PermissionsCache = require('./permissions-cache');
+const PermissionsGetter = require('./permissions-getter');
 
 class PermissionsChecker {
   constructor(environmentSecret, renderingId) {
     this.environmentSecret = environmentSecret;
     this.renderingId = renderingId;
+    this.permissionsGetter = new PermissionsGetter(this.environmentSecret);
   }
 
   static _isPermissionAllowed(permissionValue, userId) {
     return Array.isArray(permissionValue)
       ? permissionValue.includes(Number.parseInt(userId, 10))
-      : permissionValue;
+      : !!permissionValue;
   }
 
   static _isSmartActionAllowed(smartActionsPermissions, permissionInfos) {
@@ -104,10 +105,13 @@ class PermissionsChecker {
   }
 
   static async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos, scope) {
-    const { browseEnabled } = collectionPermissions.collection;
-    const { userId } = permissionInfos;
+    if (!collectionPermissions
+      || !permissionInfos
+      || !PermissionsChecker
+        ._isPermissionAllowed(collectionPermissions.browseEnabled, permissionInfos.userId)) {
+      return false;
+    }
 
-    if (!PermissionsChecker._isPermissionAllowed(browseEnabled, userId)) return false;
     if (!scope) return true;
 
     try {
@@ -118,62 +122,32 @@ class PermissionsChecker {
     }
   }
 
-  async _isAllowed(collectionName, permissionName, permissionInfos) {
-    const collectionsPermissions = PermissionsCache.getPermissions(this.renderingId);
-
-    if (!collectionsPermissions
-      || !collectionsPermissions[collectionName]
-      || !collectionsPermissions[collectionName].collection) {
-      return false;
-    }
-
+  static async _isAllowed(permissions, permissionName, permissionInfos) {
     switch (permissionName) {
       case 'actions':
-        return PermissionsChecker._isSmartActionAllowed(
-          collectionsPermissions[collectionName].actions,
-          permissionInfos,
-        );
+        return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
       case 'browseEnabled':
-        return PermissionsChecker._isCollectionBrowseAllowed(
-          collectionsPermissions[collectionName],
-          permissionInfos,
-          PermissionsCache.getScopePermissions(this.renderingId, collectionName),
-        );
+        return PermissionsChecker
+          ._isCollectionBrowseAllowed(permissions.collection, permissionInfos, permissions.scope);
       default:
-        return PermissionsChecker._isPermissionAllowed(
-          collectionsPermissions[collectionName].collection[permissionName],
-          permissionInfos.userId,
-        );
-    }
-  }
-
-  async _retrievePermissionsAndCheckAllowed(collectionName, permissionName, permissionInfos) {
-    await PermissionsCache.retrievePermissions(this.environmentSecret, this.renderingId);
-    const allowed = await this._isAllowed(collectionName, permissionName, permissionInfos);
-    if (!allowed) {
-      throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
+        return permissions.collection
+          ? PermissionsChecker
+            ._isPermissionAllowed(permissions.collection[permissionName], permissionInfos.userId)
+          : null;
     }
   }
 
   async checkPermissions(collectionName, permissionName, permissionInfos) {
-    // TODO IN NEXT PR: Distinguish collectionsPermissionExpired and scopePermissionExpired for
-    // rolesACL format and retrieve only scope when needed.
-    if (PermissionsCache.isPermissionExpired(this.renderingId, permissionName)) {
-      return this._retrievePermissionsAndCheckAllowed(
-        collectionName,
-        permissionName,
-        permissionInfos,
-      );
+    const permissions = async (forceRetrieve) => this.permissionsGetter
+      .getPermissions(this.renderingId, collectionName, permissionName, { forceRetrieve });
+    const isAllowed = async ({ forceRetrieve = false }) => PermissionsChecker
+      ._isAllowed(await permissions(forceRetrieve), permissionName, permissionInfos);
+
+    if (await isAllowed({}) || await isAllowed({ forceRetrieve: true })) {
+      return null;
     }
 
-    if (!(await this._isAllowed(collectionName, permissionName, permissionInfos))) {
-      return this._retrievePermissionsAndCheckAllowed(
-        collectionName,
-        permissionName,
-        permissionInfos,
-      );
-    }
-    return null;
+    throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
   }
 }
 
