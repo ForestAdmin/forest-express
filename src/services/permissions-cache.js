@@ -48,6 +48,20 @@ class PermissionsCache {
     return null;
   }
 
+  static _transformSmartActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
+    let newSmartActionsPermissions = {};
+    Object.keys(smartActionsPermissions).forEach((actionName) => {
+      const action = smartActionsPermissions[actionName];
+      newSmartActionsPermissions = {
+        ...newSmartActionsPermissions.actions,
+        [actionName]: {
+          triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
+        },
+      };
+    });
+    return newSmartActionsPermissions;
+  }
+
   static transformPermissionsFromOldToNewFormat(permissions) {
     const newPermissions = {};
 
@@ -68,15 +82,8 @@ class PermissionsCache {
       };
 
       if (modelPermissions.actions) {
-        Object.keys(modelPermissions.actions).forEach((actionName) => {
-          const action = modelPermissions.actions[actionName];
-          newPermissions[modelName].actions = {
-            ...newPermissions[modelName].actions,
-            [actionName]: {
-              triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
-            },
-          };
-        });
+        newPermissions[modelName].actions = PermissionsCache
+          ._transformSmartActionsPermissionsFromOldToNewFormat(modelPermissions.actions);
       }
     });
 
