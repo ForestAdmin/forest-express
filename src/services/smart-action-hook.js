@@ -14,7 +14,7 @@ class SmartActionHook {
     return fields.reduce((previous, current) => {
       // Update widget from legacy to current format.
       this.setFieldWidget(current);
-      // Return the field(with a default value to null when none is provided.
+      // Return the field(with a default value set to null when none is provided).
       return {
         ...previous,
         [current.field]: { value: null, ...current },
