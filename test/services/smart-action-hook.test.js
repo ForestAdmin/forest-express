@@ -5,6 +5,7 @@ function initContext(isSameDataStructure) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('isSameDataStructure', isSameDataStructure)
+    .addInstance('setFieldWidget', jest.fn())
     .addClass(SmartActionHook));
 
   return context;

@@ -4,6 +4,7 @@ const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
 const isSameDataStructure = require('../utils/is-same-data-structure');
+const { setFieldWidget } = require('../utils/widgets');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorHandler = require('../services/exposed/error-handler');
@@ -27,6 +28,7 @@ function initValue(context) {
  *  stringUtils: import('../utils/string');
  *  errorUtils: import('../utils/error');
  *  isSameDataStructure: import('../utils/object-have-same-keys')
+ *  setFieldWidget: import('../utils/widgets').setFieldWidget
  * }} Utils
  *
  * @typedef {{
@@ -57,6 +59,7 @@ function initUtils(context) {
   context.addInstance('stringUtils', stringUtils);
   context.addInstance('errorUtils', errorUtils);
   context.addInstance('isSameDataStructure', isSameDataStructure);
+  context.addInstance('setFieldWidget', setFieldWidget);
 }
 
 /**

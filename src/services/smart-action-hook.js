@@ -1,6 +1,25 @@
 class SmartActionHook {
-  constructor({ isSameDataStructure }) {
+  constructor({ isSameDataStructure, setFieldWidget }) {
     this.isSameDataStructure = isSameDataStructure;
+    this.setFieldWidget = setFieldWidget;
+  }
+
+  /**
+   * Transform fields from an array to an object to ease usage in hook,
+   * adds null value, prepare widgets.
+   *
+   * @param {*} fields A smart action field
+   */
+  getFieldsForUser(fields) {
+    return fields.reduce((previous, current) => {
+      // Update widget from legacy to current format.
+      this.setFieldWidget(current);
+      // Return the field(with a default value to null when none is provided.
+      return {
+        ...previous,
+        [current.field]: { value: null, ...current },
+      };
+    }, {});
   }
 
   /**
@@ -11,11 +30,7 @@ class SmartActionHook {
    * @param {Object} record the current record that has to be passed to load hook.
    */
   async getResponse(hook, fields, record) {
-    // Transform fields from array to an object to ease usage in hook, adds null value.
-    const fieldsForUser = fields.reduce((previous, current) => ({
-      ...previous,
-      [current.field]: { ...current, value: null },
-    }), {});
+    const fieldsForUser = this.getFieldsForUser(fields);
 
     if (typeof hook !== 'function') throw new Error('hook must be a function');
 
