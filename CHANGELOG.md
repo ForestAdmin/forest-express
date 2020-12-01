@@ -1,3 +1,15 @@
+## [7.8.1](https://github.com/ForestAdmin/forest-express/compare/v7.8.0...v7.8.1) (2020-12-01)
+
+
+### Bug Fixes
+
+* **smart fields:** compute properly smart fields ([#570](https://github.com/ForestAdmin/forest-express/issues/570)) ([923c968](https://github.com/ForestAdmin/forest-express/commit/923c968b5b818c8acd8fa39e80c2717bebec50a3))
+
+
+### Reverts
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#569](https://github.com/ForestAdmin/forest-express/issues/569)) ([5e7a689](https://github.com/ForestAdmin/forest-express/commit/5e7a68903bfc63d5b90303e10c59873aa0b3d4d9))
+
 # [7.8.0](https://github.com/ForestAdmin/forest-express/compare/v7.7.2...v7.8.0) (2020-11-30)
 
 
