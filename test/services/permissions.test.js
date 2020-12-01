@@ -1,5 +1,6 @@
 const nock = require('nock');
 const PermissionsChecker = require('../../src/services/permissions-checker');
+const PermissionsCache = require('../../src/services/permissions-cache');
 const context = require('../../src/context/');
 const initContext = require('../../src/context/init');
 
@@ -12,75 +13,63 @@ describe('services > permissions', () => {
   describe('with teamsACL permissions format', () => {
     describe('check permissions', () => {
       describe('with some good permissions data on rendering 1', () => {
-        describe('with the "list" permission', () => {
-          it('should return a resolved promise', async () => {
-            expect.assertions(1);
+        const permissionTypes = [
+          { responseName: 'list', permissionName: 'browseEnabled' },
+          { responseName: 'searchToEdit', permissionName: 'browseEnabled' },
+          { responseName: 'show', permissionName: 'readEnabled' },
+          { responseName: 'update', permissionName: 'editEnabled' },
+          { responseName: 'create', permissionName: 'addEnabled' },
+          { responseName: 'delete', permissionName: 'deleteEnabled' },
+          { responseName: 'export', permissionName: 'exportEnabled' },
+        ];
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1')
-              .reply(200, {
-                meta: { rolesACLActivated: false },
-                data: {
-                  Users: {
-                    collection: {
-                      list: true,
+        permissionTypes.forEach((type) => {
+          describe(`with the "${type.responseName}" permission`, () => {
+            it('should return a resolved promise', async () => {
+              expect.assertions(1);
+
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
+              nock.cleanAll();
+              nockObj.get('/liana/v3/permissions?renderingId=1')
+                .reply(200, {
+                  meta: { rolesACLActivated: false },
+                  data: {
+                    Users: {
+                      collection: {
+                        [type.responseName]: true,
+                      },
                     },
                   },
-                },
-              });
+                });
 
-            await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', type.permissionName, { userId: 1 }))
+                .not.toThrow();
+            });
           });
-        });
 
-        describe('with the "searchToEdit" permission', () => {
-          it('should return a resolved promise', async () => {
-            expect.assertions(1);
+          describe(`without the "${type.responseName}" permission`, () => {
+            it('should return a rejected promise', async () => {
+              expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1')
-              .reply(200, {
-                meta: { rolesACLActivated: false },
-                data: {
-                  Users: {
-                    collection: {
-                      searchToEdit: true,
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
+              nock.cleanAll();
+              nockObj.get('/liana/v3/permissions?renderingId=1')
+                .reply(200, {
+                  meta: { rolesACLActivated: false },
+                  data: {
+                    Users: {
+                      collection: {
+                        [type.responseName]: false,
+                      },
                     },
                   },
-                },
-              });
+                });
 
-            await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
-          });
-        });
-
-        describe('without the "list" permission', () => {
-          it('should return a rejected promise', async () => {
-            expect.assertions(1);
-
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1')
-              .reply(200, {
-                meta: { rolesACLActivated: false },
-                data: {
-                  Users: {
-                    collection: {
-                      list: false,
-                    },
-                  },
-                },
-              });
-
-            await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
-              .rejects.toThrow("'browseEnabled' access forbidden on Users");
+              await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', type.permissionName, { userId: 1 }))
+                .rejects.toThrow(`'${type.permissionName}' access forbidden on Users`);
+            });
           });
         });
 
@@ -101,8 +90,8 @@ describe('services > permissions', () => {
                 },
               });
 
-            await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
+              .not.toThrow();
           });
         });
       });
@@ -112,8 +101,8 @@ describe('services > permissions', () => {
           it('should return a resolved promise', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=2')
               .reply(200, {
@@ -127,8 +116,8 @@ describe('services > permissions', () => {
                 },
               });
 
-            await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
+            expect(() => new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
+              .not.toThrow();
           });
         });
       });
@@ -137,8 +126,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {});
 
@@ -152,8 +141,8 @@ describe('services > permissions', () => {
           it('should return a rejected promise', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
               Users: {
@@ -180,8 +169,8 @@ describe('services > permissions', () => {
             it('should return a rejected promise', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: false },
@@ -212,8 +201,8 @@ describe('services > permissions', () => {
             it('should return a resolved promise', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: false },
@@ -235,8 +224,8 @@ describe('services > permissions', () => {
                 userId: 1,
               };
 
-              const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
-              expect(result).toBeUndefined();
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
+                .not.toThrow();
             });
           });
 
@@ -244,8 +233,8 @@ describe('services > permissions', () => {
             it('should accept allowed users', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: false },
@@ -267,15 +256,15 @@ describe('services > permissions', () => {
                 userId: 1,
               };
 
-              const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
-              expect(result).toBeUndefined();
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
+                .not.toThrow();
             });
 
             it('should refuse not allowed users', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: false },
@@ -306,8 +295,8 @@ describe('services > permissions', () => {
             it('should handle the user id as string', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: false },
@@ -329,8 +318,8 @@ describe('services > permissions', () => {
                 userId: '1',
               };
 
-              const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
-              expect(result).toBeUndefined();
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
+                .not.toThrow();
             });
           });
         });
@@ -396,8 +385,8 @@ describe('services > permissions', () => {
           it('should return undefined', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -412,15 +401,15 @@ describe('services > permissions', () => {
               }),
             };
 
-            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters);
-            expect(result).toBeUndefined();
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters))
+              .not.toThrow();
           });
 
           it('should return undefined when scope uses a single scope', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -431,8 +420,8 @@ describe('services > permissions', () => {
               ),
             };
 
-            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters);
-            expect(result).toBeUndefined();
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters))
+              .not.toThrow();
           });
         });
 
@@ -440,8 +429,8 @@ describe('services > permissions', () => {
           it('should return undefined when sending scope and manual filters', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -462,16 +451,16 @@ describe('services > permissions', () => {
               }),
             };
 
-            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters);
-            expect(result).toBeUndefined();
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters))
+              .not.toThrow();
           });
         });
 
         it('should return undefined when scope uses a single scope', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -486,8 +475,8 @@ describe('services > permissions', () => {
             }),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters);
-          expect(result).toBeUndefined();
+          expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters))
+            .not.toThrow();
         });
       });
 
@@ -495,8 +484,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise when only a part of the scope is found', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -514,8 +503,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise when editing direct values', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -537,8 +526,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise if scope is ignored', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -567,8 +556,8 @@ describe('services > permissions', () => {
 
     describe('check expiration', () => {
       function resetNock() {
-        PermissionsChecker.resetExpiration(1);
-        PermissionsChecker.cleanCache();
+        PermissionsCache.resetExpiration(1);
+        PermissionsCache.cleanCache();
         nock.cleanAll();
       }
 
@@ -576,8 +565,8 @@ describe('services > permissions', () => {
         it('should retrieve the permissions', async () => {
           expect.assertions(4);
           resetNock();
-          let lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          let retrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
+          let lastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          let retrievedPermissions = PermissionsCache.getPermissions(1);
 
           expect(lastRetrieve).toBeNull();
           expect(retrievedPermissions).toBeNull();
@@ -598,11 +587,11 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              retrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-              lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+              retrievedPermissions = PermissionsCache.getPermissions(1);
+              lastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
               expect(lastRetrieve).not.toBeNull();
-              const permissionsInNewFormat = PermissionsChecker
+              const permissionsInNewFormat = PermissionsCache
                 .transformPermissionsFromOldToNewFormat(permissions.data);
               expect(retrievedPermissions).toStrictEqual(permissionsInNewFormat);
             });
@@ -613,10 +602,10 @@ describe('services > permissions', () => {
         it('should re-retrieve the permissions', async () => {
           expect.assertions(6);
           resetNock();
-          PermissionsChecker.expirationInSeconds = 1;
+          PermissionsCache.expirationInSeconds = 1;
 
-          const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
+          const intialLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          const initialRetrievedPermissions = PermissionsCache.getPermissions(1);
 
           expect(intialLastRetrieve).toBeNull();
           expect(initialRetrievedPermissions).toBeNull();
@@ -652,9 +641,9 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-          const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          const permissions1InNewFormat = PermissionsChecker
+          const firstRetrievedPermissions = PermissionsCache.getPermissions(1);
+          const firstLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          const permissions1InNewFormat = PermissionsCache
             .transformPermissionsFromOldToNewFormat(permissions1.data);
 
           expect(firstRetrievedPermissions).toStrictEqual(permissions1InNewFormat);
@@ -666,9 +655,9 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-              const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-              const permissions2InNewFormat = PermissionsChecker
+              const secondRetrievedPermissions = PermissionsCache.getPermissions(1);
+              const secondLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+              const permissions2InNewFormat = PermissionsCache
                 .transformPermissionsFromOldToNewFormat(permissions2.data);
 
               expect(secondRetrievedPermissions).toStrictEqual(permissions2InNewFormat);
@@ -681,10 +670,10 @@ describe('services > permissions', () => {
         it('should not re-retrieve the permissions', async () => {
           expect.assertions(6);
           resetNock();
-          PermissionsChecker.expirationInSeconds = 1000;
+          PermissionsCache.expirationInSeconds = 1000;
 
-          const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
+          const intialLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          const initialRetrievedPermissions = PermissionsCache.getPermissions(1);
 
           expect(intialLastRetrieve).toBeNull();
           expect(initialRetrievedPermissions).toBeNull();
@@ -720,9 +709,9 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-          const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          const permissions1InNewFormat = PermissionsChecker
+          const firstRetrievedPermissions = PermissionsCache.getPermissions(1);
+          const firstLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          const permissions1InNewFormat = PermissionsCache
             .transformPermissionsFromOldToNewFormat(permissions1.data);
 
           expect(firstRetrievedPermissions).toStrictEqual(permissions1InNewFormat);
@@ -731,8 +720,8 @@ describe('services > permissions', () => {
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions2);
 
           new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
-          const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-          const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+          const secondRetrievedPermissions = PermissionsCache.getPermissions(1);
+          const secondLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
           expect(secondRetrievedPermissions).toStrictEqual(permissions1InNewFormat);
           expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
@@ -744,55 +733,60 @@ describe('services > permissions', () => {
   describe('with rolesACL permissions format', () => {
     describe('check permissions', () => {
       describe('with some good permissions data on rendering 1', () => {
-        describe('with the "browseEnabled" permission', () => {
-          it('should return a resolved promise', async () => {
-            expect.assertions(1);
+        const permissionTypes = ['browseEnabled', 'readEnabled', 'editEnabled', 'addEnabled', 'deleteEnabled', 'exportEnabled'];
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1')
-              .reply(200, {
-                meta: { rolesACLActivated: true },
-                data: {
-                  collections: {
-                    Users: {
-                      collection: {
-                        browseEnabled: true,
+        permissionTypes.forEach((type) => {
+          describe(`with the "${type}" permission`, () => {
+            it('should return a resolved promise', async () => {
+              expect.assertions(1);
+
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
+
+              nock.cleanAll();
+              nockObj.get('/liana/v3/permissions?renderingId=1')
+                .reply(200, {
+                  meta: { rolesACLActivated: true },
+                  data: {
+                    collections: {
+                      Users: {
+                        collection: {
+                          [type]: true,
+                        },
                       },
                     },
                   },
-                },
-              });
+                });
 
-            await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', type, { userId: 1 }))
+                .not.toThrow();
+            });
           });
-        });
 
-        describe('without the "browseEnabled" permission', () => {
-          it('should return a rejected promise', async () => {
-            expect.assertions(1);
+          describe(`without the "${type}" permission`, () => {
+            it('should return a rejected promise', async () => {
+              expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1')
-              .reply(200, {
-                meta: { rolesACLActivated: true },
-                data: {
-                  collections: {
-                    Users: {
-                      collection: {
-                        browseEnabled: false,
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
+              nock.cleanAll();
+              nockObj.get('/liana/v3/permissions?renderingId=1')
+                .reply(200, {
+                  meta: { rolesACLActivated: true },
+                  data: {
+                    collections: {
+                      Users: {
+                        collection: {
+                          [type]: false,
+                        },
                       },
                     },
                   },
-                },
-              });
+                });
 
-            await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
-              .rejects.toThrow("'browseEnabled' access forbidden on Users");
+              await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', type, { userId: 1 }))
+                .rejects.toThrow(`'${type}' access forbidden on Users`);
+            });
           });
         });
 
@@ -815,8 +809,8 @@ describe('services > permissions', () => {
                 },
               });
 
-            await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
+              .not.toThrow();
           });
         });
       });
@@ -826,8 +820,8 @@ describe('services > permissions', () => {
           it('should return a resolved promise', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=2')
               .reply(200, {
@@ -843,8 +837,8 @@ describe('services > permissions', () => {
                 },
               });
 
-            await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'browseEnabled', { userId: 1 })
-              .then(() => { expect(true).toStrictEqual(true); });
+            expect(() => new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
+              .not.toThrow();
           });
         });
 
@@ -871,16 +865,16 @@ describe('services > permissions', () => {
                 },
               };
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
 
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions1);
 
               await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'addEnabled', { userId: 1 });
 
-              const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-              const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1, 'addEnabled');
+              const firstRetrievedPermissions = PermissionsCache.getPermissions(1);
+              const firstLastRetrieve = PermissionsCache.getLastRetrieveTime(1, 'addEnabled');
 
               expect(firstRetrievedPermissions).toStrictEqual(permissions1.data.collections);
               expect(firstLastRetrieve).not.toBeNull();
@@ -888,8 +882,8 @@ describe('services > permissions', () => {
               nockObj.get('/liana/v3/permissions?renderingId=2').reply(200, permissions1);
 
               await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'addEnabled', { userId: 1 });
-              const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(2);
-              const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(2, 'addEnabled');
+              const secondRetrievedPermissions = PermissionsCache.getPermissions(2);
+              const secondLastRetrieve = PermissionsCache.getLastRetrieveTime(2, 'addEnabled');
 
               expect(secondRetrievedPermissions).toStrictEqual(permissions1.data.collections);
               expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
@@ -918,16 +912,16 @@ describe('services > permissions', () => {
                 },
               };
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
 
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions);
 
               await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-              const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-              const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1, 'browseEnabled');
+              const firstRetrievedPermissions = PermissionsCache.getPermissions(1);
+              const firstLastRetrieve = PermissionsCache.getLastRetrieveTime(1, 'browseEnabled');
 
               expect(firstRetrievedPermissions).toStrictEqual(permissions.data.collections);
               expect(firstLastRetrieve).not.toBeNull();
@@ -935,8 +929,8 @@ describe('services > permissions', () => {
               nockObj.get('/liana/v3/permissions?renderingId=2').reply(200, permissions);
 
               await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'browseEnabled', { userId: 1 });
-              const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(2);
-              const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(2, 'browseEnabled');
+              const secondRetrievedPermissions = PermissionsCache.getPermissions(2);
+              const secondLastRetrieve = PermissionsCache.getLastRetrieveTime(2, 'browseEnabled');
 
               expect(secondRetrievedPermissions).toStrictEqual(permissions.data.collections);
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
@@ -950,8 +944,8 @@ describe('services > permissions', () => {
           it('should return a rejected promise', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
               Users: {
@@ -980,8 +974,8 @@ describe('services > permissions', () => {
             it('should return a rejected promise', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -1013,8 +1007,8 @@ describe('services > permissions', () => {
             it('should return a resolved promise', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -1046,8 +1040,8 @@ describe('services > permissions', () => {
             it('should accept allowed users', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -1070,15 +1064,15 @@ describe('services > permissions', () => {
                 userId: 1,
               };
 
-              const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
-              expect(result).toBeUndefined();
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
+                .not.toThrow();
             });
 
             it('should refuse not allowed users', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -1110,8 +1104,8 @@ describe('services > permissions', () => {
             it('should handle the user id as string', async () => {
               expect.assertions(1);
 
-              PermissionsChecker.resetExpiration(1);
-              PermissionsChecker.cleanCache();
+              PermissionsCache.resetExpiration(1);
+              PermissionsCache.cleanCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -1134,8 +1128,8 @@ describe('services > permissions', () => {
                 userId: '1',
               };
 
-              const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
-              expect(result).toBeUndefined();
+              expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
+                .not.toThrow();
             });
           });
         });
@@ -1211,8 +1205,8 @@ describe('services > permissions', () => {
           it('should return undefined', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1227,15 +1221,15 @@ describe('services > permissions', () => {
               }),
             };
 
-            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters);
-            expect(result).toBeUndefined();
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters))
+              .not.toThrow();
           });
 
           it('should return undefined when scope uses a single scope', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1246,8 +1240,8 @@ describe('services > permissions', () => {
               ),
             };
 
-            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters);
-            expect(result).toBeUndefined();
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters))
+              .not.toThrow();
           });
         });
 
@@ -1255,8 +1249,8 @@ describe('services > permissions', () => {
           it('should return undefined when sending scope and manual filters', async () => {
             expect.assertions(1);
 
-            PermissionsChecker.resetExpiration(1);
-            PermissionsChecker.cleanCache();
+            PermissionsCache.resetExpiration(1);
+            PermissionsCache.cleanCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1277,16 +1271,16 @@ describe('services > permissions', () => {
               }),
             };
 
-            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters);
-            expect(result).toBeUndefined();
+            expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', collectionListParameters))
+              .not.toThrow();
           });
         });
 
         it('should return undefined when scope uses a single scope', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1301,8 +1295,8 @@ describe('services > permissions', () => {
             }),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters);
-          expect(result).toBeUndefined();
+          expect(() => new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'browseEnabled', collectionListParameters))
+            .not.toThrow();
         });
       });
 
@@ -1310,8 +1304,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise when only a part of the scope is found', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1329,8 +1323,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise when editing direct values', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1352,8 +1346,8 @@ describe('services > permissions', () => {
         it('should return a rejected promise if scope is ignored', async () => {
           expect.assertions(1);
 
-          PermissionsChecker.resetExpiration(1);
-          PermissionsChecker.cleanCache();
+          PermissionsCache.resetExpiration(1);
+          PermissionsCache.cleanCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
 
@@ -1382,8 +1376,8 @@ describe('services > permissions', () => {
 
     describe('check expiration', () => {
       function resetNock() {
-        PermissionsChecker.resetExpiration(1);
-        PermissionsChecker.cleanCache();
+        PermissionsCache.resetExpiration(1);
+        PermissionsCache.cleanCache();
         nock.cleanAll();
       }
 
@@ -1391,11 +1385,11 @@ describe('services > permissions', () => {
         it('should retrieve the permissions', async () => {
           expect.assertions(4);
           resetNock();
-          let lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          let retrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
+          let lastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          let retrievedPermissions = PermissionsCache.getPermissions(1);
 
-          expect(lastRetrieve).toBeUndefined();
-          expect(retrievedPermissions).toBeUndefined();
+          expect(lastRetrieve).toBeNull();
+          expect(retrievedPermissions).toBeNull();
 
           const permissions = {
             meta: { rolesACLActivated: true },
@@ -1420,8 +1414,8 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              retrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-              lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+              retrievedPermissions = PermissionsCache.getPermissions(1);
+              lastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
               expect(lastRetrieve).not.toBeNull();
               expect(retrievedPermissions).toStrictEqual(permissions.data.collections);
@@ -1433,13 +1427,13 @@ describe('services > permissions', () => {
         it('should re-retrieve the permissions', async () => {
           expect.assertions(6);
           resetNock();
-          PermissionsChecker.expirationInSeconds = 1;
+          PermissionsCache.expirationInSeconds = 1;
 
-          const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
+          const intialLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          const initialRetrievedPermissions = PermissionsCache.getPermissions(1);
 
-          expect(intialLastRetrieve).toBeUndefined();
-          expect(initialRetrievedPermissions).toBeUndefined();
+          expect(intialLastRetrieve).toBeNull();
+          expect(initialRetrievedPermissions).toBeNull();
 
           const permissions1 = {
             meta: { rolesACLActivated: true },
@@ -1491,8 +1485,8 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-          const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+          const firstRetrievedPermissions = PermissionsCache.getPermissions(1);
+          const firstLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
           expect(firstRetrievedPermissions).toStrictEqual(permissions1.data.collections);
           expect(firstLastRetrieve).not.toBeNull();
@@ -1503,8 +1497,8 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-              const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+              const secondRetrievedPermissions = PermissionsCache.getPermissions(1);
+              const secondLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
               expect(secondRetrievedPermissions).toStrictEqual(permissions2.data.collections);
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
@@ -1516,13 +1510,13 @@ describe('services > permissions', () => {
         it('should not re-retrieve the permissions', async () => {
           expect.assertions(6);
           resetNock();
-          PermissionsChecker.expirationInSeconds = 1000;
+          PermissionsCache.expirationInSeconds = 1000;
 
-          const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
+          const intialLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
+          const initialRetrievedPermissions = PermissionsCache.getPermissions(1);
 
-          expect(intialLastRetrieve).toBeUndefined();
-          expect(initialRetrievedPermissions).toBeUndefined();
+          expect(intialLastRetrieve).toBeNull();
+          expect(initialRetrievedPermissions).toBeNull();
 
           const permissions1 = {
             meta: { rolesACLActivated: true },
@@ -1574,8 +1568,8 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-          const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+          const firstRetrievedPermissions = PermissionsCache.getPermissions(1);
+          const firstLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
           expect(firstRetrievedPermissions).toStrictEqual(permissions1.data.collections);
           expect(firstLastRetrieve).not.toBeNull();
@@ -1583,8 +1577,8 @@ describe('services > permissions', () => {
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions2);
 
           new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
-          const secondRetrievedPermissions = PermissionsChecker.getCollectionsPermissions(1);
-          const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
+          const secondRetrievedPermissions = PermissionsCache.getPermissions(1);
+          const secondLastRetrieve = PermissionsCache.getLastRetrieveTime(1);
 
           expect(secondRetrievedPermissions).toStrictEqual(permissions1.data.collections);
           expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());

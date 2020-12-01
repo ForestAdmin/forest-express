@@ -19,8 +19,13 @@ class PermissionMiddlewareCreator {
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
       const endpoint = action.endpoint || `/forest/actions/${parameterize(action.name)}`;
       const method = action.httpMethod || 'POST';
-      return (endpoint === smartActionEndpoint && method === smartActionHTTPMethod);
+      return endpoint === smartActionEndpoint && method === smartActionHTTPMethod;
     });
+
+    if (!smartAction) {
+      throw new Error(`Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`);
+    }
+
     return {
       userId: request.user.id,
       actionName: smartAction.name,
@@ -70,11 +75,11 @@ class PermissionMiddlewareCreator {
   }
 
   create() {
-    return this._checkPermission('createEnabled');
+    return this._checkPermission('addEnabled');
   }
 
   update() {
-    return this._checkPermission('updateEnabled');
+    return this._checkPermission('editEnabled');
   }
 
   delete() {
