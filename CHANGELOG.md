@@ -1,3 +1,10 @@
+## [7.8.2](https://github.com/ForestAdmin/forest-express/compare/v7.8.1...v7.8.2) (2020-12-01)
+
+
+### Bug Fixes
+
+* **smart-actions:** transform legacy widgets in hooks ([#571](https://github.com/ForestAdmin/forest-express/issues/571)) ([f58b867](https://github.com/ForestAdmin/forest-express/commit/f58b86767cdf84012ad54dfe2c2542bc79792ee8))
+
 ## [7.8.1](https://github.com/ForestAdmin/forest-express/compare/v7.8.0...v7.8.1) (2020-12-01)
 
 
