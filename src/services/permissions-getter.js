@@ -97,31 +97,44 @@ class PermissionsGetter {
     return newPermissions;
   }
 
-  // In the teamACL format, all the permissions are stored by renderingId into "renderings".
-  // For the rolesACL format, the collections permissions are stored directly into "collections",
-  // and only their scopes are stored by renderingId into "renderings".
-  static _setPermissions(renderingId, permissions) {
-    let renderingData;
-
-    if (PermissionsGetter.isRolesACLActivated) {
-      PermissionsGetter.permissions.collections = {
-        data: permissions.collections,
-        lastRetrieve: moment(),
-      };
-      renderingData = permissions.renderings ? permissions.renderings[renderingId] : null;
-    } else {
-      renderingData = permissions
-        ? PermissionsGetter.transformPermissionsFromOldToNewFormat(permissions)
-        : null;
-    }
+  static _setTeamsACLPermissions(renderingId, permissions) {
+    const newFormatPermissions = permissions
+      ? PermissionsGetter.transformPermissionsFromOldToNewFormat(permissions)
+      : null;
 
     if (!PermissionsGetter.permissions.renderings) {
       PermissionsGetter.permissions.renderings = {};
     }
     PermissionsGetter.permissions.renderings[renderingId] = {
-      data: renderingData,
+      data: newFormatPermissions,
       lastRetrieve: moment(),
     };
+  }
+
+  static _setRolesACLPermissions(renderingId, permissions) {
+    PermissionsGetter.permissions.collections = {
+      data: permissions.collections,
+      lastRetrieve: moment(),
+    };
+
+    if (!PermissionsGetter.permissions.renderings) {
+      PermissionsGetter.permissions.renderings = {};
+    }
+    PermissionsGetter.permissions.renderings[renderingId] = {
+      data: permissions.renderings ? permissions.renderings[renderingId] : null,
+      lastRetrieve: moment(),
+    };
+  }
+
+  // In the teamACL format, all the permissions are stored by renderingId into "renderings".
+  // For the rolesACL format, the collections permissions are stored directly into "collections",
+  // and only their scopes are stored by renderingId into "renderings".
+  static _setPermissions(renderingId, permissions) {
+    if (PermissionsGetter.isRolesACLActivated) {
+      PermissionsGetter._setRolesACLPermissions(renderingId, permissions);
+    } else {
+      PermissionsGetter._setTeamsACLPermissions(renderingId, permissions);
+    }
   }
 
   static getLastRetrieveTime(renderingId, permissionName) {
