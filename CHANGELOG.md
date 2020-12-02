@@ -1,9 +1,56 @@
+## [7.8.2](https://github.com/ForestAdmin/forest-express/compare/v7.8.1...v7.8.2) (2020-12-01)
+
+
+### Bug Fixes
+
+* **smart-actions:** transform legacy widgets in hooks ([#571](https://github.com/ForestAdmin/forest-express/issues/571)) ([f58b867](https://github.com/ForestAdmin/forest-express/commit/f58b86767cdf84012ad54dfe2c2542bc79792ee8))
+
+## [7.8.1](https://github.com/ForestAdmin/forest-express/compare/v7.8.0...v7.8.1) (2020-12-01)
+
+
+### Bug Fixes
+
+* **smart fields:** compute properly smart fields ([#570](https://github.com/ForestAdmin/forest-express/issues/570)) ([923c968](https://github.com/ForestAdmin/forest-express/commit/923c968b5b818c8acd8fa39e80c2717bebec50a3))
+
+
+### Reverts
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#569](https://github.com/ForestAdmin/forest-express/issues/569)) ([5e7a689](https://github.com/ForestAdmin/forest-express/commit/5e7a68903bfc63d5b90303e10c59873aa0b3d4d9))
+
+# [7.8.0](https://github.com/ForestAdmin/forest-express/compare/v7.7.2...v7.8.0) (2020-11-30)
+
+
+### Features
+
+* **smart actions:** endpoint that handle forms' load hooks ([#565](https://github.com/ForestAdmin/forest-express/issues/565)) ([824a670](https://github.com/ForestAdmin/forest-express/commit/824a670ca41e2837473e6a77b79d99f800e5261c))
+
+## [7.7.2](https://github.com/ForestAdmin/forest-express/compare/v7.7.1...v7.7.2) (2020-11-27)
+
+
+### Bug Fixes
+
+* **schema:** do not generate `framework`, `framework_version` to ensure equality across environments ([#556](https://github.com/ForestAdmin/forest-express/issues/556)) ([30ee17a](https://github.com/ForestAdmin/forest-express/commit/30ee17aa40da86bf61290c6707914d3eaa5174eb))
+
+## [7.7.1](https://github.com/ForestAdmin/forest-express/compare/v7.7.0...v7.7.1) (2020-11-27)
+
+
+### Bug Fixes
+
+* **technical:** remove useless data property from load hook controller ([#562](https://github.com/ForestAdmin/forest-express/issues/562)) ([7465982](https://github.com/ForestAdmin/forest-express/commit/7465982ed0fe2fcc4050698e8235b2783305c54d))
+
 # [8.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.2...v8.0.0-beta.3) (2020-11-26)
 
 
 ### Features
 
 * delete cookie when client logout ([#545](https://github.com/ForestAdmin/forest-express/issues/545)) ([#560](https://github.com/ForestAdmin/forest-express/issues/560)) ([5188206](https://github.com/ForestAdmin/forest-express/commit/51882065163f0f295b0c35f3ae0f73db64e4ec6a))
+
+# [7.7.0](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v7.7.0) (2020-11-26)
+
+
+### Features
+
+* **smart actions:** endpoint that handle forms' load hooks ([#546](https://github.com/ForestAdmin/forest-express/issues/546)) ([3e3c018](https://github.com/ForestAdmin/forest-express/commit/3e3c01821e9c938a35c63fc1d606ad2494f50a0a))
 
 # [8.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.1...v8.0.0-beta.2) (2020-11-24)
 
