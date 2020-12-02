@@ -129,38 +129,29 @@ class PermissionsChecker {
         return PermissionsChecker
           ._isCollectionBrowseAllowed(permissions.collection, permissionInfos, permissions.scope);
       default:
-        return PermissionsChecker
-          ._isPermissionAllowed(permissions.collection[permissionName], permissionInfos.userId);
-    }
-  }
-
-  async _retrievePermissionsAndCheckAllowed(collectionName, permissionName, permissionInfos) {
-    await PermissionsGetter.retrievePermissions(this.environmentSecret, this.renderingId);
-    const permissions = PermissionsGetter.getPermissions(this.renderingId, collectionName);
-
-    if (!(await PermissionsChecker._isAllowed(permissions, permissionName, permissionInfos))) {
-      throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
+        return permissions.collection
+          ? PermissionsChecker
+            ._isPermissionAllowed(permissions.collection[permissionName], permissionInfos.userId)
+          : null;
     }
   }
 
   async checkPermissions(collectionName, permissionName, permissionInfos) {
-    if (PermissionsGetter.isPermissionExpired(this.renderingId, permissionName)) {
-      return this._retrievePermissionsAndCheckAllowed(
-        collectionName,
-        permissionName,
-        permissionInfos,
-      );
+    const permissions = () => PermissionsGetter.getPermissions(this.renderingId, collectionName);
+    const isAllowed = async () => PermissionsChecker
+      ._isAllowed(permissions(), permissionName, permissionInfos);
+
+    if (!PermissionsGetter.isPermissionExpired(this.renderingId, permissionName)
+    && await isAllowed()) {
+      return null;
     }
 
-    const permissions = PermissionsGetter.getPermissions(this.renderingId, collectionName);
-    if (!(await PermissionsChecker._isAllowed(permissions, permissionName, permissionInfos))) {
-      return this._retrievePermissionsAndCheckAllowed(
-        collectionName,
-        permissionName,
-        permissionInfos,
-      );
+    await PermissionsGetter.retrievePermissions(this.environmentSecret, this.renderingId);
+    if (await isAllowed()) {
+      return null;
     }
-    return null;
+
+    throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
   }
 }
 
