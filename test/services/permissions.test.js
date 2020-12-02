@@ -27,7 +27,7 @@ describe('services > permissions', () => {
               },
             });
 
-          await new PermissionsChecker('envSecret', 1, 'Users', 'list').perform()
+          await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list')
             .then(() => { expect(true).toStrictEqual(true); });
         });
       });
@@ -48,7 +48,7 @@ describe('services > permissions', () => {
               },
             });
 
-          await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list').perform())
+          await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list'))
             .rejects.toThrow("'list' access forbidden on Users");
         });
       });
@@ -67,7 +67,7 @@ describe('services > permissions', () => {
               },
             });
 
-          await new PermissionsChecker('envSecret', 1, 'Users', 'list').perform()
+          await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list')
             .then(() => { expect(true).toStrictEqual(true); });
         });
       });
@@ -90,7 +90,7 @@ describe('services > permissions', () => {
               },
             });
 
-          await new PermissionsChecker('envSecret', 2, 'Users', 'list').perform()
+          await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'list')
             .then(() => { expect(true).toStrictEqual(true); });
         });
       });
@@ -105,7 +105,7 @@ describe('services > permissions', () => {
         nock.cleanAll();
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, {});
 
-        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list').perform())
+        await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list'))
           .rejects.toThrow("'list' access forbidden on Users");
       });
     });
@@ -130,7 +130,7 @@ describe('services > permissions', () => {
             userId: 1,
           };
 
-          await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
+          await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
             .rejects.toThrow("'actions' access forbidden on Users");
         });
       });
@@ -160,7 +160,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
+            await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
               .rejects.toThrow("'actions' access forbidden on Users");
           });
         });
@@ -189,7 +189,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform();
+            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
             expect(result).toBeUndefined();
           });
         });
@@ -218,7 +218,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform();
+            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
             expect(result).toBeUndefined();
           });
 
@@ -245,7 +245,7 @@ describe('services > permissions', () => {
               userId: 2,
             };
 
-            await expect(new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform())
+            await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters))
               .rejects.toThrow("'actions' access forbidden on Users");
           });
         });
@@ -274,7 +274,7 @@ describe('services > permissions', () => {
               userId: '1',
             };
 
-            const result = await new PermissionsChecker('envSecret', 1, 'Users', 'actions', smartActionParameters).perform();
+            const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'actions', smartActionParameters);
             expect(result).toBeUndefined();
           });
         });
@@ -354,7 +354,7 @@ describe('services > permissions', () => {
             }),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform();
+          const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list', collectionListParameters);
           expect(result).toBeUndefined();
         });
 
@@ -373,7 +373,7 @@ describe('services > permissions', () => {
             ),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', collectionListParameters).perform();
+          const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'list', collectionListParameters);
           expect(result).toBeUndefined();
         });
       });
@@ -404,7 +404,7 @@ describe('services > permissions', () => {
             }),
           };
 
-          const result = await new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform();
+          const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list', collectionListParameters);
           expect(result).toBeUndefined();
         });
       });
@@ -428,7 +428,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        const result = await new PermissionsChecker('envSecret', 1, 'Posts', 'list', collectionListParameters).perform();
+        const result = await new PermissionsChecker('envSecret', 1).checkPermissions('Posts', 'list', collectionListParameters);
         expect(result).toBeUndefined();
       });
     });
@@ -449,7 +449,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform())
+        await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list', collectionListParameters))
           .rejects.toThrow("'list' access forbidden on Users");
       });
 
@@ -472,7 +472,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', collectionListParameters).perform())
+        await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list', collectionListParameters))
           .rejects.toThrow("'list' access forbidden on Users");
       });
 
@@ -501,7 +501,7 @@ describe('services > permissions', () => {
           }),
         };
 
-        await expect(new PermissionsChecker('envSecret', 1, 'Users', 'list', null, collectionListParameters).perform())
+        await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list', null, collectionListParameters))
           .rejects.toThrow("'list' access forbidden on Users");
       });
     });
@@ -522,7 +522,7 @@ describe('services > permissions', () => {
         let retrievedPermissions = PermissionsChecker.getPermissions(1);
 
         expect(lastRetrieve).toBeNull();
-        expect(retrievedPermissions).toBeNull();
+        expect(retrievedPermissions).toBeUndefined();
 
         const permissions = {
           Users: {
@@ -534,10 +534,10 @@ describe('services > permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions);
 
-        await new PermissionsChecker('envSecret', 1, 'Users', 'list')
-          .perform()
+        await new PermissionsChecker('envSecret', 1)
+          .checkPermissions('Users', 'list')
           .then(() => {
-            retrievedPermissions = PermissionsChecker.getPermissions(1);
+            retrievedPermissions = PermissionsChecker.getPermissions(1).data;
             lastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
             expect(lastRetrieve).not.toBeNull();
@@ -550,13 +550,13 @@ describe('services > permissions', () => {
       it('should re-retrieve the permissions', async () => {
         expect.assertions(6);
         resetNock();
-        process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS = 1;
+        PermissionsChecker.expirationInSeconds = 1;
 
         const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
         const initialRetrievedPermissions = PermissionsChecker.getPermissions(1);
 
         expect(intialLastRetrieve).toBeNull();
-        expect(initialRetrievedPermissions).toBeNull();
+        expect(initialRetrievedPermissions).toBeUndefined();
 
         const permissions1 = {
           Users: {
@@ -581,9 +581,9 @@ describe('services > permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
 
-        await new PermissionsChecker('envSecret', 1, 'Users', 'list').perform();
+        await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list');
 
-        const firstRetrievedPermissions = PermissionsChecker.getPermissions(1);
+        const firstRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
         const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
         expect(firstRetrievedPermissions).toStrictEqual(permissions1);
@@ -592,10 +592,10 @@ describe('services > permissions', () => {
         await new Promise((resolve) => { setTimeout(() => resolve(), 1200); });
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
-        await new PermissionsChecker('envSecret', 1, 'Users', 'list')
-          .perform()
+        await new PermissionsChecker('envSecret', 1)
+          .checkPermissions('Users', 'list')
           .then(() => {
-            const secondRetrievedPermissions = PermissionsChecker.getPermissions(1);
+            const secondRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
             const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
             expect(secondRetrievedPermissions).toStrictEqual(permissions2);
@@ -608,13 +608,13 @@ describe('services > permissions', () => {
       it('should not re-retrieve the permissions', async () => {
         expect.assertions(6);
         resetNock();
-        process.env.FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS = 1000;
+        PermissionsChecker.expirationInSeconds = 1000;
 
         const intialLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
         const initialRetrievedPermissions = PermissionsChecker.getPermissions(1);
 
         expect(intialLastRetrieve).toBeNull();
-        expect(initialRetrievedPermissions).toBeNull();
+        expect(initialRetrievedPermissions).toBeUndefined();
 
         const permissions1 = {
           Users: {
@@ -639,9 +639,9 @@ describe('services > permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions1);
 
-        await new PermissionsChecker('envSecret', 1, 'Users', 'list').perform();
+        await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list');
 
-        const firstRetrievedPermissions = PermissionsChecker.getPermissions(1);
+        const firstRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
         const firstLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
         expect(firstRetrievedPermissions).toStrictEqual(permissions1);
@@ -649,8 +649,8 @@ describe('services > permissions', () => {
 
         nockObj.get('/liana/v2/permissions?renderingId=1').reply(200, permissions2);
 
-        new PermissionsChecker('envSecret', 1, 'Users', 'list').perform();
-        const secondRetrievedPermissions = PermissionsChecker.getPermissions(1);
+        new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'list');
+        const secondRetrievedPermissions = PermissionsChecker.getPermissions(1).data;
         const secondLastRetrieve = PermissionsChecker.getLastRetrieveTime(1);
 
         expect(secondRetrievedPermissions).toStrictEqual(permissions1);
