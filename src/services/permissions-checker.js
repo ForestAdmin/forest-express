@@ -137,20 +137,29 @@ class PermissionsChecker {
   }
 
   async checkPermissions(collectionName, permissionName, permissionInfos) {
+    const arePermissionsExpired = PermissionsGetter
+      .arePermissionsExpired(this.renderingId, permissionName);
+    const areRolesACLRenderingOnlyPermissionsExpired = PermissionsGetter
+      .areRolesACLRenderingOnlyPermissionsExpired(this.renderingId, permissionName);
     const permissions = () => PermissionsGetter.getPermissions(this.renderingId, collectionName);
     const isAllowed = async () => PermissionsChecker
       ._isAllowed(permissions(), permissionName, permissionInfos);
 
-    if (!PermissionsGetter.isPermissionExpired(this.renderingId, permissionName)
-    && await isAllowed()) {
+    if (!arePermissionsExpired && await isAllowed()) {
       return null;
+    }
+
+    if (areRolesACLRenderingOnlyPermissionsExpired) {
+      await PermissionsGetter.retrievePermissions(this.environmentSecret, this.renderingId, true);
+      if (await isAllowed()) {
+        return null;
+      }
     }
 
     await PermissionsGetter.retrievePermissions(this.environmentSecret, this.renderingId);
     if (await isAllowed()) {
       return null;
     }
-
     throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
   }
 }

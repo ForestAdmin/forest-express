@@ -97,31 +97,19 @@ class PermissionsGetter {
     return newPermissions;
   }
 
-  static _setTeamsACLPermissions(renderingId, permissions) {
-    const newFormatPermissions = permissions
-      ? PermissionsGetter.transformPermissionsFromOldToNewFormat(permissions)
-      : null;
-
+  static _setRenderingPermissions(renderingId, permissions) {
     if (!PermissionsGetter.permissions.renderings) {
       PermissionsGetter.permissions.renderings = {};
     }
     PermissionsGetter.permissions.renderings[renderingId] = {
-      data: newFormatPermissions,
+      data: permissions,
       lastRetrieve: moment(),
     };
   }
 
-  static _setRolesACLPermissions(renderingId, permissions) {
+  static _setCollectionsPermissions(permissions) {
     PermissionsGetter.permissions.collections = {
-      data: permissions.collections,
-      lastRetrieve: moment(),
-    };
-
-    if (!PermissionsGetter.permissions.renderings) {
-      PermissionsGetter.permissions.renderings = {};
-    }
-    PermissionsGetter.permissions.renderings[renderingId] = {
-      data: permissions.renderings ? permissions.renderings[renderingId] : null,
+      data: permissions,
       lastRetrieve: moment(),
     };
   }
@@ -131,20 +119,28 @@ class PermissionsGetter {
   // and only their scopes are stored by renderingId into "renderings".
   static _setPermissions(renderingId, permissions) {
     if (PermissionsGetter.isRolesACLActivated) {
-      PermissionsGetter._setRolesACLPermissions(renderingId, permissions);
+      PermissionsGetter._setCollectionsPermissions(permissions.collections);
+      if (permissions.renderings && permissions.renderings[renderingId]) {
+        PermissionsGetter
+          ._setRenderingPermissions(renderingId, permissions.renderings[renderingId]);
+      }
     } else {
-      PermissionsGetter._setTeamsACLPermissions(renderingId, permissions);
+      const newFormatPermissions = permissions
+        ? PermissionsGetter.transformPermissionsFromOldToNewFormat(permissions)
+        : null;
+      PermissionsGetter._setRenderingPermissions(renderingId, newFormatPermissions);
     }
   }
 
-  static getLastRetrieveTime(renderingId, permissionName) {
-    // In the case of rolesACL format and browseEnabled permission, the last retrieve to be taken
-    // into account is the one stored by rendering (because of the scope information).
-    if (PermissionsGetter.isRolesACLActivated && PermissionsGetter._getPermissionsInCollections() && permissionName !== 'browseEnabled') {
-      return PermissionsGetter._getPermissionsInCollections().lastRetrieve;
-    }
+  static getLastRetrieveTimeInRendering(renderingId) {
     return PermissionsGetter._getPermissionsInRendering(renderingId)
       ? PermissionsGetter._getPermissionsInRendering(renderingId).lastRetrieve
+      : null;
+  }
+
+  static getLastRetrieveTimeInCollections() {
+    return PermissionsGetter._getPermissionsInCollections()
+      ? PermissionsGetter._getPermissionsInCollections().lastRetrieve
       : null;
   }
 
@@ -158,27 +154,56 @@ class PermissionsGetter {
     }
   }
 
-  static isPermissionExpired(renderingId, permissionName) {
+  static _isLastRetrieveExpired(lastRetrieveTime) {
+    if (!lastRetrieveTime) return true;
     const currentTime = moment();
-    const lastRetrieve = PermissionsGetter.getLastRetrieveTime(renderingId, permissionName);
-
-
-    if (!lastRetrieve) {
-      return true;
-    }
-
-    const elapsedSeconds = currentTime.diff(lastRetrieve, 'seconds');
+    const elapsedSeconds = currentTime.diff(lastRetrieveTime, 'seconds');
     return elapsedSeconds >= PermissionsGetter.expirationInSeconds;
   }
 
-  static async retrievePermissions(environmentSecret, renderingId) {
+
+  static _areCollectionsPermissionsExpired() {
+    const lastRetrieve = PermissionsGetter.getLastRetrieveTimeInCollections();
+    return PermissionsGetter._isLastRetrieveExpired(lastRetrieve);
+  }
+
+
+  static _areRenderingPermissionsExpired(renderingId) {
+    const lastRetrieve = PermissionsGetter.getLastRetrieveTimeInRendering(renderingId);
+    return PermissionsGetter._isLastRetrieveExpired(lastRetrieve);
+  }
+
+  static arePermissionsExpired(renderingId, permissionName) {
+    if (PermissionsGetter.isRolesACLActivated) {
+      return PermissionsGetter._areCollectionsPermissionsExpired()
+      || (permissionName === 'browseEnabled' && PermissionsGetter._areRenderingPermissionsExpired());
+    }
+    return PermissionsGetter._areRenderingPermissionsExpired(renderingId);
+  }
+
+  static areRolesACLRenderingOnlyPermissionsExpired(renderingId, permissionName) {
+    return (PermissionsGetter.isRolesACLActivated
+      && permissionName === 'browseEnabled'
+      && PermissionsGetter._areRenderingPermissionsExpired(renderingId)
+      && !PermissionsGetter._areCollectionsPermissionsExpired(renderingId));
+  }
+
+  static async retrievePermissions(environmentSecret, renderingId, renderingSpecificOnly = false) {
+    const queryParams = { renderingId };
+    if (renderingSpecificOnly) queryParams.renderingSpecificOnly = true;
+
     return forestServerRequester
-      .perform('/liana/v3/permissions', environmentSecret, { renderingId })
+      .perform('/liana/v3/permissions', environmentSecret, queryParams)
       .then((responseBody) => {
         PermissionsGetter.isRolesACLActivated = responseBody.meta
           ? responseBody.meta.rolesACLActivated
           : false;
-        PermissionsGetter._setPermissions(renderingId, responseBody.data);
+
+        if (renderingSpecificOnly && responseBody.data.renderings) {
+          return PermissionsGetter
+            ._setRenderingPermissions(renderingId, responseBody.data.renderings[renderingId]);
+        }
+        return PermissionsGetter._setPermissions(renderingId, responseBody.data);
       })
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
