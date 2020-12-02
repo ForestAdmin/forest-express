@@ -22,6 +22,33 @@
 
 * onlyCrudModule, modelsDir, secretKey, authKey options are not supported anymore by Liana.init().
 Instead of sequelize/mongoose & Sequelize/Mongoose, connections & objectMapping are now required.
+
+## [7.8.2](https://github.com/ForestAdmin/forest-express/compare/v7.8.1...v7.8.2) (2020-12-01)
+
+
+### Bug Fixes
+
+* **smart-actions:** transform legacy widgets in hooks ([#571](https://github.com/ForestAdmin/forest-express/issues/571)) ([f58b867](https://github.com/ForestAdmin/forest-express/commit/f58b86767cdf84012ad54dfe2c2542bc79792ee8))
+
+## [7.8.1](https://github.com/ForestAdmin/forest-express/compare/v7.8.0...v7.8.1) (2020-12-01)
+
+
+### Bug Fixes
+
+* **smart fields:** compute properly smart fields ([#570](https://github.com/ForestAdmin/forest-express/issues/570)) ([923c968](https://github.com/ForestAdmin/forest-express/commit/923c968b5b818c8acd8fa39e80c2717bebec50a3))
+
+
+### Reverts
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#569](https://github.com/ForestAdmin/forest-express/issues/569)) ([5e7a689](https://github.com/ForestAdmin/forest-express/commit/5e7a68903bfc63d5b90303e10c59873aa0b3d4d9))
+
+# [7.8.0](https://github.com/ForestAdmin/forest-express/compare/v7.7.2...v7.8.0) (2020-11-30)
+
+
+### Features
+
+* **smart actions:** endpoint that handle forms' load hooks ([#565](https://github.com/ForestAdmin/forest-express/issues/565)) ([824a670](https://github.com/ForestAdmin/forest-express/commit/824a670ca41e2837473e6a77b79d99f800e5261c))
+
 ## [7.7.2](https://github.com/ForestAdmin/forest-express/compare/v7.7.1...v7.7.2) (2020-11-27)
 
 
