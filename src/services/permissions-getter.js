@@ -60,7 +60,7 @@ class PermissionsGetter {
     Object.keys(smartActionsPermissions).forEach((actionName) => {
       const action = smartActionsPermissions[actionName];
       newSmartActionsPermissions = {
-        ...newSmartActionsPermissions.actions,
+        ...newSmartActionsPermissions,
         [actionName]: {
           triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
         },

@@ -182,6 +182,10 @@ describe('services > permissions', () => {
                         allowed: false,
                         users: null,
                       },
+                      copy: {
+                        allowed: true,
+                        users: null,
+                      },
                     },
                   },
                 },
@@ -211,6 +215,10 @@ describe('services > permissions', () => {
                     collection: {},
                     actions: {
                       save: {
+                        allowed: true,
+                        users: null,
+                      },
+                      copy: {
                         allowed: true,
                         users: null,
                       },
@@ -245,6 +253,10 @@ describe('services > permissions', () => {
                         allowed: true,
                         users: [1],
                       },
+                      copy: {
+                        allowed: true,
+                        users: null,
+                      },
                     },
                   },
                 },
@@ -274,6 +286,10 @@ describe('services > permissions', () => {
                       save: {
                         allowed: true,
                         users: [1],
+                      },
+                      copy: {
+                        allowed: true,
+                        users: null,
                       },
                     },
                   },
@@ -987,6 +1003,9 @@ describe('services > permissions', () => {
                         save: {
                           triggerEnabled: false,
                         },
+                        copy: {
+                          triggerEnabled: true,
+                        },
                       },
                     },
                   },
@@ -1018,6 +1037,9 @@ describe('services > permissions', () => {
                       collection: {},
                       actions: {
                         save: {
+                          triggerEnabled: true,
+                        },
+                        copy: {
                           triggerEnabled: true,
                         },
                       },
@@ -1053,6 +1075,9 @@ describe('services > permissions', () => {
                         save: {
                           triggerEnabled: [1],
                         },
+                        copy: {
+                          triggerEnabled: [5],
+                        },
                       },
                     },
                   },
@@ -1083,6 +1108,9 @@ describe('services > permissions', () => {
                       actions: {
                         save: {
                           triggerEnabled: [1],
+                        },
+                        copy: {
+                          triggerEnabled: [5],
                         },
                       },
                     },
