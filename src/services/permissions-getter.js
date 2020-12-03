@@ -17,11 +17,11 @@ class PermissionsGetter {
     PermissionsGetter.permissions = {};
   }
 
-  static getPermissionsInCollections() {
+  static _getPermissionsInCollections() {
     return PermissionsGetter.permissions.collections;
   }
 
-  static getPermissionsInRendering(renderingId) {
+  static _getPermissionsInRendering(renderingId) {
     return PermissionsGetter.permissions.renderings
       ? PermissionsGetter.permissions.renderings[renderingId]
       : null;
@@ -30,9 +30,9 @@ class PermissionsGetter {
   static _getCollectionPermissions(renderingId, collectionName) {
     let modelsPermissions;
     if (PermissionsGetter.isRolesACLActivated) {
-      modelsPermissions = PermissionsGetter.getPermissionsInCollections();
+      modelsPermissions = PermissionsGetter._getPermissionsInCollections();
     } else {
-      modelsPermissions = PermissionsGetter.getPermissionsInRendering(renderingId);
+      modelsPermissions = PermissionsGetter._getPermissionsInRendering(renderingId);
     }
     return modelsPermissions && modelsPermissions.data
       ? modelsPermissions.data[collectionName]
@@ -42,10 +42,10 @@ class PermissionsGetter {
   static getPermissions(renderingId, collectionName) {
     const collectionPermissions = PermissionsGetter
       ._getCollectionPermissions(renderingId, collectionName);
-    const scope = PermissionsGetter.getPermissionsInRendering(renderingId)
-      && PermissionsGetter.getPermissionsInRendering(renderingId).data
-      && PermissionsGetter.getPermissionsInRendering(renderingId).data[collectionName]
-      ? PermissionsGetter.getPermissionsInRendering(renderingId).data[collectionName].scope
+    const scope = PermissionsGetter._getPermissionsInRendering(renderingId)
+      && PermissionsGetter._getPermissionsInRendering(renderingId).data
+      && PermissionsGetter._getPermissionsInRendering(renderingId).data[collectionName]
+      ? PermissionsGetter._getPermissionsInRendering(renderingId).data[collectionName].scope
       : null;
 
     return {
@@ -140,21 +140,21 @@ class PermissionsGetter {
   static getLastRetrieveTime(renderingId, permissionName) {
     // In the case of rolesACL format and browseEnabled permission, the last retrieve to be taken
     // into account is the one stored by rendering (because of the scope information).
-    if (PermissionsGetter.isRolesACLActivated && PermissionsGetter.getPermissionsInCollections() && permissionName !== 'browseEnabled') {
-      return PermissionsGetter.getPermissionsInCollections().lastRetrieve;
+    if (PermissionsGetter.isRolesACLActivated && PermissionsGetter._getPermissionsInCollections() && permissionName !== 'browseEnabled') {
+      return PermissionsGetter._getPermissionsInCollections().lastRetrieve;
     }
-    return PermissionsGetter.getPermissionsInRendering(renderingId)
-      ? PermissionsGetter.getPermissionsInRendering(renderingId).lastRetrieve
+    return PermissionsGetter._getPermissionsInRendering(renderingId)
+      ? PermissionsGetter._getPermissionsInRendering(renderingId).lastRetrieve
       : null;
   }
 
   static resetExpiration(renderingId) {
-    if (PermissionsGetter.isRolesACLActivated && PermissionsGetter.getPermissionsInCollections()) {
-      PermissionsGetter.getPermissionsInCollections().lastRetrieve = null;
+    if (PermissionsGetter.isRolesACLActivated && PermissionsGetter._getPermissionsInCollections()) {
+      PermissionsGetter._getPermissionsInCollections().lastRetrieve = null;
     }
 
-    if (PermissionsGetter.getPermissionsInRendering(renderingId)) {
-      PermissionsGetter.getPermissionsInRendering(renderingId).lastRetrieve = null;
+    if (PermissionsGetter._getPermissionsInRendering(renderingId)) {
+      PermissionsGetter._getPermissionsInRendering(renderingId).lastRetrieve = null;
     }
   }
 

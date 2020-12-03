@@ -581,10 +581,11 @@ describe('services > permissions', () => {
           expect.assertions(4);
           resetNock();
           let lastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
-          let retrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+          let retrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
 
           expect(lastRetrieve).toBeNull();
-          expect(retrievedPermissions).toBeNull();
+          expect(retrievedPermissions)
+            .toStrictEqual({ actions: null, collection: null, scope: null });
 
           const permissions = {
             meta: { rolesACLActivated: false },
@@ -602,13 +603,17 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              retrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+              retrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
               lastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
               expect(lastRetrieve).not.toBeNull();
               const permissionsInNewFormat = PermissionsGetter
                 .transformPermissionsFromOldToNewFormat(permissions.data);
-              expect(retrievedPermissions.data).toStrictEqual(permissionsInNewFormat);
+              expect(retrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissionsInNewFormat.Users.collection,
+                scope: undefined,
+              });
             });
         });
       });
@@ -620,10 +625,11 @@ describe('services > permissions', () => {
           PermissionsGetter.expirationInSeconds = 1;
 
           const intialLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+          const initialRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
 
           expect(intialLastRetrieve).toBeNull();
-          expect(initialRetrievedPermissions).toBeNull();
+          expect(initialRetrievedPermissions)
+            .toStrictEqual({ actions: null, collection: null, scope: null });
 
           const permissions1 = {
             meta: { rolesACLActivated: false },
@@ -656,12 +662,16 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+          const firstRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
           const firstLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
           const permissions1InNewFormat = PermissionsGetter
             .transformPermissionsFromOldToNewFormat(permissions1.data);
 
-          expect(firstRetrievedPermissions.data).toStrictEqual(permissions1InNewFormat);
+          expect(firstRetrievedPermissions).toStrictEqual({
+            actions: undefined,
+            collection: permissions1InNewFormat.Users.collection,
+            scope: undefined,
+          });
           expect(firstLastRetrieve).not.toBeNull();
 
           await new Promise((resolve) => { setTimeout(() => resolve(), 1200); });
@@ -670,12 +680,16 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              const secondRetrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+              const secondRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
               const secondLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
               const permissions2InNewFormat = PermissionsGetter
                 .transformPermissionsFromOldToNewFormat(permissions2.data);
 
-              expect(secondRetrievedPermissions.data).toStrictEqual(permissions2InNewFormat);
+              expect(secondRetrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions2InNewFormat.Users.collection,
+                scope: undefined,
+              });
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
             });
         });
@@ -688,10 +702,11 @@ describe('services > permissions', () => {
           PermissionsGetter.expirationInSeconds = 1000;
 
           const intialLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+          const initialRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
 
           expect(intialLastRetrieve).toBeNull();
-          expect(initialRetrievedPermissions).toBeNull();
+          expect(initialRetrievedPermissions)
+            .toStrictEqual({ actions: null, collection: null, scope: null });
 
           const permissions1 = {
             meta: { rolesACLActivated: false },
@@ -724,21 +739,29 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+          const firstRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
           const firstLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
           const permissions1InNewFormat = PermissionsGetter
             .transformPermissionsFromOldToNewFormat(permissions1.data);
 
-          expect(firstRetrievedPermissions.data).toStrictEqual(permissions1InNewFormat);
+          expect(firstRetrievedPermissions).toStrictEqual({
+            actions: undefined,
+            collection: permissions1InNewFormat.Users.collection,
+            scope: undefined,
+          });
           expect(firstLastRetrieve).not.toBeNull();
 
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions2);
 
           new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
-          const secondRetrievedPermissions = PermissionsGetter.getPermissionsInRendering(1);
+          const secondRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
           const secondLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
-          expect(secondRetrievedPermissions.data).toStrictEqual(permissions1InNewFormat);
+          expect(secondRetrievedPermissions).toStrictEqual({
+            actions: undefined,
+            collection: permissions1InNewFormat.Users.collection,
+            scope: undefined,
+          });
           expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
         });
       });
@@ -888,19 +911,27 @@ describe('services > permissions', () => {
 
               await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'addEnabled', { userId: 1 });
 
-              const firstRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+              const firstRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
               const firstLastRetrieve = PermissionsGetter.getLastRetrieveTime(1, 'addEnabled');
 
-              expect(firstRetrievedPermissions.data).toStrictEqual(permissions1.data.collections);
+              expect(firstRetrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions1.data.collections.Users.collection,
+                scope: null,
+              });
               expect(firstLastRetrieve).not.toBeNull();
 
               nockObj.get('/liana/v3/permissions?renderingId=2').reply(200, permissions1);
 
               await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'addEnabled', { userId: 1 });
-              const secondRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+              const secondRetrievedPermissions = PermissionsGetter.getPermissions(2, 'Users');
               const secondLastRetrieve = PermissionsGetter.getLastRetrieveTime(2, 'addEnabled');
 
-              expect(secondRetrievedPermissions.data).toStrictEqual(permissions1.data.collections);
+              expect(secondRetrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions1.data.collections.Users.collection,
+                scope: null,
+              });
               expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
             });
           });
@@ -935,20 +966,28 @@ describe('services > permissions', () => {
 
               await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-              const firstRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+              const firstRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
               const firstLastRetrieve = PermissionsGetter.getLastRetrieveTime(1, 'browseEnabled');
 
-              expect(firstRetrievedPermissions.data).toStrictEqual(permissions.data.collections);
+              expect(firstRetrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions.data.collections.Users.collection,
+                scope: null,
+              });
               expect(firstLastRetrieve).not.toBeNull();
 
               await new Promise((resolve) => { setTimeout(() => resolve(), 50); });
               nockObj.get('/liana/v3/permissions?renderingId=2').reply(200, permissions);
 
               await new PermissionsChecker('envSecret', 2).checkPermissions('Users', 'browseEnabled', { userId: 1 });
-              const secondRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+              const secondRetrievedPermissions = PermissionsGetter.getPermissions(2, 'Users');
               const secondLastRetrieve = PermissionsGetter.getLastRetrieveTime(2, 'browseEnabled');
 
-              expect(secondRetrievedPermissions.data).toStrictEqual(permissions.data.collections);
+              expect(secondRetrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions.data.collections.Users.collection,
+                scope: null,
+              });
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
             });
           });
@@ -1414,10 +1453,11 @@ describe('services > permissions', () => {
           expect.assertions(4);
           resetNock();
           let lastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
-          let retrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+          let retrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
 
           expect(lastRetrieve).toBeNull();
-          expect(retrievedPermissions).toBeUndefined();
+          expect(retrievedPermissions)
+            .toStrictEqual({ actions: null, collection: null, scope: null });
 
           const permissions = {
             meta: { rolesACLActivated: true },
@@ -1442,11 +1482,15 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              retrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+              retrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
               lastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
               expect(lastRetrieve).not.toBeNull();
-              expect(retrievedPermissions.data).toStrictEqual(permissions.data.collections);
+              expect(retrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions.data.collections.Users.collection,
+                scope: null,
+              });
             });
         });
       });
@@ -1458,10 +1502,11 @@ describe('services > permissions', () => {
           PermissionsGetter.expirationInSeconds = 1;
 
           const intialLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+          const initialRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
 
           expect(intialLastRetrieve).toBeNull();
-          expect(initialRetrievedPermissions).toBeUndefined();
+          expect(initialRetrievedPermissions)
+            .toStrictEqual({ actions: null, collection: null, scope: null });
 
           const permissions1 = {
             meta: { rolesACLActivated: true },
@@ -1513,10 +1558,14 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+          const firstRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
           const firstLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
-          expect(firstRetrievedPermissions.data).toStrictEqual(permissions1.data.collections);
+          expect(firstRetrievedPermissions).toStrictEqual({
+            actions: undefined,
+            collection: permissions1.data.collections.Users.collection,
+            scope: null,
+          });
           expect(firstLastRetrieve).not.toBeNull();
 
           await new Promise((resolve) => { setTimeout(() => resolve(), 1200); });
@@ -1525,10 +1574,14 @@ describe('services > permissions', () => {
           await new PermissionsChecker('envSecret', 1)
             .checkPermissions('Users', 'browseEnabled', { userId: 1 })
             .then(() => {
-              const secondRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+              const secondRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
               const secondLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
-              expect(secondRetrievedPermissions.data).toStrictEqual(permissions2.data.collections);
+              expect(secondRetrievedPermissions).toStrictEqual({
+                actions: undefined,
+                collection: permissions2.data.collections.Users.collection,
+                scope: null,
+              });
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
             });
         });
@@ -1541,10 +1594,11 @@ describe('services > permissions', () => {
           PermissionsGetter.expirationInSeconds = 1000;
 
           const intialLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
-          const initialRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+          const initialRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
 
           expect(intialLastRetrieve).toBeNull();
-          expect(initialRetrievedPermissions).toBeUndefined();
+          expect(initialRetrievedPermissions)
+            .toStrictEqual({ actions: null, collection: null, scope: null });
 
           const permissions1 = {
             meta: { rolesACLActivated: true },
@@ -1596,19 +1650,27 @@ describe('services > permissions', () => {
 
           await new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
 
-          const firstRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+          const firstRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
           const firstLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
-          expect(firstRetrievedPermissions.data).toStrictEqual(permissions1.data.collections);
+          expect(firstRetrievedPermissions).toStrictEqual({
+            actions: undefined,
+            collection: permissions1.data.collections.Users.collection,
+            scope: null,
+          });
           expect(firstLastRetrieve).not.toBeNull();
 
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions2);
 
           new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 });
-          const secondRetrievedPermissions = PermissionsGetter.getPermissionsInCollections();
+          const secondRetrievedPermissions = PermissionsGetter.getPermissions(1, 'Users');
           const secondLastRetrieve = PermissionsGetter.getLastRetrieveTime(1);
 
-          expect(secondRetrievedPermissions.data).toStrictEqual(permissions1.data.collections);
+          expect(secondRetrievedPermissions).toStrictEqual({
+            actions: undefined,
+            collection: permissions1.data.collections.Users.collection,
+            scope: null,
+          });
           expect(secondLastRetrieve.valueOf()).toStrictEqual(firstLastRetrieve.valueOf());
         });
       });
