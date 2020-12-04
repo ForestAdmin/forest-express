@@ -1,3 +1,10 @@
+## [7.8.5](https://github.com/ForestAdmin/forest-express/compare/v7.8.4...v7.8.5) (2020-12-04)
+
+
+### Bug Fixes
+
+* **smart-action:** do not mutate hooks on schema generation ([#580](https://github.com/ForestAdmin/forest-express/issues/580)) ([dd2aee3](https://github.com/ForestAdmin/forest-express/commit/dd2aee3de957ca558559f44473136c1d72de21c9))
+
 ## [7.8.4](https://github.com/ForestAdmin/forest-express/compare/v7.8.3...v7.8.4) (2020-12-04)
 
 
