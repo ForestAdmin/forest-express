@@ -43,17 +43,22 @@ class PermissionsGetter {
       : null;
   }
 
+  static _getScopePermissions(renderingId, collectionName) {
+    const getPermissionsInRendering = PermissionsGetter._getPermissionsInRendering(renderingId);
+    return getPermissionsInRendering
+      && getPermissionsInRendering.data
+      && getPermissionsInRendering.data[collectionName]
+      ? getPermissionsInRendering.data[collectionName].scope
+      : null;
+  }
+
   async getPermissions(renderingId, collectionName, permissionName, { forceRetrieve = false }) {
     if (forceRetrieve || PermissionsGetter._isPermissionExpired(renderingId, permissionName)) {
       await this._retrievePermissions(renderingId);
     }
     const collectionPermissions = PermissionsGetter
       ._getCollectionPermissions(renderingId, collectionName);
-    const scope = PermissionsGetter._getPermissionsInRendering(renderingId)
-    && PermissionsGetter._getPermissionsInRendering(renderingId).data
-    && PermissionsGetter._getPermissionsInRendering(renderingId).data[collectionName]
-      ? PermissionsGetter._getPermissionsInRendering(renderingId).data[collectionName].scope
-      : null;
+    const scope = PermissionsGetter._getScopePermissions(renderingId, collectionName);
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
@@ -63,14 +68,11 @@ class PermissionsGetter {
   }
 
   static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
-    let newSmartActionsPermissions = {};
+    const newSmartActionsPermissions = {};
     Object.keys(smartActionsPermissions).forEach((actionName) => {
       const action = smartActionsPermissions[actionName];
-      newSmartActionsPermissions = {
-        ...newSmartActionsPermissions,
-        [actionName]: {
-          triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
-        },
+      newSmartActionsPermissions[actionName] = {
+        triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
       };
     });
     return newSmartActionsPermissions;
