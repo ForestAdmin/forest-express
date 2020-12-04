@@ -35,7 +35,7 @@ async function callHook(hooks, smartActionHookGetResponse, requestBody) {
     actions, model, app, logger,
   } = initContext(schemas, smartActionHookGetResponse).inject();
 
-  const request = { body: requestBody || { recordsId: [1] } };
+  const request = { body: requestBody || { recordIds: [1] } };
   const send = jest.fn((values) => values);
   const response = { status: jest.fn(() => ({ send })) };
   const perform = jest.fn(() => ({ id: 1, name: 'Jane' }));
@@ -250,7 +250,7 @@ describe('routes > actions', () => {
           await callHook(
             { change: { 'this field does not exist': jest.fn() } },
             smartActionHookGetResponse,
-            { recordsId: [1], fields: [{ field: 'invoice number', type: 'String' }] },
+            { recordIds: [1], fields: [{ field: 'invoice number', type: 'String' }] },
           );
 
           expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
@@ -275,7 +275,7 @@ describe('routes > actions', () => {
             { change: { foo: jest.fn() } },
             smartActionHookGetResponse,
             {
-              recordsId: [1],
+              recordIds: [1],
               fields: [field],
             },
           );
@@ -299,7 +299,7 @@ describe('routes > actions', () => {
             { change },
             smartActionHookGetResponse,
             {
-              recordsId: [1],
+              recordIds: [1],
               fields: [field],
             },
           );
@@ -324,7 +324,7 @@ describe('routes > actions', () => {
             { change },
             smartActionHookGetResponse,
             {
-              recordsId: [1],
+              recordIds: [1],
               fields: [field],
             },
           );
@@ -355,7 +355,7 @@ describe('routes > actions', () => {
             { change },
             smartActionHookGetResponse,
             {
-              recordsId: [1],
+              recordIds: [1],
               fields: [field],
             },
           );
