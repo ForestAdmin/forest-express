@@ -1,3 +1,10 @@
+## [7.8.3](https://github.com/ForestAdmin/forest-express/compare/v7.8.2...v7.8.3) (2020-12-04)
+
+
+### Bug Fixes
+
+* record not found in hooks (recordsId replaced with recordIds) ([#578](https://github.com/ForestAdmin/forest-express/issues/578)) ([ccf6a8f](https://github.com/ForestAdmin/forest-express/commit/ccf6a8fe8089551b1624ed61120e3f4aa1c9866c))
+
 ## [7.8.2](https://github.com/ForestAdmin/forest-express/compare/v7.8.1...v7.8.2) (2020-12-01)
 
 
