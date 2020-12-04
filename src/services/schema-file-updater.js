@@ -107,15 +107,7 @@ class SchemaFileUpdater {
     return actions;
   }
 
-  static cleanActionHooks(action) {
-    const load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
-    const change = action.hooks && action.hooks.change && typeof action.hooks.change === 'object'
-      ? Object.keys(action.hooks.change)
-      : [];
-    action.hooks = { load, change };
-  }
-
-  cleanCollection(collection) {
+  static cleanCollection(collection) {
     if (_.isNil(collection.isSearchable)) {
       collection.isSearchable = true;
     }
@@ -132,7 +124,6 @@ class SchemaFileUpdater {
 
     collection.fields = SchemaFileUpdater.cleanFields(collection.fields);
     collection.segments = SchemaFileUpdater.cleanSegments(collection.segments);
-    collection.actions = this.cleanActions(collection.actions);
   }
 
   static formatFields(collection, serializerOptions) {
@@ -163,14 +154,33 @@ class SchemaFileUpdater {
       actionFormatted.fields = actionFormatted.fields || [];
       actionFormatted.fields = actionFormatted.fields.map((field) =>
         SchemaFileUpdater.formatObject(field, serializerOptions.actions.fields.attributes));
+
+      actionFormatted.hooks = actionFormatted.hooks || {};
+      actionFormatted.hooks = SchemaFileUpdater
+        .formatObject(action.hooks, serializerOptions.actions.hooks.attributes);
+      actionFormatted.hooks.load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
+      actionFormatted.hooks.change = action.hooks
+        && action.hooks.change
+        && typeof action.hooks.change === 'object'
+        ? Object.keys(action.hooks.change)
+        : [];
+
       return actionFormatted;
     });
     collection.actions = _.sortBy(collection.actions, ['name']);
   }
 
+  static cleanActionHooks(action) {
+    const load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
+    const change = action.hooks && action.hooks.change && typeof action.hooks.change === 'object'
+      ? Object.keys(action.hooks.change)
+      : [];
+    action.hooks = { load, change };
+  }
+
   update(filename, collections, meta, serializerOptions) {
     collections = collections.map((collection) => {
-      this.cleanCollection(collection);
+      SchemaFileUpdater.cleanCollection(collection);
       const collectionFormatted = SchemaFileUpdater
         .formatObject(collection, serializerOptions.attributes);
 
