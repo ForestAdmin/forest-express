@@ -55,7 +55,7 @@ function SmartFieldsValuesInjector(
           }
           // NOTICE: Sequelize magic accessors can be overriden here
           // but it is not an issue as they are not used in the process of adding
-          // smart fields which is included in the process of serialization
+          // smart fields
           record[field.field] = smartFieldValue;
           // NOTICE: String fields can be highlighted.
           if (field.type === 'String') {
