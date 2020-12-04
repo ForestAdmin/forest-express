@@ -56,7 +56,7 @@ class Actions {
    * @see getHookLoadController and getHookChangeController
    */
   async getHook(request, response, hook) {
-    const record = await this.getRecord(request.body.recordsId[0]);
+    const record = await this.getRecord(request.body.recordIds[0]);
 
     try {
       const updatedFields = await hook(record);
