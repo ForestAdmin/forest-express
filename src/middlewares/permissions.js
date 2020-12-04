@@ -1,7 +1,9 @@
 const httpError = require('http-errors');
+const { parameterize } = require('../utils/string');
 const PermissionsChecker = require('../services/permissions-checker');
 const logger = require('../services/logger');
 const ConfigStore = require('../services/config-store');
+const Schemas = require('../generators/schemas');
 
 const getRenderingIdFromUser = (user) => user.renderingId;
 
@@ -11,10 +13,22 @@ class PermissionMiddlewareCreator {
     this.configStore = ConfigStore.getInstance();
   }
 
-  static _getSmartActionInfoFromRequest(request) {
+  _getSmartActionInfoFromRequest(request) {
+    const smartActionEndpoint = request.originalUrl;
+    const smartActionHTTPMethod = request.method;
+    const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
+      const endpoint = action.endpoint || `/forest/actions/${parameterize(action.name)}`;
+      const method = action.httpMethod || 'POST';
+      return endpoint === smartActionEndpoint && method === smartActionHTTPMethod;
+    });
+
+    if (!smartAction) {
+      throw new Error(`Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`);
+    }
+
     return {
       userId: request.user.id,
-      actionId: request.body.data.attributes.smart_action_id,
+      actionName: smartAction.name,
     };
   }
 
@@ -29,12 +43,13 @@ class PermissionMiddlewareCreator {
       let permissionInfos;
       switch (permissionName) {
         case 'actions':
-          permissionInfos = PermissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
+          permissionInfos = this._getSmartActionInfoFromRequest(request);
           break;
-        case 'list':
+        case 'browseEnabled':
           permissionInfos = PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
           break;
         default:
+          permissionInfos = { userId: request.user.id };
       }
 
       return new PermissionsChecker(environmentSecret, renderingId)
@@ -48,32 +63,27 @@ class PermissionMiddlewareCreator {
   }
 
   list() {
-    return (request, response, next) => {
-      const { searchToEdit } = request.query;
-      const permissionName = searchToEdit ? 'searchToEdit' : 'list';
-
-      return this._checkPermission(permissionName)(request, response, next);
-    };
+    return this._checkPermission('browseEnabled');
   }
 
   export() {
-    return this._checkPermission('export');
+    return this._checkPermission('exportEnabled');
   }
 
   details() {
-    return this._checkPermission('show');
+    return this._checkPermission('readEnabled');
   }
 
   create() {
-    return this._checkPermission('create');
+    return this._checkPermission('addEnabled');
   }
 
   update() {
-    return this._checkPermission('update');
+    return this._checkPermission('editEnabled');
   }
 
   delete() {
-    return this._checkPermission('delete');
+    return this._checkPermission('deleteEnabled');
   }
 
   smartAction() {
