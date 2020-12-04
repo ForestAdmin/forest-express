@@ -52,17 +52,16 @@ const V1ToV2EditWidgetsMapping = {
  * @param {*} field A smart action field
  */
 function setFieldWidget(field) {
-  field.widgetEdit = null;
-
-  if (field.widget && !field.widgetEdit) {
+  if (field.widget) {
     if (V1ToV2EditWidgetsMapping[field.widget]) {
       field.widgetEdit = { name: V1ToV2EditWidgetsMapping[field.widget], parameters: { } };
     } else if (widgetEditList.includes(field.widget)) {
       field.widgetEdit = { name: field.widget, parameters: { } };
+    } else {
+      field.widgetEdit = null;
     }
+    delete field.widget;
   }
-
-  delete field.widget;
 }
 
 module.exports = {
