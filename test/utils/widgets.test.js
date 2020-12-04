@@ -2,14 +2,6 @@ const { setFieldWidget } = require('../../src/utils/widgets');
 
 describe('utils › widgets', () => {
   describe('setFieldWidget', () => {
-    it('should add widgetEdit to null when there is no widget property', () => {
-      expect.assertions(1);
-      const field = {};
-      const expected = { widgetEdit: null };
-      setFieldWidget(field);
-      expect(field).toStrictEqual(expected);
-    });
-
     it('should remove widget property', () => {
       expect.assertions(1);
       const field = { widget: 'hop' };
