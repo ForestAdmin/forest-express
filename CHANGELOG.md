@@ -1,3 +1,10 @@
+## [7.8.4](https://github.com/ForestAdmin/forest-express/compare/v7.8.3...v7.8.4) (2020-12-04)
+
+
+### Bug Fixes
+
+* **smart-action:** widgetEdit should not be erased when change hook is triggered ([#579](https://github.com/ForestAdmin/forest-express/issues/579)) ([1014ade](https://github.com/ForestAdmin/forest-express/commit/1014adeb3979a5ab0d16db8e4533f34b7d021e35))
+
 ## [7.8.3](https://github.com/ForestAdmin/forest-express/compare/v7.8.2...v7.8.3) (2020-12-04)
 
 
