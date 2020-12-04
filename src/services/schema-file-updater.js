@@ -100,14 +100,12 @@ class SchemaFileUpdater {
         SchemaFileUpdater.setDefaultValueIfNecessary(field, 'enums', null);
         SchemaFileUpdater.setDefaultValueIfNecessary(field, 'widget', null);
       });
-
-      SchemaFileUpdater.cleanActionHooks(action);
     });
 
     return actions;
   }
 
-  static cleanCollection(collection) {
+  cleanCollection(collection) {
     if (_.isNil(collection.isSearchable)) {
       collection.isSearchable = true;
     }
@@ -124,6 +122,7 @@ class SchemaFileUpdater {
 
     collection.fields = SchemaFileUpdater.cleanFields(collection.fields);
     collection.segments = SchemaFileUpdater.cleanSegments(collection.segments);
+    collection.actions = this.cleanActions(collection.actions);
   }
 
   static formatFields(collection, serializerOptions) {
@@ -155,32 +154,29 @@ class SchemaFileUpdater {
       actionFormatted.fields = actionFormatted.fields.map((field) =>
         SchemaFileUpdater.formatObject(field, serializerOptions.actions.fields.attributes));
 
-      actionFormatted.hooks = actionFormatted.hooks || {};
       actionFormatted.hooks = SchemaFileUpdater
-        .formatObject(action.hooks, serializerOptions.actions.hooks.attributes);
-      actionFormatted.hooks.load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
-      actionFormatted.hooks.change = action.hooks
-        && action.hooks.change
-        && typeof action.hooks.change === 'object'
-        ? Object.keys(action.hooks.change)
-        : [];
+        .formatActionHooks(actionFormatted.hooks, action, serializerOptions);
 
       return actionFormatted;
     });
     collection.actions = _.sortBy(collection.actions, ['name']);
   }
 
-  static cleanActionHooks(action) {
-    const load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
-    const change = action.hooks && action.hooks.change && typeof action.hooks.change === 'object'
+  static formatActionHooks(hooks, action, serializerOptions) {
+    hooks = SchemaFileUpdater
+      .formatObject(hooks || {}, serializerOptions.actions.hooks.attributes);
+    hooks.load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
+    hooks.change = action.hooks
+      && action.hooks.change
+      && typeof action.hooks.change === 'object'
       ? Object.keys(action.hooks.change)
       : [];
-    action.hooks = { load, change };
+    return hooks;
   }
 
   update(filename, collections, meta, serializerOptions) {
     collections = collections.map((collection) => {
-      SchemaFileUpdater.cleanCollection(collection);
+      this.cleanCollection(collection);
       const collectionFormatted = SchemaFileUpdater
         .formatObject(collection, serializerOptions.attributes);
 
