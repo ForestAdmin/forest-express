@@ -100,19 +100,9 @@ class SchemaFileUpdater {
         SchemaFileUpdater.setDefaultValueIfNecessary(field, 'enums', null);
         SchemaFileUpdater.setDefaultValueIfNecessary(field, 'widget', null);
       });
-
-      SchemaFileUpdater.cleanActionHooks(action);
     });
 
     return actions;
-  }
-
-  static cleanActionHooks(action) {
-    const load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
-    const change = action.hooks && action.hooks.change && typeof action.hooks.change === 'object'
-      ? Object.keys(action.hooks.change)
-      : [];
-    action.hooks = { load, change };
   }
 
   cleanCollection(collection) {
@@ -163,9 +153,25 @@ class SchemaFileUpdater {
       actionFormatted.fields = actionFormatted.fields || [];
       actionFormatted.fields = actionFormatted.fields.map((field) =>
         SchemaFileUpdater.formatObject(field, serializerOptions.actions.fields.attributes));
+
+      actionFormatted.hooks = SchemaFileUpdater
+        .formatActionHooks(actionFormatted.hooks, action, serializerOptions);
+
       return actionFormatted;
     });
     collection.actions = _.sortBy(collection.actions, ['name']);
+  }
+
+  static formatActionHooks(hooks, action, serializerOptions) {
+    hooks = SchemaFileUpdater
+      .formatObject(hooks || {}, serializerOptions.actions.hooks.attributes);
+    hooks.load = Boolean(action.hooks && (typeof action.hooks.load === 'function'));
+    hooks.change = action.hooks
+      && action.hooks.change
+      && typeof action.hooks.change === 'object'
+      ? Object.keys(action.hooks.change)
+      : [];
+    return hooks;
   }
 
   update(filename, collections, meta, serializerOptions) {
