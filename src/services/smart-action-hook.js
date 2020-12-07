@@ -43,8 +43,14 @@ class SmartActionHook {
       throw new Error('fields must be unchanged (no addition nor deletion allowed)');
     }
 
-    // Apply result on fields (transform the object back to an array), preserve order.
-    return fields.map((field) => result[field.field]);
+    return fields
+      // Apply result on fields (transform the object back to an array), preserve order.
+      .map((field) => result[field.field])
+      // Reset `value` when not present in `enums` (which means `enums` has changed).
+      .map((field) => {
+        if (!Array.isArray(field.enums) || field.enums.includes(field.value)) return field;
+        return { ...field, value: null };
+      });
   }
 }
 
