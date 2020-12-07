@@ -62,9 +62,9 @@ class Actions {
       const updatedFields = await hook(record);
 
       return response.status(200).send({ fields: updatedFields });
-    } catch ({ message }) {
-      this.logger.error('Error in smart action load hook: ', message);
-      return response.status(500).send({ message });
+    } catch (error) {
+      this.logger.error('Error in smart action hook: ', error);
+      return response.status(500).send({ message: error.message });
     }
   }
 
