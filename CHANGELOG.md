@@ -1,3 +1,10 @@
+## [7.8.7](https://github.com/ForestAdmin/forest-express/compare/v7.8.6...v7.8.7) (2020-12-07)
+
+
+### Bug Fixes
+
+* **smart-actions:** use changedField instead of comparing values to trigger the correct change hook ([#583](https://github.com/ForestAdmin/forest-express/issues/583)) ([54d536b](https://github.com/ForestAdmin/forest-express/commit/54d536b1d3ac4aca0fc1825d76f483fb85353555))
+
 ## [7.8.6](https://github.com/ForestAdmin/forest-express/compare/v7.8.5...v7.8.6) (2020-12-07)
 
 
