@@ -1,3 +1,10 @@
+## [7.8.8](https://github.com/ForestAdmin/forest-express/compare/v7.8.7...v7.8.8) (2020-12-07)
+
+
+### Bug Fixes
+
+* **smart-actions:** reset value when not present in enums in hook response ([#584](https://github.com/ForestAdmin/forest-express/issues/584)) ([0f57a46](https://github.com/ForestAdmin/forest-express/commit/0f57a465b5be0571e55f97033db6f0436f1c02fe))
+
 ## [7.8.7](https://github.com/ForestAdmin/forest-express/compare/v7.8.6...v7.8.7) (2020-12-07)
 
 
