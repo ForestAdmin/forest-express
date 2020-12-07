@@ -91,11 +91,10 @@ class Actions {
    */
   getHookChangeController(action) {
     return async (request, response) => {
-      const field = request.body.fields
-        .find((item) => item.previousValue !== item.value);
+      const { changedField } = request.body;
 
       return this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
-        field && field.field ? action.hooks.change[field.field] : null,
+        action.hooks.change[changedField],
         request.body.fields,
         record,
       ));

@@ -248,40 +248,17 @@ describe('routes > actions', () => {
 
           const smartActionHookGetResponse = jest.fn();
           await callHook(
-            { change: { 'this field does not exist': jest.fn() } },
+            { change: { foo: jest.fn() } },
             smartActionHookGetResponse,
-            { recordIds: [1], fields: [{ field: 'invoice number', type: 'String' }] },
+            { recordIds: [1], fields: [{ field: 'invoice number', type: 'String' }], changedField: 'this field does not exist' },
           );
 
           expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
             1,
-            null,
+            undefined,
             [{ field: 'invoice number', type: 'String' }],
             { id: 1, name: 'Jane' },
           );
-        });
-
-        it('should send undefined to hook service when no field has previousValue and value different', async () => {
-          expect.assertions(1);
-
-          const smartActionHookGetResponse = jest.fn();
-          const field = {
-            field: 'foo',
-            type: 'String',
-            previousValue: 'a',
-            value: 'a',
-          };
-          await callHook(
-            { change: { foo: jest.fn() } },
-            smartActionHookGetResponse,
-            {
-              recordIds: [1],
-              fields: [field],
-            },
-          );
-
-          expect(smartActionHookGetResponse)
-            .toHaveBeenNthCalledWith(1, null, [field], { id: 1, name: 'Jane' });
         });
 
         it('should call the change hook service', async () => {
@@ -301,6 +278,7 @@ describe('routes > actions', () => {
             {
               recordIds: [1],
               fields: [field],
+              changedField: 'foo',
             },
           );
 
