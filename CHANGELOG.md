@@ -1,3 +1,10 @@
+## [7.8.6](https://github.com/ForestAdmin/forest-express/compare/v7.8.5...v7.8.6) (2020-12-07)
+
+
+### Bug Fixes
+
+* **smart-actions:** error message details missing for hooks ([#582](https://github.com/ForestAdmin/forest-express/issues/582)) ([d2edf35](https://github.com/ForestAdmin/forest-express/commit/d2edf35f8e216996ff64c116bea6914c2a7bcaf5))
+
 ## [7.8.5](https://github.com/ForestAdmin/forest-express/compare/v7.8.4...v7.8.5) (2020-12-04)
 
 
