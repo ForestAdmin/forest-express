@@ -148,7 +148,7 @@ class PermissionsGetter {
     }
   }
 
-  static _isLastRetrieveExpired(lastRetrieveTime) {
+  static _isPermissionExpired(lastRetrieveTime) {
     if (!lastRetrieveTime) return true;
     const currentTime = moment();
     const elapsedSeconds = currentTime.diff(lastRetrieveTime, 'seconds');
@@ -158,17 +158,17 @@ class PermissionsGetter {
   static _isRegularRetrievalRequired(renderingId) {
     if (PermissionsGetter.isRolesACLActivated) {
       const lastRetrieveInCollections = PermissionsGetter._getLastRetrieveTimeInCollections();
-      return PermissionsGetter._isLastRetrieveExpired(lastRetrieveInCollections);
+      return PermissionsGetter._isPermissionExpired(lastRetrieveInCollections);
     }
     const lastRetrieveInRendering = PermissionsGetter._getLastRetrieveTimeInRendering(renderingId);
-    return PermissionsGetter._isLastRetrieveExpired(lastRetrieveInRendering);
+    return PermissionsGetter._isPermissionExpired(lastRetrieveInRendering);
   }
 
   static _isRenderingOnlyRetrievalRequired(renderingId, permissionName) {
     const lastRetrieve = PermissionsGetter._getLastRetrieveTimeInRendering(renderingId);
     return PermissionsGetter.isRolesACLActivated
       && permissionName === 'browseEnabled'
-      && PermissionsGetter._isLastRetrieveExpired(lastRetrieve);
+      && PermissionsGetter._isPermissionExpired(lastRetrieve);
   }
 
   async _retrievePermissions(renderingId, { renderingOnly = false }) {
@@ -183,9 +183,11 @@ class PermissionsGetter {
           : false;
 
         if (!responseBody.data) return null;
-        if (renderingOnly && responseBody.data.renderings) {
-          return PermissionsGetter
-            ._setRenderingPermissions(renderingId, responseBody.data.renderings[renderingId]);
+        if (renderingOnly) {
+          return responseBody.data.renderings
+            ? PermissionsGetter
+              ._setRenderingPermissions(renderingId, responseBody.data.renderings[renderingId])
+            : null;
         }
         return PermissionsGetter._setPermissions(renderingId, responseBody.data);
       })
