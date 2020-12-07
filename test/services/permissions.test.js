@@ -815,99 +815,26 @@ describe('services > permissions', () => {
         });
 
         describe('check if it requests permissions after a denied access', () => {
-          describe('with the "browseEnabled" permission', () => {
-            it('should return a reject promise first and then a resolve promise', async () => {
-              expect.assertions(2);
+          it('should return a resolve promise', async () => {
+            expect.assertions(1);
 
-              PermissionsGetter.cleanCache();
-              nock.cleanAll();
-              nockObj.persist().get('/liana/v3/permissions?renderingId=1')
-                .reply(200, {
-                  meta: { rolesACLActivated: true },
-                  data: {
-                    collections: {
-                      Users: {
-                        collection: {
-                          browseEnabled: false,
-                        },
-                      },
-                    },
-                    renderings: {
-                      1: {},
-                    },
-                  },
-                });
-
-              await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
-                .rejects.toThrow("'browseEnabled' access forbidden on Users");
-
-              nockObj.persist(false);
-              nock.cleanAll();
-              nockObj.get('/liana/v3/permissions?renderingId=1')
-                .reply(200, {
-                  meta: { rolesACLActivated: true },
-                  data: {
-                    collections: {
-                      Users: {
-                        collection: {
-                          browseEnabled: true,
-                        },
-                      },
-                    },
-                    renderings: {
-                      1: {},
-                    },
-                  },
-                });
-
-              await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'browseEnabled', { userId: 1 }))
-                .toResolve();
-            });
-          });
-
-          describe('with a permission different from "browseEnabled"', () => {
-            it('should return a reject promise first and then a resolve promise', async () => {
-              expect.assertions(2);
-
-              PermissionsGetter.resetExpiration(1);
-              PermissionsGetter.cleanCache();
-              nock.cleanAll();
-              nockObj.persist().get('/liana/v3/permissions?renderingId=1')
-                .reply(200, {
-                  meta: { rolesACLActivated: true },
-                  data: {
-                    collections: {
-                      Users: {
-                        collection: {
-                          addEnabled: false,
-                        },
+            nock.cleanAll();
+            nockObj.get('/liana/v3/permissions?renderingId=1')
+              .reply(200, {
+                meta: { rolesACLActivated: true },
+                data: {
+                  collections: {
+                    Users: {
+                      collection: {
+                        addEnabled: true,
                       },
                     },
                   },
-                });
+                },
+              });
 
-              await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'addEnabled', { userId: 1 }))
-                .rejects.toThrow("'addEnabled' access forbidden on Users");
-
-              nockObj.persist(false);
-              nock.cleanAll();
-              nockObj.get('/liana/v3/permissions?renderingId=1')
-                .reply(200, {
-                  meta: { rolesACLActivated: true },
-                  data: {
-                    collections: {
-                      Users: {
-                        collection: {
-                          addEnabled: true,
-                        },
-                      },
-                    },
-                  },
-                });
-
-              await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'addEnabled', { userId: 1 }))
-                .toResolve();
-            });
+            await expect(new PermissionsChecker('envSecret', 1).checkPermissions('Users', 'addEnabled', { userId: 1 }))
+              .toResolve();
           });
         });
       });

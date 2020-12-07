@@ -171,7 +171,7 @@ class PermissionsGetter {
       && PermissionsGetter._isPermissionExpired(lastRetrieve);
   }
 
-  async _retrievePermissions(renderingId, { renderingOnly = false }) {
+  async _retrievePermissions(renderingId, { renderingOnly = false } = {}) {
     const queryParams = { renderingId };
     if (renderingOnly) queryParams.renderingSpecificOnly = true;
 
@@ -194,9 +194,11 @@ class PermissionsGetter {
       .catch((error) => P.reject(new VError(error, 'Permissions error')));
   }
 
-  async getPermissions(renderingId, collectionName, permissionName, { forceRetrieve = false }) {
+  async getPermissions(
+    renderingId, collectionName, permissionName, { forceRetrieve = false } = {},
+  ) {
     if (forceRetrieve || PermissionsGetter._isRegularRetrievalRequired(renderingId)) {
-      await this._retrievePermissions(renderingId, {});
+      await this._retrievePermissions(renderingId);
     } else if (PermissionsGetter._isRenderingOnlyRetrievalRequired(renderingId, permissionName)) {
       await this._retrievePermissions(renderingId, { renderingOnly: true });
     }
