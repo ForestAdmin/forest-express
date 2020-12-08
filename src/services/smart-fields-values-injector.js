@@ -5,7 +5,13 @@ const Schemas = require('../generators/schemas');
 
 const DEPTH_MAX_FOR_INJECTION = 0;
 
-function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0) {
+function SmartFieldsValuesInjector(
+  record,
+  modelName,
+  fieldsPerModel,
+  depth = 0,
+  requestedField = null,
+) {
   const schema = Schemas.schemas[modelName];
   const fieldsForHighlightedSearch = [];
 
@@ -37,17 +43,19 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
         .then(async (smartFieldValue) => {
           // NOTICE: If the Smart Field is a Smart Relationship (ie references another record type),
           //         we also need to inject the values of the referenced records Smart Fields.
-          if (depth <= DEPTH_MAX_FOR_INJECTION && smartFieldValue && smartFieldValue.dataValues
-            && field.reference) {
+          if (depth <= DEPTH_MAX_FOR_INJECTION && smartFieldValue && field.reference) {
             const smartFieldsValuesInjector = new SmartFieldsValuesInjector(
               smartFieldValue,
               getReferencedModelName(field),
               fieldsPerModel,
               depth + 1,
+              field.field,
             );
             await smartFieldsValuesInjector.perform();
           }
-          // NOTICE: Update the record with the the Smart Field value.
+          // NOTICE: Sequelize magic accessors can be overriden here
+          // but it is not an issue as they are not used in the process of adding
+          // smart fields
           record[field.field] = smartFieldValue;
           // NOTICE: String fields can be highlighted.
           if (field.type === 'String') {
@@ -68,9 +76,10 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (!record[field.field]) {
+      if (record
+          && !Object.prototype.hasOwnProperty.call(record, field.field)) {
         if (field.get || field.value) {
-          if (isNotRequestedField(modelName, field.field)) {
+          if (isNotRequestedField(requestedField || modelName, field.field)) {
             return null;
           }
 
@@ -90,8 +99,13 @@ function SmartFieldsValuesInjector(record, modelName, fieldsPerModel, depth = 0)
               return null;
             }
 
-            if (!record[field.field][fieldAssociation.field]
-              && (fieldAssociation.get || fieldAssociation.value)) {
+            if (record
+                && record[field.field]
+                && !Object.prototype.hasOwnProperty.call(
+                  record[field.field],
+                  fieldAssociation.field,
+                )
+                && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
                 record[field.field],
                 fieldAssociation,
