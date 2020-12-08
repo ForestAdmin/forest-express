@@ -44,7 +44,14 @@ class SmartActionHook {
     }
 
     // Apply result on fields (transform the object back to an array), preserve order.
-    return fields.map((field) => result[field.field]);
+    return fields.map((field) => {
+      const updatedField = result[field.field];
+      // Reset `value` when not present in `enums` (which means `enums` has changed).
+      if (Array.isArray(updatedField.enums) && !updatedField.enums.includes(updatedField.value)) {
+        return { ...updatedField, value: null };
+      }
+      return updatedField;
+    });
   }
 }
 
