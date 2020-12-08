@@ -1,3 +1,10 @@
+# [7.9.0](https://github.com/ForestAdmin/forest-express/compare/v7.8.9...v7.9.0) (2020-12-08)
+
+
+### Features
+
+* **role-permissions:** support the new role ACL format ([#577](https://github.com/ForestAdmin/forest-express/issues/577)) ([4aed30f](https://github.com/ForestAdmin/forest-express/commit/4aed30fefabf616360a05e54e7b4c6ff71c7a038))
+
 ## [7.8.9](https://github.com/ForestAdmin/forest-express/compare/v7.8.8...v7.8.9) (2020-12-08)
 
 
