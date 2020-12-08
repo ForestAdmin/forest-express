@@ -56,15 +56,15 @@ class Actions {
    * @see getHookLoadController and getHookChangeController
    */
   async getHook(request, response, hook) {
-    const record = await this.getRecord(request.body.recordsId[0]);
+    const record = await this.getRecord(request.body.recordIds[0]);
 
     try {
       const updatedFields = await hook(record);
 
       return response.status(200).send({ fields: updatedFields });
-    } catch ({ message }) {
-      this.logger.error('Error in smart action load hook: ', message);
-      return response.status(500).send({ message });
+    } catch (error) {
+      this.logger.error('Error in smart action hook: ', error);
+      return response.status(500).send({ message: error.message });
     }
   }
 
@@ -91,11 +91,10 @@ class Actions {
    */
   getHookChangeController(action) {
     return async (request, response) => {
-      const field = request.body.fields
-        .find((item) => item.previousValue !== item.value);
+      const { changedField } = request.body;
 
       return this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
-        field && field.field ? action.hooks.change[field.field] : null,
+        action.hooks.change[changedField],
         request.body.fields,
         record,
       ));

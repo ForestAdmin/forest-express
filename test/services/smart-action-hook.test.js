@@ -78,5 +78,57 @@ describe('services > smart-action-hook', () => {
         1,
       );
     });
+
+    describe('when field has enums', () => {
+      it('should reset value when it has been dropped from enum', async () => {
+        expect.assertions(1);
+
+        const isSameDataStructure = jest.fn(() => true);
+        const { smartActionHook } = initContext(isSameDataStructure).inject();
+        const fields = [{
+          field: 'myField',
+          type: 'Enum',
+          enums: ['a', 'b', 'c'],
+          value: 'b',
+        }];
+        const expected = {
+          ...fields[0],
+          enums: ['d', 'e', 'f'],
+          value: null,
+        };
+
+        const hook = jest.fn(() => ({
+          myField: { ...fields[0], enums: ['d', 'e', 'f'] },
+        }));
+
+        const response = await smartActionHook.getResponse(hook, fields, {});
+        await expect(response).toStrictEqual([expected]);
+      });
+
+      it('should keep value when it is still present in enums', async () => {
+        expect.assertions(1);
+
+        const isSameDataStructure = jest.fn(() => true);
+        const { smartActionHook } = initContext(isSameDataStructure).inject();
+        const fields = [{
+          field: 'myField',
+          type: 'Enum',
+          enums: ['a', 'b', 'c'],
+          value: 'b',
+        }];
+        const expected = {
+          ...fields[0],
+          enums: ['d', 'e', 'f'],
+          value: 'e',
+        };
+
+        const hook = jest.fn(() => ({
+          myField: { ...fields[0], enums: ['d', 'e', 'f'], value: 'e' },
+        }));
+
+        const response = await smartActionHook.getResponse(hook, fields, {});
+        await expect(response).toStrictEqual([expected]);
+      });
+    });
   });
 });
