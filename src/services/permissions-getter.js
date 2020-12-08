@@ -108,16 +108,20 @@ class PermissionsGetter {
     };
   }
 
+  static _setRolesACLPermissions(renderingId, permissions) {
+    PermissionsGetter._setCollectionsPermissions(permissions.collections);
+    if (permissions.renderings && permissions.renderings[renderingId]) {
+      PermissionsGetter
+        ._setRenderingPermissions(renderingId, permissions.renderings[renderingId]);
+    }
+  }
+
   // In the teamACL format, all the permissions are stored by renderingId into "renderings".
   // For the rolesACL format, the collections permissions are stored directly into "collections",
   // and only their scopes are stored by renderingId into "renderings".
   static _setPermissions(renderingId, permissions) {
     if (PermissionsGetter.isRolesACLActivated) {
-      PermissionsGetter._setCollectionsPermissions(permissions.collections);
-      if (permissions.renderings && permissions.renderings[renderingId]) {
-        PermissionsGetter
-          ._setRenderingPermissions(renderingId, permissions.renderings[renderingId]);
-      }
+      PermissionsGetter._setRolesACLPermissions(renderingId, permissions);
     } else {
       const newFormatPermissions = permissions
         ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)

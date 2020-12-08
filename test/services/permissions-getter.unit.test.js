@@ -31,10 +31,34 @@ describe('services > PermissionsGetter', () => {
     });
   });
 
+  describe('_setRolesACLPermissions', () => {
+    it('should set the permissions', () => {
+      expect.assertions(2);
+      PermissionsGetter.cleanCache();
+
+      const permissions = {
+        collections: 'collectionsPermissions',
+        renderings: {
+          1: 'renderingPermissions',
+        },
+      };
+
+      const setRenderingPermissionsSpy = Sinon.spy(PermissionsGetter, '_setRenderingPermissions');
+      const setCollectionsPermissionsSpy = Sinon.spy(PermissionsGetter, '_setCollectionsPermissions');
+
+      PermissionsGetter._setRolesACLPermissions(1, permissions);
+      expect(setRenderingPermissionsSpy.calledOnceWith(1, 'renderingPermissions')).toBeTrue();
+      expect(setCollectionsPermissionsSpy.calledOnceWith('collectionsPermissions')).toBeTrue();
+
+      setRenderingPermissionsSpy.restore();
+      setCollectionsPermissionsSpy.restore();
+    });
+  });
+
   describe('_setPermissions', () => {
     describe('when isRolesACLActivated is true', () => {
       it('should set the permissions', () => {
-        expect.assertions(3);
+        expect.assertions(2);
         PermissionsGetter.cleanCache();
 
         PermissionsGetter.isRolesACLActivated = true;
@@ -45,17 +69,14 @@ describe('services > PermissionsGetter', () => {
           },
         };
 
-        const setRenderingPermissionsSpy = Sinon.spy(PermissionsGetter, '_setRenderingPermissions');
-        const setCollectionsPermissionsSpy = Sinon.spy(PermissionsGetter, '_setCollectionsPermissions');
+        const setRolesACLPermissionsSpy = Sinon.spy(PermissionsGetter, '_setRolesACLPermissions');
         const transformPermissionsFromOldToNewFormatSpy = Sinon.spy(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         PermissionsGetter._setPermissions(1, permissions);
-        expect(setRenderingPermissionsSpy.calledOnceWith(1, 'renderingPermissions')).toBeTrue();
-        expect(setCollectionsPermissionsSpy.calledOnceWith('collectionsPermissions')).toBeTrue();
+        expect(setRolesACLPermissionsSpy.calledOnceWith(1, permissions)).toBeTrue();
         expect(transformPermissionsFromOldToNewFormatSpy.notCalled).toBeTrue();
 
-        setRenderingPermissionsSpy.restore();
-        setCollectionsPermissionsSpy.restore();
+        setRolesACLPermissionsSpy.restore();
         transformPermissionsFromOldToNewFormatSpy.restore();
       });
     });
