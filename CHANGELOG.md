@@ -1,3 +1,5 @@
+## [7.9.1](https://github.com/ForestAdmin/forest-express/compare/v7.9.0...v7.9.1) (2020-12-09)
+
 # [7.9.0](https://github.com/ForestAdmin/forest-express/compare/v7.8.9...v7.9.0) (2020-12-08)
 
 
