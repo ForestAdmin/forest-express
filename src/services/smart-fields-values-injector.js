@@ -76,8 +76,7 @@ function SmartFieldsValuesInjector(
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (record
-          && !Object.prototype.hasOwnProperty.call(record, field.field)) {
+      if (record && field.isVirtual) {
         if (field.get || field.value) {
           if (isNotRequestedField(requestedField || modelName, field.field)) {
             return null;
@@ -101,10 +100,7 @@ function SmartFieldsValuesInjector(
 
             if (record
                 && record[field.field]
-                && !Object.prototype.hasOwnProperty.call(
-                  record[field.field],
-                  fieldAssociation.field,
-                )
+                && fieldAssociation.isVirtual
                 && (fieldAssociation.get || fieldAssociation.value)) {
               return setSmartFieldValue(
                 record[field.field],
