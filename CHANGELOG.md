@@ -1,3 +1,10 @@
+## [7.9.2](https://github.com/ForestAdmin/forest-express/compare/v7.9.1...v7.9.2) (2020-12-11)
+
+
+### Bug Fixes
+
+* fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
+
 ## [7.9.1](https://github.com/ForestAdmin/forest-express/compare/v7.9.0...v7.9.1) (2020-12-09)
 
 # [7.9.0](https://github.com/ForestAdmin/forest-express/compare/v7.8.9...v7.9.0) (2020-12-08)
