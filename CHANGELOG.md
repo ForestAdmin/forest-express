@@ -1,3 +1,10 @@
+## [7.9.3](https://github.com/ForestAdmin/forest-express/compare/v7.9.2...v7.9.3) (2020-12-15)
+
+
+### Bug Fixes
+
+* fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
+
 ## [7.9.2](https://github.com/ForestAdmin/forest-express/compare/v7.9.1...v7.9.2) (2020-12-11)
 
 
