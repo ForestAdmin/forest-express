@@ -100,4 +100,18 @@ describe('services > smart-fields-values-injector', () => {
       expect(addressRecord.smartUser.hasAddress).toBe(true);
     });
   });
+
+  describe('with no fieldsPerModel', () => {
+    const fieldsPerModel = undefined;
+    it('should inject the Smart Relationship reference', async () => {
+      expect.assertions(1);
+
+      const { addressRecord } = setup();
+
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
+      await injector.perform();
+      expect(addressRecord.user.smart).toStrictEqual({ foo: 'bar' });
+    });
+  });
 });

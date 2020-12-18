@@ -76,10 +76,11 @@ function SmartFieldsValuesInjector(
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (record
-          && field.isVirtual
-          && (field.get || field.value)
-          && isRequestedField(requestedField || modelName, field.field)) {
+      if (record && field.isVirtual && (field.get || field.value)) {
+        if (fieldsPerModel && !isRequestedField(requestedField || modelName, field.field)) {
+          return null;
+        }
+
         return setSmartFieldValue(record, field, modelName);
       }
 
@@ -92,11 +93,14 @@ function SmartFieldsValuesInjector(
 
         if (schemaAssociation && !_.isArray(field.type)) {
           return P.each(schemaAssociation.fields, (fieldAssociation) => {
-            if (isRequestedField(field.field, fieldAssociation.field)
-                && record
+            if (record
                 && record[field.field]
                 && fieldAssociation.isVirtual
                 && (fieldAssociation.get || fieldAssociation.value)) {
+              if (fieldsPerModel && !isRequestedField(field.field, fieldAssociation.field)) {
+                return null;
+              }
+
               return setSmartFieldValue(
                 record[field.field],
                 fieldAssociation,
