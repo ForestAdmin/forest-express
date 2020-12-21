@@ -1,3 +1,10 @@
+## [7.9.4](https://github.com/ForestAdmin/forest-express/compare/v7.9.3...v7.9.4) (2020-12-21)
+
+
+### Bug Fixes
+
+* display correct reference field when it is a smartfield ([#602](https://github.com/ForestAdmin/forest-express/issues/602)) ([a797a7a](https://github.com/ForestAdmin/forest-express/commit/a797a7a5f815692d75482bdbbd8782e4373b9b00))
+
 ## [7.9.3](https://github.com/ForestAdmin/forest-express/compare/v7.9.2...v7.9.3) (2020-12-15)
 
 
