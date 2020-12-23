@@ -7,24 +7,6 @@
 * fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
 * fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
 
-# [8.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.4...v8.0.0-beta.5) (2020-12-08)
-
-
-### Bug Fixes
-
-* **related-data:** use same reference on record for dataValues and direct attributes ([#574](https://github.com/ForestAdmin/forest-express/issues/574)) ([c65588e](https://github.com/ForestAdmin/forest-express/commit/c65588e11562380daf47af0bfd2e280a234d04d0))
-* **smart-action:** do not mutate hooks on schema generation ([#580](https://github.com/ForestAdmin/forest-express/issues/580)) ([dd2aee3](https://github.com/ForestAdmin/forest-express/commit/dd2aee3de957ca558559f44473136c1d72de21c9))
-* **smart-action:** widgetEdit should not be erased when change hook is triggered ([#579](https://github.com/ForestAdmin/forest-express/issues/579)) ([1014ade](https://github.com/ForestAdmin/forest-express/commit/1014adeb3979a5ab0d16db8e4533f34b7d021e35))
-* **smart-actions:** error message details missing for hooks ([#582](https://github.com/ForestAdmin/forest-express/issues/582)) ([d2edf35](https://github.com/ForestAdmin/forest-express/commit/d2edf35f8e216996ff64c116bea6914c2a7bcaf5))
-* **smart-actions:** reset value when not present in enums in hook response ([#584](https://github.com/ForestAdmin/forest-express/issues/584)) ([0f57a46](https://github.com/ForestAdmin/forest-express/commit/0f57a465b5be0571e55f97033db6f0436f1c02fe))
-* **smart-actions:** use changedField instead of comparing values to trigger the correct change hook ([#583](https://github.com/ForestAdmin/forest-express/issues/583)) ([54d536b](https://github.com/ForestAdmin/forest-express/commit/54d536b1d3ac4aca0fc1825d76f483fb85353555))
-* record not found in hooks (recordsId replaced with recordIds) ([#578](https://github.com/ForestAdmin/forest-express/issues/578)) ([ccf6a8f](https://github.com/ForestAdmin/forest-express/commit/ccf6a8fe8089551b1624ed61120e3f4aa1c9866c))
-
-
-### Features
-
-* **role-permissions:** support the new role ACL format ([#577](https://github.com/ForestAdmin/forest-express/issues/577)) ([4aed30f](https://github.com/ForestAdmin/forest-express/commit/4aed30fefabf616360a05e54e7b4c6ff71c7a038))
-
 ## [7.9.4](https://github.com/ForestAdmin/forest-express/compare/v7.9.3...v7.9.4) (2020-12-21)
 
 
@@ -47,6 +29,24 @@
 * fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
 
 ## [7.9.1](https://github.com/ForestAdmin/forest-express/compare/v7.9.0...v7.9.1) (2020-12-09)
+
+# [8.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.4...v8.0.0-beta.5) (2020-12-08)
+
+
+### Bug Fixes
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#574](https://github.com/ForestAdmin/forest-express/issues/574)) ([c65588e](https://github.com/ForestAdmin/forest-express/commit/c65588e11562380daf47af0bfd2e280a234d04d0))
+* **smart-action:** do not mutate hooks on schema generation ([#580](https://github.com/ForestAdmin/forest-express/issues/580)) ([dd2aee3](https://github.com/ForestAdmin/forest-express/commit/dd2aee3de957ca558559f44473136c1d72de21c9))
+* **smart-action:** widgetEdit should not be erased when change hook is triggered ([#579](https://github.com/ForestAdmin/forest-express/issues/579)) ([1014ade](https://github.com/ForestAdmin/forest-express/commit/1014adeb3979a5ab0d16db8e4533f34b7d021e35))
+* **smart-actions:** error message details missing for hooks ([#582](https://github.com/ForestAdmin/forest-express/issues/582)) ([d2edf35](https://github.com/ForestAdmin/forest-express/commit/d2edf35f8e216996ff64c116bea6914c2a7bcaf5))
+* **smart-actions:** reset value when not present in enums in hook response ([#584](https://github.com/ForestAdmin/forest-express/issues/584)) ([0f57a46](https://github.com/ForestAdmin/forest-express/commit/0f57a465b5be0571e55f97033db6f0436f1c02fe))
+* **smart-actions:** use changedField instead of comparing values to trigger the correct change hook ([#583](https://github.com/ForestAdmin/forest-express/issues/583)) ([54d536b](https://github.com/ForestAdmin/forest-express/commit/54d536b1d3ac4aca0fc1825d76f483fb85353555))
+* record not found in hooks (recordsId replaced with recordIds) ([#578](https://github.com/ForestAdmin/forest-express/issues/578)) ([ccf6a8f](https://github.com/ForestAdmin/forest-express/commit/ccf6a8fe8089551b1624ed61120e3f4aa1c9866c))
+
+
+### Features
+
+* **role-permissions:** support the new role ACL format ([#577](https://github.com/ForestAdmin/forest-express/issues/577)) ([4aed30f](https://github.com/ForestAdmin/forest-express/commit/4aed30fefabf616360a05e54e7b4c6ff71c7a038))
 
 # [7.9.0](https://github.com/ForestAdmin/forest-express/compare/v7.8.9...v7.9.0) (2020-12-08)
 
