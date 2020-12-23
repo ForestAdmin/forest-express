@@ -1,3 +1,5 @@
+# [8.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.6...v8.0.0-beta.7) (2020-12-23)
+
 # [8.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.5...v8.0.0-beta.6) (2020-12-23)
 
 
