@@ -1,3 +1,12 @@
+# [8.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.5...v8.0.0-beta.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* display correct reference field when it is a smartfield ([#602](https://github.com/ForestAdmin/forest-express/issues/602)) ([a797a7a](https://github.com/ForestAdmin/forest-express/commit/a797a7a5f815692d75482bdbbd8782e4373b9b00))
+* fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
+* fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
+
 # [8.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.4...v8.0.0-beta.5) (2020-12-08)
 
 
