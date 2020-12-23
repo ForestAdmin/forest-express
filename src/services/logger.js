@@ -29,8 +29,13 @@ module.exports = winston.createLogger({
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
+        winston.format.metadata({ fillExcept: ['level', 'message'] }),
         winston.format.printf((info) => {
           let message = TITLE + info.message;
+
+          if (info.metadata) {
+            message += `\n${JSON.stringify(info.metadata, null, 2)}`;
+          }
 
           if (info.stack) {
             message += `\n${info.stack}`;

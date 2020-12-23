@@ -14,13 +14,19 @@ class OidcClientManagerService {
   /** @private @readonly */
   env;
 
+  /** @private @readonly */
+  logger;
+
   /**
    * @param {import('../context/init').Context} dependencies
    */
-  constructor({ oidcConfigurationRetrieverService, openIdClient, env }) {
+  constructor({
+    oidcConfigurationRetrieverService, openIdClient, env, logger,
+  }) {
     this.oidcConfigurationRetrieverService = oidcConfigurationRetrieverService;
     this.openIdClient = openIdClient;
     this.env = env;
+    this.logger = logger;
   }
 
   /**
@@ -37,6 +43,14 @@ class OidcClientManagerService {
       }, {
         initialAccessToken: this.env.FOREST_ENV_SECRET,
       }).catch((error) => {
+        this.logger.error('Unable to register the client', {
+          configuration,
+          registration: {
+            token_endpoint_auth_method: 'none',
+            redirect_uris: [callbackUrl],
+          },
+          error,
+        });
         this.cache.delete(callbackUrl);
         throw error;
       });

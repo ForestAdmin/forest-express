@@ -16,11 +16,15 @@ describe('service > OidcClientManager', () => {
     const env = {
       FOREST_ENV_SECRET: 'the-secret',
     };
+    const logger = {
+      error: jest.fn(),
+    };
 
     const oidcClientManager = new OidcClientManagerService({
       openIdClient,
       oidcConfigurationRetrieverService,
       env,
+      logger,
     });
 
     return {
@@ -29,6 +33,7 @@ describe('service > OidcClientManager', () => {
       oidcClientManager,
       issuer,
       env,
+      logger,
     };
   }
   describe('getClientForCallbackUrl', () => {
@@ -77,10 +82,10 @@ describe('service > OidcClientManager', () => {
     });
 
     it('should not cache an error, and allow to try a second registration', async () => {
-      expect.assertions(2);
+      expect.assertions(3);
 
       const {
-        oidcClientManager, oidcConfigurationRetrieverService, issuer,
+        oidcClientManager, oidcConfigurationRetrieverService, issuer, logger,
       } = setupTest();
 
       const configuration = { issuer: 'forest admin' };
@@ -97,6 +102,7 @@ describe('service > OidcClientManager', () => {
       await oidcClientManager.getClientForCallbackUrl('https://here.local');
 
       expect(issuer.Client.register).toHaveBeenCalledTimes(2);
+      expect(logger.error).toHaveBeenCalledTimes(1);
     });
   });
 });
