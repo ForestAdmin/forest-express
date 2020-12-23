@@ -10,9 +10,6 @@ describe('services > smart-fields-values-injector', () => {
   class UserWithMagicAccessor {
     constructor(id) {
       this.id = id;
-      this.dataValues = { // specific to sequelize
-        id,
-      };
     }
   }
   // mock magic accessor on higher level of prototype
@@ -21,13 +18,10 @@ describe('services > smart-fields-values-injector', () => {
 
   // Mock address sequelize object
   class AddressWithMagicAccessor {
-    constructor(id, user) {
+    constructor(id, user, islands) {
       this.id = id;
       this.user = user;
-      this.dataValues = { // specific to sequelize
-        id,
-        user,
-      };
+      this.islands = islands;
     }
   }
   // mock magic accessor on higher level of prototype
@@ -35,7 +29,7 @@ describe('services > smart-fields-values-injector', () => {
 
   const setup = () => {
     const userRecord = new UserWithMagicAccessor(123);
-    const addressRecord = new AddressWithMagicAccessor(456, userRecord);
+    const addressRecord = new AddressWithMagicAccessor(456, userRecord, ['HonoLulu', 'Tahiti']);
     return {
       userRecord,
       addressRecord,
@@ -90,18 +84,34 @@ describe('services > smart-fields-values-injector', () => {
   describe('with a Smart Relationship that reference a collection having a Smart Field whose name is a magic accessor', () => {
     // NOTICE: note the add of the `hasUser`/`hasAddress` function, this is for
     // mocking sequelize magic accessor
-    const fieldsPerModel = { addresses: ['id', 'user', 'hasUser', 'smartUser'], user: ['smart', 'hasAddress'], smartUser: ['smart', 'hasAddress'] };
+    const fieldsPerModel = { addresses: ['id', 'user', 'hasUser', 'smartUser', 'smartActors', 'islands'], user: ['smart', 'hasAddress'], smartUser: ['smart', 'hasAddress'] };
     it('should inject the Smart Relationship reference', async () => {
-      expect.assertions(3);
+      expect.assertions(5);
 
       const { addressRecord } = setup();
 
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
       const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
       await injector.perform();
+      expect(addressRecord.smartActors).toStrictEqual([]);
+      expect(addressRecord.islands).toStrictEqual(['HonoLulu', 'Tahiti']);
       expect(addressRecord.hasUser).toBe(true);
       expect(addressRecord.user.hasAddress).toBe(true);
       expect(addressRecord.smartUser.hasAddress).toBe(true);
+    });
+  });
+
+  describe('with no fieldsPerModel', () => {
+    const fieldsPerModel = undefined;
+    it('should inject the Smart Relationship reference', async () => {
+      expect.assertions(1);
+
+      const { addressRecord } = setup();
+
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+      const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
+      await injector.perform();
+      expect(addressRecord.user.smart).toStrictEqual({ foo: 'bar' });
     });
   });
 });
