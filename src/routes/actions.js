@@ -130,6 +130,7 @@ class Actions {
       // Create a `values` routes for smart actions.
       // One route is created for each action which have a `values` property.
       if (action.values) {
+        this.logger.warn('DEPRECATION WARNING: Declaring `values` in a Smart Action is deprecated. Please use `load` hook.');
         createDynamicRoute(
           this.getRoute(action, 'values', this.options),
           this.getValuesController(action),

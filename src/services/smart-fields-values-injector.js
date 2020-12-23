@@ -68,26 +68,24 @@ function SmartFieldsValuesInjector(
     }
   }
 
-  function isNotRequestedField(modelNameToCheck, fieldName) {
+  function isRequestedField(modelNameToCheck, fieldName) {
     return fieldsPerModel
       && fieldsPerModel[modelNameToCheck]
-      && fieldsPerModel[modelNameToCheck].indexOf(fieldName) === -1;
+      && fieldsPerModel[modelNameToCheck].indexOf(fieldName) !== -1;
   }
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
-      if (record
-          && !Object.prototype.hasOwnProperty.call(record, field.field)) {
-        if (field.get || field.value) {
-          if (isNotRequestedField(requestedField || modelName, field.field)) {
-            return null;
-          }
+      if (record && field.isVirtual && (field.get || field.value)) {
+        if (fieldsPerModel && !isRequestedField(requestedField || modelName, field.field)) {
+          return null;
+        }
 
-          return setSmartFieldValue(record, field, modelName);
-        }
-        if (_.isArray(field.type)) {
-          record[field.field] = [];
-        }
+        return setSmartFieldValue(record, field, modelName);
+      }
+
+      if (!record[field.field] && _.isArray(field.type)) {
+        record[field.field] = [];
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
         const modelNameAssociation = getReferencedModelName(field);
@@ -95,17 +93,14 @@ function SmartFieldsValuesInjector(
 
         if (schemaAssociation && !_.isArray(field.type)) {
           return P.each(schemaAssociation.fields, (fieldAssociation) => {
-            if (isNotRequestedField(field.field, fieldAssociation.field)) {
-              return null;
-            }
-
             if (record
                 && record[field.field]
-                && !Object.prototype.hasOwnProperty.call(
-                  record[field.field],
-                  fieldAssociation.field,
-                )
+                && fieldAssociation.isVirtual
                 && (fieldAssociation.get || fieldAssociation.value)) {
+              if (fieldsPerModel && !isRequestedField(field.field, fieldAssociation.field)) {
+                return null;
+              }
+
               return setSmartFieldValue(
                 record[field.field],
                 fieldAssociation,

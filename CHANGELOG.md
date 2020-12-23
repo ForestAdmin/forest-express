@@ -1,6 +1,5 @@
 # [8.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.4...v8.0.0-beta.5) (2020-12-08)
 
-
 ### Bug Fixes
 
 * **related-data:** use same reference on record for dataValues and direct attributes ([#574](https://github.com/ForestAdmin/forest-express/issues/574)) ([c65588e](https://github.com/ForestAdmin/forest-express/commit/c65588e11562380daf47af0bfd2e280a234d04d0))
@@ -15,6 +14,29 @@
 ### Features
 
 * **role-permissions:** support the new role ACL format ([#577](https://github.com/ForestAdmin/forest-express/issues/577)) ([4aed30f](https://github.com/ForestAdmin/forest-express/commit/4aed30fefabf616360a05e54e7b4c6ff71c7a038))
+
+## [7.9.4](https://github.com/ForestAdmin/forest-express/compare/v7.9.3...v7.9.4) (2020-12-21)
+
+
+### Bug Fixes
+
+* display correct reference field when it is a smartfield ([#602](https://github.com/ForestAdmin/forest-express/issues/602)) ([a797a7a](https://github.com/ForestAdmin/forest-express/commit/a797a7a5f815692d75482bdbbd8782e4373b9b00))
+
+## [7.9.3](https://github.com/ForestAdmin/forest-express/compare/v7.9.2...v7.9.3) (2020-12-15)
+
+
+### Bug Fixes
+
+* fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
+
+## [7.9.2](https://github.com/ForestAdmin/forest-express/compare/v7.9.1...v7.9.2) (2020-12-11)
+
+
+### Bug Fixes
+
+* fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
+
+## [7.9.1](https://github.com/ForestAdmin/forest-express/compare/v7.9.0...v7.9.1) (2020-12-09)
 
 # [7.9.0](https://github.com/ForestAdmin/forest-express/compare/v7.8.9...v7.9.0) (2020-12-08)
 
