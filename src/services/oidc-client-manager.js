@@ -37,23 +37,43 @@ class OidcClientManagerService {
     if (!this.cache.has(callbackUrl)) {
       const configuration = await this.oidcConfigurationRetrieverService.retrieve();
       const issuer = new this.openIdClient.Issuer(configuration);
-      const registrationPromise = issuer.Client.register({
-        token_endpoint_auth_method: 'none',
-        redirect_uris: [callbackUrl],
-      }, {
-        initialAccessToken: this.env.FOREST_ENV_SECRET,
-      }).catch((error) => {
-        this.logger.error('Unable to register the client', {
-          configuration,
-          registration: {
-            token_endpoint_auth_method: 'none',
-            redirect_uris: [callbackUrl],
-          },
-          error,
+      let registrationPromise;
+      if (this.env.FOREST_CLIENT_ID) {
+        registrationPromise = new issuer.Client({
+          client_id: this.env.FOREST_CLIENT_ID,
+          redirect_uris: [callbackUrl],
+          token_endpoint_auth_method: 'none',
+        }).catch((error) => {
+          this.logger.error('Unable to register the client', {
+            configuration,
+            registration: {
+              token_endpoint_auth_method: 'none',
+              redirect_uris: [callbackUrl],
+            },
+            error,
+          });
+          this.cache.delete(callbackUrl);
+          throw error;
         });
-        this.cache.delete(callbackUrl);
-        throw error;
-      });
+      } else {
+        registrationPromise = issuer.Client.register({
+          token_endpoint_auth_method: 'none',
+          redirect_uris: [callbackUrl],
+        }, {
+          initialAccessToken: this.env.FOREST_ENV_SECRET,
+        }).catch((error) => {
+          this.logger.error('Unable to register the client', {
+            configuration,
+            registration: {
+              token_endpoint_auth_method: 'none',
+              redirect_uris: [callbackUrl],
+            },
+            error,
+          });
+          this.cache.delete(callbackUrl);
+          throw error;
+        });
+      }
 
       this.cache.set(callbackUrl, registrationPromise);
     }
