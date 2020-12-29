@@ -47,6 +47,7 @@ class OidcClientManagerService {
           this.logger.error('Unable to register the client', {
             configuration,
             registration: {
+              client_id: this.env.FOREST_CLIENT_ID,
               token_endpoint_auth_method: 'none',
               redirect_uris: [callbackUrl],
             },
