@@ -3,9 +3,9 @@ const OidcClientManagerService = require('../../src/services/oidc-client-manager
 describe('service > OidcClientManager', () => {
   function setupTest(withClientId) {
     const issuer = {
-      Client: {
+      Client: !withClientId ? {
         register: jest.fn(),
-      },
+      } : jest.fn(),
     };
     const openIdClient = {
       Issuer: jest.fn().mockReturnValue(issuer),
@@ -73,7 +73,6 @@ describe('service > OidcClientManager', () => {
       const configuration = { issuer: 'forest admin' };
       const newClient = { client_id: 'the-id' };
       oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
-      // TODO FIX TEST HERE
       issuer.Client.mockReturnValue(Promise.resolve(newClient));
 
       const result = await oidcClientManager.getClientForCallbackUrl('https://here.local');
@@ -81,7 +80,6 @@ describe('service > OidcClientManager', () => {
       expect(result).toBe(newClient);
       expect(oidcConfigurationRetrieverService.retrieve).toHaveBeenCalledWith();
       expect(openIdClient.Issuer).toHaveBeenCalledWith(configuration);
-      // TODO FIX TEST HERE
       expect(issuer.Client).toHaveBeenCalledWith({
         token_endpoint_auth_method: 'none',
         redirect_uris: ['https://here.local'],
