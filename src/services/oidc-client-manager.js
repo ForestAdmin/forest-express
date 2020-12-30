@@ -37,23 +37,26 @@ class OidcClientManagerService {
     if (!this.cache.has(callbackUrl)) {
       const configuration = await this.oidcConfigurationRetrieverService.retrieve();
       const issuer = new this.openIdClient.Issuer(configuration);
-      const registrationPromise = issuer.Client.register({
-        token_endpoint_auth_method: 'none',
+      const clientId = this.env.FOREST_CLIENT_ID || undefined;
+      const registration = {
+        client_id: clientId,
         redirect_uris: [callbackUrl],
-      }, {
-        initialAccessToken: this.env.FOREST_ENV_SECRET,
-      }).catch((error) => {
-        this.logger.error('Unable to register the client', {
-          configuration,
-          registration: {
-            token_endpoint_auth_method: 'none',
-            redirect_uris: [callbackUrl],
-          },
-          error,
+        token_endpoint_auth_method: 'none',
+      };
+
+      const registrationPromise = clientId
+        ? new issuer.Client(registration)
+        : issuer.Client.register(
+          registration, { initialAccessToken: this.env.FOREST_ENV_SECRET },
+        ).catch((error) => {
+          this.logger.error('Unable to register the client', {
+            configuration,
+            registration,
+            error,
+          });
+          this.cache.delete(callbackUrl);
+          throw error;
         });
-        this.cache.delete(callbackUrl);
-        throw error;
-      });
 
       this.cache.set(callbackUrl, registrationPromise);
     }
