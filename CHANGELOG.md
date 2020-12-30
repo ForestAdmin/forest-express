@@ -1,3 +1,10 @@
+# [8.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.7...v8.0.0-beta.8) (2020-12-30)
+
+
+### Bug Fixes
+
+* **auth:** oidc authentication when running multiple instances of the agent ([#608](https://github.com/ForestAdmin/forest-express/issues/608)) ([ef25acb](https://github.com/ForestAdmin/forest-express/commit/ef25acb278142e4aa933b279665245dd7bb18646))
+
 # [8.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.6...v8.0.0-beta.7) (2020-12-23)
 
 # [8.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.5...v8.0.0-beta.6) (2020-12-23)
