@@ -171,6 +171,7 @@ describe('routes > authentication', () => {
           { 'forest-token': 'THE-ACCESS-TOKEN' },
         ]);
         expect(issuer.Client.register.firstCall.args).toStrictEqual([{
+          client_id: undefined,
           redirect_uris: [
             'http://localhost:3310/forest/authentication/callback',
           ],
