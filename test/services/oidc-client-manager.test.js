@@ -3,9 +3,9 @@ const OidcClientManagerService = require('../../src/services/oidc-client-manager
 describe('service > OidcClientManager', () => {
   function setupTest(withClientId = false) {
     const issuer = {
-      Client: !withClientId ? {
+      Client: withClientId ? jest.fn() : {
         register: jest.fn(),
-      } : jest.fn(),
+      },
     };
     const openIdClient = {
       Issuer: jest.fn().mockReturnValue(issuer),
@@ -15,7 +15,7 @@ describe('service > OidcClientManager', () => {
     };
     const env = {
       FOREST_ENV_SECRET: 'the-secret',
-      FOREST_CLIENT_ID: withClientId ? 'coucou' : undefined,
+      FOREST_CLIENT_ID: withClientId ? 'the-client-id' : undefined,
     };
     const logger = {
       error: jest.fn(),
@@ -63,7 +63,7 @@ describe('service > OidcClientManager', () => {
       });
     });
 
-    it('should create a client from an predefined client_id', async () => {
+    it('should create a client from a predefined client_id', async () => {
       expect.assertions(4);
 
       const {
@@ -83,7 +83,7 @@ describe('service > OidcClientManager', () => {
       expect(issuer.Client).toHaveBeenCalledWith({
         token_endpoint_auth_method: 'none',
         redirect_uris: ['https://here.local'],
-        client_id: 'coucou',
+        client_id: 'the-client-id',
       });
     });
 
