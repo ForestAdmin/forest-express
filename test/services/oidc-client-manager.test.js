@@ -1,7 +1,7 @@
 const OidcClientManagerService = require('../../src/services/oidc-client-manager');
 
 describe('service > OidcClientManager', () => {
-  function setupTest(withClientId) {
+  function setupTest(withClientId = false) {
     const issuer = {
       Client: !withClientId ? {
         register: jest.fn(),
