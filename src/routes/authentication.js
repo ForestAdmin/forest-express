@@ -88,7 +88,7 @@ async function startAuthentication(context, request, response, next) {
       { renderingId },
     );
 
-    response.redirect(result.authorizationUrl);
+    response.status(200).send(result);
   } catch (e) {
     handleError(context, e, response, next);
   }
