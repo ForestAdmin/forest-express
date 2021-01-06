@@ -1,3 +1,10 @@
+# [8.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.8...v8.0.0-beta.9) (2021-01-05)
+
+
+### Bug Fixes
+
+* send back response to frontend instead of redirecting ([#609](https://github.com/ForestAdmin/forest-express/issues/609)) ([6f37521](https://github.com/ForestAdmin/forest-express/commit/6f375212c41c5451b14d8761c7b62a3e851c8f60))
+
 # [8.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.7...v8.0.0-beta.8) (2020-12-30)
 
 

@@ -79,8 +79,8 @@ describe('routes > authentication', () => {
             });
         });
 
-        expect(receivedResponse.status).toBe(302);
-        expect(receivedResponse.headers.location).toStrictEqual('https://authorization');
+        expect(receivedResponse.status).toBe(200);
+        expect(receivedResponse.body.authorizationUrl).toStrictEqual('https://authorization');
       } finally {
         sandbox.restore();
       }
