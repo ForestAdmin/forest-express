@@ -144,7 +144,7 @@ describe('routes > authentication', () => {
         /** @type {string} */
         const sessionCookie = receivedResponse.headers['set-cookie'][0];
 
-        expect(sessionCookie).toMatch(/^forest_session_token=[^;]+; Max-Age=1209; Path=\/; Expires=[^;]+; HttpOnly; Secure; SameSite=None$/);
+        expect(sessionCookie).toMatch(/^forest_session_token=[^;]+; Max-Age=1209600; Path=\/; Expires=[^;]+; HttpOnly; Secure; SameSite=None$/);
 
         const token = sessionCookie.match(/^forest_session_token=([^;]+);/)[1];
         const decoded = jsonwebtoken.verify(token, authSecret);
