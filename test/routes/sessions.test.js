@@ -159,7 +159,7 @@ describe('routes > sessions', () => {
       it('should return a valid jwt', async () => {
         expect.assertions(3);
         const app = await setupApp();
-        await new Promise((done) => {
+        const response = await new Promise((resolve, reject) => {
           request(app)
             .post('/forest/sessions')
             .send({
@@ -167,25 +167,30 @@ describe('routes > sessions', () => {
               email: 'user@email.com',
               password: 'user-password',
             })
-            .end((error, response) => {
-              expect(response.status).toStrictEqual(200);
-              expect(error).toBeNull();
-
-              const { token } = response.body;
-              const decodedJWT = jsonwebtoken.verify(token, authSecret);
-
-              expect(decodedJWT).toMatchObject({
-                id: '125',
-                email: 'user@email.com',
-                firstName: 'user',
-                lastName: 'last',
-                team: 'Operations',
-                renderingId: 1,
-              });
-
-              done();
+            .end((error, receivedResponse) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(receivedResponse);
+              }
             });
         });
+
+        expect(response.status).toStrictEqual(200);
+
+        const { token } = response.body;
+        const decodedJWT = jsonwebtoken.verify(token, authSecret);
+
+        expect(decodedJWT).toMatchObject({
+          id: '125',
+          email: 'user@email.com',
+          firstName: 'user',
+          lastName: 'last',
+          team: 'Operations',
+          renderingId: 1,
+        });
+
+        expect(response.headers['set-cookie'][0]).toMatch(/forest_session_token=[^;]+; Max-Age=1209600; Path=\/; Expires=[^;]+/);
       });
     });
 

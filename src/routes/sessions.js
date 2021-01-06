@@ -55,7 +55,7 @@ module.exports = function Sessions(app, opts) {
         response.cookie(
           tokenService.forestCookieName,
           responseData.token,
-          { maxAge: tokenService.expirationInSeconds },
+          { maxAge: tokenService.expirationInSeconds * 1e3 },
         );
       }
       response.send(responseData);

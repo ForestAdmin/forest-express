@@ -119,7 +119,7 @@ async function authenticationCallback(context, options, request, response, next)
       {
         httpOnly: true,
         secure: true,
-        maxAge: context.tokenService.expirationInSeconds,
+        maxAge: context.tokenService.expirationInSeconds * 1e3,
         sameSite: 'none',
       },
     );
