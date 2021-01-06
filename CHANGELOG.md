@@ -1,3 +1,10 @@
+# [8.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.9...v8.0.0-beta.10) (2021-01-06)
+
+
+### Bug Fixes
+
+* user being disconnected after 33min instead of 14 days ([#610](https://github.com/ForestAdmin/forest-express/issues/610)) ([80580e7](https://github.com/ForestAdmin/forest-express/commit/80580e710a7764d1fe4d7ec912352d74594cd685))
+
 # [8.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.8...v8.0.0-beta.9) (2021-01-05)
 
 
