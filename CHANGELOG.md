@@ -1,3 +1,10 @@
+# [8.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.10...v8.0.0-beta.11) (2021-01-08)
+
+
+### Bug Fixes
+
+* **authentication:** error when authenticating with an invalid token in cookies ([#611](https://github.com/ForestAdmin/forest-express/issues/611)) ([e6d6737](https://github.com/ForestAdmin/forest-express/commit/e6d6737c896c882ebc774ddee2be90337c787c2b))
+
 # [8.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.9...v8.0.0-beta.10) (2021-01-06)
 
 
