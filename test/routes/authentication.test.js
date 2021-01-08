@@ -50,6 +50,37 @@ function mockOpenIdClient(sandbox) {
 
 describe('routes > authentication', () => {
   describe('#POST /forest/authentication', () => {
+    /**
+     * @param {import('superagent').SuperAgentRequest} testedRequest
+     * @param {*} body
+     * @param {{
+     *  sandbox: import('sinon').SinonSandbox;
+     *  injections: any;
+     *  oidcConfig: any;
+     * }} param2
+     * @returns {Promise<import('superagent').Response>}
+     */
+    async function setupTest(testedRequest, body, { sandbox, injections, oidcConfig }) {
+      const { client } = mockOpenIdClient(sandbox);
+
+      client.authorizationUrl.returns('https://authorization');
+
+      injections.forestServerRequester.perform
+        .withArgs(sinon.match(/^\/oidc\//))
+        .resolves(oidcConfig);
+
+      return new Promise((resolve, reject) => {
+        testedRequest
+          .send(body)
+          .end((error, response) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(response);
+            }
+          });
+      });
+    }
     it('should return a valid authentication url', async () => {
       expect.assertions(2);
       const {
@@ -57,26 +88,10 @@ describe('routes > authentication', () => {
       } = await setupApp();
 
       try {
-        const { client } = mockOpenIdClient(sandbox);
+        const test = request(app).post('/forest/authentication');
 
-        client.authorizationUrl.returns('https://authorization');
-
-        const test = request(app).post('/forest/authentication')
-          .send({ renderingId: 42 });
-
-        injections.forestServerRequester.perform
-          .withArgs(sinon.match(/^\/oidc\//))
-          .resolves(oidcConfig);
-
-        const receivedResponse = await new Promise((resolve, reject) => {
-          test
-            .end((error, response) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(response);
-              }
-            });
+        const receivedResponse = await setupTest(test, { renderingId: 42 }, {
+          sandbox, injections, oidcConfig,
         });
 
         expect(receivedResponse.status).toBe(200);
@@ -85,9 +100,84 @@ describe('routes > authentication', () => {
         sandbox.restore();
       }
     });
+
+    it('should return a valid authentication url even with an invalid token in the query', async () => {
+      expect.assertions(1);
+      const {
+        forestApp: app, sandbox, injections, oidcConfig,
+      } = await setupApp();
+
+      try {
+        const test = request(app).post('/forest/authentication')
+          .set('Cookie', 'forest_session_token=INVALID_TOKEN');
+
+        const receivedResponse = await setupTest(test, { renderingId: 42 }, {
+          sandbox, injections, oidcConfig,
+        });
+
+        expect(receivedResponse.status).toBe(200);
+      } finally {
+        sandbox.restore();
+      }
+    });
   });
 
   describe('#GET /forest/authentication/callback', () => {
+    /**
+     * @param {import('superagent').SuperAgentRequest} testedRequest
+     * @param {{
+     *  sandbox: import('sinon').SinonSandbox;
+     *  injections: any;
+     *  oidcConfig: any;
+     * }} mocks
+     * @returns {{
+     *  receivedResponse: Promise<import('superagent').Response>;
+     *  issuer: any;
+     * }}
+     */
+    async function setupTest(testedRequest, {
+      sandbox, injections, oidcConfig,
+    }) {
+      const { client, issuer } = mockOpenIdClient(sandbox);
+      client.callback.resolves({
+        access_token: 'THE-ACCESS-TOKEN',
+      });
+      issuer.Client.register.resolves(client);
+
+      const performResponse = {
+        data: {
+          id: 666,
+          attributes: {
+            first_name: 'Alice',
+            last_name: 'Doe',
+            email: 'alice@forestadmin.com',
+            teams: [1, 2, 3],
+          },
+        },
+      };
+
+      injections.forestServerRequester.perform
+        .withArgs(sinon.match(/^\/oidc\//))
+        .resolves(oidcConfig);
+
+      injections.forestServerRequester.perform
+        .withArgs(sinon.match(/^\/liana\/v2/), sinon.match.any, sinon.match.any, sinon.match.any)
+        .resolves(performResponse);
+
+      const receivedResponse = await new Promise((resolve, reject) => {
+        testedRequest
+          .send()
+          .end((error, response) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(response);
+            }
+          });
+      });
+
+      return { receivedResponse, issuer };
+    }
     it('should return a new authentication token', async () => {
       expect.assertions(8);
       const {
@@ -95,47 +185,12 @@ describe('routes > authentication', () => {
       } = await setupApp();
 
       try {
-        const { client, issuer } = mockOpenIdClient(sandbox);
-        client.callback.resolves({
-          access_token: 'THE-ACCESS-TOKEN',
-        });
-        issuer.Client.register.resolves(client);
-
-        const performResponse = {
-          data: {
-            id: 666,
-            attributes: {
-              first_name: 'Alice',
-              last_name: 'Doe',
-              email: 'alice@forestadmin.com',
-              teams: [1, 2, 3],
-            },
-          },
-        };
-
-        injections.forestServerRequester.perform
-          .withArgs(sinon.match(/^\/oidc\//))
-          .resolves(oidcConfig);
-
-        injections.forestServerRequester.perform
-          .withArgs(sinon.match(/^\/liana\/v2/), sinon.match.any, sinon.match.any, sinon.match.any)
-          .resolves(performResponse);
-
         const test = request(app).get(`/forest/authentication/callback?code=THE-CODE&state=${
           encodeURIComponent(JSON.stringify({ renderingId: 42 }))
-        }`)
-          .send();
+        }`);
 
-        /** @type {import('superagent').Response} */
-        const receivedResponse = await new Promise((resolve, reject) => {
-          test
-            .end((error, response) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(response);
-              }
-            });
+        const { receivedResponse, issuer } = await setupTest(test, {
+          sandbox, oidcConfig, injections, app,
         });
 
         expect(receivedResponse.status).toBe(200);
@@ -179,6 +234,28 @@ describe('routes > authentication', () => {
         }, {
           initialAccessToken: 'THE-SECRET',
         }]);
+      } finally {
+        sandbox.restore();
+      }
+    });
+
+    it('should return a new authentication token even if the previously received token is invalid', async () => {
+      expect.assertions(1);
+      const {
+        forestApp: app, sandbox, injections, oidcConfig,
+      } = await setupApp();
+
+      try {
+        const test = request(app).get(`/forest/authentication/callback?code=THE-CODE&state=${
+          encodeURIComponent(JSON.stringify({ renderingId: 42 }))
+        }`)
+          .set('Cookie', 'forest_session_token=INVALID');
+
+        const { receivedResponse } = await setupTest(test, {
+          sandbox, oidcConfig, injections, app,
+        });
+
+        expect(receivedResponse.status).toBe(200);
       } finally {
         sandbox.restore();
       }

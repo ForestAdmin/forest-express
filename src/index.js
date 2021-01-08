@@ -264,7 +264,7 @@ exports.init = async (Implementation) => {
   }
 
   if (jwtAuthenticator) {
-    const pathsPublic = [/^\/forest\/sessions.*$/];
+    const pathsPublic = [/^\/forest\/sessions.*$/, /^\/forest\/authentication$/, /^\/forest\/authentication\/.*$/];
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
