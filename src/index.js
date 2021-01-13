@@ -63,34 +63,19 @@ function getModels() {
 
 function requireAllModels(modelsDir) {
   if (modelsDir) {
-    let lastFileLoadedPath;
-    try {
-      const isJavascriptOrTypescriptFileName = (fileName) =>
-        fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+    const isJavascriptOrTypescriptFileName = (fileName) =>
+      fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
 
-      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
-      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
+    // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+    const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
 
-      requireAll({
-        dirname: modelsDir,
-        excludeDirs: /^__tests__$/,
-        filter: (fileName) =>
-          isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
-        map: (name, filePath) => {
-          lastFileLoadedPath = filePath;
-          return name;
-        },
-        recursive: true,
-      });
-    } catch (error) {
-      // Require all does not throw any error message.
-      // `lastFileLoadedPath` is used to locate where the issue was
-      // and to forward a comprehensive error message
-      const errorMessage = lastFileLoadedPath
-        ? `Cannot require the file "${lastFileLoadedPath}".`
-        : `An unexcepted error occured while requiring files in the "${modelsDir}" directory.`;
-      throw new Error(errorMessage);
-    }
+    requireAll({
+      dirname: modelsDir,
+      excludeDirs: /^__tests__$/,
+      filter: (fileName) =>
+        isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
+      recursive: true,
+    });
   }
 
   // NOTICE: User didn't provide a modelsDir but may already have required them manually so they

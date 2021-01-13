@@ -1,6 +1,5 @@
 const request = require('supertest');
 const express = require('express');
-const path = require('path');
 
 function resetRequireIndex(mockExtraModules) {
   jest.resetModules();
@@ -55,6 +54,7 @@ describe('liana > index', () => {
         it('should return a rejected promise', async () => {
           expect.assertions(1);
 
+          const expectedErrorMessage = 'This is the expected error';
           const requireAllMockModule = () => {
             jest.mock('require-all');
             /* eslint-disable global-require */
@@ -62,17 +62,16 @@ describe('liana > index', () => {
             const fs = require('fs');
             /* eslint-enable global-require */
             jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-            requireAll.mockImplementation(() => { throw new Error(); });
+            requireAll.mockImplementation(() => { throw new Error(expectedErrorMessage); });
           };
 
           const forestExpress = resetRequireIndex(requireAllMockModule);
           const configDir = './something';
-          const configDirAbsolutePath = path.resolve('.', configDir);
           const implementation = createFakeImplementation({ configDir });
 
           await expect(() => forestExpress.init(implementation))
             .rejects
-            .toThrow(`An unexcepted error occured while requiring files in the "${configDirAbsolutePath}" directory.`);
+            .toThrow(expectedErrorMessage);
         });
       });
     });
