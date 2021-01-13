@@ -49,6 +49,29 @@ describe('liana > index', () => {
       });
     });
 
+    describe('when requiring all files of the configDir', () => {
+      describe('when requiring all throws an error', () => {
+        it('should return a rejected promise', async () => {
+          expect.assertions(1);
+          const requireAllMockModule = () => {
+            jest.mock('require-all');
+            // eslint-disable-next-line global-require
+            const requireAll = require('require-all');
+            // eslint-disable-next-line global-require
+            const fs = require('fs');
+            jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+            requireAll.mockImplementation(() => { throw new Error(); });
+          };
+
+          const forestExpress = resetRequireIndex(requireAllMockModule);
+          const configDir = './something';
+          const implementation = createFakeImplementation({ configDir });
+
+          await expect(() => forestExpress.init(implementation)).rejects.toThrow(expect.anything());
+        });
+      });
+    });
+
     describe('with a valid configuration', () => {
       it('should return a promise', async () => {
         expect.assertions(1);
