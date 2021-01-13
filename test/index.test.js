@@ -72,7 +72,7 @@ describe('liana > index', () => {
 
           await expect(() => forestExpress.init(implementation))
             .rejects
-            .toThrow(`An unexcepted error occured while requiring files in the "${configDirAbsolutePath}" directory`);
+            .toThrow(`An unexcepted error occured while requiring files in the "${configDirAbsolutePath}" directory.`);
         });
       });
     });

@@ -88,7 +88,7 @@ function requireAllModels(modelsDir) {
       // and to forward a comprehensive error message
       const errorMessage = lastFileLoadedPath
         ? `Cannot require the file "${lastFileLoadedPath}".`
-        : `An unexcepted error occured while requiring files in the "${modelsDir}" directory`;
+        : `An unexcepted error occured while requiring files in the "${modelsDir}" directory.`;
       throw new Error(errorMessage);
     }
   }
