@@ -63,6 +63,7 @@ function getModels() {
 
 function requireAllModels(modelsDir) {
   if (modelsDir) {
+    let lastFileLoadedPath;
     try {
       const isJavascriptOrTypescriptFileName = (fileName) =>
         fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
@@ -75,10 +76,20 @@ function requireAllModels(modelsDir) {
         excludeDirs: /^__tests__$/,
         filter: (fileName) =>
           isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
+        map: (name, filePath) => {
+          lastFileLoadedPath = filePath;
+          return name;
+        },
         recursive: true,
       });
     } catch (error) {
-      logger.error('Cannot read a file for the following reason: ', error);
+      // Require all does not throw any error message.
+      // `lastFileLoadedPath` is used to locate where the issue was
+      // and to forward a comprehensive error message
+      const errorMessage = lastFileLoadedPath
+        ? `Cannot require the file "${lastFileLoadedPath}".`
+        : `An unexcepted error occured while requiring files in the "${modelsDir}" directory`;
+      throw new Error(errorMessage);
     }
   }
 
