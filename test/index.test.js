@@ -1,5 +1,6 @@
 const request = require('supertest');
 const express = require('express');
+const path = require('path');
 
 function resetRequireIndex(mockExtraModules) {
   jest.resetModules();
@@ -50,24 +51,28 @@ describe('liana > index', () => {
     });
 
     describe('when requiring all files of the configDir', () => {
-      describe('when requiring all throws an error', () => {
+      describe('when requireAll() throws an error', () => {
         it('should return a rejected promise', async () => {
           expect.assertions(1);
+
           const requireAllMockModule = () => {
             jest.mock('require-all');
-            // eslint-disable-next-line global-require
+            /* eslint-disable global-require */
             const requireAll = require('require-all');
-            // eslint-disable-next-line global-require
             const fs = require('fs');
+            /* eslint-enable global-require */
             jest.spyOn(fs, 'existsSync').mockReturnValue(true);
             requireAll.mockImplementation(() => { throw new Error(); });
           };
 
           const forestExpress = resetRequireIndex(requireAllMockModule);
           const configDir = './something';
+          const configDirAbsolutePath = path.resolve('.', configDir);
           const implementation = createFakeImplementation({ configDir });
 
-          await expect(() => forestExpress.init(implementation)).rejects.toThrow(expect.anything());
+          await expect(() => forestExpress.init(implementation))
+            .rejects
+            .toThrow(`An unexcepted error occured while requiring files in the "${configDirAbsolutePath}" directory`);
         });
       });
     });
