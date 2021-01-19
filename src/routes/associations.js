@@ -38,6 +38,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   function getContext(request) {
     const association = getAssociation(request);
     const params = _.extend(request.query, request.params, association);
+    params.userRequest = request.user;//SPA
     const models = Implementation.getModels();
     const associationField = getAssociationField(params.associationName);
     const associationModel = _.find(models, (refModel) =>
@@ -57,7 +58,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         associationModel,
         records,
         integrator,
-        null,
+        {userRequest: request.user}, //SPA
         fieldsSearched,
         params.search,
         fieldsPerModel,

@@ -158,6 +158,7 @@ function ResourceSerializer(
       formatFields(records);
     }
 
+    const userRequest = meta?meta.userRequest:null; //SPA
     return new P((resolve) => {
       if (_.isArray(records)) {
         let smartFieldsValuesInjector;
@@ -167,6 +168,7 @@ function ResourceSerializer(
               record,
               modelName,
               fieldsPerModel,
+              userRequest, //SPA
             );
             return smartFieldsValuesInjector.perform();
           })
@@ -178,7 +180,7 @@ function ResourceSerializer(
             return result;
           }));
       } else {
-        resolve(new SmartFieldsValuesInjector(records, modelName, fieldsPerModel).perform());
+        resolve(new SmartFieldsValuesInjector(records, modelName, fieldsPerModel, userRequest).perform()); //SPA
       }
     })
       .then(() => {
