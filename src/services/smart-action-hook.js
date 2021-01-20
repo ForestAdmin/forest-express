@@ -47,9 +47,20 @@ class SmartActionHook {
     return fields.map((field) => {
       const updatedField = result[field.field];
       // Reset `value` when not present in `enums` (which means `enums` has changed).
-      if (Array.isArray(updatedField.enums) && !updatedField.enums.includes(updatedField.value)) {
-        return { ...updatedField, value: null };
+      if (Array.isArray(updatedField.enums)) {
+        // `Value` can be an array if the type of fields is `[x]`
+        if (Array.isArray(updatedField.type)
+          && Array.isArray(updatedField.value)
+          && updatedField.value.some((value) => !updatedField.enums.includes(value))) {
+          return { ...updatedField, value: null };
+        }
+
+        // `Value` can be any other value
+        if (!Array.isArray(updatedField.type) && !updatedField.enums.includes(updatedField.value)) {
+          return { ...updatedField, value: null };
+        }
       }
+
       return updatedField;
     });
   }
