@@ -63,23 +63,19 @@ function getModels() {
 
 function requireAllModels(modelsDir) {
   if (modelsDir) {
-    try {
-      const isJavascriptOrTypescriptFileName = (fileName) =>
-        fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
+    const isJavascriptOrTypescriptFileName = (fileName) =>
+      fileName.endsWith('.js') || (fileName.endsWith('.ts') && !fileName.endsWith('.d.ts'));
 
-      // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
-      const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
+    // NOTICE: Ends with `.spec.js`, `.spec.ts`, `.test.js` or `.test.ts`.
+    const isTestFileName = (fileName) => fileName.match(/(?:\.test|\.spec)\.(?:js||ts)$/g);
 
-      requireAll({
-        dirname: modelsDir,
-        excludeDirs: /^__tests__$/,
-        filter: (fileName) =>
-          isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
-        recursive: true,
-      });
-    } catch (error) {
-      logger.error('Cannot read a file for the following reason: ', error);
-    }
+    requireAll({
+      dirname: modelsDir,
+      excludeDirs: /^__tests__$/,
+      filter: (fileName) =>
+        isJavascriptOrTypescriptFileName(fileName) && !isTestFileName(fileName),
+      recursive: true,
+    });
   }
 
   // NOTICE: User didn't provide a modelsDir but may already have required them manually so they
