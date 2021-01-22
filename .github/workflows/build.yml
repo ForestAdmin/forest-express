@@ -7,7 +7,6 @@ on:
       - beta
   pull_request:
 
-
 jobs:
   lint:
     name: Linting
@@ -35,7 +34,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     needs: [lint]
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - uses: actions/checkout@v2
         with:
