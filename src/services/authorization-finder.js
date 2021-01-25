@@ -1,3 +1,7 @@
+const InconsistentSecretAndRenderingError = require('../utils/errors/authentication/inconsistent-secret-rendering-error');
+const SecretNotFoundError = require('../utils/errors/authentication/secret-not-found-error');
+const TwoFactorAuthenticationRequiredError = require('../utils/errors/authentication/two-factor-authentication-required-error');
+
 class AuthorizationFinder {
   /** @private @readonly @type {import('./forest-server-requester')} */
   forestServerRequester;
@@ -22,20 +26,28 @@ class AuthorizationFinder {
    * @param {Error} error
    * @returns {string}
    */
-  _generateAuthenticationErrorMessage(error) {
-    let errorMessageToForward;
+  _generateAuthenticationError(error) {
     switch (error.message) {
       case this.errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
-        errorMessageToForward = error.message;
-        break;
-      case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
-        errorMessageToForward = 'Cannot retrieve the project you\'re trying to unlock. '
-            + 'Please check that you\'re using the right environment secret regarding your project and environment.';
-        break;
-      default: errorMessageToForward = undefined;
+        return new InconsistentSecretAndRenderingError();
+      case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND: {
+        return new SecretNotFoundError();
+      }
+      default:
     }
 
-    return errorMessageToForward;
+    // eslint-disable-next-line camelcase
+    const serverErrors = error?.jse_cause?.response?.body?.errors;
+    const serverError = serverErrors && serverErrors[0];
+
+    if (serverError?.name === this.errorMessages
+      .SERVER_TRANSACTION
+      .names
+      .TWO_FACTOR_AUTHENTICATION_REQUIRED) {
+      return new TwoFactorAuthenticationRequiredError();
+    }
+
+    return new Error();
   }
 
   /**
@@ -76,8 +88,9 @@ class AuthorizationFinder {
       user.id = result.data.id;
       return user;
     } catch (error) {
-      this.logger.error('Authorization error: ', error);
-      throw new Error(this._generateAuthenticationErrorMessage(error));
+      // eslint-disable-next-line camelcase
+      this.logger.error('Authorization error: ', error?.jse_cause?.response.body || error);
+      throw this._generateAuthenticationError(error);
     }
   }
 }

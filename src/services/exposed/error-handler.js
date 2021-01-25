@@ -18,6 +18,10 @@ function errorHandler({ logger } = {}) {
         error.message = error.errors[0].message;
       }
 
+      if (error && error.errors && error.errors[0] && error.errors[0].name) {
+        error.name = error.errors[0].name;
+      }
+
       if (!error.status && logger) {
         // NOTICE: Unexpected errors should log an error in the console.
         logger.error('Unexpected error: ', error);
@@ -27,6 +31,7 @@ function errorHandler({ logger } = {}) {
         errors: [{
           status: error.status || 500,
           detail: error.message,
+          name: error.name,
         }],
       });
     } else {

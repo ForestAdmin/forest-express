@@ -12,4 +12,7 @@ exports.SERVER_TRANSACTION = {
   INVALID_STATE_RENDERING_ID: 'Invalid response from the authentication server: the state does not contain a renderingId',
   MISSING_RENDERING_ID: 'Authentication request must contain a renderingId',
   INVALID_RENDERING_ID: 'The parameter renderingId is not valid',
+  names: {
+    TWO_FACTOR_AUTHENTICATION_REQUIRED: 'TwoFactorAuthenticationRequiredForbiddenError',
+  },
 };
