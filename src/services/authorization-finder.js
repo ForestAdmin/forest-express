@@ -30,9 +30,8 @@ class AuthorizationFinder {
     switch (error.message) {
       case this.errorMessages.SERVER_TRANSACTION.SECRET_AND_RENDERINGID_INCONSISTENT:
         return new InconsistentSecretAndRenderingError();
-      case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND: {
+      case this.errorMessages.SERVER_TRANSACTION.SECRET_NOT_FOUND:
         return new SecretNotFoundError();
-      }
       default:
     }
 
