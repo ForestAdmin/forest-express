@@ -16,7 +16,6 @@ const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
 const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
-const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
 const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
@@ -44,8 +43,6 @@ const {
 const PUBLIC_ROUTES = [
   '/',
   '/healthcheck',
-  '/sessions',
-  '/sessions-google',
   ...initAuthenticationRoutes.PUBLIC_ROUTES,
 ];
 
@@ -264,12 +261,11 @@ exports.init = async (Implementation) => {
   }
 
   if (jwtAuthenticator) {
-    const pathsPublic = [/^\/forest\/sessions.*$/, /^\/forest\/authentication$/, /^\/forest\/authentication\/.*$/];
+    const pathsPublic = [/^\/forest\/authentication$/, /^\/forest\/authentication\/.*$/];
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
-  new SessionRoute(app, configStore.lianaOptions).perform();
   initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
 
   // Init
