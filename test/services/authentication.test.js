@@ -122,9 +122,6 @@ describe('authenticationService', () => {
       expect(authorizationFinder.authenticate).toHaveBeenCalledWith(
         42,
         'THE-ENV-SECRET',
-        null,
-        null,
-        null,
         'THE-ACCESS-TOKEN',
       );
       expect(tokenService.createToken).toHaveBeenCalledWith(

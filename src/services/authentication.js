@@ -89,9 +89,6 @@ class AuthenticationService {
     const user = await this.authorizationFinder.authenticate(
       renderingId,
       options.envSecret,
-      null,
-      null,
-      null,
       tokenSet.access_token,
     );
 

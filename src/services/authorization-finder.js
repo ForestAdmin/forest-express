@@ -52,32 +52,16 @@ class AuthorizationFinder {
   /**
    * @param {number|string} renderingId
    * @param {string} environmentSecret
-   * @param {string|null|undefined} twoFactorRegistration
-   * @param {string} email
-   * @param {string} password
    * @param {string} forestToken
    */
   async authenticate(
     renderingId,
     environmentSecret,
-    twoFactorRegistration,
-    email,
-    password,
     forestToken,
   ) {
-    let headers;
+    const headers = { 'forest-token': forestToken };
 
-    if (email && password) {
-      headers = { email, password };
-    } else if (forestToken) {
-      headers = { 'forest-token': forestToken };
-    }
-
-    let url = `/liana/v2/renderings/${renderingId}/authorization`;
-
-    if (twoFactorRegistration) {
-      url += `?two-factor-registration=${twoFactorRegistration}`;
-    }
+    const url = `/liana/v2/renderings/${renderingId}/authorization`;
 
     try {
       const result = await this.forestServerRequester
