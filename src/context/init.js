@@ -36,7 +36,6 @@ function initValue(context) {
  * @typedef {{
  *   NODE_ENV: 'production' | 'development';
  *   FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
- *   FOREST_2FA_SECRET_SALT?: boolean;
  *   CORS_ORIGINS?: string;
  *   JWT_ALGORITHM: string;
  *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;

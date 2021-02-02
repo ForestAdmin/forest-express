@@ -22,7 +22,6 @@ const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
 const ProjectDirectoryUtils = require('./utils/project-directory');
-const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
 
@@ -53,7 +52,6 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
 let jwtAuthenticator;
 let app = null;
@@ -200,14 +198,6 @@ exports.init = async (Implementation) => {
   const pathMounted = pathService.generate('*', configStore.lianaOptions);
 
   auth.initAuth(configStore.lianaOptions);
-
-  if (TWO_FA_SECRET_SALT) {
-    try {
-      is2FASaltValid(TWO_FA_SECRET_SALT);
-    } catch (error) {
-      logger.warn(error.message);
-    }
-  }
 
   // CORS
   let allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
