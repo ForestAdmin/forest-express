@@ -1,3 +1,16 @@
+# [8.0.0-beta.12](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.11...v8.0.0-beta.12) (2021-02-02)
+
+
+### Features
+
+* **authentication:** remove old authentication routes ([#624](https://github.com/ForestAdmin/forest-express/issues/624)) ([b0ffc50](https://github.com/ForestAdmin/forest-express/commit/b0ffc504e819c1a16b3935937725325349e71ddb))
+* **authentication:** return a specific error during authorization if received an error about 2FA ([#622](https://github.com/ForestAdmin/forest-express/issues/622)) ([3a59a12](https://github.com/ForestAdmin/forest-express/commit/3a59a12daa4e7273879b38512e6b9ef73e199438))
+
+
+### BREAKING CHANGES
+
+* **authentication:** all previous authentication routes have been removed
+
 # [8.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.10...v8.0.0-beta.11) (2021-01-08)
 
 
