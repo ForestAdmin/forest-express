@@ -40,84 +40,6 @@ describe('authorization-finder', () => {
   }
 
   describe('authenticate', () => {
-    describe('with an email and password', () => {
-      it('should send the credentials to the forest admin server and return the user', async () => {
-        expect.assertions(2);
-        const { authorizationFinder, forestServerRequester } = setup();
-
-        forestServerRequester.perform.mockReturnValue(Promise.resolve({
-          data: {
-            attributes: {
-              email: 'alice@forestadmin.com',
-              first_name: 'Alice',
-            },
-            id: 666,
-          },
-        }));
-
-        const result = await authorizationFinder.authenticate(
-          42,
-          'ABCDE',
-          false,
-          'alice@forestadmin.com',
-          'secret',
-          null,
-        );
-
-        expect(result).toStrictEqual({
-          id: 666,
-          email: 'alice@forestadmin.com',
-          first_name: 'Alice',
-        });
-        expect(forestServerRequester.perform)
-          .toHaveBeenCalledWith(
-            '/liana/v2/renderings/42/authorization',
-            'ABCDE',
-            null,
-            { email: 'alice@forestadmin.com', password: 'secret' },
-          );
-      });
-    });
-
-    describe('with a google token', () => {
-      it('should send the credentials to the forest admin server and return the user', async () => {
-        expect.assertions(2);
-        const { authorizationFinder, forestServerRequester } = setup();
-
-        forestServerRequester.perform.mockReturnValue(Promise.resolve({
-          data: {
-            attributes: {
-              email: 'alice@forestadmin.com',
-              first_name: 'Alice',
-            },
-            id: 666,
-          },
-        }));
-
-        const result = await authorizationFinder.authenticate(
-          42,
-          'ABCDE',
-          false,
-          null,
-          null,
-          'THE-TOKEN',
-        );
-
-        expect(result).toStrictEqual({
-          id: 666,
-          email: 'alice@forestadmin.com',
-          first_name: 'Alice',
-        });
-        expect(forestServerRequester.perform)
-          .toHaveBeenCalledWith(
-            '/liana/v2/renderings/42/authorization',
-            'ABCDE',
-            null,
-            { 'forest-token': 'THE-TOKEN' },
-          );
-      });
-    });
-
     describe('when the server returns an error', () => {
       it('should return a InconsistentSecretAndRenderingError if the server returned this error', async () => {
         expect.assertions(1);
@@ -147,11 +69,8 @@ describe('authorization-finder', () => {
 
         await expect(authorizationFinder.authenticate(
           42,
-          'ABCDE',
-          false,
-          'alice@forestadmin.com',
           'secret',
-          null,
+          'TOKEN',
         )).rejects.toBeInstanceOf(SecretNotFoundError);
       });
 
@@ -173,11 +92,8 @@ describe('authorization-finder', () => {
 
         await expect(authorizationFinder.authenticate(
           42,
-          'ABCDE',
-          false,
-          'alice@forestadmin.com',
           'secret',
-          null,
+          'TOKEN',
         )).rejects.toBeInstanceOf(TwoFactorAuthenticationRequiredError);
       });
 
@@ -191,11 +107,8 @@ describe('authorization-finder', () => {
 
         await expect(authorizationFinder.authenticate(
           42,
-          'ABCDE',
-          false,
-          'alice@forestadmin.com',
           'secret',
-          null,
+          'TOKEN',
         )).rejects.toBeInstanceOf(Error);
       });
     });

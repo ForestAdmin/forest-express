@@ -16,14 +16,12 @@ const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
 const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
-const SessionRoute = require('./routes/sessions');
 const ForestRoutes = require('./routes/forest');
 const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
 const ProjectDirectoryUtils = require('./utils/project-directory');
-const { is2FASaltValid } = require('./utils/token-checker');
 const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
 
@@ -44,8 +42,6 @@ const {
 const PUBLIC_ROUTES = [
   '/',
   '/healthcheck',
-  '/sessions',
-  '/sessions-google',
   ...initAuthenticationRoutes.PUBLIC_ROUTES,
 ];
 
@@ -56,7 +52,6 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
 const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const TWO_FA_SECRET_SALT = process.env.FOREST_2FA_SECRET_SALT;
 
 let jwtAuthenticator;
 let app = null;
@@ -204,14 +199,6 @@ exports.init = async (Implementation) => {
 
   auth.initAuth(configStore.lianaOptions);
 
-  if (TWO_FA_SECRET_SALT) {
-    try {
-      is2FASaltValid(TWO_FA_SECRET_SALT);
-    } catch (error) {
-      logger.warn(error.message);
-    }
-  }
-
   // CORS
   let allowedOrigins = ['localhost:4200', /\.forestadmin\.com$/];
   const oneDayInSeconds = 86400;
@@ -264,12 +251,11 @@ exports.init = async (Implementation) => {
   }
 
   if (jwtAuthenticator) {
-    const pathsPublic = [/^\/forest\/sessions.*$/, /^\/forest\/authentication$/, /^\/forest\/authentication\/.*$/];
+    const pathsPublic = [/^\/forest\/authentication$/, /^\/forest\/authentication\/.*$/];
     app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
   }
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
-  new SessionRoute(app, configStore.lianaOptions).perform();
   initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
 
   // Init
