@@ -1,13 +1,10 @@
-const _ = require('lodash');
-const { perform: parseFilters } = require('./base-filters-parser');
-const logger = require('./logger');
-const PermissionsGetter = require('./permissions-getter');
+const { clone } = require('lodash');
 
 class PermissionsChecker {
-  constructor(environmentSecret, renderingId) {
-    this.environmentSecret = environmentSecret;
-    this.renderingId = renderingId;
-    this.permissionsGetter = new PermissionsGetter(this.environmentSecret);
+  constructor({ baseFilterParser, logger, permissionsGetter }) {
+    this.baseFilterParser = baseFilterParser;
+    this.logger = logger;
+    this.permissionsGetter = permissionsGetter;
   }
 
   static _isPermissionAllowed(permissionValue, userId) {
@@ -34,7 +31,7 @@ class PermissionsChecker {
   // Compute a scope to replace $currentUser variables with the actual user values. This will
   // generate the expected conditions filters when applied on the server scope response.
   static _computeConditionFiltersFromScope(userId, scope) {
-    const computedConditionFilters = _.clone(scope.filter);
+    const computedConditionFilters = clone(scope.filter);
     computedConditionFilters.conditions.forEach((condition) => {
       if (condition.value
         && `${condition.value}`.startsWith('$')
@@ -71,7 +68,7 @@ class PermissionsChecker {
       && expectedCondition.field === actualFilterCondition.field).length > 0;
   }
 
-  static async _isScopeValid(permissionInfos, scope) {
+  async _isScopeValid(permissionInfos, scope) {
     const expectedConditionFilters = PermissionsChecker
       ._computeConditionFiltersFromScope(permissionInfos.userId, scope);
 
@@ -85,7 +82,7 @@ class PermissionsChecker {
       ._isConditionFromScope(condition, expectedConditionFilters.conditions);
 
     // Perform a travel to find the scope in filters
-    const scopeFound = await parseFilters(
+    const scopeFound = await this.baseFilterParser.perform(
       permissionInfos.filters,
       isScopeAggregation,
       isScopeCondition,
@@ -104,7 +101,7 @@ class PermissionsChecker {
     return isValidSingleConditionScope || isSameScope;
   }
 
-  static async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos, scope) {
+  async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos, scope) {
     if (!collectionPermissions
       || !permissionInfos
       || !PermissionsChecker
@@ -115,20 +112,21 @@ class PermissionsChecker {
     if (!scope) return true;
 
     try {
-      return PermissionsChecker._isScopeValid(permissionInfos, scope);
+      return this._isScopeValid(permissionInfos, scope);
     } catch (error) {
-      logger.error(error);
+      this.logger.error(error);
       return false;
     }
   }
 
-  static async _isAllowed(permissions, permissionName, permissionInfos) {
+  async _isAllowed(permissions, permissionName, permissionInfos) {
     switch (permissionName) {
       case 'actions':
         return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
       case 'browseEnabled':
-        return PermissionsChecker
-          ._isCollectionBrowseAllowed(permissions.collection, permissionInfos, permissions.scope);
+        return this._isCollectionBrowseAllowed(
+          permissions.collection, permissionInfos, permissions.scope,
+        );
       default:
         return permissions.collection
           ? PermissionsChecker
@@ -137,11 +135,14 @@ class PermissionsChecker {
     }
   }
 
-  async checkPermissions(collectionName, permissionName, permissionInfos) {
+  async checkPermissions(renderingId, collectionName, permissionName, permissionInfos) {
     const getPermissions = async (forceRetrieve) => this.permissionsGetter
-      .getPermissions(this.renderingId, collectionName, permissionName, { forceRetrieve });
-    const isAllowed = async ({ forceRetrieve = false } = {}) => PermissionsChecker
-      ._isAllowed(await getPermissions(forceRetrieve), permissionName, permissionInfos);
+      .getPermissions(renderingId, collectionName, permissionName, { forceRetrieve });
+    const isAllowed = async ({ forceRetrieve = false } = {}) => this._isAllowed(
+      await getPermissions(forceRetrieve),
+      permissionName,
+      permissionInfos,
+    );
 
     if (await isAllowed() || await isAllowed({ forceRetrieve: true })) {
       return null;
