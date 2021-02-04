@@ -1,40 +1,47 @@
 const moment = require('moment');
+const VError = require('verror');
 const Sinon = require('sinon');
 const PermissionsGetter = require('../../src/services/permissions-getter');
-const forestServerRequester = require('../../src/services/forest-server-requester');
 
 describe('services > PermissionsGetter', () => {
+  const defaultDependencies = {
+    env: {},
+    configStore: {},
+    forestServerRequester: {},
+    moment,
+    VError,
+  };
+
   describe('_setRenderingPermissions', () => {
     it('should set the permissions', () => {
       expect.assertions(4);
-      PermissionsGetter.cleanCache();
 
       const permissions = 'superPermissions';
-      PermissionsGetter._setRenderingPermissions(1, permissions);
-      expect(PermissionsGetter.permissions.renderings).toBeObject();
-      expect(PermissionsGetter.permissions.renderings[1]).toBeObject();
-      expect(PermissionsGetter.permissions.renderings[1].data).toStrictEqual(permissions);
-      expect(new Date(PermissionsGetter.permissions.renderings[1].lastRetrieve)).toBeValidDate();
+      const permissionsGetter = new PermissionsGetter(defaultDependencies);
+      permissionsGetter._setRenderingPermissions(1, permissions);
+      expect(permissionsGetter.permissions.renderings).toBeObject();
+      expect(permissionsGetter.permissions.renderings[1]).toBeObject();
+      expect(permissionsGetter.permissions.renderings[1].data).toStrictEqual(permissions);
+      expect(new Date(permissionsGetter.permissions.renderings[1].lastRetrieve)).toBeValidDate();
     });
   });
 
   describe('_setCollectionsPermissions', () => {
     it('should set the permissions', () => {
       expect.assertions(3);
-      PermissionsGetter.cleanCache();
 
       const permissions = 'superPermissions';
-      PermissionsGetter._setCollectionsPermissions(permissions);
-      expect(PermissionsGetter.permissions.collections).toBeObject();
-      expect(PermissionsGetter.permissions.collections.data).toStrictEqual(permissions);
-      expect(new Date(PermissionsGetter.permissions.collections.lastRetrieve)).toBeValidDate();
+      const permissionsGetter = new PermissionsGetter(defaultDependencies);
+      permissionsGetter._setCollectionsPermissions(permissions);
+      expect(permissionsGetter.permissions.collections).toBeObject();
+      expect(permissionsGetter.permissions.collections.data).toStrictEqual(permissions);
+      expect(new Date(permissionsGetter.permissions.collections.lastRetrieve)).toBeValidDate();
     });
   });
 
   describe('_setRolesACLPermissions', () => {
     it('should set the permissions', () => {
       expect.assertions(2);
-      PermissionsGetter.cleanCache();
 
       const permissions = {
         collections: 'collectionsPermissions',
@@ -43,10 +50,12 @@ describe('services > PermissionsGetter', () => {
         },
       };
 
-      const setRenderingPermissionsSpy = Sinon.spy(PermissionsGetter, '_setRenderingPermissions');
-      const setCollectionsPermissionsSpy = Sinon.spy(PermissionsGetter, '_setCollectionsPermissions');
+      const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
-      PermissionsGetter._setRolesACLPermissions(1, permissions);
+      const setRenderingPermissionsSpy = Sinon.spy(permissionsGetter, '_setRenderingPermissions');
+      const setCollectionsPermissionsSpy = Sinon.spy(permissionsGetter, '_setCollectionsPermissions');
+
+      permissionsGetter._setRolesACLPermissions(1, permissions);
       expect(setRenderingPermissionsSpy.calledOnceWith(1, 'renderingPermissions')).toBeTrue();
       expect(setCollectionsPermissionsSpy.calledOnceWith('collectionsPermissions')).toBeTrue();
 
@@ -59,9 +68,7 @@ describe('services > PermissionsGetter', () => {
     describe('when isRolesACLActivated is true', () => {
       it('should set the permissions', () => {
         expect.assertions(2);
-        PermissionsGetter.cleanCache();
 
-        PermissionsGetter.isRolesACLActivated = true;
         const permissions = {
           collections: 'collectionsPermissions',
           renderings: {
@@ -69,10 +76,13 @@ describe('services > PermissionsGetter', () => {
           },
         };
 
-        const setRolesACLPermissionsSpy = Sinon.spy(PermissionsGetter, '_setRolesACLPermissions');
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter.isRolesACLActivated = true;
+
+        const setRolesACLPermissionsSpy = Sinon.spy(permissionsGetter, '_setRolesACLPermissions');
         const transformPermissionsFromOldToNewFormatSpy = Sinon.spy(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
-        PermissionsGetter._setPermissions(1, permissions);
+        permissionsGetter._setPermissions(1, permissions);
         expect(setRolesACLPermissionsSpy.calledOnceWith(1, permissions)).toBeTrue();
         expect(transformPermissionsFromOldToNewFormatSpy.notCalled).toBeTrue();
 
@@ -84,16 +94,16 @@ describe('services > PermissionsGetter', () => {
     describe('when isRolesACLActivated is false', () => {
       it('should set the permissions', () => {
         expect.assertions(3);
-        PermissionsGetter.cleanCache();
 
-        PermissionsGetter.isRolesACLActivated = false;
         const permissions = {};
 
-        const setRenderingPermissionsSpy = Sinon.spy(PermissionsGetter, '_setRenderingPermissions');
-        const setCollectionsPermissionsSpy = Sinon.spy(PermissionsGetter, '_setCollectionsPermissions');
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter.isRolesACLActivated = false;
+        const setRenderingPermissionsSpy = Sinon.spy(permissionsGetter, '_setRenderingPermissions');
+        const setCollectionsPermissionsSpy = Sinon.spy(permissionsGetter, '_setCollectionsPermissions');
         const transformPermissionsFromOldToNewFormatSpy = Sinon.spy(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
-        PermissionsGetter._setPermissions(1, permissions);
+        permissionsGetter._setPermissions(1, permissions);
         expect(setRenderingPermissionsSpy.calledOnceWith(1, permissions)).toBeTrue();
         expect(setCollectionsPermissionsSpy.notCalled).toBeTrue();
         expect(transformPermissionsFromOldToNewFormatSpy.calledOnceWith(permissions)).toBeTrue();
@@ -110,9 +120,11 @@ describe('services > PermissionsGetter', () => {
       describe('when permissions are expired', () => {
         it('should return true', () => {
           expect.assertions(1);
-          PermissionsGetter.cleanCache();
-          PermissionsGetter.isRolesACLActivated = true;
-          PermissionsGetter.permissions = {
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+          permissionsGetter.isRolesACLActivated = true;
+          permissionsGetter.permissions = {
             collections: {
               lastRetrieve: moment('1998-07-15'),
             },
@@ -123,16 +135,18 @@ describe('services > PermissionsGetter', () => {
             },
           };
 
-          expect(PermissionsGetter._isRegularRetrievalRequired(1)).toBeTrue();
+          expect(permissionsGetter._isRegularRetrievalRequired(1)).toBeTrue();
         });
       });
 
       describe('when permissions are not expired', () => {
         it('should return false', () => {
           expect.assertions(1);
-          PermissionsGetter.cleanCache();
-          PermissionsGetter.isRolesACLActivated = true;
-          PermissionsGetter.permissions = {
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+          permissionsGetter.isRolesACLActivated = true;
+          permissionsGetter.permissions = {
             collections: {
               lastRetrieve: moment(),
             },
@@ -143,7 +157,7 @@ describe('services > PermissionsGetter', () => {
             },
           };
 
-          expect(PermissionsGetter._isRegularRetrievalRequired(1)).toBeFalse();
+          expect(permissionsGetter._isRegularRetrievalRequired(1)).toBeFalse();
         });
       });
     });
@@ -157,10 +171,12 @@ describe('services > PermissionsGetter', () => {
         describe(`when called with ${permissionName}`, () => {
           it('should return false', () => {
             expect.assertions(1);
-            PermissionsGetter.cleanCache();
-            PermissionsGetter.isRolesACLActivated = true;
 
-            expect(PermissionsGetter._isRenderingOnlyRetrievalRequired(1, permissionName))
+            const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+            permissionsGetter.isRolesACLActivated = true;
+
+            expect(permissionsGetter._isRenderingOnlyRetrievalRequired(1, permissionName))
               .toBeFalse();
           });
         });
@@ -169,20 +185,24 @@ describe('services > PermissionsGetter', () => {
         describe('when permissions are expired', () => {
           it('should return true', () => {
             expect.assertions(1);
-            PermissionsGetter.cleanCache();
-            PermissionsGetter.isRolesACLActivated = true;
 
-            expect(PermissionsGetter._isRenderingOnlyRetrievalRequired(1, 'browseEnabled')).toBeTrue();
+            const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+            permissionsGetter.isRolesACLActivated = true;
+
+            expect(permissionsGetter._isRenderingOnlyRetrievalRequired(1, 'browseEnabled')).toBeTrue();
           });
         });
 
         describe('when permissions are not expired', () => {
           it('should return true', () => {
             expect.assertions(1);
-            PermissionsGetter.cleanCache();
-            PermissionsGetter.isRolesACLActivated = true;
 
-            PermissionsGetter.permissions = {
+            const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+            permissionsGetter.isRolesACLActivated = true;
+
+            permissionsGetter.permissions = {
               renderings: {
                 1: {
                   lastRetrieve: moment(),
@@ -190,7 +210,7 @@ describe('services > PermissionsGetter', () => {
               },
             };
 
-            expect(PermissionsGetter._isRenderingOnlyRetrievalRequired(1, 'browseEnabled')).toBeFalse();
+            expect(permissionsGetter._isRenderingOnlyRetrievalRequired(1, 'browseEnabled')).toBeFalse();
           });
         });
       });
@@ -199,10 +219,12 @@ describe('services > PermissionsGetter', () => {
     describe('when isRolesACLActivated is false', () => {
       it('should return false', () => {
         expect.assertions(1);
-        PermissionsGetter.cleanCache();
-        PermissionsGetter.isRolesACLActivated = false;
 
-        expect(PermissionsGetter._isRenderingOnlyRetrievalRequired(1, 'browseEnabled')).toBeFalse();
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+        permissionsGetter.isRolesACLActivated = false;
+
+        expect(permissionsGetter._isRenderingOnlyRetrievalRequired(1, 'browseEnabled')).toBeFalse();
       });
     });
   });
@@ -211,9 +233,8 @@ describe('services > PermissionsGetter', () => {
     describe('with forceRetrieve true', () => {
       it('should call _retrievePermissions', () => {
         expect.assertions(1);
-        PermissionsGetter.cleanCache();
 
-        const permissionsGetter = new PermissionsGetter('envSecret');
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
         Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { forceRetrieve: true });
@@ -227,11 +248,10 @@ describe('services > PermissionsGetter', () => {
     describe('when global permissions are expired', () => {
       it('should call _retrievePermissions', () => {
         expect.assertions(1);
-        PermissionsGetter.cleanCache();
 
-        const permissionsGetter = new PermissionsGetter('envSecret');
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
         Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
-        Sinon.replace(PermissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(true));
+        Sinon.replace(permissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(true));
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled');
 
@@ -244,12 +264,11 @@ describe('services > PermissionsGetter', () => {
     describe('when rendering permissions are expired', () => {
       it('should call _retrievePermissions with renderingOnly true', () => {
         expect.assertions(1);
-        PermissionsGetter.cleanCache();
 
-        const permissionsGetter = new PermissionsGetter('envSecret');
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
         Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
-        Sinon.replace(PermissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(false));
-        Sinon.replace(PermissionsGetter, '_isRenderingOnlyRetrievalRequired', Sinon.fake.returns(true));
+        Sinon.replace(permissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(false));
+        Sinon.replace(permissionsGetter, '_isRenderingOnlyRetrievalRequired', Sinon.fake.returns(true));
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled');
 
@@ -263,12 +282,11 @@ describe('services > PermissionsGetter', () => {
     describe('when permissions are not expired', () => {
       it('should not call _retrievePermissions', () => {
         expect.assertions(1);
-        PermissionsGetter.cleanCache();
 
-        const permissionsGetter = new PermissionsGetter('envSecret');
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
         Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
-        Sinon.replace(PermissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(false));
-        Sinon.replace(PermissionsGetter, '_isRenderingOnlyRetrievalRequired', Sinon.fake.returns(false));
+        Sinon.replace(permissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(false));
+        Sinon.replace(permissionsGetter, '_isRenderingOnlyRetrievalRequired', Sinon.fake.returns(false));
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled');
 
@@ -281,44 +299,58 @@ describe('services > PermissionsGetter', () => {
 
   describe('_retrievePermissions', () => {
     describe('when renderingOnly is false', () => {
-      it('should call forestServerRequester with the right parameters', () => {
-        expect.assertions(1);
-        PermissionsGetter.cleanCache();
+      it('should call forestServerRequester with the right parameters', async () => {
+        expect.assertions(2);
 
-        const permissionsGetter = new PermissionsGetter('envSecret');
         const fakeResponse = {
           data: {},
           meta: {},
         };
-        Sinon.replace(forestServerRequester, 'perform', Sinon.fake.returns(fakeResponse));
+        const mockForestServerRequesterPerform = jest.fn(async () => fakeResponse);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          configStore: {
+            lianaOptions: {
+              envSecret: 'envSecret',
+            },
+          },
+          forestServerRequester: {
+            perform: mockForestServerRequesterPerform,
+          },
+        });
 
-        permissionsGetter._retrievePermissions(1);
+        await permissionsGetter._retrievePermissions(1);
 
-        expect(forestServerRequester.perform.calledOnceWith('/liana/v3/permissions', 'envSecret', { renderingId: 1 })).toBeTrue();
-
-        Sinon.restore();
+        expect(mockForestServerRequesterPerform).toHaveBeenCalledTimes(1);
+        expect(mockForestServerRequesterPerform).toHaveBeenCalledWith('/liana/v3/permissions', 'envSecret', { renderingId: 1 });
       });
     });
 
     describe('when renderingOnly is true', () => {
-      it('should call forestServerRequester with renderingOnly true', () => {
-        expect.assertions(1);
-        PermissionsGetter.cleanCache();
+      it('should call forestServerRequester with renderingOnly true', async () => {
+        expect.assertions(2);
 
-        const permissionsGetter = new PermissionsGetter('envSecret');
         const fakeResponse = {
           data: {},
           meta: {},
         };
-        Sinon.replace(forestServerRequester, 'perform', Sinon.fake.returns(fakeResponse));
+        const mockForestServerRequesterPerform = jest.fn(async () => fakeResponse);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          configStore: {
+            lianaOptions: {
+              envSecret: 'envSecret',
+            },
+          },
+          forestServerRequester: {
+            perform: mockForestServerRequesterPerform,
+          },
+        });
 
-        permissionsGetter._retrievePermissions(1, { renderingOnly: true });
+        await permissionsGetter._retrievePermissions(1, { renderingOnly: true });
 
-        expect(forestServerRequester.perform
-          .calledOnceWith('/liana/v3/permissions', 'envSecret', { renderingId: 1, renderingSpecificOnly: true }))
-          .toBeTrue();
-
-        Sinon.restore();
+        expect(mockForestServerRequesterPerform).toHaveBeenCalledTimes(1);
+        expect(mockForestServerRequesterPerform).toHaveBeenCalledWith('/liana/v3/permissions', 'envSecret', { renderingId: 1, renderingSpecificOnly: true });
       });
     });
   });

@@ -1,4 +1,7 @@
 const fs = require('fs');
+const moment = require('moment');
+const VError = require('verror');
+
 const superagentRequest = require('superagent');
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
@@ -14,6 +17,10 @@ const ApimapSorter = require('../services/apimap-sorter');
 const ApimapSender = require('../services/apimap-sender');
 const ApimapFieldsFormater = require('../services/apimap-fields-formater');
 const AuthorizationFinder = require('../services/authorization-finder');
+const baseFilterParser = require('../services/base-filters-parser');
+const ConfigStore = require('../services/config-store');
+const PermissionsChecker = require('../services/permissions-checker');
+const PermissionsGetter = require('../services/permissions-getter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const SmartActionHook = require('../services/smart-action-hook');
 const schemasGenerator = require('../generators/schemas');
@@ -40,6 +47,8 @@ function initValue(context) {
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
  *  apimapSender: import('../services/apimap-sender');
+ *  permissionsChecker: import('../services/permissions-checker');
+ *  permissionsGetter: import('../services/permissions-getter');
  *  smartActionHook: import('../services/smart-action-hook');
  *  schemasGenerator: import('../generators/schemas');
  * }} Services
@@ -65,6 +74,15 @@ function initUtils(context) {
 /**
  * @param {ApplicationContext} context
  */
+function initEnv(context) {
+  context.addInstance('env', {
+    ...process.env,
+  });
+}
+
+/**
+ * @param {ApplicationContext} context
+ */
 function initServices(context) {
   context.addInstance('logger', logger);
   context.addInstance('pathService', pathService);
@@ -72,6 +90,10 @@ function initServices(context) {
   context.addInstance('ipWhitelist', ipWhitelist);
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('schemasGenerator', schemasGenerator);
+  context.addInstance('baseFilterParser', baseFilterParser);
+  context.addInstance('configStore', ConfigStore.getInstance());
+  context.addClass(PermissionsGetter);
+  context.addClass(PermissionsChecker);
   context.addClass(ApimapFieldsFormater);
   context.addClass(AuthorizationFinder);
   context.addClass(ApimapSorter);
@@ -86,6 +108,8 @@ function initServices(context) {
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
+  context.addInstance('moment', moment);
+  context.addInstance('VError', VError);
 }
 
 /**
@@ -94,6 +118,7 @@ function initExternals(context) {
 function initContext(context) {
   initExternals(context);
   initValue(context);
+  initEnv(context);
   initUtils(context);
   initServices(context);
 }
