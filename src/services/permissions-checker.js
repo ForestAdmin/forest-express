@@ -135,9 +135,12 @@ class PermissionsChecker {
     }
   }
 
-  async checkPermissions(renderingId, collectionName, permissionName, permissionInfos) {
-    const getPermissions = async (forceRetrieve) => this.permissionsGetter
-      .getPermissions(renderingId, collectionName, permissionName, { forceRetrieve });
+  async checkPermissions(
+    renderingId, collectionName, permissionName, permissionInfos, storePermissionsInto = undefined,
+  ) {
+    const getPermissions = async (forceRetrieve) => this.permissionsGetter.getPermissions(
+      renderingId, collectionName, permissionName, { forceRetrieve, storePermissionsInto },
+    );
     const isAllowed = async ({ forceRetrieve = false } = {}) => this._isAllowed(
       await getPermissions(forceRetrieve),
       permissionName,

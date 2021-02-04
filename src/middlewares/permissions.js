@@ -8,9 +8,10 @@ const getRenderingIdFromUser = (user) => user.renderingId;
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
-    const { logger, permissionsChecker } = context.inject();
+    const { configStore, logger, permissionsChecker } = context.inject();
     this.logger = logger;
     this.permissionsChecker = permissionsChecker;
+    this.configStore = configStore;
   }
 
   _getSmartActionInfoFromRequest(request) {
@@ -37,7 +38,7 @@ class PermissionMiddlewareCreator {
   }
 
   _checkPermission(permissionName) {
-    return (request, response, next) => {
+    return async (request, response, next) => {
       const renderingId = getRenderingIdFromUser(request.user);
       let permissionInfos;
       switch (permissionName) {
@@ -51,13 +52,18 @@ class PermissionMiddlewareCreator {
           permissionInfos = { userId: request.user.id };
       }
 
-      return this.permissionsChecker
-        .checkPermissions(renderingId, this.collectionName, permissionName, permissionInfos)
-        .then(next)
-        .catch((error) => {
-          this.logger.error(error.message);
-          next(httpError(403));
-        });
+      const storePermissionsInto = this.configStore.lianaOptions.multiplePermissionsCache
+        ? this.configStore.lianaOptions.multiplePermissionsCache.getStorePermissionsIntoKey(request)
+        : null;
+      try {
+        await this.permissionsChecker.checkPermissions(
+          renderingId, this.collectionName, permissionName, permissionInfos, storePermissionsInto,
+        );
+        next();
+      } catch (error) {
+        this.logger.error(error);
+        next(httpError(403));
+      }
     };
   }
 

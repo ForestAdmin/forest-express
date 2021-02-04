@@ -1,6 +1,5 @@
 const moment = require('moment');
 const VError = require('verror');
-const Sinon = require('sinon');
 const PermissionsGetter = require('../../src/services/permissions-getter');
 
 describe('services > PermissionsGetter', () => {
@@ -12,17 +11,70 @@ describe('services > PermissionsGetter', () => {
     VError,
   };
 
+  describe('_getPermissions', () => {
+    it('should retrieve the permissions', () => {
+      expect.assertions(1);
+
+      const permissionsGetter = new PermissionsGetter(defaultDependencies);
+      permissionsGetter.permissions = { test: 'me' };
+
+      expect(permissionsGetter._getPermissions()).toStrictEqual({ test: 'me' });
+    });
+
+    describe('with storePermissionsInto', () => {
+      it('should retrieve the permissions', () => {
+        expect.assertions(3);
+
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter.permissions = { test: 'me' };
+
+        expect(permissionsGetter._getPermissions({ storePermissionsInto: 'test' })).toStrictEqual('me');
+        expect(permissionsGetter._getPermissions({ storePermissionsInto: 'unknown' })).toBeUndefined();
+        expect(permissionsGetter._getPermissions({ storePermissionsInto: 'unknown', initIfNotExisting: true })).toStrictEqual({});
+      });
+    });
+  });
+
   describe('_setRenderingPermissions', () => {
     it('should set the permissions', () => {
-      expect.assertions(4);
+      expect.assertions(5);
 
       const permissions = 'superPermissions';
       const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+      jest.spyOn(permissionsGetter, '_getPermissions');
+
       permissionsGetter._setRenderingPermissions(1, permissions);
+
       expect(permissionsGetter.permissions.renderings).toBeObject();
       expect(permissionsGetter.permissions.renderings[1]).toBeObject();
       expect(permissionsGetter.permissions.renderings[1].data).toStrictEqual(permissions);
       expect(new Date(permissionsGetter.permissions.renderings[1].lastRetrieve)).toBeValidDate();
+      expect(permissionsGetter._getPermissions)
+        .toHaveBeenCalledWith({ initIfNotExisting: true, storePermissionsInto: undefined });
+    });
+
+    describe('with storePermissionsInto', () => {
+      it('should set correctly the permissions', () => {
+        expect.assertions(6);
+
+        const storePermissionsInto = 100;
+        const permissions = 'superPermissions';
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+        jest.spyOn(permissionsGetter, '_getPermissions');
+
+        permissionsGetter._setRenderingPermissions(1, permissions, { storePermissionsInto });
+
+        const permissionsToCheck = permissionsGetter.permissions[storePermissionsInto];
+        expect(permissionsToCheck).toBeObject();
+        expect(permissionsToCheck.renderings).toBeObject();
+        expect(permissionsToCheck.renderings[1]).toBeObject();
+        expect(permissionsToCheck.renderings[1].data).toStrictEqual(permissions);
+        expect(new Date(permissionsToCheck.renderings[1].lastRetrieve)).toBeValidDate();
+        expect(permissionsGetter._getPermissions)
+          .toHaveBeenCalledWith({ storePermissionsInto, initIfNotExisting: true });
+      });
     });
   });
 
@@ -32,16 +84,33 @@ describe('services > PermissionsGetter', () => {
 
       const permissions = 'superPermissions';
       const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
       permissionsGetter._setCollectionsPermissions(permissions);
       expect(permissionsGetter.permissions.collections).toBeObject();
       expect(permissionsGetter.permissions.collections.data).toStrictEqual(permissions);
       expect(new Date(permissionsGetter.permissions.collections.lastRetrieve)).toBeValidDate();
     });
+
+    describe('with storePermissionsInto', () => {
+      it('should set correctly the permissions', () => {
+        expect.assertions(4);
+
+        const storePermissionsInto = 100;
+        const permissions = 'superPermissions';
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter._setCollectionsPermissions(permissions, { storePermissionsInto });
+        const permissionsToCheck = permissionsGetter.permissions[storePermissionsInto];
+        expect(permissionsToCheck).toBeObject();
+        expect(permissionsToCheck.collections).toBeObject();
+        expect(permissionsToCheck.collections.data).toStrictEqual(permissions);
+        expect(new Date(permissionsToCheck.collections.lastRetrieve)).toBeValidDate();
+      });
+    });
   });
 
   describe('_setRolesACLPermissions', () => {
     it('should set the permissions', () => {
-      expect.assertions(2);
+      expect.assertions(4);
 
       const permissions = {
         collections: 'collectionsPermissions',
@@ -52,22 +121,46 @@ describe('services > PermissionsGetter', () => {
 
       const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
-      const setRenderingPermissionsSpy = Sinon.spy(permissionsGetter, '_setRenderingPermissions');
-      const setCollectionsPermissionsSpy = Sinon.spy(permissionsGetter, '_setCollectionsPermissions');
+      jest.spyOn(permissionsGetter, '_setRenderingPermissions');
+      jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
 
       permissionsGetter._setRolesACLPermissions(1, permissions);
-      expect(setRenderingPermissionsSpy.calledOnceWith(1, 'renderingPermissions')).toBeTrue();
-      expect(setCollectionsPermissionsSpy.calledOnceWith('collectionsPermissions')).toBeTrue();
+      expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
+      expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledWith(1, 'renderingPermissions', { storePermissionsInto: undefined });
+      expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledTimes(1);
+      expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledWith('collectionsPermissions', { storePermissionsInto: undefined });
+    });
 
-      setRenderingPermissionsSpy.restore();
-      setCollectionsPermissionsSpy.restore();
+    describe('with storePermissionsInto', () => {
+      it('should set correctly the permissions', () => {
+        expect.assertions(4);
+
+        const storePermissionsInto = {};
+        const permissions = {
+          collections: 'collectionsPermissions',
+          renderings: {
+            1: 'renderingPermissions',
+          },
+        };
+
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+        jest.spyOn(permissionsGetter, '_setRenderingPermissions').mockImplementation();
+        jest.spyOn(permissionsGetter, '_setCollectionsPermissions').mockImplementation();
+
+        permissionsGetter._setRolesACLPermissions(1, permissions, { storePermissionsInto });
+        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledWith(1, 'renderingPermissions', { storePermissionsInto });
+        expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledWith('collectionsPermissions', { storePermissionsInto });
+      });
     });
   });
 
   describe('_setPermissions', () => {
     describe('when isRolesACLActivated is true', () => {
       it('should set the permissions', () => {
-        expect.assertions(2);
+        expect.assertions(3);
 
         const permissions = {
           collections: 'collectionsPermissions',
@@ -79,38 +172,97 @@ describe('services > PermissionsGetter', () => {
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         permissionsGetter.isRolesACLActivated = true;
 
-        const setRolesACLPermissionsSpy = Sinon.spy(permissionsGetter, '_setRolesACLPermissions');
-        const transformPermissionsFromOldToNewFormatSpy = Sinon.spy(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
+        jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
+        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         permissionsGetter._setPermissions(1, permissions);
-        expect(setRolesACLPermissionsSpy.calledOnceWith(1, permissions)).toBeTrue();
-        expect(transformPermissionsFromOldToNewFormatSpy.notCalled).toBeTrue();
+        expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._setRolesACLPermissions)
+          .toHaveBeenCalledWith(1, permissions, { storePermissionsInto: undefined });
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
 
-        setRolesACLPermissionsSpy.restore();
-        transformPermissionsFromOldToNewFormatSpy.restore();
+        jest.restoreAllMocks();
+      });
+
+      describe('with storePermissionsInto', () => {
+        it('should set correctly the permissions', () => {
+          expect.assertions(3);
+
+          const storePermissionsInto = 100;
+          const permissions = {
+            collections: 'collectionsPermissions',
+            renderings: {
+              1: 'renderingPermissions',
+            },
+          };
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          permissionsGetter.isRolesACLActivated = true;
+
+          jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
+          jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
+
+          permissionsGetter._setPermissions(1, permissions, { storePermissionsInto });
+          expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
+          expect(permissionsGetter._setRolesACLPermissions)
+            .toHaveBeenCalledWith(1, permissions, { storePermissionsInto });
+          expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
+
+          jest.restoreAllMocks();
+        });
       });
     });
 
     describe('when isRolesACLActivated is false', () => {
       it('should set the permissions', () => {
-        expect.assertions(3);
+        expect.assertions(5);
 
         const permissions = {};
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         permissionsGetter.isRolesACLActivated = false;
-        const setRenderingPermissionsSpy = Sinon.spy(permissionsGetter, '_setRenderingPermissions');
-        const setCollectionsPermissionsSpy = Sinon.spy(permissionsGetter, '_setCollectionsPermissions');
-        const transformPermissionsFromOldToNewFormatSpy = Sinon.spy(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
+        jest.spyOn(permissionsGetter, '_setRenderingPermissions');
+        jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
+        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         permissionsGetter._setPermissions(1, permissions);
-        expect(setRenderingPermissionsSpy.calledOnceWith(1, permissions)).toBeTrue();
-        expect(setCollectionsPermissionsSpy.notCalled).toBeTrue();
-        expect(transformPermissionsFromOldToNewFormatSpy.calledOnceWith(permissions)).toBeTrue();
 
-        setRenderingPermissionsSpy.restore();
-        setCollectionsPermissionsSpy.restore();
-        transformPermissionsFromOldToNewFormatSpy.restore();
+        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._setRenderingPermissions)
+          .toHaveBeenCalledWith(1, permissions, { storePermissionsInto: undefined });
+        expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
+          .toHaveBeenCalledWith(permissions);
+
+        jest.restoreAllMocks();
+      });
+    });
+
+    describe('with storePermissionsInto', () => {
+      it('should set the permissions', () => {
+        expect.assertions(5);
+
+        const storePermissionsInto = 100;
+        const permissions = {};
+
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter.isRolesACLActivated = false;
+        jest.spyOn(permissionsGetter, '_setRenderingPermissions');
+        jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
+        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
+
+        permissionsGetter._setPermissions(1, permissions, { storePermissionsInto });
+
+        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._setRenderingPermissions)
+          .toHaveBeenCalledWith(1, permissions, { storePermissionsInto });
+        expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
+          .toHaveBeenCalledWith(permissions);
+
+        jest.restoreAllMocks();
       });
     });
   });
@@ -137,6 +289,31 @@ describe('services > PermissionsGetter', () => {
 
           expect(permissionsGetter._isRegularRetrievalRequired(1)).toBeTrue();
         });
+
+        describe('with storePermissionsInto', () => {
+          it('should return true', () => {
+            expect.assertions(2);
+
+            const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+            permissionsGetter.isRolesACLActivated = true;
+            permissionsGetter.permissions = {
+              nested: {
+                collections: {
+                  lastRetrieve: moment('1998-07-15'),
+                },
+                renderings: {
+                  1: {
+                    lastRetrieve: moment(),
+                  },
+                },
+              },
+            };
+
+            expect(permissionsGetter._isRegularRetrievalRequired(1, { storePermissionsInto: 'nested' })).toBeTrue();
+            expect(permissionsGetter._isRegularRetrievalRequired(1, { storePermissionsInto: 'unknown' })).toBeTrue();
+          });
+        });
       });
 
       describe('when permissions are not expired', () => {
@@ -158,6 +335,32 @@ describe('services > PermissionsGetter', () => {
           };
 
           expect(permissionsGetter._isRegularRetrievalRequired(1)).toBeFalse();
+        });
+
+        describe('with storePermissionsInto', () => {
+          it('should return false', () => {
+            expect.assertions(1);
+
+            const permissionsGetter = new PermissionsGetter(defaultDependencies);
+
+            const storePermissionsInto = 100;
+            permissionsGetter.isRolesACLActivated = true;
+            permissionsGetter.permissions = {
+              [storePermissionsInto]: {
+                collections: {
+                  lastRetrieve: moment(),
+                },
+                renderings: {
+                  1: {
+                    lastRetrieve: moment('1998-07-15'),
+                  },
+                },
+              },
+            };
+
+            expect(permissionsGetter._isRegularRetrievalRequired(1, { storePermissionsInto }))
+              .toBeFalse();
+          });
         });
       });
     });
@@ -232,32 +435,49 @@ describe('services > PermissionsGetter', () => {
   describe('getPermissions', () => {
     describe('with forceRetrieve true', () => {
       it('should call _retrievePermissions', () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
-        Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
+        jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { forceRetrieve: true });
 
-        expect(permissionsGetter._retrievePermissions.calledOnceWithExactly(1)).toBeTrue();
-
-        Sinon.restore();
+        expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._retrievePermissions)
+          .toHaveBeenCalledWith(1, { storePermissionsInto: undefined });
       });
     });
 
     describe('when global permissions are expired', () => {
       it('should call _retrievePermissions', () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
-        Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
-        Sinon.replace(permissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(true));
+        jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
+        jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(true);
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled');
 
-        expect(permissionsGetter._retrievePermissions.calledOnceWithExactly(1)).toBeTrue();
+        expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._retrievePermissions)
+          .toHaveBeenCalledWith(1, { storePermissionsInto: undefined });
+      });
 
-        Sinon.restore();
+      describe('with storePermissionsInto', () => {
+        it('should call _retrievePermissions', () => {
+          expect.assertions(2);
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
+          jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(true);
+
+          const storePermissionsInto = 1000;
+          permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { storePermissionsInto });
+
+          expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
+          expect(permissionsGetter._retrievePermissions)
+            .toHaveBeenCalledWith(1, { storePermissionsInto });
+        });
       });
     });
 
@@ -266,16 +486,32 @@ describe('services > PermissionsGetter', () => {
         expect.assertions(1);
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
-        Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
-        Sinon.replace(permissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(false));
-        Sinon.replace(permissionsGetter, '_isRenderingOnlyRetrievalRequired', Sinon.fake.returns(true));
+        jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
+        jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
+        jest.spyOn(permissionsGetter, '_isRenderingOnlyRetrievalRequired').mockImplementation().mockReturnValue(true);
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled');
 
-        expect(permissionsGetter
-          ._retrievePermissions.calledOnceWithExactly(1, { renderingOnly: true })).toBeTrue();
+        expect(permissionsGetter._retrievePermissions)
+          .toHaveBeenCalledWith(1, { renderingOnly: true });
+      });
 
-        Sinon.restore();
+      describe('with storePermissionsInto', () => {
+        it('should call _retrievePermissions with renderingOnly true', () => {
+          expect.assertions(2);
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
+          jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
+          jest.spyOn(permissionsGetter, '_isRenderingOnlyRetrievalRequired').mockImplementation().mockReturnValue(true);
+
+          const storePermissionsInto = 1000;
+          permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { storePermissionsInto });
+
+          expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
+          expect(permissionsGetter._retrievePermissions)
+            .toHaveBeenCalledWith(1, { storePermissionsInto, renderingOnly: true });
+        });
       });
     });
 
@@ -284,15 +520,13 @@ describe('services > PermissionsGetter', () => {
         expect.assertions(1);
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
-        Sinon.replace(permissionsGetter, '_retrievePermissions', Sinon.fake());
-        Sinon.replace(permissionsGetter, '_isRegularRetrievalRequired', Sinon.fake.returns(false));
-        Sinon.replace(permissionsGetter, '_isRenderingOnlyRetrievalRequired', Sinon.fake.returns(false));
+        jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
+        jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
+        jest.spyOn(permissionsGetter, '_isRenderingOnlyRetrievalRequired').mockImplementation().mockReturnValue(false);
 
         permissionsGetter.getPermissions(1, 'Users', 'addEnabled');
 
-        expect(permissionsGetter._retrievePermissions.notCalled).toBeTrue();
-
-        Sinon.restore();
+        expect(permissionsGetter._retrievePermissions).not.toHaveBeenCalled();
       });
     });
   });
