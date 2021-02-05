@@ -11,20 +11,30 @@
 
 * **authentication:** all previous authentication routes have been removed
 
-# [8.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.10...v8.0.0-beta.11) (2021-01-08)
-
-
-### Bug Fixes
-
-* **authentication:** error when authenticating with an invalid token in cookies ([#611](https://github.com/ForestAdmin/forest-express/issues/611)) ([e6d6737](https://github.com/ForestAdmin/forest-express/commit/e6d6737c896c882ebc774ddee2be90337c787c2b))
-
-# [8.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.9...v8.0.0-beta.10) (2021-01-06)
+## [7.9.6](https://github.com/ForestAdmin/forest-express/compare/v7.9.5...v7.9.6) (2021-01-20)
 
 
 ### Bug Fixes
 
 * user being disconnected after 33min instead of 14 days ([#610](https://github.com/ForestAdmin/forest-express/issues/610)) ([80580e7](https://github.com/ForestAdmin/forest-express/commit/80580e710a7764d1fe4d7ec912352d74594cd685))
 
+## [7.9.5](https://github.com/ForestAdmin/forest-express/compare/v7.9.4...v7.9.5) (2021-01-14)
+
+
+### Bug Fixes
+
+* display correct reference field when it is a smartfield ([#602](https://github.com/ForestAdmin/forest-express/issues/602)) ([a797a7a](https://github.com/ForestAdmin/forest-express/commit/a797a7a5f815692d75482bdbbd8782e4373b9b00))
+* fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
+* fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
+* **forestadmin-schema:** regenerate forestadmin schema only when files are valid ([#614](https://github.com/ForestAdmin/forest-express/issues/614)) ([c26c385](https://github.com/ForestAdmin/forest-express/commit/c26c385322dd96d5f1f2b9f84988a968312cd1fb))
+
+# [8.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.10...v8.0.0-beta.11) (2021-01-08)
+
+### Bug Fixes
+
+* **authentication:** error when authenticating with an invalid token in cookies ([#611](https://github.com/ForestAdmin/forest-express/issues/611)) ([e6d6737](https://github.com/ForestAdmin/forest-express/commit/e6d6737c896c882ebc774ddee2be90337c787c2b))
+
+# [8.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.9...v8.0.0-beta.10) (2021-01-06)
 # [8.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.8...v8.0.0-beta.9) (2021-01-05)
 
 
@@ -42,13 +52,7 @@
 # [8.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.6...v8.0.0-beta.7) (2020-12-23)
 
 # [8.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.5...v8.0.0-beta.6) (2020-12-23)
-
-
-### Bug Fixes
-
-* display correct reference field when it is a smartfield ([#602](https://github.com/ForestAdmin/forest-express/issues/602)) ([a797a7a](https://github.com/ForestAdmin/forest-express/commit/a797a7a5f815692d75482bdbbd8782e4373b9b00))
-* fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
-* fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
+* **smart-action-hook:** value injected to an enum field of type `[Enum]` is now correctly handled ([#617](https://github.com/ForestAdmin/forest-express/issues/617)) ([98a6859](https://github.com/ForestAdmin/forest-express/commit/98a685920acf7b3723cfff106bc30fec6c468890))
 
 ## [7.9.4](https://github.com/ForestAdmin/forest-express/compare/v7.9.3...v7.9.4) (2020-12-21)
 
