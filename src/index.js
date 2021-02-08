@@ -382,6 +382,7 @@ exports.collection = (name, opts) => {
   }
 };
 
+exports.SessionRoute = SessionRoute;
 exports.StatSerializer = require('./serializers/stat');
 exports.ResourceSerializer = require('./serializers/resource');
 exports.ResourceDeserializer = require('./deserializers/resource');
