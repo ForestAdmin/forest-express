@@ -1,3 +1,11 @@
+# [8.0.0-beta.13](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.12...v8.0.0-beta.13) (2021-02-08)
+
+
+### Bug Fixes
+
+* **forestadmin-schema:** regenerate forestadmin schema only when files are valid ([#614](https://github.com/ForestAdmin/forest-express/issues/614)) ([c26c385](https://github.com/ForestAdmin/forest-express/commit/c26c385322dd96d5f1f2b9f84988a968312cd1fb))
+* **smart-action-hook:** value injected to an enum field of type `[Enum]` is now correctly handled ([#617](https://github.com/ForestAdmin/forest-express/issues/617)) ([98a6859](https://github.com/ForestAdmin/forest-express/commit/98a685920acf7b3723cfff106bc30fec6c468890))
+
 # [8.0.0-beta.12](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.11...v8.0.0-beta.12) (2021-02-02)
 
 
