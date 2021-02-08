@@ -27,6 +27,8 @@ jobs:
         run: yarn install --frozen-lockfile --non-interactive --production=false
       - name: Lint commit message
         uses: wagoid/commitlint-github-action@v2
+        with:
+          firstParent: true
       - name: lint Javascript
         run: yarn lint
 
