@@ -52,12 +52,12 @@ class PermissionMiddlewareCreator {
           permissionInfos = { userId: request.user.id };
       }
 
-      const storePermissionsInto = this.configStore.lianaOptions.multiplePermissionsCache
-        ? this.configStore.lianaOptions.multiplePermissionsCache.getStorePermissionsIntoKey(request)
+      const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
+        ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentIdKey(request)
         : null;
       try {
         await this.permissionsChecker.checkPermissions(
-          renderingId, this.collectionName, permissionName, permissionInfos, storePermissionsInto,
+          renderingId, this.collectionName, permissionName, permissionInfos, environmentId,
         );
         next();
       } catch (error) {

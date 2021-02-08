@@ -21,16 +21,16 @@ describe('services > PermissionsGetter', () => {
       expect(permissionsGetter._getPermissions()).toStrictEqual({ test: 'me' });
     });
 
-    describe('with storePermissionsInto', () => {
+    describe('with environmentId', () => {
       it('should retrieve the permissions', () => {
         expect.assertions(3);
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         permissionsGetter.permissions = { test: 'me' };
 
-        expect(permissionsGetter._getPermissions({ storePermissionsInto: 'test' })).toStrictEqual('me');
-        expect(permissionsGetter._getPermissions({ storePermissionsInto: 'unknown' })).toBeUndefined();
-        expect(permissionsGetter._getPermissions({ storePermissionsInto: 'unknown', initIfNotExisting: true })).toStrictEqual({});
+        expect(permissionsGetter._getPermissions({ environmentId: 'test' })).toStrictEqual('me');
+        expect(permissionsGetter._getPermissions({ environmentId: 'unknown' })).toBeUndefined();
+        expect(permissionsGetter._getPermissions({ environmentId: 'unknown', initIfNotExisting: true })).toStrictEqual({});
       });
     });
   });
@@ -51,29 +51,29 @@ describe('services > PermissionsGetter', () => {
       expect(permissionsGetter.permissions.renderings[1].data).toStrictEqual(permissions);
       expect(new Date(permissionsGetter.permissions.renderings[1].lastRetrieve)).toBeValidDate();
       expect(permissionsGetter._getPermissions)
-        .toHaveBeenCalledWith({ initIfNotExisting: true, storePermissionsInto: undefined });
+        .toHaveBeenCalledWith({ initIfNotExisting: true, environmentId: undefined });
     });
 
-    describe('with storePermissionsInto', () => {
+    describe('with environmentId', () => {
       it('should set correctly the permissions', () => {
         expect.assertions(6);
 
-        const storePermissionsInto = 100;
+        const environmentId = 100;
         const permissions = 'superPermissions';
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
         jest.spyOn(permissionsGetter, '_getPermissions');
 
-        permissionsGetter._setRenderingPermissions(1, permissions, { storePermissionsInto });
+        permissionsGetter._setRenderingPermissions(1, permissions, { environmentId });
 
-        const permissionsToCheck = permissionsGetter.permissions[storePermissionsInto];
+        const permissionsToCheck = permissionsGetter.permissions[environmentId];
         expect(permissionsToCheck).toBeObject();
         expect(permissionsToCheck.renderings).toBeObject();
         expect(permissionsToCheck.renderings[1]).toBeObject();
         expect(permissionsToCheck.renderings[1].data).toStrictEqual(permissions);
         expect(new Date(permissionsToCheck.renderings[1].lastRetrieve)).toBeValidDate();
         expect(permissionsGetter._getPermissions)
-          .toHaveBeenCalledWith({ storePermissionsInto, initIfNotExisting: true });
+          .toHaveBeenCalledWith({ environmentId, initIfNotExisting: true });
       });
     });
   });
@@ -91,15 +91,15 @@ describe('services > PermissionsGetter', () => {
       expect(new Date(permissionsGetter.permissions.collections.lastRetrieve)).toBeValidDate();
     });
 
-    describe('with storePermissionsInto', () => {
+    describe('with environmentId', () => {
       it('should set correctly the permissions', () => {
         expect.assertions(4);
 
-        const storePermissionsInto = 100;
+        const environmentId = 100;
         const permissions = 'superPermissions';
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
-        permissionsGetter._setCollectionsPermissions(permissions, { storePermissionsInto });
-        const permissionsToCheck = permissionsGetter.permissions[storePermissionsInto];
+        permissionsGetter._setCollectionsPermissions(permissions, { environmentId });
+        const permissionsToCheck = permissionsGetter.permissions[environmentId];
         expect(permissionsToCheck).toBeObject();
         expect(permissionsToCheck.collections).toBeObject();
         expect(permissionsToCheck.collections.data).toStrictEqual(permissions);
@@ -126,16 +126,16 @@ describe('services > PermissionsGetter', () => {
 
       permissionsGetter._setRolesACLPermissions(1, permissions);
       expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
-      expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledWith(1, 'renderingPermissions', { storePermissionsInto: undefined });
+      expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledWith(1, 'renderingPermissions', { environmentId: undefined });
       expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledTimes(1);
-      expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledWith('collectionsPermissions', { storePermissionsInto: undefined });
+      expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledWith('collectionsPermissions', { environmentId: undefined });
     });
 
-    describe('with storePermissionsInto', () => {
+    describe('with environmentId', () => {
       it('should set correctly the permissions', () => {
         expect.assertions(4);
 
-        const storePermissionsInto = {};
+        const environmentId = {};
         const permissions = {
           collections: 'collectionsPermissions',
           renderings: {
@@ -148,11 +148,11 @@ describe('services > PermissionsGetter', () => {
         jest.spyOn(permissionsGetter, '_setRenderingPermissions').mockImplementation();
         jest.spyOn(permissionsGetter, '_setCollectionsPermissions').mockImplementation();
 
-        permissionsGetter._setRolesACLPermissions(1, permissions, { storePermissionsInto });
+        permissionsGetter._setRolesACLPermissions(1, permissions, { environmentId });
         expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
-        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledWith(1, 'renderingPermissions', { storePermissionsInto });
+        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledWith(1, 'renderingPermissions', { environmentId });
         expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledTimes(1);
-        expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledWith('collectionsPermissions', { storePermissionsInto });
+        expect(permissionsGetter._setCollectionsPermissions).toHaveBeenCalledWith('collectionsPermissions', { environmentId });
       });
     });
   });
@@ -178,17 +178,17 @@ describe('services > PermissionsGetter', () => {
         permissionsGetter._setPermissions(1, permissions);
         expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._setRolesACLPermissions)
-          .toHaveBeenCalledWith(1, permissions, { storePermissionsInto: undefined });
+          .toHaveBeenCalledWith(1, permissions, { environmentId: undefined });
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
 
         jest.restoreAllMocks();
       });
 
-      describe('with storePermissionsInto', () => {
+      describe('with environmentId', () => {
         it('should set correctly the permissions', () => {
           expect.assertions(3);
 
-          const storePermissionsInto = 100;
+          const environmentId = 100;
           const permissions = {
             collections: 'collectionsPermissions',
             renderings: {
@@ -202,10 +202,10 @@ describe('services > PermissionsGetter', () => {
           jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
           jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
-          permissionsGetter._setPermissions(1, permissions, { storePermissionsInto });
+          permissionsGetter._setPermissions(1, permissions, { environmentId });
           expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
           expect(permissionsGetter._setRolesACLPermissions)
-            .toHaveBeenCalledWith(1, permissions, { storePermissionsInto });
+            .toHaveBeenCalledWith(1, permissions, { environmentId });
           expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
 
           jest.restoreAllMocks();
@@ -229,7 +229,7 @@ describe('services > PermissionsGetter', () => {
 
         expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._setRenderingPermissions)
-          .toHaveBeenCalledWith(1, permissions, { storePermissionsInto: undefined });
+          .toHaveBeenCalledWith(1, permissions, { environmentId: undefined });
         expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
@@ -239,11 +239,11 @@ describe('services > PermissionsGetter', () => {
       });
     });
 
-    describe('with storePermissionsInto', () => {
+    describe('with environmentId', () => {
       it('should set the permissions', () => {
         expect.assertions(5);
 
-        const storePermissionsInto = 100;
+        const environmentId = 100;
         const permissions = {};
 
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
@@ -252,11 +252,11 @@ describe('services > PermissionsGetter', () => {
         jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
         jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
-        permissionsGetter._setPermissions(1, permissions, { storePermissionsInto });
+        permissionsGetter._setPermissions(1, permissions, { environmentId });
 
         expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._setRenderingPermissions)
-          .toHaveBeenCalledWith(1, permissions, { storePermissionsInto });
+          .toHaveBeenCalledWith(1, permissions, { environmentId });
         expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
@@ -290,7 +290,7 @@ describe('services > PermissionsGetter', () => {
           expect(permissionsGetter._isRegularRetrievalRequired(1)).toBeTrue();
         });
 
-        describe('with storePermissionsInto', () => {
+        describe('with environmentId', () => {
           it('should return true', () => {
             expect.assertions(2);
 
@@ -310,8 +310,8 @@ describe('services > PermissionsGetter', () => {
               },
             };
 
-            expect(permissionsGetter._isRegularRetrievalRequired(1, { storePermissionsInto: 'nested' })).toBeTrue();
-            expect(permissionsGetter._isRegularRetrievalRequired(1, { storePermissionsInto: 'unknown' })).toBeTrue();
+            expect(permissionsGetter._isRegularRetrievalRequired(1, { environmentId: 'nested' })).toBeTrue();
+            expect(permissionsGetter._isRegularRetrievalRequired(1, { environmentId: 'unknown' })).toBeTrue();
           });
         });
       });
@@ -337,16 +337,16 @@ describe('services > PermissionsGetter', () => {
           expect(permissionsGetter._isRegularRetrievalRequired(1)).toBeFalse();
         });
 
-        describe('with storePermissionsInto', () => {
+        describe('with environmentId', () => {
           it('should return false', () => {
             expect.assertions(1);
 
             const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
-            const storePermissionsInto = 100;
+            const environmentId = 100;
             permissionsGetter.isRolesACLActivated = true;
             permissionsGetter.permissions = {
-              [storePermissionsInto]: {
+              [environmentId]: {
                 collections: {
                   lastRetrieve: moment(),
                 },
@@ -358,7 +358,7 @@ describe('services > PermissionsGetter', () => {
               },
             };
 
-            expect(permissionsGetter._isRegularRetrievalRequired(1, { storePermissionsInto }))
+            expect(permissionsGetter._isRegularRetrievalRequired(1, { environmentId }))
               .toBeFalse();
           });
         });
@@ -444,7 +444,7 @@ describe('services > PermissionsGetter', () => {
 
         expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._retrievePermissions)
-          .toHaveBeenCalledWith(1, { storePermissionsInto: undefined });
+          .toHaveBeenCalledWith(1, { environmentId: undefined });
       });
     });
 
@@ -460,10 +460,10 @@ describe('services > PermissionsGetter', () => {
 
         expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._retrievePermissions)
-          .toHaveBeenCalledWith(1, { storePermissionsInto: undefined });
+          .toHaveBeenCalledWith(1, { environmentId: undefined });
       });
 
-      describe('with storePermissionsInto', () => {
+      describe('with environmentId', () => {
         it('should call _retrievePermissions', () => {
           expect.assertions(2);
 
@@ -471,12 +471,12 @@ describe('services > PermissionsGetter', () => {
           jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
           jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(true);
 
-          const storePermissionsInto = 1000;
-          permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { storePermissionsInto });
+          const environmentId = 1000;
+          permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { environmentId });
 
           expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
           expect(permissionsGetter._retrievePermissions)
-            .toHaveBeenCalledWith(1, { storePermissionsInto });
+            .toHaveBeenCalledWith(1, { environmentId });
         });
       });
     });
@@ -496,7 +496,7 @@ describe('services > PermissionsGetter', () => {
           .toHaveBeenCalledWith(1, { renderingOnly: true });
       });
 
-      describe('with storePermissionsInto', () => {
+      describe('with environmentId', () => {
         it('should call _retrievePermissions with renderingOnly true', () => {
           expect.assertions(2);
 
@@ -505,12 +505,12 @@ describe('services > PermissionsGetter', () => {
           jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
           jest.spyOn(permissionsGetter, '_isRenderingOnlyRetrievalRequired').mockImplementation().mockReturnValue(true);
 
-          const storePermissionsInto = 1000;
-          permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { storePermissionsInto });
+          const environmentId = 1000;
+          permissionsGetter.getPermissions(1, 'Users', 'addEnabled', { environmentId });
 
           expect(permissionsGetter._retrievePermissions).toHaveBeenCalledTimes(1);
           expect(permissionsGetter._retrievePermissions)
-            .toHaveBeenCalledWith(1, { storePermissionsInto, renderingOnly: true });
+            .toHaveBeenCalledWith(1, { environmentId, renderingOnly: true });
         });
       });
     });

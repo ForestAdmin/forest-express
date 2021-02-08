@@ -36,7 +36,7 @@ describe('services > PermissionsChecker', () => {
           1,
           collectionName,
           permissionName,
-          { forceRetrieve: false, storePermissionsInto: undefined },
+          { forceRetrieve: false, environmentId: undefined },
         );
 
         expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
@@ -77,13 +77,13 @@ describe('services > PermissionsChecker', () => {
             1,
             collectionName,
             permissionName,
-            { forceRetrieve: false, storePermissionsInto: undefined },
+            { forceRetrieve: false, environmentId: undefined },
           );
           expect(permissionsGetter.getPermissions).toHaveBeenCalledWith(
             1,
             collectionName,
             permissionName,
-            { forceRetrieve: true, storePermissionsInto: undefined },
+            { forceRetrieve: true, environmentId: undefined },
           );
 
           expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(2);
@@ -124,7 +124,7 @@ describe('services > PermissionsChecker', () => {
           1,
           collectionName,
           permissionName,
-          { forceRetrieve: false, storePermissionsInto: environmentId },
+          { forceRetrieve: false, environmentId },
         );
 
         expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
