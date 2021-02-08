@@ -1,16 +1,16 @@
 const httpError = require('http-errors');
 const { parameterize } = require('../utils/string');
-const PermissionsChecker = require('../services/permissions-checker');
-const logger = require('../services/logger');
 const context = require('../context');
 const Schemas = require('../generators/schemas');
 
 const getRenderingIdFromUser = (user) => user.renderingId;
 
 class PermissionMiddlewareCreator {
-  constructor(collectionName, { configStore } = context.inject()) {
+  constructor(collectionName) {
     this.collectionName = collectionName;
-    this.configStore = configStore;
+    const { logger, permissionsChecker } = context.inject();
+    this.logger = logger;
+    this.permissionsChecker = permissionsChecker;
   }
 
   _getSmartActionInfoFromRequest(request) {
@@ -38,7 +38,6 @@ class PermissionMiddlewareCreator {
 
   _checkPermission(permissionName) {
     return (request, response, next) => {
-      const environmentSecret = this.configStore.lianaOptions.envSecret;
       const renderingId = getRenderingIdFromUser(request.user);
       let permissionInfos;
       switch (permissionName) {
@@ -52,11 +51,11 @@ class PermissionMiddlewareCreator {
           permissionInfos = { userId: request.user.id };
       }
 
-      return new PermissionsChecker(environmentSecret, renderingId)
-        .checkPermissions(this.collectionName, permissionName, permissionInfos)
+      return this.permissionsChecker
+        .checkPermissions(renderingId, this.collectionName, permissionName, permissionInfos)
         .then(next)
         .catch((error) => {
-          logger.error(error.message);
+          this.logger.error(error.message);
           next(httpError(403));
         });
     };
