@@ -37,20 +37,21 @@ class PermissionMiddlewareCreator {
     return { userId: request.user.id, ...request.query };
   }
 
+  _getPermissionsInfo(permissionName, request) {
+    switch (permissionName) {
+      case 'actions':
+        return this._getSmartActionInfoFromRequest(request);
+      case 'browseEnabled':
+        return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+      default:
+        return { userId: request.user.id };
+    }
+  }
+
   _checkPermission(permissionName) {
     return async (request, response, next) => {
       const renderingId = getRenderingIdFromUser(request.user);
-      let permissionInfos;
-      switch (permissionName) {
-        case 'actions':
-          permissionInfos = this._getSmartActionInfoFromRequest(request);
-          break;
-        case 'browseEnabled':
-          permissionInfos = PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
-          break;
-        default:
-          permissionInfos = { userId: request.user.id };
-      }
+      const permissionInfos = this._getPermissionsInfo(permissionName, request);
 
       const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
         ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentIdKey(request)
