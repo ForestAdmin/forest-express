@@ -1,3 +1,10 @@
+# [7.10.0](https://github.com/ForestAdmin/forest-express/compare/v7.9.6...v7.10.0) (2021-02-10)
+
+
+### Features
+
+* expose SchemaSerializer ([#637](https://github.com/ForestAdmin/forest-express/issues/637)) ([e792584](https://github.com/ForestAdmin/forest-express/commit/e7925847ccaed83bd6c96a708d1c6fa0c90488e9))
+
 ## [7.9.6](https://github.com/ForestAdmin/forest-express/compare/v7.9.5...v7.9.6) (2021-01-20)
 
 
