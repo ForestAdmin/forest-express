@@ -54,7 +54,7 @@ class PermissionMiddlewareCreator {
       const permissionInfos = this._getPermissionsInfo(permissionName, request);
 
       const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
-        ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentIdKey(request)
+        ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentId(request)
         : null;
       try {
         await this.permissionsChecker.checkPermissions(
