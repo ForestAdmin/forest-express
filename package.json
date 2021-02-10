@@ -41,7 +41,7 @@
     "inflected": "2.0.4",
     "jsonapi-serializer": "3.6.5",
     "jsonwebtoken": "8.5.1",
-    "lodash": "4.17.19",
+    "lodash": "4.17.20",
     "moment": "2.24.0",
     "moment-timezone": "0.5.26",
     "otplib": "11.0.1",
