@@ -8,9 +8,10 @@ const getRenderingIdFromUser = (user) => user.renderingId;
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
-    const { logger, permissionsChecker } = context.inject();
+    const { configStore, logger, permissionsChecker } = context.inject();
     this.logger = logger;
     this.permissionsChecker = permissionsChecker;
+    this.configStore = configStore;
   }
 
   _getSmartActionInfoFromRequest(request) {
@@ -36,28 +37,34 @@ class PermissionMiddlewareCreator {
     return { userId: request.user.id, ...request.query };
   }
 
-  _checkPermission(permissionName) {
-    return (request, response, next) => {
-      const renderingId = getRenderingIdFromUser(request.user);
-      let permissionInfos;
-      switch (permissionName) {
-        case 'actions':
-          permissionInfos = this._getSmartActionInfoFromRequest(request);
-          break;
-        case 'browseEnabled':
-          permissionInfos = PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
-          break;
-        default:
-          permissionInfos = { userId: request.user.id };
-      }
+  _getPermissionsInfo(permissionName, request) {
+    switch (permissionName) {
+      case 'actions':
+        return this._getSmartActionInfoFromRequest(request);
+      case 'browseEnabled':
+        return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+      default:
+        return { userId: request.user.id };
+    }
+  }
 
-      return this.permissionsChecker
-        .checkPermissions(renderingId, this.collectionName, permissionName, permissionInfos)
-        .then(next)
-        .catch((error) => {
-          this.logger.error(error.message);
-          next(httpError(403));
-        });
+  _checkPermission(permissionName) {
+    return async (request, response, next) => {
+      const renderingId = getRenderingIdFromUser(request.user);
+      const permissionInfos = this._getPermissionsInfo(permissionName, request);
+
+      const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
+        ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentId(request)
+        : null;
+      try {
+        await this.permissionsChecker.checkPermissions(
+          renderingId, this.collectionName, permissionName, permissionInfos, environmentId,
+        );
+        next();
+      } catch (error) {
+        this.logger.error(error);
+        next(httpError(403));
+      }
     };
   }
 
