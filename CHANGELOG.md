@@ -5,6 +5,13 @@
 
 * **permissions:** handle mutliple permissions cache ([7114244](https://github.com/ForestAdmin/forest-express/commit/7114244da267a2e14b502339ed39e1ab2b9248fc))
 
+# [7.10.0](https://github.com/ForestAdmin/forest-express/compare/v7.9.6...v7.10.0) (2021-02-10)
+
+
+### Features
+
+* expose SchemaSerializer ([#637](https://github.com/ForestAdmin/forest-express/issues/637)) ([e792584](https://github.com/ForestAdmin/forest-express/commit/e7925847ccaed83bd6c96a708d1c6fa0c90488e9))
+
 # [8.0.0-beta.13](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.12...v8.0.0-beta.13) (2021-02-08)
 
 
