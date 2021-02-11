@@ -1,3 +1,11 @@
+# [8.0.0-beta.15](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.14...v8.0.0-beta.15) (2021-02-11)
+
+
+### Features
+
+* expose SchemaSerializer ([#637](https://github.com/ForestAdmin/forest-express/issues/637)) ([e792584](https://github.com/ForestAdmin/forest-express/commit/e7925847ccaed83bd6c96a708d1c6fa0c90488e9))
+* merge master into beta ([131cb73](https://github.com/ForestAdmin/forest-express/commit/131cb73ba582b2586720a316853b82fa48fdf348))
+
 # [8.0.0-beta.14](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.13...v8.0.0-beta.14) (2021-02-11)
 
 
