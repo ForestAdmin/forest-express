@@ -1,3 +1,10 @@
+# [8.0.0-beta.14](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.13...v8.0.0-beta.14) (2021-02-11)
+
+
+### Features
+
+* **permissions:** handle mutliple permissions cache ([7114244](https://github.com/ForestAdmin/forest-express/commit/7114244da267a2e14b502339ed39e1ab2b9248fc))
+
 # [8.0.0-beta.13](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.12...v8.0.0-beta.13) (2021-02-08)
 
 
