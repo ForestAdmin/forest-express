@@ -16,6 +16,7 @@ module.exports = function Resources(app, model) {
 
   this.list = (request, response, next) => {
     const params = request.query;
+    params.userRequest = request.user; //SPA
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
     return new Implementation.ResourcesGetter(model, lianaOptions, params)
@@ -29,7 +30,7 @@ module.exports = function Resources(app, model) {
           model,
           records,
           integrator,
-          null,
+          {userRequest: params.userRequest}, //SPA
           fieldsSearched,
           params.search,
           fieldsPerModel,
@@ -85,6 +86,7 @@ module.exports = function Resources(app, model) {
         model,
         record,
         integrator,
+        {userRequest: params.userRequest}, //SPA
       ).perform())
       .then((record) => {
         response.send(record);
@@ -103,6 +105,7 @@ module.exports = function Resources(app, model) {
             model,
             updatedRecord,
             integrator,
+            {userRequest: params.userRequest}, //SPA
           ).perform())
           .then((updatedRecord) => {
             response.send(updatedRecord);

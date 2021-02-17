@@ -23,14 +23,14 @@ function SmartFieldsValuesInjector(
   }
 
   // eslint-disable-next-line
-  function setSmartFieldValue(record, field, modelName) {
+  function setSmartFieldValue(record, field, modelName, userRequest) { //SPA
     if (field.value) {
       logger.warn(`DEPRECATION WARNING: Smart Fields "value" method is deprecated. Please use "get" method in your collection ${modelName} instead.`);
     }
 
     let value;
     try {
-      value = field.get ? field.get(record) : field.value(record);
+      value = field.get ? field.get(record, userRequest) : field.value(record); //SPA
     } catch (error) {
       logger.error(`Cannot retrieve the ${field.field} value because of an internal error in the getter implementation: `, error);
     }
@@ -81,7 +81,7 @@ function SmartFieldsValuesInjector(
           return null;
         }
 
-        return setSmartFieldValue(record, field, modelName);
+        return setSmartFieldValue(record, field, modelName, userRequest); //SPA
       }
 
       if (!record[field.field] && _.isArray(field.type)) {
@@ -105,6 +105,7 @@ function SmartFieldsValuesInjector(
                 record[field.field],
                 fieldAssociation,
                 modelNameAssociation,
+                userRequest, //SPA
               );
             }
 
