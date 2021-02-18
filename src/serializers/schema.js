@@ -43,7 +43,7 @@ function SchemaSerializer() {
         'relationship',
         'widget',
         'validations',
-        'fkIsPk',
+        'foreignAndPrimaryKey',
       ],
     },
     validations: {
