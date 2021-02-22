@@ -43,6 +43,7 @@ function SchemaSerializer() {
         'relationship',
         'widget',
         'validations',
+        'foreignAndPrimaryKey',
       ],
     },
     validations: {
