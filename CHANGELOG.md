@@ -1,3 +1,10 @@
+## [7.10.1](https://github.com/ForestAdmin/forest-express/compare/v7.10.0...v7.10.1) (2021-02-22)
+
+
+### Bug Fixes
+
+* fix record creation with unconventional pk field acting as a fk ([#616](https://github.com/ForestAdmin/forest-express/issues/616)) ([c64909b](https://github.com/ForestAdmin/forest-express/commit/c64909b7835ff86b4b0583ee23fedc519a9701fd))
+
 # [7.10.0](https://github.com/ForestAdmin/forest-express/compare/v7.9.6...v7.10.0) (2021-02-10)
 
 
