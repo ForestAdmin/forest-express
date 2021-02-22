@@ -26,9 +26,14 @@ describe('liana > index', () => {
       opts: {
         envSecret,
         authSecret,
+        connections: {
+          db1: {
+            models: {},
+          },
+        },
         ...extraConfiguration,
       },
-      getModels: () => {},
+      getModelName: (model) => model.modelName,
       getLianaName: () => {},
       getLianaVersion: () => {},
       getOrmVersion: () => {},
@@ -37,15 +42,14 @@ describe('liana > index', () => {
     });
 
     describe('with an invalid configuration', () => {
-      it('should return a rejected promise', async () => {
+      it('should not throw an error', async () => {
         expect.assertions(1);
 
         const forestExpress = resetRequireIndex();
         const badConfigDir = new Date();
         const implementation = createFakeImplementation({ configDir: badConfigDir });
 
-        // NOTICE: Should be updated to the correct error
-        await expect(() => forestExpress.init(implementation)).rejects.toThrow(expect.anything());
+        await expect(() => forestExpress.init(implementation)).not.toThrow();
       });
     });
 
@@ -136,12 +140,17 @@ describe('liana > index', () => {
       describe('when providing an implementation', () => {
         const initForestAppWithModels = () => {
           const forestExpress = resetRequireIndex();
-          const implementation = createFakeImplementation({}, {
-            getModels: () => ({
-              modelFoo: {
-                modelName: 'foo',
+          const implementation = createFakeImplementation({
+            connections: {
+              db1: {
+                models: {
+                  modelFoo: {
+                    modelName: 'modelFoo',
+                  },
+                },
               },
-            }),
+            },
+          }, {
             getModelName: (model) => model.modelName,
             getLianaName: () => 'forest-implementation',
             getLianaVersion: () => '0.1.2',

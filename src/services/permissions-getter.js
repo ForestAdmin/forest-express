@@ -19,38 +19,52 @@ class PermissionsGetter {
     return this.configStore.lianaOptions.envSecret;
   }
 
-  cleanCache() {
-    this.permissions = {};
+  cleanCache({ environmentId } = {}) {
+    if (environmentId) {
+      this.permissions[environmentId] = {};
+    } else {
+      this.permissions = {};
+    }
   }
 
-  _getPermissions() {
+  _getPermissions({ environmentId, initIfNotExisting = false } = {}) {
+    if (environmentId) {
+      if (!this.permissions[environmentId] && initIfNotExisting) {
+        this.permissions[environmentId] = {};
+      }
+      return this.permissions[environmentId];
+    }
     return this.permissions;
   }
 
-  _getPermissionsInCollections() {
-    return this._getPermissions().collections;
+  _getPermissionsInCollections({ environmentId } = {}) {
+    const permissions = this._getPermissions({ environmentId });
+    return permissions && permissions.collections;
   }
 
-  _getPermissionsInRendering(renderingId) {
-    return this._getPermissions().renderings
-      ? this._getPermissions().renderings[renderingId]
+  _getPermissionsInRendering(renderingId, { environmentId } = {}) {
+    const permissions = this._getPermissions({ environmentId });
+    return permissions && permissions.renderings
+      ? permissions.renderings[renderingId]
       : null;
   }
 
-  _getCollectionPermissions(renderingId, collectionName) {
+  _getCollectionPermissions(renderingId, collectionName, { environmentId } = {}) {
     let modelsPermissions;
     if (this.isRolesACLActivated) {
-      modelsPermissions = this._getPermissionsInCollections();
+      modelsPermissions = this._getPermissionsInCollections({ environmentId });
     } else {
-      modelsPermissions = this._getPermissionsInRendering(renderingId);
+      modelsPermissions = this._getPermissionsInRendering(renderingId, { environmentId });
     }
     return modelsPermissions && modelsPermissions.data
       ? modelsPermissions.data[collectionName]
       : null;
   }
 
-  _getScopePermissions(renderingId, collectionName) {
-    const getPermissionsInRendering = this._getPermissionsInRendering(renderingId);
+  _getScopePermissions(renderingId, collectionName, { environmentId } = {}) {
+    const getPermissionsInRendering = this._getPermissionsInRendering(
+      renderingId, { environmentId },
+    );
     return getPermissionsInRendering
       && getPermissionsInRendering.data
       && getPermissionsInRendering.data[collectionName]
@@ -97,63 +111,67 @@ class PermissionsGetter {
     return newPermissions;
   }
 
-  _setRenderingPermissions(renderingId, permissions) {
-    if (!this._getPermissions().renderings) {
-      this._getPermissions().renderings = {};
+  _setRenderingPermissions(renderingId, permissions, { environmentId } = {}) {
+    const options = { environmentId, initIfNotExisting: true };
+    if (!this._getPermissions(options).renderings) {
+      this._getPermissions(options).renderings = {};
     }
-    this._getPermissions().renderings[renderingId] = {
+    this._getPermissions(options).renderings[renderingId] = {
       data: permissions,
       lastRetrieve: this.moment(),
     };
   }
 
-  _setCollectionsPermissions(permissions) {
-    this._getPermissions().collections = {
+  _setCollectionsPermissions(permissions, { environmentId } = {}) {
+    this._getPermissions({ environmentId, initIfNotExisting: true }).collections = {
       data: permissions,
       lastRetrieve: this.moment(),
     };
   }
 
-  _setRolesACLPermissions(renderingId, permissions) {
-    this._setCollectionsPermissions(permissions.collections);
+  _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
+    this._setCollectionsPermissions(permissions.collections, { environmentId });
     if (permissions.renderings && permissions.renderings[renderingId]) {
-      this._setRenderingPermissions(renderingId, permissions.renderings[renderingId]);
+      this._setRenderingPermissions(
+        renderingId, permissions.renderings[renderingId], { environmentId },
+      );
     }
   }
 
   // In the teamACL format, all the permissions are stored by renderingId into "renderings".
   // For the rolesACL format, the collections permissions are stored directly into "collections",
   // and only their scopes are stored by renderingId into "renderings".
-  _setPermissions(renderingId, permissions) {
+  _setPermissions(renderingId, permissions, { environmentId } = {}) {
     if (this.isRolesACLActivated) {
-      this._setRolesACLPermissions(renderingId, permissions);
+      this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
       const newFormatPermissions = permissions
         ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)
         : null;
-      this._setRenderingPermissions(renderingId, newFormatPermissions);
+      this._setRenderingPermissions(renderingId, newFormatPermissions, { environmentId });
     }
   }
 
-  _getLastRetrieveTimeInRendering(renderingId) {
-    return this._getPermissionsInRendering(renderingId)
-      ? this._getPermissionsInRendering(renderingId).lastRetrieve
+  _getLastRetrieveTimeInRendering(renderingId, { environmentId } = {}) {
+    return this._getPermissionsInRendering(renderingId, { environmentId })
+      ? this._getPermissionsInRendering(renderingId, { environmentId }).lastRetrieve
       : null;
   }
 
-  _getLastRetrieveTimeInCollections() {
-    return this._getPermissionsInCollections()
-      ? this._getPermissionsInCollections().lastRetrieve
+  _getLastRetrieveTimeInCollections({ environmentId } = {}) {
+    const permissionsInCollection = this._getPermissionsInCollections({ environmentId });
+    return permissionsInCollection
+      ? permissionsInCollection.lastRetrieve
       : null;
   }
 
-  resetExpiration(renderingId) {
-    if (this.isRolesACLActivated && this._getPermissionsInCollections()) {
-      this._getPermissionsInCollections().lastRetrieve = null;
+  resetExpiration(renderingId, { environmentId } = {}) {
+    if (this.isRolesACLActivated && this._getPermissionsInCollections({ environmentId })) {
+      this._getPermissionsInCollections({ environmentId }).lastRetrieve = null;
     }
 
-    if (this._getPermissionsInRendering(renderingId)) {
-      this._getPermissionsInRendering(renderingId).lastRetrieve = null;
+    if (this._getPermissionsInRendering(renderingId, { environmentId })) {
+      this._getPermissionsInRendering(renderingId, { environmentId }).lastRetrieve = null;
     }
   }
 
@@ -164,23 +182,29 @@ class PermissionsGetter {
     return elapsedSeconds >= this.expirationInSeconds;
   }
 
-  _isRegularRetrievalRequired(renderingId) {
+  _isRegularRetrievalRequired(renderingId, { environmentId } = {}) {
     if (this.isRolesACLActivated) {
-      const lastRetrieveInCollections = this._getLastRetrieveTimeInCollections();
+      const lastRetrieveInCollections = this._getLastRetrieveTimeInCollections(
+        { environmentId },
+      );
       return this._isPermissionExpired(lastRetrieveInCollections);
     }
-    const lastRetrieveInRendering = this._getLastRetrieveTimeInRendering(renderingId);
+    const lastRetrieveInRendering = this._getLastRetrieveTimeInRendering(
+      renderingId, { environmentId },
+    );
     return this._isPermissionExpired(lastRetrieveInRendering);
   }
 
-  _isRenderingOnlyRetrievalRequired(renderingId, permissionName) {
-    const lastRetrieve = this._getLastRetrieveTimeInRendering(renderingId);
+  _isRenderingOnlyRetrievalRequired(renderingId, permissionName, { environmentId } = {}) {
+    const lastRetrieve = this._getLastRetrieveTimeInRendering(
+      renderingId, { environmentId },
+    );
     return this.isRolesACLActivated
       && permissionName === 'browseEnabled'
       && this._isPermissionExpired(lastRetrieve);
   }
 
-  async _retrievePermissions(renderingId, { renderingOnly = false } = {}) {
+  async _retrievePermissions(renderingId, { renderingOnly = false, environmentId } = {}) {
     const queryParams = { renderingId };
     if (renderingOnly) queryParams.renderingSpecificOnly = true;
 
@@ -194,25 +218,34 @@ class PermissionsGetter {
         if (!responseBody.data) return null;
         if (renderingOnly) {
           return responseBody.data.renderings
-            ? this._setRenderingPermissions(renderingId, responseBody.data.renderings[renderingId])
+            ? this._setRenderingPermissions(
+              renderingId, responseBody.data.renderings[renderingId], { environmentId },
+            )
             : null;
         }
-        return this._setPermissions(renderingId, responseBody.data);
+        return this._setPermissions(renderingId, responseBody.data, { environmentId });
       })
       .catch((error) => Promise.reject(new this.VError(error, 'Permissions error')));
   }
 
   async getPermissions(
-    renderingId, collectionName, permissionName, { forceRetrieve = false } = {},
+    renderingId,
+    collectionName,
+    permissionName,
+    { forceRetrieve = false, environmentId = undefined } = {},
   ) {
-    if (forceRetrieve || this._isRegularRetrievalRequired(renderingId)) {
-      await this._retrievePermissions(renderingId);
-    } else if (this._isRenderingOnlyRetrievalRequired(renderingId, permissionName)) {
-      await this._retrievePermissions(renderingId, { renderingOnly: true });
+    if (forceRetrieve || this._isRegularRetrievalRequired(renderingId, { environmentId })) {
+      await this._retrievePermissions(renderingId, { environmentId });
+    } else if (this._isRenderingOnlyRetrievalRequired(
+      renderingId, permissionName, { environmentId },
+    )) {
+      await this._retrievePermissions(renderingId, { renderingOnly: true, environmentId });
     }
 
-    const collectionPermissions = this._getCollectionPermissions(renderingId, collectionName);
-    const scope = this._getScopePermissions(renderingId, collectionName);
+    const collectionPermissions = this._getCollectionPermissions(
+      renderingId, collectionName, { environmentId },
+    );
+    const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,

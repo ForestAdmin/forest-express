@@ -3,6 +3,10 @@ const moment = require('moment');
 const VError = require('verror');
 
 const superagentRequest = require('superagent');
+const path = require('path');
+const openIdClient = require('openid-client');
+const jsonwebtoken = require('jsonwebtoken');
+
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
@@ -24,12 +28,34 @@ const PermissionsGetter = require('../services/permissions-getter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const SmartActionHook = require('../services/smart-action-hook');
 const schemasGenerator = require('../generators/schemas');
+const ModelsManager = require('../services/models-manager');
+const AuthenticationService = require('../services/authentication');
+const TokenService = require('../services/token');
+const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
+const OidcClientManagerService = require('../services/oidc-client-manager');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
 }
 
 /**
+ * @typedef {{
+ *   NODE_ENV: 'production' | 'development';
+ *   FOREST_DISABLE_AUTO_SCHEMA_APPLY: boolean;
+ *   CORS_ORIGINS?: string;
+ *   JWT_ALGORITHM: string;
+ *   FOREST_PERMISSIONS_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_OIDC_CONFIG_EXPIRATION_IN_SECONDS: number;
+ *   FOREST_URL: string;
+ *   APPLICATION_URL: string;
+ *   FOREST_AUTH_SECRET: string;
+ *   FOREST_ENV_SECRET: string;
+ * }} Env
+ *
+ * @typedef {{
+ *  env: Env
+ * }} EnvPart
+ *
  * @typedef {{
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
@@ -51,17 +77,38 @@ function initValue(context) {
  *  permissionsGetter: import('../services/permissions-getter');
  *  smartActionHook: import('../services/smart-action-hook');
  *  schemasGenerator: import('../generators/schemas');
+ *  authenticationService: import('../services/authentication');
+ *  tokenService: import('../services/token');
+ *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
+ *  oidcClientManagerService: import('../services/oidc-client-manager')
  * }} Services
  *
  * @typedef {{
  *  superagentRequest: import('superagent');
+ *  openIdClient: import('openid-client');
+ *  jsonwebtoken: import('jsonwebtoken');
  * }} Externals
  *
- * @typedef {Utils & Services & Externals} Context
+ * @typedef {EnvPart & Utils & Services & Externals} Context
  */
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
+ */
+function initEnv(context) {
+  context.addInstance('env', {
+    ...process.env,
+    FOREST_URL: process.env.FOREST_URL || 'https://api.forestadmin.com',
+    JWT_ALGORITHM: process.env.JWT_ALGORITHM || 'HS256',
+    NODE_ENV: ['dev', 'development'].includes(process.env.NODE_ENV)
+      ? 'development'
+      : 'production',
+    APPLICATION_URL: process.env.APPLICATION_URL || `http://localhost:${process.env.APPLICATION_PORT || 3310}`,
+  });
+}
+
+/**
+ * @param {import('./application-context')} context
  */
 function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
@@ -69,15 +116,6 @@ function initUtils(context) {
   context.addInstance('errorUtils', errorUtils);
   context.addInstance('isSameDataStructure', isSameDataStructure);
   context.addInstance('setFieldWidget', setFieldWidget);
-}
-
-/**
- * @param {ApplicationContext} context
- */
-function initEnv(context) {
-  context.addInstance('env', {
-    ...process.env,
-  });
 }
 
 /**
@@ -91,7 +129,7 @@ function initServices(context) {
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addInstance('baseFilterParser', baseFilterParser);
-  context.addInstance('configStore', ConfigStore.getInstance());
+  context.addClass(ConfigStore);
   context.addClass(PermissionsGetter);
   context.addClass(PermissionsChecker);
   context.addClass(ApimapFieldsFormater);
@@ -99,21 +137,29 @@ function initServices(context) {
   context.addClass(ApimapSorter);
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
+  context.addClass(ModelsManager);
+  context.addClass(TokenService);
+  context.addClass(OidcConfigurationRetrieverService);
+  context.addClass(OidcClientManagerService);
+  context.addClass(AuthenticationService);
   context.addClass(SmartActionHook);
 }
 
 /**
- * @param {ApplicationContext} context
+ * @param {import('./application-context')} context
  */
 function initExternals(context) {
   context.addInstance('superagentRequest', superagentRequest);
   context.addInstance('fs', fs);
+  context.addInstance('path', path);
+  context.addInstance('openIdClient', openIdClient);
+  context.addInstance('jsonwebtoken', jsonwebtoken);
   context.addInstance('moment', moment);
   context.addInstance('VError', VError);
 }
 
 /**
- * @returns {ApplicationContext<Context>}
+ * @param {import('./application-context')<Context>} context
  */
 function initContext(context) {
   initExternals(context);

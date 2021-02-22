@@ -1,3 +1,10 @@
+# [8.0.0-beta.16](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.15...v8.0.0-beta.16) (2021-02-22)
+
+
+### Bug Fixes
+
+* fix record creation with unconventional pk field acting as a fk ([#616](https://github.com/ForestAdmin/forest-express/issues/616)) ([c64909b](https://github.com/ForestAdmin/forest-express/commit/c64909b7835ff86b4b0583ee23fedc519a9701fd))
+
 ## [7.10.1](https://github.com/ForestAdmin/forest-express/compare/v7.10.0...v7.10.1) (2021-02-22)
 
 
@@ -5,12 +12,48 @@
 
 * fix record creation with unconventional pk field acting as a fk ([#616](https://github.com/ForestAdmin/forest-express/issues/616)) ([c64909b](https://github.com/ForestAdmin/forest-express/commit/c64909b7835ff86b4b0583ee23fedc519a9701fd))
 
+# [8.0.0-beta.15](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.14...v8.0.0-beta.15) (2021-02-11)
+
+
+### Features
+
+* expose SchemaSerializer ([#637](https://github.com/ForestAdmin/forest-express/issues/637)) ([e792584](https://github.com/ForestAdmin/forest-express/commit/e7925847ccaed83bd6c96a708d1c6fa0c90488e9))
+* merge master into beta ([131cb73](https://github.com/ForestAdmin/forest-express/commit/131cb73ba582b2586720a316853b82fa48fdf348))
+
+# [8.0.0-beta.14](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.13...v8.0.0-beta.14) (2021-02-11)
+
+
+### Features
+
+* **permissions:** handle multiple permissions cache ([7114244](https://github.com/ForestAdmin/forest-express/commit/7114244da267a2e14b502339ed39e1ab2b9248fc))
+
 # [7.10.0](https://github.com/ForestAdmin/forest-express/compare/v7.9.6...v7.10.0) (2021-02-10)
 
 
 ### Features
 
 * expose SchemaSerializer ([#637](https://github.com/ForestAdmin/forest-express/issues/637)) ([e792584](https://github.com/ForestAdmin/forest-express/commit/e7925847ccaed83bd6c96a708d1c6fa0c90488e9))
+
+# [8.0.0-beta.13](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.12...v8.0.0-beta.13) (2021-02-08)
+
+
+### Bug Fixes
+
+* **forestadmin-schema:** regenerate forestadmin schema only when files are valid ([#614](https://github.com/ForestAdmin/forest-express/issues/614)) ([c26c385](https://github.com/ForestAdmin/forest-express/commit/c26c385322dd96d5f1f2b9f84988a968312cd1fb))
+* **smart-action-hook:** value injected to an enum field of type `[Enum]` is now correctly handled ([#617](https://github.com/ForestAdmin/forest-express/issues/617)) ([98a6859](https://github.com/ForestAdmin/forest-express/commit/98a685920acf7b3723cfff106bc30fec6c468890))
+
+# [8.0.0-beta.12](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.11...v8.0.0-beta.12) (2021-02-02)
+
+
+### Features
+
+* **authentication:** remove old authentication routes ([#624](https://github.com/ForestAdmin/forest-express/issues/624)) ([b0ffc50](https://github.com/ForestAdmin/forest-express/commit/b0ffc504e819c1a16b3935937725325349e71ddb))
+* **authentication:** return a specific error during authorization if received an error about 2FA ([#622](https://github.com/ForestAdmin/forest-express/issues/622)) ([3a59a12](https://github.com/ForestAdmin/forest-express/commit/3a59a12daa4e7273879b38512e6b9ef73e199438))
+
+
+### BREAKING CHANGES
+
+* **authentication:** all previous authentication routes have been removed
 
 ## [7.9.6](https://github.com/ForestAdmin/forest-express/compare/v7.9.5...v7.9.6) (2021-01-20)
 
@@ -25,6 +68,45 @@
 ### Bug Fixes
 
 * **forestadmin-schema:** regenerate forestadmin schema only when files are valid ([#614](https://github.com/ForestAdmin/forest-express/issues/614)) ([c26c385](https://github.com/ForestAdmin/forest-express/commit/c26c385322dd96d5f1f2b9f84988a968312cd1fb))
+
+# [8.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.10...v8.0.0-beta.11) (2021-01-08)
+
+
+### Bug Fixes
+
+* **authentication:** error when authenticating with an invalid token in cookies ([#611](https://github.com/ForestAdmin/forest-express/issues/611)) ([e6d6737](https://github.com/ForestAdmin/forest-express/commit/e6d6737c896c882ebc774ddee2be90337c787c2b))
+
+# [8.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.9...v8.0.0-beta.10) (2021-01-06)
+
+
+### Bug Fixes
+
+* user being disconnected after 33min instead of 14 days ([#610](https://github.com/ForestAdmin/forest-express/issues/610)) ([80580e7](https://github.com/ForestAdmin/forest-express/commit/80580e710a7764d1fe4d7ec912352d74594cd685))
+
+# [8.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.8...v8.0.0-beta.9) (2021-01-05)
+
+
+### Bug Fixes
+
+* send back response to frontend instead of redirecting ([#609](https://github.com/ForestAdmin/forest-express/issues/609)) ([6f37521](https://github.com/ForestAdmin/forest-express/commit/6f375212c41c5451b14d8761c7b62a3e851c8f60))
+
+# [8.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.7...v8.0.0-beta.8) (2020-12-30)
+
+
+### Bug Fixes
+
+* **auth:** oidc authentication when running multiple instances of the agent ([#608](https://github.com/ForestAdmin/forest-express/issues/608)) ([ef25acb](https://github.com/ForestAdmin/forest-express/commit/ef25acb278142e4aa933b279665245dd7bb18646))
+
+# [8.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.6...v8.0.0-beta.7) (2020-12-23)
+
+# [8.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.5...v8.0.0-beta.6) (2020-12-23)
+
+
+### Bug Fixes
+
+* display correct reference field when it is a smartfield ([#602](https://github.com/ForestAdmin/forest-express/issues/602)) ([a797a7a](https://github.com/ForestAdmin/forest-express/commit/a797a7a5f815692d75482bdbbd8782e4373b9b00))
+* fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
+* fix related data list display ([#598](https://github.com/ForestAdmin/forest-express/issues/598)) ([f3c7408](https://github.com/ForestAdmin/forest-express/commit/f3c740844526653f00ffb1100175e47451eabfd5))
 
 ## [7.9.4](https://github.com/ForestAdmin/forest-express/compare/v7.9.3...v7.9.4) (2020-12-21)
 
@@ -48,6 +130,24 @@
 * fix conflict between array and smart field computation ([#595](https://github.com/ForestAdmin/forest-express/issues/595)) ([ac6b9c1](https://github.com/ForestAdmin/forest-express/commit/ac6b9c19238fa7c9baebdfeb766b80b31077541c))
 
 ## [7.9.1](https://github.com/ForestAdmin/forest-express/compare/v7.9.0...v7.9.1) (2020-12-09)
+
+# [8.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.4...v8.0.0-beta.5) (2020-12-08)
+
+
+### Bug Fixes
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#574](https://github.com/ForestAdmin/forest-express/issues/574)) ([c65588e](https://github.com/ForestAdmin/forest-express/commit/c65588e11562380daf47af0bfd2e280a234d04d0))
+* **smart-action:** do not mutate hooks on schema generation ([#580](https://github.com/ForestAdmin/forest-express/issues/580)) ([dd2aee3](https://github.com/ForestAdmin/forest-express/commit/dd2aee3de957ca558559f44473136c1d72de21c9))
+* **smart-action:** widgetEdit should not be erased when change hook is triggered ([#579](https://github.com/ForestAdmin/forest-express/issues/579)) ([1014ade](https://github.com/ForestAdmin/forest-express/commit/1014adeb3979a5ab0d16db8e4533f34b7d021e35))
+* **smart-actions:** error message details missing for hooks ([#582](https://github.com/ForestAdmin/forest-express/issues/582)) ([d2edf35](https://github.com/ForestAdmin/forest-express/commit/d2edf35f8e216996ff64c116bea6914c2a7bcaf5))
+* **smart-actions:** reset value when not present in enums in hook response ([#584](https://github.com/ForestAdmin/forest-express/issues/584)) ([0f57a46](https://github.com/ForestAdmin/forest-express/commit/0f57a465b5be0571e55f97033db6f0436f1c02fe))
+* **smart-actions:** use changedField instead of comparing values to trigger the correct change hook ([#583](https://github.com/ForestAdmin/forest-express/issues/583)) ([54d536b](https://github.com/ForestAdmin/forest-express/commit/54d536b1d3ac4aca0fc1825d76f483fb85353555))
+* record not found in hooks (recordsId replaced with recordIds) ([#578](https://github.com/ForestAdmin/forest-express/issues/578)) ([ccf6a8f](https://github.com/ForestAdmin/forest-express/commit/ccf6a8fe8089551b1624ed61120e3f4aa1c9866c))
+
+
+### Features
+
+* **role-permissions:** support the new role ACL format ([#577](https://github.com/ForestAdmin/forest-express/issues/577)) ([4aed30f](https://github.com/ForestAdmin/forest-express/commit/4aed30fefabf616360a05e54e7b4c6ff71c7a038))
 
 # [7.9.0](https://github.com/ForestAdmin/forest-express/compare/v7.8.9...v7.9.0) (2020-12-08)
 
@@ -105,6 +205,27 @@
 
 * record not found in hooks (recordsId replaced with recordIds) ([#578](https://github.com/ForestAdmin/forest-express/issues/578)) ([ccf6a8f](https://github.com/ForestAdmin/forest-express/commit/ccf6a8fe8089551b1624ed61120e3f4aa1c9866c))
 
+# [8.0.0-beta.4](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.3...v8.0.0-beta.4) (2020-12-02)
+
+
+### Bug Fixes
+
+* **schema:** do not generate `framework`, `framework_version` to ensure equality across environments ([#556](https://github.com/ForestAdmin/forest-express/issues/556)) ([30ee17a](https://github.com/ForestAdmin/forest-express/commit/30ee17aa40da86bf61290c6707914d3eaa5174eb))
+* **smart fields:** compute properly smart fields ([#570](https://github.com/ForestAdmin/forest-express/issues/570)) ([923c968](https://github.com/ForestAdmin/forest-express/commit/923c968b5b818c8acd8fa39e80c2717bebec50a3))
+* **smart-actions:** transform legacy widgets in hooks ([#571](https://github.com/ForestAdmin/forest-express/issues/571)) ([f58b867](https://github.com/ForestAdmin/forest-express/commit/f58b86767cdf84012ad54dfe2c2542bc79792ee8))
+* **technical:** remove useless data property from load hook controller ([#562](https://github.com/ForestAdmin/forest-express/issues/562)) ([7465982](https://github.com/ForestAdmin/forest-express/commit/7465982ed0fe2fcc4050698e8235b2783305c54d))
+
+
+### Features
+
+* **smart actions:** endpoint that handle forms' load hooks ([#546](https://github.com/ForestAdmin/forest-express/issues/546)) ([3e3c018](https://github.com/ForestAdmin/forest-express/commit/3e3c01821e9c938a35c63fc1d606ad2494f50a0a))
+* **smart actions:** endpoint that handle forms' load hooks ([#565](https://github.com/ForestAdmin/forest-express/issues/565)) ([824a670](https://github.com/ForestAdmin/forest-express/commit/824a670ca41e2837473e6a77b79d99f800e5261c))
+
+
+### Reverts
+
+* **related-data:** use same reference on record for dataValues and direct attributes ([#569](https://github.com/ForestAdmin/forest-express/issues/569)) ([5e7a689](https://github.com/ForestAdmin/forest-express/commit/5e7a68903bfc63d5b90303e10c59873aa0b3d4d9))
+
 ## [7.8.2](https://github.com/ForestAdmin/forest-express/compare/v7.8.1...v7.8.2) (2020-12-01)
 
 
@@ -145,12 +266,37 @@
 
 * **technical:** remove useless data property from load hook controller ([#562](https://github.com/ForestAdmin/forest-express/issues/562)) ([7465982](https://github.com/ForestAdmin/forest-express/commit/7465982ed0fe2fcc4050698e8235b2783305c54d))
 
+# [8.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.2...v8.0.0-beta.3) (2020-11-26)
+
+
+### Features
+
+* delete cookie when client logout ([#545](https://github.com/ForestAdmin/forest-express/issues/545)) ([#560](https://github.com/ForestAdmin/forest-express/issues/560)) ([5188206](https://github.com/ForestAdmin/forest-express/commit/51882065163f0f295b0c35f3ae0f73db64e4ec6a))
+
 # [7.7.0](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v7.7.0) (2020-11-26)
 
 
 ### Features
 
 * **smart actions:** endpoint that handle forms' load hooks ([#546](https://github.com/ForestAdmin/forest-express/issues/546)) ([3e3c018](https://github.com/ForestAdmin/forest-express/commit/3e3c01821e9c938a35c63fc1d606ad2494f50a0a))
+
+# [8.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.1...v8.0.0-beta.2) (2020-11-24)
+
+
+### Features
+
+* authenticate with openid connect ([#555](https://github.com/ForestAdmin/forest-express/issues/555)) ([72b2cc8](https://github.com/ForestAdmin/forest-express/commit/72b2cc86510caeb1e7de6593f9163b59d536bbeb))
+
+# [8.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v7.6.0...v8.0.0-beta.1) (2020-11-24)
+
+
+* feat!: ease the multi-database setup by providing a map of connections on liana.init (#525) ([2e9dc94](https://github.com/ForestAdmin/forest-express/commit/2e9dc94dc6ba7366798f045c457d297308c20b33)), closes [#525](https://github.com/ForestAdmin/forest-express/issues/525)
+
+
+### BREAKING CHANGES
+
+* onlyCrudModule, modelsDir, secretKey, authKey options are not supported anymore by Liana.init().
+Instead of sequelize/mongoose & Sequelize/Mongoose, connections & objectMapping are now required.
 
 # [7.6.0](https://github.com/ForestAdmin/forest-express/compare/v7.5.1...v7.6.0) (2020-11-16)
 

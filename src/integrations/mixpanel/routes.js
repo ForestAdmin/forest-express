@@ -4,8 +4,10 @@ const MixpanelEventsGetter = require('./services/mixpanel-events-getter');
 const serializeMixpanelEvents = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
+const context = require('../../context');
 
 module.exports = function Routes(app, model, Implementation, options) {
+  const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -19,7 +21,7 @@ module.exports = function Routes(app, model, Implementation, options) {
   if (integrationInfo) {
     const integrationValues = integrationInfo.split('.');
     integrationInfo = {
-      collection: Implementation.getModels()[integrationValues[0]],
+      collection: modelsManager.getModels()[integrationValues[0]],
       field: integrationValues[1],
     };
   }

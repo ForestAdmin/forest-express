@@ -1,4 +1,5 @@
 const logger = require('../../../services/logger');
+const context = require('../../../context');
 
 function getContactQueryParameter(targetFieldValue) {
   const targetField = targetFieldValue.includes('@') ? 'email' : 'external_id';
@@ -14,10 +15,11 @@ function getContactQueryParameter(targetFieldValue) {
 
 class ContactGetter {
   static async getContact(intercomClient, Implementation, mappingValue, recordId) {
+    const { modelsManager } = context.inject();
     // NOTICE: `modelFieldName` is expected to be a sequelize/mongoose field
     //         (ie. camelCase formatted)
     const [modelName, modelFieldName] = mappingValue.split('.');
-    const model = Implementation.getModels()[modelName];
+    const model = modelsManager.getModels()[modelName];
     const customer = await Implementation.Intercom.getCustomer(model, recordId);
     const targetFieldValue = customer[modelFieldName];
 

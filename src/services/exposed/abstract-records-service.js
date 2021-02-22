@@ -1,10 +1,11 @@
 const ResourceSerializer = require('../../serializers/resource');
-const ConfigStore = require('../config-store');
+const context = require('../../context');
 
 class AbstractRecordService {
-  constructor(model) {
+  constructor(model, { configStore, modelsManager } = context.inject()) {
     this.model = model;
-    this.configStore = ConfigStore.getInstance();
+    this.configStore = configStore;
+    this.modelsManager = modelsManager;
   }
 
   get Implementation() {

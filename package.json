@@ -1,7 +1,7 @@
 {
   "name": "forest-express",
   "description": "Official package for all Forest Express Lianas",
-  "version": "7.10.1",
+  "version": "8.0.0-beta.16",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
     "Arnaud Besnier <arnaudibesnier@gmail.com>",
@@ -44,6 +44,7 @@
     "lodash": "4.17.19",
     "moment": "2.24.0",
     "moment-timezone": "0.5.26",
+    "openid-client": "4.2.0",
     "otplib": "11.0.1",
     "require-all": "3.0.0",
     "semver": "6.3.0",
@@ -55,6 +56,7 @@
   "devDependencies": {
     "@babel/cli": "7.10.1",
     "@babel/core": "7.10.1",
+    "@babel/helper-skip-transparent-expression-wrappers": "7.12.1",
     "@babel/plugin-proposal-class-properties": "7.10.4",
     "@babel/plugin-proposal-optional-chaining": "7.10.1",
     "@babel/plugin-transform-classes": "7.10.1",
@@ -66,6 +68,7 @@
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "@types/jest": "26.0.13",
+    "@types/jsonwebtoken": "8.5.0",
     "babel-eslint": "10.0.3",
     "eslint": "6.8.0",
     "eslint-config-airbnb-base": "14.0.0",

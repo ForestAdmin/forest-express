@@ -44,9 +44,39 @@ describe('services › exposed › error-handler', () => {
       errors: [{
         status: 500,
         detail: 'First message',
+        name: undefined,
       }],
     }]);
   });
+
+  it('uses the first error\'s name as the name if the error contains multiple errors', () => {
+    expect.assertions(1);
+    const error = {
+      errors: [{
+        message: 'First message',
+        name: 'FirstNameError',
+      }, {
+        message: 'Second message',
+        name: 'FirstNameError',
+      }],
+      message: 'Root message',
+    };
+
+    const next = sinon.stub();
+    const response = mockResponse();
+    const handleError = errorHandler();
+
+    handleError(error, undefined, response, next);
+
+    expect(response.send.firstCall.args).toStrictEqual([{
+      errors: [{
+        status: 500,
+        detail: 'First message',
+        name: 'FirstNameError',
+      }],
+    }]);
+  });
+
 
   it('logs the unexpected error if the error does not have a status', () => {
     expect.assertions(2);
@@ -63,12 +93,13 @@ describe('services › exposed › error-handler', () => {
     expect(logger.error.firstCall.args).toStrictEqual(['Unexpected error: ', error]);
   });
 
-  it("uses the error's message and status to construct the JSON response", () => {
+  it("uses the error's message, name and status to construct the JSON response", () => {
     expect.assertions(5);
 
     const response = mockResponse();
     const error = new Error('Something bad happened');
     error.status = 666;
+    error.name = 'SomethingWrongHappenedError';
 
     const handleError = errorHandler();
     const next = sinon.stub();
@@ -85,6 +116,7 @@ describe('services › exposed › error-handler', () => {
       errors: [{
         detail: 'Something bad happened',
         status: 666,
+        name: 'SomethingWrongHappenedError',
       }],
     }]);
   });

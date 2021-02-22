@@ -1,3 +1,8 @@
+const context = require('../../../src/context');
+const initContext = require('../../../src/context/init');
+
+context.init(initContext);
+
 const RecordsGetter = require('../../../src/services/exposed/records-getter.js');
 const Schemas = require('../../../src/generators/schemas');
 const usersSchema = require('../../fixtures/users-schema.js');

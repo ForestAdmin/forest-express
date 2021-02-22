@@ -34,7 +34,7 @@ class ApplicationContext {
 
   /**
    * @param {*} Class
-   * @param {boolean?} overrides
+   * @param {boolean} [overrides]
    * @returns {this}
    */
   addClass(Class, overrides) {
