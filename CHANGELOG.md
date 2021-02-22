@@ -1,3 +1,33 @@
+# [8.0.0](https://github.com/ForestAdmin/forest-express/compare/v7.10.1...v8.0.0) (2021-02-22)
+
+
+### Bug Fixes
+
+* **authentication:** error when authenticating with an invalid token in cookies ([#611](https://github.com/ForestAdmin/forest-express/issues/611)) ([e6d6737](https://github.com/ForestAdmin/forest-express/commit/e6d6737c896c882ebc774ddee2be90337c787c2b))
+* send back response to frontend instead of redirecting ([#609](https://github.com/ForestAdmin/forest-express/issues/609)) ([6f37521](https://github.com/ForestAdmin/forest-express/commit/6f375212c41c5451b14d8761c7b62a3e851c8f60))
+* user being disconnected after 33min instead of 14 days ([#610](https://github.com/ForestAdmin/forest-express/issues/610)) ([80580e7](https://github.com/ForestAdmin/forest-express/commit/80580e710a7764d1fe4d7ec912352d74594cd685))
+* **auth:** oidc authentication when running multiple instances of the agent ([#608](https://github.com/ForestAdmin/forest-express/issues/608)) ([ef25acb](https://github.com/ForestAdmin/forest-express/commit/ef25acb278142e4aa933b279665245dd7bb18646))
+
+
+### Features
+
+* merge master into beta ([131cb73](https://github.com/ForestAdmin/forest-express/commit/131cb73ba582b2586720a316853b82fa48fdf348))
+* **authentication:** remove old authentication routes ([#624](https://github.com/ForestAdmin/forest-express/issues/624)) ([b0ffc50](https://github.com/ForestAdmin/forest-express/commit/b0ffc504e819c1a16b3935937725325349e71ddb))
+* **authentication:** return a specific error during authorization if received an error about 2FA ([#622](https://github.com/ForestAdmin/forest-express/issues/622)) ([3a59a12](https://github.com/ForestAdmin/forest-express/commit/3a59a12daa4e7273879b38512e6b9ef73e199438))
+* **permissions:** handle mutliple permissions cache ([7114244](https://github.com/ForestAdmin/forest-express/commit/7114244da267a2e14b502339ed39e1ab2b9248fc))
+* authenticate with openid connect ([#555](https://github.com/ForestAdmin/forest-express/issues/555)) ([72b2cc8](https://github.com/ForestAdmin/forest-express/commit/72b2cc86510caeb1e7de6593f9163b59d536bbeb))
+* delete cookie when client logout ([#545](https://github.com/ForestAdmin/forest-express/issues/545)) ([#560](https://github.com/ForestAdmin/forest-express/issues/560)) ([5188206](https://github.com/ForestAdmin/forest-express/commit/51882065163f0f295b0c35f3ae0f73db64e4ec6a))
+
+
+* feat!: ease the multi-database setup by providing a map of connections on liana.init (#525) ([2e9dc94](https://github.com/ForestAdmin/forest-express/commit/2e9dc94dc6ba7366798f045c457d297308c20b33)), closes [#525](https://github.com/ForestAdmin/forest-express/issues/525)
+
+
+### BREAKING CHANGES
+
+* **authentication:** all previous authentication routes have been removed
+* onlyCrudModule, modelsDir, secretKey, authKey options are not supported anymore by Liana.init().
+Instead of sequelize/mongoose & Sequelize/Mongoose, connections & objectMapping are now required.
+
 # [8.0.0-beta.16](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.15...v8.0.0-beta.16) (2021-02-22)
 
 
