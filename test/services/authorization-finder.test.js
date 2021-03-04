@@ -1,4 +1,5 @@
 const AuthorizationFinder = require('../../src/services/authorization-finder');
+const AuthorizationError = require('../../src/utils/errors/authentication/authorization-error');
 const InconsistentSecretAndRenderingError = require('../../src/utils/errors/authentication/inconsistent-secret-rendering-error');
 const SecretNotFoundError = require('../../src/utils/errors/authentication/secret-not-found-error');
 const TwoFactorAuthenticationRequiredError = require('../../src/utils/errors/authentication/two-factor-authentication-required-error');
@@ -110,6 +111,63 @@ describe('authorization-finder', () => {
           'secret',
           'TOKEN',
         )).rejects.toBeInstanceOf(Error);
+      });
+
+      it('should return an authentication error if the error returned an error with a status', async () => {
+        expect.assertions(3);
+        const { authorizationFinder, forestServerRequester } = setup();
+
+        forestServerRequester.perform.mockRejectedValue({
+          jse_cause: {
+            response: {
+              body: {
+                errors: [{
+                  name: 'AuthorizationError',
+                  status: 403,
+                  detail: 'User not authorized',
+                }],
+              },
+            },
+          },
+        });
+
+        const resultAsPromise = authorizationFinder.authenticate(
+          42,
+          'secret',
+          'TOKEN',
+        );
+
+        await expect(resultAsPromise).rejects.toBeInstanceOf(AuthorizationError);
+        await expect(resultAsPromise).rejects.toHaveProperty('status', 403);
+        await expect(resultAsPromise).rejects.toHaveProperty('message', 'User not authorized');
+      });
+
+      it('should return an authentication error with a the default message if detail is missing', async () => {
+        expect.assertions(3);
+        const { authorizationFinder, forestServerRequester } = setup();
+
+        forestServerRequester.perform.mockRejectedValue({
+          jse_cause: {
+            response: {
+              body: {
+                errors: [{
+                  name: 'AuthorizationError',
+                  status: 403,
+                }],
+              },
+            },
+          },
+        });
+
+        const resultAsPromise = authorizationFinder.authenticate(
+          42,
+          'secret',
+          'TOKEN',
+        );
+
+        await expect(resultAsPromise).rejects.toBeInstanceOf(AuthorizationError);
+        await expect(resultAsPromise).rejects.toHaveProperty('status', 403);
+        await expect(resultAsPromise).rejects.toHaveProperty('message', 'Error while authorizing the user on Forest Admin');
       });
     });
   });
