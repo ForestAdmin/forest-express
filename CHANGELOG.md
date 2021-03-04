@@ -1,3 +1,10 @@
+## [8.0.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.1...v8.0.2) (2021-03-04)
+
+
+### Bug Fixes
+
+* **authentication:** safari cannot login on remote lianas because of third party cookies ([#662](https://github.com/ForestAdmin/forest-express/issues/662)) ([9003a64](https://github.com/ForestAdmin/forest-express/commit/9003a64639630bb8e162298e2eaf70685ec2031b))
+
 ## [8.0.1](https://github.com/ForestAdmin/forest-express/compare/v8.0.0...v8.0.1) (2021-03-04)
 
 
