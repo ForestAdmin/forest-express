@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/ForestAdmin/forest-express/compare/v8.0.0...v8.0.1) (2021-03-04)
+
+
+### Bug Fixes
+
+* **authentication:** return better errors when a user is not authorized to access a rendering ([#660](https://github.com/ForestAdmin/forest-express/issues/660)) ([c34dfc0](https://github.com/ForestAdmin/forest-express/commit/c34dfc03ced41b98c10a6ea651a1ebf5ab5c780a))
+
 # [8.0.0](https://github.com/ForestAdmin/forest-express/compare/v7.10.1...v8.0.0) (2021-02-22)
 
 
