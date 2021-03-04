@@ -1,6 +1,7 @@
 const InconsistentSecretAndRenderingError = require('../utils/errors/authentication/inconsistent-secret-rendering-error');
 const SecretNotFoundError = require('../utils/errors/authentication/secret-not-found-error');
 const TwoFactorAuthenticationRequiredError = require('../utils/errors/authentication/two-factor-authentication-required-error');
+const AuthorizationError = require('../utils/errors/authentication/authorization-error');
 
 class AuthorizationFinder {
   /** @private @readonly @type {import('./forest-server-requester')} */
@@ -44,6 +45,13 @@ class AuthorizationFinder {
       .names
       .TWO_FACTOR_AUTHENTICATION_REQUIRED) {
       return new TwoFactorAuthenticationRequiredError();
+    }
+
+    if (serverError?.status) {
+      throw new AuthorizationError(
+        serverError.status,
+        serverError.detail,
+      );
     }
 
     return new Error();
