@@ -1,3 +1,10 @@
+## [8.0.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.2...v8.0.3) (2021-03-05)
+
+
+### Bug Fixes
+
+* **security:** patch lodash vulnerabilities ([#645](https://github.com/ForestAdmin/forest-express/issues/645)) ([f986106](https://github.com/ForestAdmin/forest-express/commit/f986106a7ca04adb060f73f702abe91496f479d4))
+
 ## [8.0.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.1...v8.0.2) (2021-03-04)
 
 
