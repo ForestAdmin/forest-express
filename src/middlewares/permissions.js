@@ -43,6 +43,9 @@ class PermissionMiddlewareCreator {
         return this._getSmartActionInfoFromRequest(request);
       case 'browseEnabled':
         return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+      case 'liveQueries':
+        return this._getLiveQueriesInfoFromRequest(request);
+
       default:
         return { userId: request.user.id };
     }
@@ -94,6 +97,10 @@ class PermissionMiddlewareCreator {
 
   smartAction() {
     return this._checkPermission('actions');
+  }
+
+  liveQueries() {
+    return this._checkPermission('liveQueries');
   }
 }
 

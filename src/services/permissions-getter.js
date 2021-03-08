@@ -129,6 +129,10 @@ class PermissionsGetter {
     };
   }
 
+  _setMiscellaneousPermissions(permissions, { environmentId } = {}) {
+    Object.assign(this._getPermissions({ environmentId, initIfNotExisting: true }), permissions);
+  }
+
   _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
     this._setCollectionsPermissions(permissions.collections, { environmentId });
     if (permissions.renderings && permissions.renderings[renderingId]) {
@@ -216,6 +220,11 @@ class PermissionsGetter {
           : false;
 
         if (!responseBody.data) return null;
+
+        // NOTICE: Addtional permissions - live queries, stats parameters
+        const miscellaneousPermissions = { liveQueries: responseBody.liveQueries };
+        this._setMiscellaneousPermissions(renderingId, miscellaneousPermissions, { environmentId });
+
         if (renderingOnly) {
           return responseBody.data.renderings
             ? this._setRenderingPermissions(
@@ -246,10 +255,14 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
+    // NOTICE: _getMiscellaneousPermissions
+    const miscellaneousPermissions = this._getPermissions(renderingId, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
       actions: collectionPermissions ? collectionPermissions.actions : null,
+      liveQueries: miscellaneousPermissions.liveQueries ? miscellaneousPermissions.liveQueries : [],
+      statParameters: miscellaneousPermissions.statParameters ? miscellaneousPermissions.statParameters : [],
       scope,
     };
   }

@@ -127,6 +127,9 @@ class PermissionsChecker {
         return this._isCollectionBrowseAllowed(
           permissions.collection, permissionInfos, permissions.scope,
         );
+      case 'liveQueries':
+        return PermissionsChecker._isLiveQueryAllowed(permissions.liveQueries, permissionInfos);
+
       default:
         return permissions.collection
           ? PermissionsChecker
