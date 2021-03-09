@@ -1,7 +1,7 @@
 {
   "name": "forest-express",
   "description": "Official package for all Forest Express Lianas",
-  "version": "8.0.0",
+  "version": "8.0.3",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
     "Arnaud Besnier <arnaudibesnier@gmail.com>",
@@ -41,7 +41,7 @@
     "inflected": "2.0.4",
     "jsonapi-serializer": "3.6.5",
     "jsonwebtoken": "8.5.1",
-    "lodash": "4.17.19",
+    "lodash": "4.17.21",
     "moment": "2.24.0",
     "moment-timezone": "0.5.26",
     "openid-client": "4.2.0",

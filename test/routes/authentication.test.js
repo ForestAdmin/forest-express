@@ -179,7 +179,7 @@ describe('routes > authentication', () => {
       return { receivedResponse, issuer };
     }
     it('should return a new authentication token', async () => {
-      expect.assertions(8);
+      expect.assertions(7);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
@@ -196,12 +196,7 @@ describe('routes > authentication', () => {
         expect(receivedResponse.status).toBe(200);
         expect(receivedResponse.text).not.toHaveLength(0);
 
-        /** @type {string} */
-        const sessionCookie = receivedResponse.headers['set-cookie'][0];
-
-        expect(sessionCookie).toMatch(/^forest_session_token=[^;]+; Max-Age=3600; Path=\/; Expires=[^;]+; HttpOnly; Secure; SameSite=None$/);
-
-        const token = sessionCookie.match(/^forest_session_token=([^;]+);/)[1];
+        const { token } = (await receivedResponse).body;
         const decoded = jsonwebtoken.verify(token, authSecret);
 
         const expectedTokenData = {
@@ -263,71 +258,17 @@ describe('routes > authentication', () => {
   });
 
   describe('#POST /forest/authentication/logout', () => {
-    it('should invalidate token from browser', async () => {
-      expect.assertions(2);
+    it('should return 204', async () => {
+      expect.assertions(1);
 
       const {
-        forestApp: app, sandbox, injections,
+        forestApp: app, sandbox,
       } = await setupApp();
 
       try {
-        const performResponse = {
-          data: {
-            id: 666,
-            attributes: {
-              first_name: 'Alice',
-              last_name: 'Doe',
-              email: 'alice@forestadmin.com',
-              teams: [1, 2, 3],
-            },
-          },
-        };
+        const response = await request(app).post('/forest/authentication/logout').send();
 
-        injections.forestServerRequester.perform
-          .withArgs(sinon.match(/^\/liana\/v2/), sinon.match.any, sinon.match.any, sinon.match.any)
-          .resolves(performResponse);
-
-        const login = request(app).get(`/forest/authentication/callback?code=THE-CODE&state=${
-          encodeURIComponent(JSON.stringify({ renderingId: 42 }))
-        }`)
-          .send();
-
-        /** @type {import('superagent').Response} */
-        const receivedResponse = await new Promise((resolve, reject) => {
-          login
-            .end((error, response) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(response);
-              }
-            });
-        });
-
-        const sessionCookie = receivedResponse.headers['set-cookie'][0];
-        const test = request(app).post('/forest/authentication/logout')
-          .set({
-            'content-type': 'application/json; charset=utf-8',
-            cookie: sessionCookie,
-          })
-          .send();
-
-        /** @type {import('superagent').Response} */
-        const receivedResponseLogout = await new Promise((resolve, reject) => {
-          test
-            .end((error, response) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(response);
-              }
-            });
-        });
-
-        const invalidatedCookie = receivedResponseLogout.headers['set-cookie'][0];
-
-        expect(receivedResponseLogout.status).toBe(204);
-        expect(invalidatedCookie).toMatch(/^forest_session_token=[^;]+; Path=\/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=None$/);
+        expect(response.status).toStrictEqual(204);
       } finally {
         sandbox.restore();
       }

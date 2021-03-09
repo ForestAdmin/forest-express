@@ -1,3 +1,24 @@
+## [8.0.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.2...v8.0.3) (2021-03-05)
+
+
+### Bug Fixes
+
+* **security:** patch lodash vulnerabilities ([#645](https://github.com/ForestAdmin/forest-express/issues/645)) ([f986106](https://github.com/ForestAdmin/forest-express/commit/f986106a7ca04adb060f73f702abe91496f479d4))
+
+## [8.0.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.1...v8.0.2) (2021-03-04)
+
+
+### Bug Fixes
+
+* **authentication:** safari cannot login on remote lianas because of third party cookies ([#662](https://github.com/ForestAdmin/forest-express/issues/662)) ([9003a64](https://github.com/ForestAdmin/forest-express/commit/9003a64639630bb8e162298e2eaf70685ec2031b))
+
+## [8.0.1](https://github.com/ForestAdmin/forest-express/compare/v8.0.0...v8.0.1) (2021-03-04)
+
+
+### Bug Fixes
+
+* **authentication:** return better errors when a user is not authorized to access a rendering ([#660](https://github.com/ForestAdmin/forest-express/issues/660)) ([c34dfc0](https://github.com/ForestAdmin/forest-express/commit/c34dfc03ced41b98c10a6ea651a1ebf5ab5c780a))
+
 # [8.0.0](https://github.com/ForestAdmin/forest-express/compare/v7.10.1...v8.0.0) (2021-02-22)
 
 
