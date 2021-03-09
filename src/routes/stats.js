@@ -4,6 +4,7 @@ const logger = require('../services/logger');
 const error = require('../utils/error');
 const path = require('../services/path');
 const StatSerializer = require('../serializers/stat');
+const PermissionMiddlewareCreator = require('../middlewares/permissions');
 const Schemas = require('../generators/schemas');
 const context = require('../context');
 
@@ -16,6 +17,7 @@ const CHART_TYPE_OBJECTIVE = 'Objective';
 module.exports = function Stats(app, model, Implementation, opts) {
   const { modelsManager } = context.inject();
   const modelName = Implementation.getModelName(model);
+  const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
 
   this.get = (request, response, next) => {
     let promise = null;
@@ -140,6 +142,6 @@ module.exports = function Stats(app, model, Implementation, opts) {
 
   this.perform = () => {
     app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, this.get);
-    app.post(path.generate('stats', opts), auth.ensureAuthenticated, this.getWithLiveQuery);
+    app.post(path.generate('stats', opts), auth.ensureAuthenticated, permissionMiddlewareCreator.liveQueries(), this.getWithLiveQuery);
   };
 };

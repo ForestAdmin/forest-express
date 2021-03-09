@@ -130,7 +130,8 @@ class PermissionsGetter {
   }
 
   _setMiscellaneousPermissions(permissions, { environmentId } = {}) {
-    Object.assign(this._getPermissions({ environmentId, initIfNotExisting: true }), permissions);
+    this._getPermissions({ environmentId, initIfNotExisting: true })
+      .liveQueries = permissions.liveQueries;
   }
 
   _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
@@ -222,8 +223,8 @@ class PermissionsGetter {
         if (!responseBody.data) return null;
 
         // NOTICE: Addtional permissions - live queries, stats parameters
-        const miscellaneousPermissions = { liveQueries: responseBody.liveQueries };
-        this._setMiscellaneousPermissions(renderingId, miscellaneousPermissions, { environmentId });
+        const liveQueriesPermissions = { liveQueries: responseBody.liveQueries };
+        this._setMiscellaneousPermissions(liveQueriesPermissions, { environmentId });
 
         if (renderingOnly) {
           return responseBody.data.renderings
@@ -255,14 +256,16 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
-    // NOTICE: _getMiscellaneousPermissions
+    // NOTICE:  _getMiscellaneousPermissions
     const miscellaneousPermissions = this._getPermissions(renderingId, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
       actions: collectionPermissions ? collectionPermissions.actions : null,
-      liveQueries: miscellaneousPermissions.liveQueries ? miscellaneousPermissions.liveQueries : [],
-      statParameters: miscellaneousPermissions.statParameters ? miscellaneousPermissions.statParameters : [],
+      liveQueries: miscellaneousPermissions.liveQueries
+        ? miscellaneousPermissions.liveQueries : [],
+      statParameters: miscellaneousPermissions.statParameters
+        ? miscellaneousPermissions.statParameters : [],
       scope,
     };
   }

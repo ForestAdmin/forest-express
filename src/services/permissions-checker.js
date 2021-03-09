@@ -28,6 +28,10 @@ class PermissionsChecker {
     return PermissionsChecker._isPermissionAllowed(triggerEnabled, userId);
   }
 
+  static _isLiveQueryAllowed(liveQueriesPermissions, permissionInfos) {
+    return liveQueriesPermissions.includes(permissionInfos);
+  }
+
   // Compute a scope to replace $currentUser variables with the actual user values. This will
   // generate the expected conditions filters when applied on the server scope response.
   static _computeConditionFiltersFromScope(userId, scope) {

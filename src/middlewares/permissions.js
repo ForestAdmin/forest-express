@@ -37,6 +37,11 @@ class PermissionMiddlewareCreator {
     return { userId: request.user.id, ...request.query };
   }
 
+  static _getLiveQueriesInfoFromRequest(request) {
+    const { query } = request.body;
+    return query;
+  }
+
   _getPermissionsInfo(permissionName, request) {
     switch (permissionName) {
       case 'actions':
@@ -44,7 +49,7 @@ class PermissionMiddlewareCreator {
       case 'browseEnabled':
         return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
       case 'liveQueries':
-        return this._getLiveQueriesInfoFromRequest(request);
+        return PermissionMiddlewareCreator._getLiveQueriesInfoFromRequest(request);
 
       default:
         return { userId: request.user.id };
