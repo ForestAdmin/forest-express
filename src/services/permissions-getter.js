@@ -72,6 +72,15 @@ class PermissionsGetter {
       : null;
   }
 
+  _getMiscellaneousPermissions({ environmentId } = {}) {
+    const { liveQueries = [], statParameters = [] } = this._getPermissions({ environmentId });
+
+    return {
+      liveQueries,
+      statParameters,
+    };
+  }
+
   static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
     const newSmartActionsPermissions = {};
     Object.keys(smartActionsPermissions).forEach((actionName) => {
@@ -256,16 +265,13 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
-    // NOTICE:  _getMiscellaneousPermissions
-    const miscellaneousPermissions = this._getPermissions(renderingId, { environmentId });
+    const { liveQueries, statParameters } = this._getMiscellaneousPermissions({ environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
       actions: collectionPermissions ? collectionPermissions.actions : null,
-      liveQueries: miscellaneousPermissions.liveQueries
-        ? miscellaneousPermissions.liveQueries : [],
-      statParameters: miscellaneousPermissions.statParameters
-        ? miscellaneousPermissions.statParameters : [],
+      liveQueries,
+      statParameters,
       scope,
     };
   }
