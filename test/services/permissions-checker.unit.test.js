@@ -132,5 +132,44 @@ describe('services > PermissionsChecker', () => {
           .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
       });
     });
+
+    describe('with liveQueries permissions', () => {
+      it('should check correctly the permissions', async () => {
+        expect.assertions(6);
+
+        const permissions = { liveQueries: ['SELECT COUNT(*) AS value FROM products;'] };
+        const permissionsGetter = {
+          getPermissions: jest.fn().mockReturnValue(permissions),
+        };
+
+        const permissionsChecker = new PermissionsChecker({
+          ...defaultDependencies,
+          permissionsGetter,
+        });
+
+        const isAllowed = jest.spyOn(permissionsChecker, '_isAllowed');
+
+        const permissionsInfos = 'SELECT COUNT(*) AS value FROM products;';
+        const collectionName = null;
+        const permissionName = 'liveQueries';
+
+        await expect(permissionsChecker.checkPermissions(
+          1, collectionName, permissionName, permissionsInfos,
+        )).toResolve();
+
+        expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter.getPermissions).toHaveBeenCalledWith(
+          1,
+          collectionName,
+          permissionName,
+          { forceRetrieve: false, environmentId: undefined },
+        );
+
+        expect(isAllowed).toHaveBeenCalledTimes(1);
+        expect(isAllowed)
+          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+        expect(isAllowed).toHaveReturned();
+      });
+    });
   });
 });
