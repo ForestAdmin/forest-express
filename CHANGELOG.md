@@ -1,3 +1,10 @@
+## [8.0.4](https://github.com/ForestAdmin/forest-express/compare/v8.0.3...v8.0.4) (2021-03-10)
+
+
+### Bug Fixes
+
+* **authentication:** unable to login when the agents respond to an url starting with a prefix ([#667](https://github.com/ForestAdmin/forest-express/issues/667)) ([2c7cef0](https://github.com/ForestAdmin/forest-express/commit/2c7cef082ab9e590916737bc1f7f7c7e8aeed1b3))
+
 ## [8.0.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.2...v8.0.3) (2021-03-05)
 
 

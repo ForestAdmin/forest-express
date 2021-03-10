@@ -8,10 +8,13 @@ const PUBLIC_ROUTES = [
   `/${LOGOUT_ROUTE}`,
 ];
 
-function getCallbackUrl(applicationUrl) {
-  const url = new URL(`/forest/${CALLBACK_AUTHENTICATION_ROUTE}`, applicationUrl);
-
-  return url.toString();
+/**
+ * @param {import('../context/init').Context} context
+ * @param {string} applicationUrl
+ * @returns {string}
+ */
+function getCallbackUrl(context, applicationUrl) {
+  return context.joinUrl(applicationUrl, `/forest/${CALLBACK_AUTHENTICATION_ROUTE}`);
 }
 
 /**
@@ -84,7 +87,7 @@ async function startAuthentication(context, request, response, next) {
     const renderingId = getAndCheckRenderingId(request, context);
 
     const result = await context.authenticationService.startAuthentication(
-      getCallbackUrl(context.env.APPLICATION_URL),
+      getCallbackUrl(context, context.env.APPLICATION_URL),
       { renderingId },
     );
 
@@ -104,7 +107,7 @@ async function startAuthentication(context, request, response, next) {
 async function authenticationCallback(context, options, request, response, next) {
   try {
     const token = await context.authenticationService.verifyCodeAndGenerateToken(
-      getCallbackUrl(context.env.APPLICATION_URL),
+      getCallbackUrl(context, context.env.APPLICATION_URL),
       request.query,
       options,
     );
