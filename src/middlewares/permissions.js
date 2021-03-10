@@ -42,6 +42,14 @@ class PermissionMiddlewareCreator {
     return query;
   }
 
+  static _getStatWithParametersInfoFromRequest(request) {
+    const parameters = { ...request.body };
+    // NOTICE: Remove useless information
+    delete parameters.timezone;
+
+    return parameters;
+  }
+
   _getPermissionsInfo(permissionName, request) {
     switch (permissionName) {
       case 'actions':
@@ -50,6 +58,8 @@ class PermissionMiddlewareCreator {
         return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
       case 'liveQueries':
         return PermissionMiddlewareCreator._getLiveQueriesInfoFromRequest(request);
+      case 'statWithParameters':
+        return PermissionMiddlewareCreator._getStatWithParametersInfoFromRequest(request);
 
       default:
         return { userId: request.user.id };
@@ -106,6 +116,10 @@ class PermissionMiddlewareCreator {
 
   liveQueries() {
     return this._checkPermission('liveQueries');
+  }
+
+  statWithParameters() {
+    return this._checkPermission('statWithParameters');
   }
 }
 
