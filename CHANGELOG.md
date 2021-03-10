@@ -1,3 +1,10 @@
+## [8.0.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.4...v8.0.5) (2021-03-10)
+
+
+### Bug Fixes
+
+* **security:** decrease the time before expiration of forest session token ([#656](https://github.com/ForestAdmin/forest-express/issues/656)) ([037a5af](https://github.com/ForestAdmin/forest-express/commit/037a5af5dba43daab7107418ecb162be233e34cb))
+
 ## [8.0.4](https://github.com/ForestAdmin/forest-express/compare/v8.0.3...v8.0.4) (2021-03-10)
 
 
