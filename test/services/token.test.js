@@ -68,7 +68,7 @@ describe('token service', () => {
       renderingId: 42,
     },
     'THIS IS SECRET',
-    { expiresIn: '14 days' });
+    { expiresIn: '1 hours' });
   });
 
   it('should update the expiration date of a token in the past', () => {

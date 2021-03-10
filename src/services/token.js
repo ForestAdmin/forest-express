@@ -1,4 +1,4 @@
-const EXPIRATION_IN_DAYS = 14;
+const EXPIRATION_IN_HOURS = 1;
 const PAST_DATE = new Date(0);
 const FOREST_SESSION_TOKEN = 'forest_session_token';
 const REGEX_COOKIE_SESSION_TOKEN = new RegExp(`${FOREST_SESSION_TOKEN}=([^;]*)`);
@@ -16,13 +16,13 @@ class TokenService {
 
   /** @returns {number} */
   // eslint-disable-next-line class-methods-use-this
-  get expirationInDays() {
-    return EXPIRATION_IN_DAYS;
+  get expirationInHours() {
+    return EXPIRATION_IN_HOURS;
   }
 
   /** @returns {number} */
   get expirationInSeconds() {
-    return this.expirationInDays * 24 * 3600;
+    return this.expirationInHours * 3600;
   }
 
   /** @returns {string} */
@@ -54,7 +54,7 @@ class TokenService {
       team: user.teams[0],
       renderingId,
     }, authSecret, {
-      expiresIn: `${this.expirationInDays} days`,
+      expiresIn: `${this.expirationInHours} hours`,
     });
   }
 
