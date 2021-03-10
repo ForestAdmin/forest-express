@@ -132,7 +132,7 @@ class PermissionsChecker {
           permissions.collection, permissionInfos, permissions.scope,
         );
       case 'liveQueries':
-        return PermissionsChecker._isLiveQueryAllowed(permissions.liveQueries, permissionInfos);
+        return PermissionsChecker._isLiveQueryAllowed(permissions.stats.queries, permissionInfos);
 
       default:
         return permissions.collection

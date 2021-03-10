@@ -72,13 +72,20 @@ class PermissionsGetter {
       : null;
   }
 
-  _getMiscellaneousPermissions({ environmentId } = {}) {
-    const { liveQueries = [], statParameters = [] } = this._getPermissions({ environmentId });
-
-    return {
-      liveQueries,
-      statParameters,
+  _getStatsPermissions({ environmentId } = {}) {
+    const defaultStatsPermissions = {
+      queries: [],
+      leaderboards: [],
+      lines: [],
+      objectives: [],
+      percentages: [],
+      pies: [],
+      values: [],
     };
+
+    const { stats = defaultStatsPermissions } = this._getPermissions({ environmentId });
+
+    return stats;
   }
 
   static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
@@ -138,9 +145,9 @@ class PermissionsGetter {
     };
   }
 
-  _setMiscellaneousPermissions(permissions, { environmentId } = {}) {
+  _setStatsPermissions(permissions, { environmentId } = {}) {
     this._getPermissions({ environmentId, initIfNotExisting: true })
-      .liveQueries = permissions.liveQueries;
+      .stats = permissions;
   }
 
   _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
@@ -232,8 +239,7 @@ class PermissionsGetter {
         if (!responseBody.data) return null;
 
         // NOTICE: Addtional permissions - live queries, stats parameters
-        const liveQueriesPermissions = { liveQueries: responseBody.liveQueries };
-        this._setMiscellaneousPermissions(liveQueriesPermissions, { environmentId });
+        this._setStatsPermissions(responseBody.stats, { environmentId });
 
         if (renderingOnly) {
           return responseBody.data.renderings
@@ -265,13 +271,12 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
-    const { liveQueries, statParameters } = this._getMiscellaneousPermissions({ environmentId });
+    const stats = this._getStatsPermissions({ environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
       actions: collectionPermissions ? collectionPermissions.actions : null,
-      liveQueries,
-      statParameters,
+      stats,
       scope,
     };
   }

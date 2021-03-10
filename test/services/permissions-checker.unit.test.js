@@ -137,7 +137,7 @@ describe('services > PermissionsChecker', () => {
       it('should check correctly the permissions', async () => {
         expect.assertions(6);
 
-        const permissions = { liveQueries: ['SELECT COUNT(*) AS value FROM products;'] };
+        const permissions = { stats: { queries: ['SELECT COUNT(*) AS value FROM products;'] } };
         const permissionsGetter = {
           getPermissions: jest.fn().mockReturnValue(permissions),
         };
