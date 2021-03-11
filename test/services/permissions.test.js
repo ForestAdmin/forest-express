@@ -1779,4 +1779,141 @@ describe('services > permissions', () => {
       });
     });
   });
+
+  describe('with live queries permissions', () => {
+    describe('if the live query is not allowed to be executed', () => {
+      it('should return a rejected promise', async () => {
+        expect.assertions(1);
+
+        resetAndClearCache();
+        nock.cleanAll();
+        nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
+          meta: { rolesACLActivated: false },
+          data: {
+            Users: {
+              collection: {},
+              actions: {
+                save: {
+                  allowed: false,
+                  users: null,
+                },
+                copy: {
+                  allowed: true,
+                  users: null,
+                },
+              },
+            },
+          },
+          stats: { queries: [] },
+        });
+
+        const liveQueryParameters = 'SELECT COUNT(*) AS value FROM products;';
+        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'liveQueries', liveQueryParameters))
+          .rejects.toThrow("'liveQueries' access forbidden on ");
+        nockObj.persist(false);
+      });
+    });
+
+    describe('if the live query is allowed', () => {
+      it('should return a resolved promise', async () => {
+        expect.assertions(1);
+
+        resetAndClearCache();
+        nock.cleanAll();
+        nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
+          meta: { rolesACLActivated: false },
+          data: {
+            Users: {
+              collection: {},
+              actions: {
+                save: {
+                  allowed: true,
+                  users: null,
+                },
+                copy: {
+                  allowed: true,
+                  users: null,
+                },
+              },
+            },
+          },
+          stats: { queries: ['SELECT COUNT(*) AS value FROM products;'] },
+        });
+
+        const liveQueryParameters = 'SELECT COUNT(*) AS value FROM products;';
+        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'liveQueries', liveQueryParameters))
+          .toResolve();
+      });
+    });
+  });
+
+  describe('with stats with parameters permissions', () => {
+    describe('if is not allowed to be executed', () => {
+      it('should return a rejected promise', async () => {
+        expect.assertions(1);
+
+        resetAndClearCache();
+        nock.cleanAll();
+        nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
+          meta: { rolesACLActivated: false },
+          data: {
+            Users: {
+              collection: {},
+              actions: {
+                save: {
+                  allowed: false,
+                  users: null,
+                },
+                copy: {
+                  allowed: true,
+                  users: null,
+                },
+              },
+            },
+          },
+          stats: { values: [] },
+        });
+
+        const statsWithParameterParameters = { type: 'Value', someInfo: 'Count', otherInfo: 'SomeCollection' };
+        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'statWithParameters', statsWithParameterParameters))
+          .rejects.toThrow("'statWithParameters' access forbidden on ");
+        nockObj.persist(false);
+      });
+    });
+
+    describe('if is allowed', () => {
+      it('should return a resolved promise', async () => {
+        expect.assertions(1);
+
+        resetAndClearCache();
+        nock.cleanAll();
+        nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
+          meta: { rolesACLActivated: false },
+          data: {
+            Users: {
+              collection: {},
+              actions: {
+                save: {
+                  allowed: true,
+                  users: null,
+                },
+                copy: {
+                  allowed: true,
+                  users: null,
+                },
+              },
+            },
+          },
+          stats: {
+            values: [{
+              id: 'awesomeValueChart', type: 'Value', someInfoWithSillyName: 'Count', otherInfo: 'SomeCollection',
+            }],
+          },
+        });
+
+        const statsWithParameterParameters = { type: 'Value', someInfo: 'Count', otherInfo: 'SomeCollection' };
+        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'statWithParameters', statsWithParameterParameters)).toResolve();
+      });
+    });
+  });
 });
