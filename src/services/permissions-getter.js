@@ -72,6 +72,22 @@ class PermissionsGetter {
       : null;
   }
 
+  _getStatsPermissions({ environmentId } = {}) {
+    const defaultStatsPermissions = {
+      queries: [],
+      leaderboards: [],
+      lines: [],
+      objectives: [],
+      percentages: [],
+      pies: [],
+      values: [],
+    };
+
+    const { stats = defaultStatsPermissions } = this._getPermissions({ environmentId });
+
+    return stats;
+  }
+
   static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
     const newSmartActionsPermissions = {};
     Object.keys(smartActionsPermissions).forEach((actionName) => {
@@ -127,6 +143,11 @@ class PermissionsGetter {
       data: permissions,
       lastRetrieve: this.moment(),
     };
+  }
+
+  _setStatsPermissions(permissions, { environmentId } = {}) {
+    this._getPermissions({ environmentId, initIfNotExisting: true })
+      .stats = permissions;
   }
 
   _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
@@ -216,6 +237,10 @@ class PermissionsGetter {
           : false;
 
         if (!responseBody.data) return null;
+
+        // NOTICE: Addtional permissions - live queries, stats parameters
+        this._setStatsPermissions(responseBody.stats, { environmentId });
+
         if (renderingOnly) {
           return responseBody.data.renderings
             ? this._setRenderingPermissions(
@@ -246,10 +271,12 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
+    const stats = this._getStatsPermissions({ environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
       actions: collectionPermissions ? collectionPermissions.actions : null,
+      stats,
       scope,
     };
   }

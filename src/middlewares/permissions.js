@@ -37,12 +37,30 @@ class PermissionMiddlewareCreator {
     return { userId: request.user.id, ...request.query };
   }
 
+  static _getLiveQueriesInfoFromRequest(request) {
+    const { query } = request.body;
+    return query;
+  }
+
+  static _getStatWithParametersInfoFromRequest(request) {
+    const parameters = { ...request.body };
+    // NOTICE: Remove useless information
+    delete parameters.timezone;
+
+    return parameters;
+  }
+
   _getPermissionsInfo(permissionName, request) {
     switch (permissionName) {
       case 'actions':
         return this._getSmartActionInfoFromRequest(request);
       case 'browseEnabled':
         return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
+      case 'liveQueries':
+        return PermissionMiddlewareCreator._getLiveQueriesInfoFromRequest(request);
+      case 'statWithParameters':
+        return PermissionMiddlewareCreator._getStatWithParametersInfoFromRequest(request);
+
       default:
         return { userId: request.user.id };
     }
@@ -94,6 +112,14 @@ class PermissionMiddlewareCreator {
 
   smartAction() {
     return this._checkPermission('actions');
+  }
+
+  liveQueries() {
+    return this._checkPermission('liveQueries');
+  }
+
+  statWithParameters() {
+    return this._checkPermission('statWithParameters');
   }
 }
 
