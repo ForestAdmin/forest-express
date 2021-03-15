@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/ForestAdmin/forest-express/compare/v8.0.5...v8.1.0) (2021-03-15)
+
+
+### Features
+
+* **security:** authorised only allowed stats queries using permissions ([#666](https://github.com/ForestAdmin/forest-express/issues/666)) ([b92d16e](https://github.com/ForestAdmin/forest-express/commit/b92d16e68013f7b03cfcb030d9333e7246e737d6))
+
 ## [8.0.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.4...v8.0.5) (2021-03-10)
 
 
