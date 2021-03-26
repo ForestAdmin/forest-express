@@ -71,7 +71,7 @@ function SchemaSerializer() {
           'field',
           'type',
           'defaultValue',
-          'isReadOnly',
+          'disabled',
           'enums',
           'isRequired',
           'reference',
