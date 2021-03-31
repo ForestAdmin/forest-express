@@ -1,3 +1,11 @@
+## [8.1.2](https://github.com/ForestAdmin/forest-express/compare/v8.1.1...v8.1.2) (2021-03-31)
+
+
+### Bug Fixes
+
+* **security:** patch ini dependency vulnérability ([#678](https://github.com/ForestAdmin/forest-express/issues/678)) ([e8b0101](https://github.com/ForestAdmin/forest-express/commit/e8b010138e3a91bf928290cb5524c7f965fd627b))
+* **security:** patch npm-user-validate dependency vulnerabilities ([#677](https://github.com/ForestAdmin/forest-express/issues/677)) ([d630b4f](https://github.com/ForestAdmin/forest-express/commit/d630b4fbf8bbb4c58f1e900e6cfe09f39dce1c26))
+
 ## [8.1.1](https://github.com/ForestAdmin/forest-express/compare/v8.1.0...v8.1.1) (2021-03-31)
 
 
