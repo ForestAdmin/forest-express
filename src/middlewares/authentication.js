@@ -50,6 +50,11 @@ exports.initAuthenticator = () => {
  * @param {import('express').NextFunction} next
  */
 exports.ensureAuthenticated = (request, response, next) => {
+  if (!jwtAuthenticator) {
+    next(new Error('Authenticator not initialized, call `initAuthenticator` prior to this'));
+    return;
+  }
+
   const parsedUrl = url.parse(request.originalUrl);
   const forestPublicRoutes = PUBLIC_ROUTES.map((route) => `/forest${route}`);
 
