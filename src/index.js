@@ -2,13 +2,17 @@ const _ = require('lodash');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const jwt = require('express-jwt');
-const url = require('url');
 const requireAll = require('require-all');
 const context = require('./context');
 const initContext = require('./context/init');
 
 context.init(initContext);
+
+const {
+  ensureAuthenticated,
+  initAuthenticator,
+  PUBLIC_ROUTES,
+} = require('./middlewares/authentication');
 
 const auth = require('./services/auth');
 
@@ -22,7 +26,6 @@ const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
 const ProjectDirectoryUtils = require('./utils/project-directory');
-const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
@@ -36,14 +39,7 @@ const {
   configStore,
   modelsManager,
   fs,
-  tokenService,
 } = context.inject();
-
-const PUBLIC_ROUTES = [
-  '/',
-  '/healthcheck',
-  ...initAuthenticationRoutes.PUBLIC_ROUTES,
-];
 
 const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
@@ -53,7 +49,6 @@ const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
 
-let jwtAuthenticator;
 let app = null;
 
 function loadCollections(collectionsDir) {
@@ -89,22 +84,7 @@ exports.Schemas = Schemas;
 exports.logger = logger;
 exports.ResourcesRoute = {};
 
-/**
- * @param {import('express').Request} request
- * @param {import('express').Response} response
- * @param {import('express').NextFunction} next
- */
-exports.ensureAuthenticated = (request, response, next) => {
-  const parsedUrl = url.parse(request.originalUrl);
-  const forestPublicRoutes = PUBLIC_ROUTES.map((route) => `/forest${route}`);
-
-  if (forestPublicRoutes.includes(parsedUrl.pathname)) {
-    next();
-    return;
-  }
-
-  auth.authenticate(request, response, next, jwtAuthenticator);
-};
+exports.ensureAuthenticated = ensureAuthenticated;
 
 function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
@@ -224,31 +204,9 @@ exports.init = async (Implementation) => {
 
   // Authentication
   if (configStore.lianaOptions.authSecret) {
-    jwtAuthenticator = jwt(getJWTConfiguration({
-      secret: configStore.lianaOptions.authSecret,
-      getToken: (request) => {
-        if (request.headers) {
-          if (request.headers.authorization
-            && request.headers.authorization.split(' ')[0] === 'Bearer') {
-            return request.headers.authorization.split(' ')[1];
-          }
-          // NOTICE: Necessary for downloads authentication.
-          if (request.headers.cookie) {
-            const forestSessionToken = tokenService
-              .extractForestSessionToken(request.headers.cookie);
-            if (forestSessionToken) {
-              return forestSessionToken;
-            }
-          }
-        }
-        return null;
-      },
-    }));
-  }
-
-  if (jwtAuthenticator) {
+    const authenticator = initAuthenticator();
     const pathsPublic = [/^\/forest\/authentication$/, /^\/forest\/authentication\/.*$/];
-    app.use(pathMounted, jwtAuthenticator.unless({ path: pathsPublic }));
+    app.use(pathMounted, authenticator.unless({ path: pathsPublic }));
   }
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
