@@ -58,7 +58,6 @@ exports.ensureAuthenticated = (request, response, next) => {
     return;
   }
 
-  // console.log('authenticate', request, jwtAuthenticator)
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
