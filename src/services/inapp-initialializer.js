@@ -65,8 +65,8 @@ const inAppInit = async (app, models, appDir, init) => {
     configDir,
     envSecret: process.env.FOREST_ENV_SECRET,
     authSecret: process.env.FOREST_AUTH_SECRET,
-    objectMapping: models.Sequelize,
-    connections: { default: models.sequelize },
+    objectMapping: models.objectMapping || models.Sequelize,
+    connections: models.connections || { default: models.sequelize },
   }));
 
   app.use('/forest', errorHandler());
