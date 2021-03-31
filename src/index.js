@@ -15,6 +15,7 @@ const {
 } = require('./middlewares/authentication');
 
 const auth = require('./services/auth');
+const { inAppInit } = require('./services/inapp-initialializer');
 
 const ResourcesRoutes = require('./routes/resources');
 const ActionsRoutes = require('./routes/actions');
@@ -273,6 +274,8 @@ exports.init = async (Implementation) => {
     throw error;
   }
 };
+
+exports.inAppInit = inAppInit;
 
 exports.collection = (name, opts) => {
   if (_.isEmpty(Schemas.schemas) && opts.modelsDir) {
