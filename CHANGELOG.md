@@ -1,3 +1,10 @@
+## [8.1.1](https://github.com/ForestAdmin/forest-express/compare/v8.1.0...v8.1.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* **security:** patch y18n dependency vulnerabilities ([#676](https://github.com/ForestAdmin/forest-express/issues/676)) ([03cf696](https://github.com/ForestAdmin/forest-express/commit/03cf69662343fb0f4bd0ee43a848aebec9de348d))
+
 # [8.1.0](https://github.com/ForestAdmin/forest-express/compare/v8.0.5...v8.1.0) (2021-03-15)
 
 
