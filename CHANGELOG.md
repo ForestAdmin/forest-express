@@ -1,3 +1,10 @@
+## [8.1.3](https://github.com/ForestAdmin/forest-express/compare/v8.1.2...v8.1.3) (2021-03-31)
+
+
+### Bug Fixes
+
+* **security:** patch node-notifier vulnerabilities ([#679](https://github.com/ForestAdmin/forest-express/issues/679)) ([24b59b6](https://github.com/ForestAdmin/forest-express/commit/24b59b6df99a9347503747f244844f1d182e6501))
+
 ## [8.1.2](https://github.com/ForestAdmin/forest-express/compare/v8.1.1...v8.1.2) (2021-03-31)
 
 
