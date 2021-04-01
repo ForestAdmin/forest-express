@@ -125,7 +125,7 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format action', () => {
-    expect.assertions(2);
+    expect.assertions(3);
     const schema = buildSchema([{
       name: 'collectionName',
       actions: [
@@ -136,6 +136,14 @@ describe('services > schema-file-updater', () => {
             field: 'someOtherField',
             description: 'This action will \r\n do something',
             enums: ['yes', 'no'],
+          }],
+        },
+        {
+          name: 'thirdActionName',
+          fields: [{
+            field: 'someOtherField',
+            description: 'This action will \r\n do something',
+            disabled: true,
           }],
         },
       ],
@@ -161,6 +169,18 @@ describe('services > schema-file-updater', () => {
       description: 'This action will \r\n do something',
       position: 0,
       widget: null,
+    });
+    expect(schema.collections[0].actions[2].fields[0]).toStrictEqual({
+      field: 'someOtherField',
+      type: 'String',
+      defaultValue: null,
+      isRequired: false,
+      reference: null,
+      description: 'This action will \r\n do something',
+      position: 0,
+      widget: null,
+      enums: null,
+      disabled: true,
     });
   });
 
