@@ -278,19 +278,26 @@ exports.init = async (Implementation) => {
         configStore.integrator,
         configStore.lianaOptions,
       ).perform();
-      new ActionsRoutes().perform(
-        app,
-        model,
-        configStore.Implementation,
-        configStore.lianaOptions,
-        auth,
-      );
       new StatRoutes(
         app,
         model,
         configStore.Implementation,
         configStore.lianaOptions,
       ).perform();
+    });
+
+    const collections = _.values(Schemas.schemas);
+    collections.forEach((collection) => {
+      const retrievedModel = models.find((model) =>
+        configStore.Implementation.getModelName(model) === collection.name);
+      new ActionsRoutes().perform(
+        app,
+        collection,
+        retrievedModel,
+        configStore.Implementation,
+        configStore.lianaOptions,
+        auth,
+      );
     });
 
     new ForestRoutes(app, configStore.lianaOptions).perform();

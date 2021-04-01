@@ -1,7 +1,7 @@
 const ApplicationContext = require('../../src/context/application-context');
 const ActionsRoutes = require('../../src/routes/actions');
 
-function initContext(schema, smartActionHookGetResponse) {
+function initContext(schemas, smartActionHookGetResponse) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
@@ -12,7 +12,7 @@ function initContext(schema, smartActionHookGetResponse) {
     .addInstance('stringUtils', {
       parameterize: jest.fn((name) => name),
     })
-    .addInstance('schemasGenerator', { schemas: schema })
+    .addInstance('schemasGenerator', { schemas })
     .addInstance('smartActionHook', { getResponse: smartActionHookGetResponse })
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })
@@ -44,7 +44,9 @@ async function callHook(hooks, smartActionHookGetResponse, requestBody) {
     ResourceGetter: jest.fn(() => ({ perform })),
   };
 
-  await actions.perform(app, model, implementation, {}, {});
+  const schema = schemas[model.name];
+
+  await actions.perform(app, schema, model, implementation, {}, {});
 
   const [, , callback] = app.post.mock.calls[0];
 
@@ -57,31 +59,29 @@ async function callHook(hooks, smartActionHookGetResponse, requestBody) {
 
 describe('routes > actions', () => {
   it('should not create a route when no actions is present', async () => {
-    expect.assertions(4);
+    expect.assertions(3);
 
     const {
-      actions, model, implementation, pathService, app,
+      actions, model, implementation, pathService, app, schemasGenerator,
     } = initContext({ users: {} }).inject();
 
-    await actions.perform({}, model, implementation, {}, {});
+    await actions.perform({}, schemasGenerator[model.name], model, implementation, {}, {});
 
-    expect(implementation.getModelName).toHaveNthReturnedWith(1, 'users');
     expect(pathService.generate).not.toHaveBeenCalled();
     expect(pathService.generateForSmartActionCustomEndpoint).not.toHaveBeenCalled();
     expect(app.post).not.toHaveBeenCalled();
   });
 
   it('should not create a route when actions.values or actions.hooks.* are missing', async () => {
-    expect.assertions(4);
+    expect.assertions(3);
 
     const schema = { users: { actions: [{}, {}] } };
     const {
-      actions, pathService, model, implementation, app,
+      actions, pathService, model, implementation, app, schemasGenerator,
     } = initContext(schema).inject();
 
-    await actions.perform({}, model, implementation, {}, {});
+    await actions.perform({}, schemasGenerator[model.name], model, implementation, {}, {});
 
-    expect(implementation.getModelName).toHaveNthReturnedWith(1, 'users');
     expect(pathService.generate).not.toHaveBeenCalled();
     expect(pathService.generateForSmartActionCustomEndpoint).not.toHaveBeenCalled();
     expect(app.post).not.toHaveBeenCalled();
@@ -96,7 +96,7 @@ describe('routes > actions', () => {
         actions, pathService, stringUtils, model, implementation, app,
       } = initContext(schema).inject();
 
-      await actions.perform(app, model, implementation, {}, {});
+      await actions.perform(app, schema[model.name], model, implementation, {}, {});
 
       expect(stringUtils.parameterize).toHaveBeenCalledTimes(1);
       expect(pathService.generate).toHaveBeenCalledTimes(1);
@@ -118,7 +118,7 @@ describe('routes > actions', () => {
       const send = jest.fn((values) => values);
       const response = { status: jest.fn(() => ({ send })) };
 
-      await actions.perform(app, model, implementation, {}, {});
+      await actions.perform(app, schemas[model.name], model, implementation, {}, {});
 
       const [, , callback] = app.post.mock.calls[0];
 
@@ -148,7 +148,7 @@ describe('routes > actions', () => {
       const send = jest.fn((values) => values);
       const response = { status: jest.fn(() => ({ send })) };
 
-      await actions.perform(app, model, implementation, {}, {});
+      await actions.perform(app, schemas[model.name], model, implementation, {}, {});
 
       const [, , callback] = app.post.mock.calls[0];
 
@@ -171,7 +171,7 @@ describe('routes > actions', () => {
           actions, pathService, stringUtils, model, implementation, app,
         } = initContext(schema).inject();
 
-        await actions.perform(app, model, implementation, {}, {});
+        await actions.perform(app, schema[model.name], model, implementation, {}, {});
 
         expect(stringUtils.parameterize).toHaveBeenCalledTimes(1);
         expect(pathService.generate).toHaveBeenCalledTimes(1);
@@ -195,6 +195,7 @@ describe('routes > actions', () => {
             load,
             [{ field: 'invoice number', type: 'String' }],
             { id: 1, name: 'Jane' },
+            1,
           );
         });
 
@@ -232,7 +233,7 @@ describe('routes > actions', () => {
           actions, pathService, stringUtils, model, implementation, app,
         } = initContext(schema).inject();
 
-        await actions.perform(app, model, implementation, {}, {});
+        await actions.perform(app, schema[model.name], model, implementation, {}, {});
 
         expect(stringUtils.parameterize).toHaveBeenCalledTimes(1);
         expect(pathService.generate).toHaveBeenCalledTimes(1);
@@ -258,6 +259,7 @@ describe('routes > actions', () => {
             undefined,
             [{ field: 'invoice number', type: 'String' }],
             { id: 1, name: 'Jane' },
+            1,
           );
         });
 
@@ -284,7 +286,7 @@ describe('routes > actions', () => {
 
           expect(implementation.ResourceGetter).toHaveBeenNthCalledWith(1, model, { recordId: 1 });
           expect(smartActionHookGetResponse)
-            .toHaveBeenNthCalledWith(1, change.foo, [field], { id: 1, name: 'Jane' });
+            .toHaveBeenNthCalledWith(1, change.foo, [field], { id: 1, name: 'Jane' }, 1);
         });
 
         it('should fail with message when change hook service throws', async () => {
