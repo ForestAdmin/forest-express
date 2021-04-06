@@ -4,7 +4,7 @@ exports.generate = (path, options) => {
 };
 
 exports.generateForInit = (path, options) => {
-  if (options.expressParentApp) return '/';
+  if (options.expressParentApp) return `/${path}`;
 
   const pathPrefix = '/forest';
   return [`${pathPrefix}`, `${pathPrefix}/${path}`];
