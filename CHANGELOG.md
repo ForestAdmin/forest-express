@@ -1,3 +1,10 @@
+## [8.1.4](https://github.com/ForestAdmin/forest-express/compare/v8.1.3...v8.1.4) (2021-04-07)
+
+
+### Bug Fixes
+
+* include `/forest` route in CORS and authentication config ([#682](https://github.com/ForestAdmin/forest-express/issues/682)) ([9b7ad28](https://github.com/ForestAdmin/forest-express/commit/9b7ad2878c9c024581f39bc6cd7e326717a0738d))
+
 ## [8.1.3](https://github.com/ForestAdmin/forest-express/compare/v8.1.2...v8.1.3) (2021-03-31)
 
 
