@@ -191,7 +191,7 @@ exports.init = async (Implementation) => {
     return Promise.resolve(app);
   }
 
-  const pathMounted = pathService.generate('*', configStore.lianaOptions);
+  const pathMounted = pathService.generateForInit('*', configStore.lianaOptions);
 
   auth.initAuth(configStore.lianaOptions);
 

@@ -3,6 +3,13 @@ exports.generate = (path, options) => {
   return pathPrefix + path;
 };
 
+exports.generateForInit = (path, options) => {
+  if (options.expressParentApp) return `/${path}`;
+
+  const pathPrefix = '/forest';
+  return [`${pathPrefix}`, `${pathPrefix}/${path}`];
+};
+
 exports.generateForSmartActionCustomEndpoint = (path, options) => {
   if (options.expressParentApp) {
     return path.replace(/^\/?forest\//, '/');
