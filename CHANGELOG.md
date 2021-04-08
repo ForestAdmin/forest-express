@@ -1,3 +1,10 @@
+# [8.2.0](https://github.com/ForestAdmin/forest-express/compare/v8.1.4...v8.2.0) (2021-04-08)
+
+
+### Features
+
+* **smart-action:** support hooks for smart-collection ([#680](https://github.com/ForestAdmin/forest-express/issues/680)) ([0fd96d6](https://github.com/ForestAdmin/forest-express/commit/0fd96d69ccebe889c46cbaa419691490786b3719))
+
 ## [8.1.4](https://github.com/ForestAdmin/forest-express/compare/v8.1.3...v8.1.4) (2021-04-07)
 
 
