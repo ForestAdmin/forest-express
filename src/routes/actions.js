@@ -42,8 +42,9 @@ class Actions {
    * @param {Number} recordId
    */
   async getRecord(recordId) {
-    return new this.implementation
-      .ResourceGetter(this.model, { recordId }).perform();
+    return this.model
+      ? new this.implementation.ResourceGetter(this.model, { recordId }).perform()
+      : null;
   }
 
   /**
@@ -56,10 +57,11 @@ class Actions {
    * @see getHookLoadController and getHookChangeController
    */
   async getHook(request, response, hook) {
-    const record = await this.getRecord(request.body.recordIds[0]);
+    const recordId = request.body.recordIds[0];
+    const record = await this.getRecord(recordId);
 
     try {
-      const updatedFields = await hook(record);
+      const updatedFields = await hook(record, recordId);
 
       return response.status(200).send({ fields: updatedFields });
     } catch (error) {
@@ -76,10 +78,11 @@ class Actions {
    */
   getHookLoadController(action) {
     return async (request, response) => (
-      this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
+      this.getHook(request, response, async (record, recordId) => this.smartActionHook.getResponse(
         action.hooks.load,
         action.fields,
         record,
+        recordId,
       )));
   }
 
@@ -93,11 +96,13 @@ class Actions {
     return async (request, response) => {
       const { changedField } = request.body;
 
-      return this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
-        action.hooks.change[changedField],
-        request.body.fields,
-        record,
-      ));
+      return this.getHook(request, response,
+        async (record, recordId) => this.smartActionHook.getResponse(
+          action.hooks.change[changedField],
+          request.body.fields,
+          record,
+          recordId,
+        ));
     };
   }
 
@@ -159,22 +164,20 @@ class Actions {
    *  Generate routes for smart action hooks (and the legacy values object).
    *
    * @param {*} app Express instance (route are attached to this object)
-   * @param {*} model The model associated with the action
+   * @param {*} schema The schema (collection) associated with the action
+   * @param {*} model The model associated with the action (is undefined for smart collection)
    * @param {*} Implementation Gives access to current Implementation (mongoose or sequelize)
    * @param {*} options Environment options
    * @param {*} auth Auth instance
    */
-  perform(app, model, Implementation, options, auth) {
+  perform(app, schema, model, Implementation, options, auth) {
     this.implementation = Implementation;
     this.model = model;
     this.app = app;
     this.options = options;
     this.auth = auth;
 
-    const modelName = Implementation.getModelName(model);
-    const schema = this.schemasGenerator.schemas[modelName];
-
-    if (!schema.actions) return;
+    if (!schema || !schema.actions) return;
 
     this.buildRoutes(schema.actions);
   }
