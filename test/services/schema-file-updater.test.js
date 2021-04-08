@@ -143,7 +143,7 @@ describe('services > schema-file-updater', () => {
           fields: [{
             field: 'someOtherField',
             description: 'This action will \r\n do something',
-            disabled: true,
+            isReadOnly: true,
           }],
         },
       ],
@@ -180,7 +180,7 @@ describe('services > schema-file-updater', () => {
       position: 0,
       widget: null,
       enums: null,
-      disabled: true,
+      isReadOnly: true,
     });
   });
 
