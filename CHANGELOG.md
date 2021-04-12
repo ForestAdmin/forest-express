@@ -1,3 +1,10 @@
+# [8.3.0](https://github.com/ForestAdmin/forest-express/compare/v8.2.0...v8.3.0) (2021-04-12)
+
+
+### Features
+
+* **smart-action:** handle isReadOnly field in smart action forms ([#671](https://github.com/ForestAdmin/forest-express/issues/671)) ([4de9540](https://github.com/ForestAdmin/forest-express/commit/4de95408a34afa47388c3af8a715b19bafe78ed3))
+
 # [8.2.0](https://github.com/ForestAdmin/forest-express/compare/v8.1.4...v8.2.0) (2021-04-08)
 
 
