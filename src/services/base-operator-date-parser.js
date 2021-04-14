@@ -108,11 +108,11 @@ function BaseOperatorDateParser(options) {
         };
       case 'before_x_hours_ago':
         return {
-          [options.operators.LTE]: this.toDateWithTimezone(moment().subtract(value, 'hours')),
+          [options.operators.LTE]: moment().subtract(value, 'hours').toDate(),
         };
       case 'after_x_hours_ago':
         return {
-          [options.operators.GTE]: this.toDateWithTimezone(moment().subtract(value, 'hours')),
+          [options.operators.GTE]: moment().subtract(value, 'hours').toDate(),
         };
       default:
         throw new NoMatchingOperatorError();
