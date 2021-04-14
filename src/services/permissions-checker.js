@@ -1,8 +1,5 @@
-const { clone } = require('lodash');
-
 class PermissionsChecker {
-  constructor({ baseFilterParser, logger, permissionsGetter }) {
-    this.baseFilterParser = baseFilterParser;
+  constructor({ logger, permissionsGetter }) {
     this.logger = logger;
     this.permissionsGetter = permissionsGetter;
   }
@@ -43,95 +40,12 @@ class PermissionsChecker {
     });
   }
 
-  // Compute a scope to replace $currentUser variables with the actual user values. This will
-  // generate the expected conditions filters when applied on the server scope response.
-  static _computeConditionFiltersFromScope(userId, scope) {
-    const computedConditionFilters = clone(scope.filter);
-    computedConditionFilters.conditions.forEach((condition) => {
-      if (condition.value
-        && `${condition.value}`.startsWith('$')
-        && scope.dynamicScopesValues.users[userId]) {
-        condition.value = scope
-          .dynamicScopesValues
-          .users[userId][condition.value];
-      }
-    });
-    return computedConditionFilters;
-  }
-
-  static _isAggregationFromScope(aggregator, conditions, expectedConditionFilters) {
-    const filtredConditions = conditions.filter(Boolean);
-    // Exit case - filtredConditions[0] should be the scope
-    if (filtredConditions.length === 1
-      && filtredConditions[0].aggregator
-      && aggregator === 'and') {
-      return filtredConditions[0];
-    }
-
-    // During the tree travel, check if `conditions` & `aggregator` match with expectations
-    return filtredConditions.length === expectedConditionFilters.conditions.length
-      && (aggregator === expectedConditionFilters.aggregator || aggregator === 'and')
-      ? { aggregator, conditions: filtredConditions }
-      : null;
-  }
-
-  // Check if `expectedConditionFilters` at least contains a definition of `actualConditionFilters`
-  static _isConditionFromScope(actualFilterCondition, expectedFilterConditions) {
-    return expectedFilterConditions.filter((expectedCondition) =>
-      expectedCondition.value === actualFilterCondition.value
-      && expectedCondition.operator === actualFilterCondition.operator
-      && expectedCondition.field === actualFilterCondition.field).length > 0;
-  }
-
-  async _isScopeValid(permissionInfos, scope) {
-    const expectedConditionFilters = PermissionsChecker
-      ._computeConditionFiltersFromScope(permissionInfos.userId, scope);
-
-    // Find aggregated condition. filtredConditions represent an array of conditions that were
-    // tagged based on if it is present in the scope
-    const isScopeAggregation = (aggregator, conditions) => PermissionsChecker
-      ._isAggregationFromScope(aggregator, conditions, expectedConditionFilters);
-
-    // Find in a condition correspond to a scope condition or not
-    const isScopeCondition = (condition) => PermissionsChecker
-      ._isConditionFromScope(condition, expectedConditionFilters.conditions);
-
-    // Perform a travel to find the scope in filters
-    const scopeFound = await this.baseFilterParser.perform(
-      permissionInfos.filters,
-      isScopeAggregation,
-      isScopeCondition,
-    );
-
-    // In the case of only one expected condition, server will still send an aggregator which will
-    // not match the request. If one condition is found and is from scope then the request is valid
-    const isValidSingleConditionScope = !!scopeFound
-    && expectedConditionFilters.conditions.length === 1;
-
-    const isSameScope = !!scopeFound
-    && scopeFound.aggregator === expectedConditionFilters.aggregator
-    && !!scopeFound.conditions
-    && scopeFound.conditions.length === expectedConditionFilters.conditions.length;
-
-    return isValidSingleConditionScope || isSameScope;
-  }
-
-  async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos, scope) {
-    if (!collectionPermissions
-      || !permissionInfos
-      || !PermissionsChecker
-        ._isPermissionAllowed(collectionPermissions.browseEnabled, permissionInfos.userId)) {
-      return false;
-    }
-
-    if (!scope) return true;
-
-    try {
-      return this._isScopeValid(permissionInfos, scope);
-    } catch (error) {
-      this.logger.error(error);
-      return false;
-    }
+  // eslint-disable-next-line class-methods-use-this
+  async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos) {
+    return collectionPermissions
+      && permissionInfos
+      && PermissionsChecker
+        ._isPermissionAllowed(collectionPermissions.browseEnabled, permissionInfos.userId);
   }
 
   async _isAllowed(permissions, permissionName, permissionInfos) {
@@ -139,9 +53,7 @@ class PermissionsChecker {
       case 'actions':
         return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
       case 'browseEnabled':
-        return this._isCollectionBrowseAllowed(
-          permissions.collection, permissionInfos, permissions.scope,
-        );
+        return this._isCollectionBrowseAllowed(permissions.collection, permissionInfos);
       case 'liveQueries':
         return PermissionsChecker._isLiveQueryAllowed(permissions.stats.queries, permissionInfos);
       case 'statWithParameters':
