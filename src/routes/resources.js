@@ -14,10 +14,10 @@ module.exports = function Resources(app, model) {
   const modelName = Implementation.getModelName(model);
 
   this.list = (request, response, next) => {
-    const params = request.query;
-    const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
+    const { query, user } = request;
+    const fieldsPerModel = new ParamsFieldsDeserializer(query.fields).perform();
 
-    return new Implementation.ResourcesGetter(model, lianaOptions, params)
+    return new Implementation.ResourcesGetter(model, lianaOptions, query, user)
       .perform()
       .then((results) => {
         const records = results[0];
@@ -30,7 +30,7 @@ module.exports = function Resources(app, model) {
           integrator,
           null,
           fieldsSearched,
-          params.search,
+          query.search,
           fieldsPerModel,
         ).perform();
       })
@@ -41,9 +41,9 @@ module.exports = function Resources(app, model) {
   };
 
   this.count = (request, response, next) => {
-    const params = request.query;
+    const { query, user } = request;
 
-    return new Implementation.ResourcesGetter(model, lianaOptions, params)
+    return new Implementation.ResourcesGetter(model, lianaOptions, query, user)
       .count()
       .then((count) => response.send({ count }))
       .catch(next);
@@ -61,18 +61,22 @@ module.exports = function Resources(app, model) {
       .catch(next);
   };
 
-  this.get = (request, response, next) => new Implementation.ResourceGetter(model, request.params)
-    .perform()
-    .then((record) => new ResourceSerializer(
-      Implementation,
-      model,
-      record,
-      integrator,
-    ).perform())
-    .then((record) => {
-      response.send(record);
-    })
-    .catch(next);
+  this.get = (request, response, next) => {
+    const { params, user } = request;
+
+    new Implementation.ResourceGetter(model, lianaOptions, params, user)
+      .perform()
+      .then((record) => new ResourceSerializer(
+        Implementation,
+        model,
+        record,
+        integrator,
+      ).perform())
+      .then((record) => {
+        response.send(record);
+      })
+      .catch(next);
+  };
 
   this.create = (request, response, next) => {
     new ResourceDeserializer(Implementation, model, request.body, true, {
