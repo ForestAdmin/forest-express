@@ -1,3 +1,10 @@
+## [8.3.1](https://github.com/ForestAdmin/forest-express/compare/v8.3.0...v8.3.1) (2021-04-15)
+
+
+### Bug Fixes
+
+* **date-filter:** filtering only on hours now returns the expected records ([#686](https://github.com/ForestAdmin/forest-express/issues/686)) ([b361818](https://github.com/ForestAdmin/forest-express/commit/b361818ef8628ff15cb7108c974367ad9d18490d))
+
 # [8.3.0](https://github.com/ForestAdmin/forest-express/compare/v8.2.0...v8.3.0) (2021-04-12)
 
 
