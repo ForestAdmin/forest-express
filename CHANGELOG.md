@@ -1,3 +1,10 @@
+## [8.3.2](https://github.com/ForestAdmin/forest-express/compare/v8.3.1...v8.3.2) (2021-04-21)
+
+
+### Bug Fixes
+
+* **security:** patch ssri dependency vulnerability ([#691](https://github.com/ForestAdmin/forest-express/issues/691)) ([ba84ea1](https://github.com/ForestAdmin/forest-express/commit/ba84ea19615fcfa669ea484b7c0464239a6d09eb))
+
 ## [8.3.1](https://github.com/ForestAdmin/forest-express/compare/v8.3.0...v8.3.1) (2021-04-15)
 
 
