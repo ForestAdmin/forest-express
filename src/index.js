@@ -37,7 +37,6 @@ const {
   modelsManager,
   fs,
   tokenService,
-  scopeService,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -88,7 +87,6 @@ async function buildSchema() {
 
 exports.Schemas = Schemas;
 exports.logger = logger;
-exports.scopeService = scopeService;
 exports.ResourcesRoute = {};
 
 /**
@@ -382,6 +380,7 @@ exports.RecordCreator = require('./services/exposed/record-creator');
 exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordsRemover = require('./services/exposed/records-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
+exports.ScopeService = require('./services/exposed/scope-service');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;
