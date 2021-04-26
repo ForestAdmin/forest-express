@@ -1,7 +1,8 @@
 const path = require('path');
 
 class ProjectDirectoryUtils {
-  constructor() {
+  constructor({ configStore }) {
+    this.pathSchemaDir = configStore.lianaOptions.schemaDir;
     this.dirname = __dirname;
   }
 
@@ -23,9 +24,9 @@ class ProjectDirectoryUtils {
     return path.join(...subPathsToProject);
   }
 
-  getAbsolutePath(pathCustom) {
-    if (pathCustom) {
-      return ProjectDirectoryUtils.ensureAbsolutePath(pathCustom.split(path.sep));
+  getAbsolutePath() {
+    if (this.pathSchemaDir) {
+      return ProjectDirectoryUtils.ensureAbsolutePath(this.pathSchemaDir.split(path.sep));
     }
 
     for (let index = 0; index <= ProjectDirectoryUtils.PATHS_ROOT_PACKAGES.length; index += 1) {

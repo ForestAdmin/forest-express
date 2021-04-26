@@ -105,7 +105,7 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-function generateAndSendSchema(envSecret, schemaDir) {
+function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
   configStore.integrator.defineCollections(collections);
 
@@ -130,7 +130,7 @@ function generateAndSendSchema(envSecret, schemaDir) {
   let collectionsSent;
   let metaSent;
 
-  const pathSchemaFile = path.join(new ProjectDirectoryUtils().getAbsolutePath(schemaDir), '.forestadmin-schema.json');
+  const pathSchemaFile = path.join(new ProjectDirectoryUtils().getAbsolutePath(), '.forestadmin-schema.json');
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {
@@ -305,7 +305,7 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    generateAndSendSchema(configStore.lianaOptions.envSecret, configStore.lianaOptions.schemaDir);
+    generateAndSendSchema(configStore.lianaOptions.envSecret);
 
     try {
       await ipWhitelist.retrieve(configStore.lianaOptions.envSecret);
