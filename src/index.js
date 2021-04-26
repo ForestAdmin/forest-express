@@ -27,6 +27,7 @@ const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
   logger,
+  path,
   pathService,
   errorHandler,
   ipWhitelist,
@@ -44,8 +45,6 @@ const PUBLIC_ROUTES = [
   '/healthcheck',
   ...initAuthenticationRoutes.PUBLIC_ROUTES,
 ];
-
-const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
 const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
   || ['dev', 'development'].includes(process.env.NODE_ENV);
@@ -106,7 +105,7 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-function generateAndSendSchema(envSecret) {
+function generateAndSendSchema(envSecret, schemaDir) {
   const collections = _.values(Schemas.schemas);
   configStore.integrator.defineCollections(collections);
 
@@ -130,6 +129,8 @@ function generateAndSendSchema(envSecret) {
   const { options: serializerOptions } = schemaSerializer;
   let collectionsSent;
   let metaSent;
+
+  const SCHEMA_PATH = path.join(new ProjectDirectoryUtils().getAbsolutePath(schemaDir), '.forestadmin-schema.json');
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {
@@ -304,7 +305,7 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    generateAndSendSchema(configStore.lianaOptions.envSecret);
+    generateAndSendSchema(configStore.lianaOptions.envSecret, configStore.lianaOptions.schemaDir);
 
     try {
       await ipWhitelist.retrieve(configStore.lianaOptions.envSecret);

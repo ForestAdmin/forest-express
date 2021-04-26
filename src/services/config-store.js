@@ -9,6 +9,10 @@ class ConfigStore {
     this.path = path;
   }
 
+  static doesDirectoryExist(directory) {
+    return this.fs.existsSync(directory);
+  }
+
   get configDir() {
     if (!this.lianaOptions) return null;
 
@@ -21,7 +25,12 @@ class ConfigStore {
   }
 
   doesConfigDirExist() {
-    return this.fs.existsSync(this.configDir);
+    return ConfigStore.doesDirectoryExist(this.configDir);
+  }
+
+  doesSchemaDirExist() {
+    return this.lianaOptions.schemaDir
+      && ConfigStore.doesDirectoryExist(this.lianaOptions.schemaDir);
   }
 
   validateOptions() {
@@ -61,6 +70,10 @@ class ConfigStore {
 
     if (!this.doesConfigDirExist()) {
       this.logger.warn(`Your configDir ("${this.configDir}") does not exist. Please make sure it is set correctly.`);
+    }
+
+    if (!this.doesSchemaDirExist()) {
+      this.logger.warn(`Your schemaDir ("${this.lianaOptions.schemaDir}") does not exist. Please make sure it is set correctly.`);
     }
 
     if (options.onlyCrudModule) {

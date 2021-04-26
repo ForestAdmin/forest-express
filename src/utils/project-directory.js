@@ -23,7 +23,11 @@ class ProjectDirectoryUtils {
     return path.join(...subPathsToProject);
   }
 
-  getAbsolutePath() {
+  getAbsolutePath(pathCustom) {
+    if (pathCustom) {
+      return ProjectDirectoryUtils.ensureAbsolutePath(pathCustom.split(path.sep));
+    }
+
     for (let index = 0; index <= ProjectDirectoryUtils.PATHS_ROOT_PACKAGES.length; index += 1) {
       const rootPackagesPath = ProjectDirectoryUtils.PATHS_ROOT_PACKAGES[index];
       // NOTICE: forest-express has not been sym linked.
