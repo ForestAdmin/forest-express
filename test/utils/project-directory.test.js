@@ -59,6 +59,42 @@ describe('utils > project-directory', () => {
           });
         });
       });
+
+      describe('using forest-express install from yarn berry', () => {
+        it('should return the absolute path of the project directory', () => {
+          expect.assertions(1);
+
+          const projectDirectoryUtils = new ProjectDirectoryUtils();
+          const cwdStub = sinon.stub(process, 'cwd');
+          cwdStub.returns('/User/user/projects');
+          sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/cache/forest-express-npm-8.3.1-a520e9a060-7158678646.zip/node_modules/forest-express/dist/utils');
+
+          const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+
+          expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+
+          cwdStub.restore();
+          sinon.restore();
+        });
+
+        describe('in unplugged mode', () => {
+          it('should return the absolute path of the project directory', () => {
+            expect.assertions(1);
+
+            const projectDirectoryUtils = new ProjectDirectoryUtils();
+            const cwdStub = sinon.stub(process, 'cwd');
+            cwdStub.returns('/User/user/projects');
+            sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
+
+            const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+
+            expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+
+            cwdStub.restore();
+            sinon.restore();
+          });
+        });
+      });
     });
 
     describe('running the app in its directory', () => {
@@ -106,6 +142,42 @@ describe('utils > project-directory', () => {
             const projectDirectoryUtils = new ProjectDirectoryUtils();
             const cwdStub = sinon.stub(process, 'cwd');
             cwdStub.returns('/Users/forestUser/projects/myLumberProject');
+            sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
+
+            const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+
+            expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+
+            cwdStub.restore();
+            sinon.restore();
+          });
+        });
+      });
+
+      describe('using forest-express install from yarn berry', () => {
+        it('should return the absolute path of the project directory', () => {
+          expect.assertions(1);
+
+          const projectDirectoryUtils = new ProjectDirectoryUtils();
+          const cwdStub = sinon.stub(process, 'cwd');
+          cwdStub.returns('/User/user/projects/myLumberProject');
+          sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/cache/forest-express-npm-8.3.1-a520e9a060-7158678646.zip/node_modules/forest-express/dist/utils');
+
+          const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+
+          expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+
+          cwdStub.restore();
+          sinon.restore();
+        });
+
+        describe('in unplugged mode', () => {
+          it('should return the absolute path of the project directory', () => {
+            expect.assertions(1);
+
+            const projectDirectoryUtils = new ProjectDirectoryUtils();
+            const cwdStub = sinon.stub(process, 'cwd');
+            cwdStub.returns('/User/user/projects/myLumberProject');
             sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
 
             const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
