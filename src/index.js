@@ -130,7 +130,7 @@ function generateAndSendSchema(envSecret, schemaDir) {
   let collectionsSent;
   let metaSent;
 
-  const SCHEMA_PATH = path.join(new ProjectDirectoryUtils().getAbsolutePath(schemaDir), '.forestadmin-schema.json');
+  const pathSchemaFile = path.join(new ProjectDirectoryUtils().getAbsolutePath(schemaDir), '.forestadmin-schema.json');
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {
