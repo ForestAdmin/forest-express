@@ -8,10 +8,10 @@ class ProjectDirectoryUtils {
   // NOTICE: Order does matter as packages install via yarn 2 Plug n Play mode also
   //         include node_modules in path.
   static PATHS_ROOT_PACKAGES = [
-    // yarn 2 Plug n Play mode
+    // Yarn 2 Plug n Play mode
     path.join('.yarn', 'cache'),
     path.join('.yarn', 'unplugged'),
-    // usual yarn / npm
+    // Usual Yarn / NPM
     'node_modules',
   ];
 
