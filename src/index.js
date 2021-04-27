@@ -50,7 +50,6 @@ const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
   || ['dev', 'development'].includes(process.env.NODE_ENV);
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const pathSchemaFile = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 
 let jwtAuthenticator;
 let app = null;
