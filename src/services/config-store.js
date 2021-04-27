@@ -9,10 +9,6 @@ class ConfigStore {
     this.path = path;
   }
 
-  static doesDirectoryExist(directory) {
-    return this.fs.existsSync(directory);
-  }
-
   get configDir() {
     if (!this.lianaOptions) return null;
 
@@ -25,12 +21,12 @@ class ConfigStore {
   }
 
   doesConfigDirExist() {
-    return ConfigStore.doesDirectoryExist(this.configDir);
+    return this.fs.existsSync(this.configDir);
   }
 
   doesSchemaDirExist() {
-    return this.lianaOptions.schemaDir
-      && ConfigStore.doesDirectoryExist(this.lianaOptions.schemaDir);
+    return !this.lianaOptions.schemaDir
+      || (this.lianaOptions.schemaDir && this.fs.existsSync(this.lianaOptions.schemaDir));
   }
 
   validateOptions() {
