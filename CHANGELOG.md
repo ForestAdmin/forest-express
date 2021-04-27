@@ -1,3 +1,10 @@
+# [8.4.0](https://github.com/ForestAdmin/forest-express/compare/v8.3.2...v8.4.0) (2021-04-27)
+
+
+### Features
+
+* support yarn 2 plug n play install mode ([#697](https://github.com/ForestAdmin/forest-express/issues/697)) ([33c3e58](https://github.com/ForestAdmin/forest-express/commit/33c3e585fd6b921a06994d68633aa4babae25896))
+
 ## [8.3.2](https://github.com/ForestAdmin/forest-express/compare/v8.3.1...v8.3.2) (2021-04-21)
 
 
