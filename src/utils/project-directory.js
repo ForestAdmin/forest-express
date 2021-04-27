@@ -5,6 +5,16 @@ class ProjectDirectoryUtils {
     this.dirname = __dirname;
   }
 
+  // NOTICE: Order does matter as packages install via yarn 2 Plug n Play mode also
+  //         include node_modules in path.
+  static PATHS_ROOT_PACKAGES = [
+    // Yarn 2 Plug n Play mode
+    path.join('.yarn', 'cache'),
+    path.join('.yarn', 'unplugged'),
+    // Usual Yarn / NPM
+    'node_modules',
+  ];
+
   static ensureAbsolutePath(subPathsToProject) {
     // NOTICE: on POSIX system, empty path created by previous split is skipped by path.join.
     if (!path.isAbsolute(path.join(...subPathsToProject))) {
@@ -14,13 +24,15 @@ class ProjectDirectoryUtils {
   }
 
   getAbsolutePath() {
-    // NOTICE: forest-express has not been sym linked.
-    if (this.dirname.includes('node_modules')) {
-      const splitPaths = this.dirname.split(path.sep);
-      const nodeModuleIndex = splitPaths.indexOf('node_modules');
-      const subPathsToProject = splitPaths.slice(0, nodeModuleIndex);
-
-      return ProjectDirectoryUtils.ensureAbsolutePath(subPathsToProject);
+    for (let index = 0; index <= ProjectDirectoryUtils.PATHS_ROOT_PACKAGES.length; index += 1) {
+      const rootPackagesPath = ProjectDirectoryUtils.PATHS_ROOT_PACKAGES[index];
+      // NOTICE: forest-express has not been sym linked.
+      if (this.dirname.includes(rootPackagesPath)) {
+        const indexRootPath = this.dirname.indexOf(rootPackagesPath);
+        const pathProjectRoot = this.dirname.substr(0, indexRootPath);
+        const subPathsToProject = pathProjectRoot.split(path.sep);
+        return ProjectDirectoryUtils.ensureAbsolutePath(subPathsToProject);
+      }
     }
 
     // NOTICE: forest-express is sym linked, assuming the process is running on project directory.
