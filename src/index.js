@@ -49,9 +49,9 @@ const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
 
 const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
   || ['dev', 'development'].includes(process.env.NODE_ENV);
-const SCHEMA_FILENAME = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
+const pathSchemaFile = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 
 let jwtAuthenticator;
 let app = null;
@@ -140,12 +140,12 @@ function generateAndSendSchema(envSecret) {
       engine_version: process.versions && process.versions.node,
       orm_version: configStore.Implementation.getOrmVersion(),
     };
-    const content = schemaFileUpdater.update(SCHEMA_FILENAME, collections, meta, serializerOptions);
+    const content = schemaFileUpdater.update(pathSchemaFile, collections, meta, serializerOptions);
     collectionsSent = content.collections;
     metaSent = content.meta;
   } else {
     try {
-      const content = fs.readFileSync(SCHEMA_FILENAME);
+      const content = fs.readFileSync(pathSchemaFile);
       if (!content) {
         logger.error('The .forestadmin-schema.json file is empty.');
         logger.error('The schema cannot be synchronized with Forest Admin servers.');
@@ -258,7 +258,7 @@ exports.init = async (Implementation) => {
   try {
     const models = await buildSchema();
 
-    if (configStore.isConfigDirExist()) {
+    if (configStore.doesConfigDirExist()) {
       loadCollections(configStore.configDir);
     }
 

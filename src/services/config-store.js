@@ -20,7 +20,7 @@ class ConfigStore {
     return this.path.resolve('.', 'forest');
   }
 
-  isConfigDirExist() {
+  doesConfigDirExist() {
     return this.fs.existsSync(this.configDir);
   }
 
@@ -59,7 +59,7 @@ class ConfigStore {
       throw new Error('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
     }
 
-    if (!this.isConfigDirExist()) {
+    if (!this.doesConfigDirExist()) {
       this.logger.warn(`Your configDir ("${this.configDir}") does not exist. Please make sure it is set correctly.`);
     }
 
