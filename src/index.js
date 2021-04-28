@@ -37,6 +37,7 @@ const {
   modelsManager,
   fs,
   tokenService,
+  scopeService,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -87,6 +88,7 @@ async function buildSchema() {
 
 exports.Schemas = Schemas;
 exports.logger = logger;
+exports.scopeService = scopeService;
 exports.ResourcesRoute = {};
 
 /**
