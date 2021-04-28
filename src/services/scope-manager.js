@@ -1,9 +1,9 @@
-import context from '../../context';
+import context from '../context';
 
 // 5 minutes exipration cache
 const SCOPE_CACHE_EXPIRATION_DELTA = 300;
 
-class ScopeService {
+class ScopeManager {
   constructor({ configStore, forestServerRequester, moment } = context.inject()) {
     this.configStore = configStore;
     this.forestServerRequester = forestServerRequester;
@@ -11,14 +11,22 @@ class ScopeService {
     this.scopesCache = {};
   }
 
-  async getScope(renderingId, collectionName) {
+  async getScopeForUser(user, collectionName) {
+    if (!user.renderingId) throw new Error('Missing required renderingId');
+    if (!collectionName) throw new Error('Missing required collectionName');
+
+    const collectionScope = await this._getScopeCollectionScope(user.renderingId, collectionName);
+
+    // replace dynamic values here
+    return collectionScope?.scope.filter;
+  }
+
+  async _getScopeCollectionScope(renderingId, collectionName) {
     // if scopes have never been fetched before, wait for those to be retrieved
     if (!this.scopesCache[renderingId]) {
       await this._refreshScopesCache(renderingId);
-    }
-
+    } else if (this._hasCacheExpired(renderingId)) {
     // if cache expired fetch scopes but don't wait for it
-    if (this._hasCacheExpired(renderingId)) {
       this._refreshScopesCache(renderingId);
     }
 
@@ -49,4 +57,4 @@ class ScopeService {
   }
 }
 
-module.exports = ScopeService;
+module.exports = ScopeManager;

@@ -27,7 +27,7 @@ const ConfigStore = require('../services/config-store');
 const PermissionsChecker = require('../services/permissions-checker');
 const PermissionsGetter = require('../services/permissions-getter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
-const ScopeService = require('../services/exposed/scope-service');
+const ScopeManager = require('../services/scope-manager');
 const SmartActionHook = require('../services/smart-action-hook');
 const schemasGenerator = require('../generators/schemas');
 const ModelsManager = require('../services/models-manager');
@@ -75,7 +75,7 @@ function initValue(context) {
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
- *  scopeService: import('../services/exposed/scope-service');
+ *  scopeManager: import('../services/scope-manager');
  *  apimapSender: import('../services/apimap-sender');
  *  permissionsChecker: import('../services/permissions-checker');
  *  permissionsGetter: import('../services/permissions-getter');
@@ -142,7 +142,7 @@ function initServices(context) {
   context.addClass(ApimapSorter);
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
-  context.addClass(ScopeService);
+  context.addClass(ScopeManager);
   context.addClass(ModelsManager);
   context.addClass(TokenService);
   context.addClass(OidcConfigurationRetrieverService);

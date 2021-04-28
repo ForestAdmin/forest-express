@@ -13,7 +13,7 @@ module.exports = function Resources(app, model) {
   const { Implementation, integrator, lianaOptions } = configStore;
   const modelName = Implementation.getModelName(model);
 
-  this.list = (request, response, next) => {
+  this.list = async (request, response, next) => {
     const params = request.query;
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
