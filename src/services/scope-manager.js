@@ -17,8 +17,24 @@ class ScopeManager {
 
     const collectionScope = await this._getScopeCollectionScope(user.renderingId, collectionName);
 
-    // replace dynamic values here
-    return collectionScope?.scope.filter;
+    return ScopeManager._formatDynamicValues(user.id, collectionScope);
+  }
+
+  static _formatDynamicValues(userId, collectionScope) {
+    if (!collectionScope?.scope?.filter) return null;
+
+    collectionScope.scope.filter.conditions.forEach((condition) => {
+      if (condition.value
+        && `${condition.value}`.startsWith('$')
+        && collectionScope.scope.dynamicScopesValues.users[userId]) {
+        condition.value = collectionScope
+          .scope
+          .dynamicScopesValues
+          .users[userId][condition.value];
+      }
+    });
+
+    return collectionScope.scope.filter;
   }
 
   async _getScopeCollectionScope(renderingId, collectionName) {

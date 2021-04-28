@@ -247,5 +247,85 @@ describe('services > ScopeManager', () => {
         expect(scopes).toStrictEqual(newRenderingScopes.myCollection.scope.filter);
       });
     });
+
+    describe('when no scopes on collection', () => {
+      it('should return null', async () => {
+        expect.assertions(3);
+
+        const configStore = { lianaOptions };
+        const forestServerRequester = {
+          perform: jest.fn().mockReturnValue(defaultRenderingScopes),
+        };
+        const moment = jest.fn();
+
+        const scopeManager = new ScopeManager({
+          ...defaultDependencies, configStore, forestServerRequester, moment,
+        });
+
+        const scopes = await scopeManager.getScopeForUser(defaultUser, 'myOtherCollection');
+
+        expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
+        expect(forestServerRequester.perform).toHaveBeenCalledWith(
+          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
+        );
+        expect(scopes).toBeNull();
+      });
+    });
+
+    describe('with dynamic values on scopes', () => {
+      it('should retrieve and return the collection scope filters with dynamic values replaced', async () => {
+        expect.assertions(3);
+
+        const renderingScopesWithDynamicValues = {
+          myCollection: {
+            scope: {
+              filter: {
+                aggregator: 'and',
+                conditions: [
+                  {
+                    field: 'type',
+                    operator: 'equal',
+                    value: '$currentUser.tags.title',
+                  },
+                ],
+              },
+              dynamicScopesValues: {
+                users: {
+                  1: {
+                    '$currentUser.tags.title': 'production',
+                  },
+                },
+              },
+            },
+          },
+        };
+        const configStore = { lianaOptions };
+        const forestServerRequester = {
+          perform: jest.fn().mockReturnValue(renderingScopesWithDynamicValues),
+        };
+        const moment = jest.fn();
+
+        const scopeManager = new ScopeManager({
+          ...defaultDependencies, configStore, forestServerRequester, moment,
+        });
+
+        const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
+
+        expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
+        expect(forestServerRequester.perform).toHaveBeenCalledWith(
+          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
+        );
+        expect(scopes).toStrictEqual({
+          aggregator: 'and',
+          conditions: [
+            {
+              field: 'type',
+              operator: 'equal',
+              value: 'production',
+            },
+          ],
+        });
+      });
+    });
   });
 });
