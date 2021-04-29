@@ -46,7 +46,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
       promise = new Implementation
         .LeaderboardStatGetter(model, modelRelationship, request.body, opts).perform();
     } else {
-      promise = new Implementation[`${type}StatGetter`](model, request.body, opts).perform();
+      promise = new Implementation[`${type}StatGetter`](model, request.body, opts, request.user).perform();
     }
 
     if (!promise) {
