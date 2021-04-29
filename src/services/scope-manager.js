@@ -15,13 +15,14 @@ class ScopeManager {
     this.scopesCache = {};
   }
 
-  async getScopeForUser(user, collectionName) {
+  async getScopeForUser(user, collectionName, asString = false) {
     if (!user.renderingId) throw new Error('Missing required renderingId');
     if (!collectionName) throw new Error('Missing required collectionName');
 
     const collectionScope = await this._getScopeCollectionScope(user.renderingId, collectionName);
+    const filters = ScopeManager._formatDynamicValues(user.id, collectionScope);
 
-    return ScopeManager._formatDynamicValues(user.id, collectionScope);
+    return asString ? JSON.stringify(filters) : filters;
   }
 
   static _formatDynamicValues(userId, collectionScope) {
