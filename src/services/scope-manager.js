@@ -5,10 +5,13 @@ import context from '../context';
 const SCOPE_CACHE_EXPIRATION_DELTA = 300;
 
 class ScopeManager {
-  constructor({ configStore, forestServerRequester, moment } = context.inject()) {
+  constructor({
+    configStore, forestServerRequester, moment, logger,
+  } = context.inject()) {
     this.configStore = configStore;
     this.forestServerRequester = forestServerRequester;
     this.moment = moment;
+    this.logger = logger;
     this.scopesCache = {};
   }
 
@@ -22,23 +25,11 @@ class ScopeManager {
   }
 
   static _formatDynamicValues(userId, collectionScope) {
-    if (!collectionScope?.scope?.filter) return null;
-
-    // copy scopes in order not to replace the cached values
-    const collectionScopeCopy = _.cloneDeep(collectionScope);
-
-    collectionScopeCopy.scope.filter.conditions.forEach((condition) => {
-      if (condition.value
-        && `${condition.value}`.startsWith('$')
-        && collectionScope.scope.dynamicScopesValues.users[userId]) {
-        condition.value = collectionScope
-          .scope
-          .dynamicScopesValues
-          .users[userId][condition.value];
-      }
-    });
-
-    return collectionScopeCopy.scope.filter;
+    return _.cloneDeepWith(collectionScope?.scope?.filter, (item) => (
+      typeof item === 'string' && item.startsWith('$currentUser')
+        ? collectionScope.scope.dynamicScopesValues.users[userId][item]
+        : undefined
+    ));
   }
 
   async _getScopeCollectionScope(renderingId, collectionName) {
@@ -47,7 +38,10 @@ class ScopeManager {
       await this._refreshScopesCache(renderingId);
     } else if (this._hasCacheExpired(renderingId)) {
     // if cache expired fetch scopes but don't wait for it
-      this._refreshScopesCache(renderingId);
+      this._refreshScopesCache(renderingId)
+        .catch((error) => {
+          this.logger.error(error.message);
+        });
     }
 
     return this.scopesCache[renderingId].scopes[collectionName];

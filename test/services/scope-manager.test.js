@@ -5,6 +5,7 @@ describe('services > ScopeManager', () => {
     configStore: {},
     forestServerRequester: {},
     moment: {},
+    logger: {},
   };
 
   describe('getScopeForUser', () => {
