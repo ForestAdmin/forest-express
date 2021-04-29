@@ -45,7 +45,7 @@ const DATE_OPERATORS = [
 ];
 
 function BaseOperatorDateParser(options) {
-  const offsetClient = Number.parseInt(moment().tz(options.timezone).format('Z'), 10);
+  const offsetClient = Number.parseInt(moment().tz(options.timezone ?? 'UTC').format('Z'), 10);
   const offsetServer = moment().utcOffset() / 60;
 
   this.offsetHours = offsetServer - offsetClient;
