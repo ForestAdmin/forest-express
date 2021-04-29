@@ -25,7 +25,9 @@ class ScopeManager {
   }
 
   static _formatDynamicValues(userId, collectionScope) {
-    return _.cloneDeepWith(collectionScope?.scope?.filter, (item) => (
+    if (!collectionScope?.scope?.filter) return null;
+
+    return _.cloneDeepWith(collectionScope.scope.filter, (item) => (
       typeof item === 'string' && item.startsWith('$currentUser')
         ? collectionScope.scope.dynamicScopesValues.users[userId][item]
         : undefined
