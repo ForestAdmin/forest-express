@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import context from '../context';
 
 // 5 minutes exipration cache
@@ -23,7 +24,10 @@ class ScopeManager {
   static _formatDynamicValues(userId, collectionScope) {
     if (!collectionScope?.scope?.filter) return null;
 
-    collectionScope.scope.filter.conditions.forEach((condition) => {
+    // copy scopes in order not to replace the cached values
+    const collectionScopeCopy = _.cloneDeep(collectionScope);
+
+    collectionScopeCopy.scope.filter.conditions.forEach((condition) => {
       if (condition.value
         && `${condition.value}`.startsWith('$')
         && collectionScope.scope.dynamicScopesValues.users[userId]) {
@@ -34,7 +38,7 @@ class ScopeManager {
       }
     });
 
-    return collectionScope.scope.filter;
+    return collectionScopeCopy.scope.filter;
   }
 
   async _getScopeCollectionScope(renderingId, collectionName) {
@@ -57,11 +61,24 @@ class ScopeManager {
   }
 
   async _refreshScopesCache(renderingId) {
-    const scopes = await this._fetchScopes(renderingId);
-    this.scopesCache[renderingId] = {
-      fetchedAt: this.moment(),
-      scopes,
-    };
+    // if scopes have already been fetched before set `fetchedAt` upfront to avoid race conditions
+    if (this.scopesCache[renderingId]?.fetchedAt) {
+      const lastFetchTime = this.scopesCache[renderingId].fetchedAt;
+      this.scopesCache[renderingId].fetchedAt = this.moment();
+      try {
+        this.scopesCache[renderingId].scopes = await this._fetchScopes(renderingId);
+      } catch {
+        // reset `fetchedAt` on failed retrieve
+        this.scopesCache[renderingId].fetchedAt = lastFetchTime;
+        throw new Error('Unable to fetch scopes');
+      }
+    } else {
+      const scopes = await this._fetchScopes(renderingId);
+      this.scopesCache[renderingId] = {
+        fetchedAt: this.moment(),
+        scopes,
+      };
+    }
   }
 
   _hasCacheExpired(renderingId) {
