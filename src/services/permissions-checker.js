@@ -40,20 +40,20 @@ class PermissionsChecker {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos) {
+  static async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos) {
     return collectionPermissions
       && permissionInfos
       && PermissionsChecker
         ._isPermissionAllowed(collectionPermissions.browseEnabled, permissionInfos.userId);
   }
 
-  async _isAllowed(permissions, permissionName, permissionInfos) {
+  static async _isAllowed(permissions, permissionName, permissionInfos) {
     switch (permissionName) {
       case 'actions':
         return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
       case 'browseEnabled':
-        return this._isCollectionBrowseAllowed(permissions.collection, permissionInfos);
+        return PermissionsChecker
+          ._isCollectionBrowseAllowed(permissions.collection, permissionInfos);
       case 'liveQueries':
         return PermissionsChecker._isLiveQueryAllowed(permissions.stats.queries, permissionInfos);
       case 'statWithParameters':
@@ -73,7 +73,7 @@ class PermissionsChecker {
     const getPermissions = async (forceRetrieve) => this.permissionsGetter.getPermissions(
       renderingId, collectionName, permissionName, { forceRetrieve, environmentId },
     );
-    const isAllowed = async ({ forceRetrieve = false } = {}) => this._isAllowed(
+    const isAllowed = async ({ forceRetrieve = false } = {}) => PermissionsChecker._isAllowed(
       await getPermissions(forceRetrieve),
       permissionName,
       permissionInfos,
