@@ -22,7 +22,9 @@ describe('services > PermissionsChecker', () => {
           permissionsGetter,
         });
 
-        jest.spyOn(permissionsChecker, '_isAllowed').mockImplementation().mockReturnValue(true);
+        const isAllowed = jest
+          .spyOn(PermissionsChecker, '_isAllowed')
+          .mockImplementation().mockReturnValue(true);
 
         const permissionsInfos = { info: 'info' };
         const collectionName = 'Siths';
@@ -39,9 +41,11 @@ describe('services > PermissionsChecker', () => {
           { forceRetrieve: false, environmentId: undefined },
         );
 
-        expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
-        expect(permissionsChecker._isAllowed)
+        expect(PermissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
+        expect(PermissionsChecker._isAllowed)
           .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+
+        isAllowed.mockRestore();
       });
 
       describe('when cache seems outdated', () => {
@@ -61,7 +65,7 @@ describe('services > PermissionsChecker', () => {
             permissionsGetter,
           });
 
-          jest.spyOn(permissionsChecker, '_isAllowed').mockImplementation()
+          const isAllowed = jest.spyOn(PermissionsChecker, '_isAllowed').mockImplementation()
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true);
 
@@ -86,11 +90,13 @@ describe('services > PermissionsChecker', () => {
             { forceRetrieve: true, environmentId: undefined },
           );
 
-          expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(2);
-          expect(permissionsChecker._isAllowed)
+          expect(PermissionsChecker._isAllowed).toHaveBeenCalledTimes(2);
+          expect(PermissionsChecker._isAllowed)
             .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
-          expect(permissionsChecker._isAllowed)
+          expect(PermissionsChecker._isAllowed)
             .toHaveBeenCalledWith(permissionsAfterRefresh, permissionName, permissionsInfos);
+
+          isAllowed.mockRestore();
         });
       });
     });
@@ -109,7 +115,7 @@ describe('services > PermissionsChecker', () => {
           permissionsGetter,
         });
 
-        jest.spyOn(permissionsChecker, '_isAllowed').mockImplementation().mockReturnValue(true);
+        const isAllowed = jest.spyOn(PermissionsChecker, '_isAllowed').mockImplementation().mockReturnValue(true);
 
         const permissionsInfos = { info: 'info' };
         const collectionName = 'Siths';
@@ -127,9 +133,11 @@ describe('services > PermissionsChecker', () => {
           { forceRetrieve: false, environmentId },
         );
 
-        expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
-        expect(permissionsChecker._isAllowed)
+        expect(PermissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
+        expect(PermissionsChecker._isAllowed)
           .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+
+        isAllowed.mockRestore();
       });
     });
 
@@ -147,7 +155,7 @@ describe('services > PermissionsChecker', () => {
           permissionsGetter,
         });
 
-        const isAllowed = jest.spyOn(permissionsChecker, '_isAllowed');
+        const isAllowed = jest.spyOn(PermissionsChecker, '_isAllowed');
 
         const permissionsInfos = 'SELECT COUNT(*) AS value FROM products;';
         const collectionName = null;
@@ -169,6 +177,8 @@ describe('services > PermissionsChecker', () => {
         expect(isAllowed)
           .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
         expect(isAllowed).toHaveReturned();
+
+        isAllowed.mockRestore();
       });
     });
   });
