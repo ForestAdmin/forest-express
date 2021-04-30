@@ -80,7 +80,7 @@ module.exports = function Resources(app, model) {
     new ResourceDeserializer(Implementation, model, request.body, true, {
       omitNullAttributes: true,
     }).perform()
-      .then((params) => new Implementation.ResourceCreator(model, params).perform())
+      .then((params) => new Implementation.ResourceCreator(model, params, request.user).perform())
       .then((record) => new ResourceSerializer(
         Implementation,
         model,
