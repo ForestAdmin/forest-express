@@ -44,7 +44,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
       const modelRelationship = getAssociationModel(schema, request.body.relationship_field);
 
       promise = new Implementation
-        .LeaderboardStatGetter(model, modelRelationship, request.body, opts).perform();
+        .LeaderboardStatGetter(model, modelRelationship, request.body, request.user).perform();
     } else {
       promise = new Implementation[`${type}StatGetter`](model, request.body, opts, request.user).perform();
     }
