@@ -55,6 +55,7 @@ module.exports = function Resources(app, model) {
       model,
       lianaOptions,
       params,
+      null,
       request.user,
     );
     return new CSVExporter(params, response, modelName, recordsExporter)
