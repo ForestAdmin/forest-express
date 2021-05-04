@@ -21,7 +21,6 @@ const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
-const ProjectDirectoryUtils = require('./utils/project-directory');
 const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
 
@@ -34,6 +33,7 @@ const {
   apimapFieldsFormater,
   apimapSender,
   schemaFileUpdater,
+  projectDirectoryFinder,
   configStore,
   modelsManager,
   fs,
@@ -129,7 +129,7 @@ function generateAndSendSchema(envSecret) {
   let collectionsSent;
   let metaSent;
 
-  const pathSchemaFile = path.join(new ProjectDirectoryUtils().getAbsolutePath(), '.forestadmin-schema.json');
+  const pathSchemaFile = path.join(projectDirectoryFinder.getAbsolutePath(), '.forestadmin-schema.json');
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {

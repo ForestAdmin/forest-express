@@ -20,13 +20,17 @@ class ConfigStore {
     return this.path.resolve('.', 'forest');
   }
 
+  get schemaDir() {
+    if (!this.lianaOptions?.schemaDir) return null;
+    return this.path.resolve('.', this.lianaOptions.schemaDir);
+  }
+
   doesConfigDirExist() {
     return this.fs.existsSync(this.configDir);
   }
 
   doesSchemaDirExist() {
-    return !this.lianaOptions.schemaDir
-      || (this.lianaOptions.schemaDir && this.fs.existsSync(this.lianaOptions.schemaDir));
+    return !this.schemaDir || this.fs.existsSync(this.schemaDir);
   }
 
   validateOptions() {
@@ -69,7 +73,7 @@ class ConfigStore {
     }
 
     if (!this.doesSchemaDirExist()) {
-      this.logger.warn(`Your schemaDir ("${this.lianaOptions.schemaDir}") does not exist. Please make sure it is set correctly.`);
+      this.logger.warn(`Your schemaDir ("${this.schemaDir}") does not exist. Please make sure it is set correctly.`);
     }
 
     if (options.onlyCrudModule) {

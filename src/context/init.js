@@ -34,6 +34,7 @@ const AuthenticationService = require('../services/authentication');
 const TokenService = require('../services/token');
 const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 const OidcClientManagerService = require('../services/oidc-client-manager');
+const ProjectDirectoryFinder = require('../services/project-directory-finder');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -146,6 +147,7 @@ function initServices(context) {
   context.addClass(OidcClientManagerService);
   context.addClass(AuthenticationService);
   context.addClass(SmartActionHook);
+  context.addClass(ProjectDirectoryFinder);
 }
 
 /**

@@ -10,7 +10,7 @@ describe('services > config-store', () => {
   };
 
   const fs = {
-    existsSync: jest.fn((dir) => dir.includes('forest')),
+    existsSync: jest.fn((directory) => directory.includes('forest')),
   };
 
   const path = {
@@ -173,6 +173,22 @@ describe('services > config-store', () => {
 
       expect(() => configStore.validateOptions()).not.toThrow();
       expect(logger.warn).toHaveBeenCalledWith(`Your configDir ("./${configDir}") does not exist. Please make sure it is set correctly.`);
+    });
+
+    it('should log a warning when schemaDir does not exist', () => {
+      expect.assertions(2);
+      jest.clearAllMocks();
+
+      const schemaDir = new Date();
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: validConnections,
+        schemaDir,
+      };
+
+      expect(() => configStore.validateOptions()).not.toThrow();
+      expect(logger.warn).toHaveBeenCalledWith(`Your schemaDir ("./${schemaDir}") does not exist. Please make sure it is set correctly.`);
     });
 
     it('should log a warning when includedModels and excludedModels at used in the same time', () => {
