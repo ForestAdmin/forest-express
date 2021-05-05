@@ -1,19 +1,22 @@
 const sinon = require('sinon');
-const ProjectDirectoryUtils = require('../../src/utils/project-directory');
+const context = require('../../src/context/');
+const initContext = require('../../src/context/init');
 
-describe('utils > project-directory', () => {
+context.init(initContext);
+const { projectDirectoryFinder } = context.inject();
+
+describe('services > project-directory-finder', () => {
   describe('using POSIX based OS', () => {
     describe('running the app outside of its directory', () => {
       describe('using a NPM install', () => {
         it('should still return the absolute path of the project directory', () => {
           expect.assertions(1);
 
-          const projectDirectoryUtils = new ProjectDirectoryUtils();
           const cwdStub = sinon.stub(process, 'cwd');
           cwdStub.returns('/Users/forestUser/projects');
-          sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/node_modules/forest-express/dist/utils');
+          sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/myLumberProject/node_modules/forest-express/dist/utils');
 
-          const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+          const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
           expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
 
@@ -27,12 +30,11 @@ describe('utils > project-directory', () => {
           it('should return the absolute path of the project directory', () => {
             expect.assertions(1);
 
-            const projectDirectoryUtils = new ProjectDirectoryUtils();
             const cwdStub = sinon.stub(process, 'cwd');
             cwdStub.returns('/Users/forest/User/projects');
-            sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/cache/forest-express-npm-8.3.1-a520e9a060-7158678646.zip/node_modules/forest-express/dist/utils');
+            sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/cache/forest-express-npm-8.3.1-a520e9a060-7158678646.zip/node_modules/forest-express/dist/utils');
 
-            const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+            const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
             expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
 
@@ -45,12 +47,11 @@ describe('utils > project-directory', () => {
           it('should return the absolute path of the project directory', () => {
             expect.assertions(1);
 
-            const projectDirectoryUtils = new ProjectDirectoryUtils();
             const cwdStub = sinon.stub(process, 'cwd');
             cwdStub.returns('/Users/forestUser/projects');
-            sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
+            sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
 
-            const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+            const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
             expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
 
@@ -66,12 +67,11 @@ describe('utils > project-directory', () => {
         it('should return the absolute path of the project directory', () => {
           expect.assertions(1);
 
-          const projectDirectoryUtils = new ProjectDirectoryUtils();
           const cwdStub = sinon.stub(process, 'cwd');
           cwdStub.returns('/Users/forestUser/projects/myLumberProject');
-          sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/node_modules/forest-express/dist/utils');
+          sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/myLumberProject/node_modules/forest-express/dist/utils');
 
-          const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+          const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
           expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
 
@@ -85,12 +85,11 @@ describe('utils > project-directory', () => {
           it('should return the absolute path of the project directory', () => {
             expect.assertions(1);
 
-            const projectDirectoryUtils = new ProjectDirectoryUtils();
             const cwdStub = sinon.stub(process, 'cwd');
             cwdStub.returns('/Users/forestUser/projects/myLumberProject');
-            sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/cache/forest-express-npm-8.3.1-a520e9a060-7158678646.zip/node_modules/forest-express/dist/utils');
+            sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/cache/forest-express-npm-8.3.1-a520e9a060-7158678646.zip/node_modules/forest-express/dist/utils');
 
-            const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+            const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
             expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
 
@@ -103,12 +102,11 @@ describe('utils > project-directory', () => {
           it('should return the absolute path of the project directory', () => {
             expect.assertions(1);
 
-            const projectDirectoryUtils = new ProjectDirectoryUtils();
             const cwdStub = sinon.stub(process, 'cwd');
             cwdStub.returns('/Users/forestUser/projects/myLumberProject');
-            sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
+            sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/myLumberProject/.yarn/unplugged/forest-express-npm-8.3.1-a520e9a060-7158678646/dist/utils');
 
-            const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+            const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
             expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
 
@@ -123,10 +121,9 @@ describe('utils > project-directory', () => {
       it('should return the current working directory', () => {
         expect.assertions(1);
 
-        const projectDirectoryUtils = new ProjectDirectoryUtils();
-        sinon.replace(projectDirectoryUtils, 'dirname', '/Users/forestUser/projects/forest-express/dist/utils/project-directory');
+        sinon.replace(projectDirectoryFinder, 'dirname', '/Users/forestUser/projects/forest-express/dist/utils/project-directory');
 
-        const absoluteProjectPath = projectDirectoryUtils.getAbsolutePath();
+        const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
         expect(absoluteProjectPath).toStrictEqual(process.cwd());
 

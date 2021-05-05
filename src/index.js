@@ -21,12 +21,12 @@ const HealthCheckRoute = require('./routes/healthcheck');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
-const ProjectDirectoryUtils = require('./utils/project-directory');
 const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
 
 const {
   logger,
+  path,
   pathService,
   errorHandler,
   ipWhitelist,
@@ -45,13 +45,10 @@ const PUBLIC_ROUTES = [
   ...initAuthenticationRoutes.PUBLIC_ROUTES,
 ];
 
-const pathProjectAbsolute = new ProjectDirectoryUtils().getAbsolutePath();
-
 const ENVIRONMENT_DEVELOPMENT = !process.env.NODE_ENV
   || ['dev', 'development'].includes(process.env.NODE_ENV);
 const DISABLE_AUTO_SCHEMA_APPLY = process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY
   && JSON.parse(process.env.FOREST_DISABLE_AUTO_SCHEMA_APPLY);
-const pathSchemaFile = `${pathProjectAbsolute}/.forestadmin-schema.json`;
 
 let jwtAuthenticator;
 let app = null;
@@ -130,6 +127,8 @@ function generateAndSendSchema(envSecret) {
   const { options: serializerOptions } = schemaSerializer;
   let collectionsSent;
   let metaSent;
+
+  const pathSchemaFile = path.join(configStore.schemaDir, '.forestadmin-schema.json');
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {
