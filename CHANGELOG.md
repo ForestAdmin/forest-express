@@ -1,3 +1,10 @@
+# [8.5.0](https://github.com/ForestAdmin/forest-express/compare/v8.4.0...v8.5.0) (2021-05-05)
+
+
+### Features
+
+* **schema:** developers can specify manually the path of the .forestadmin-schema.json file ([#698](https://github.com/ForestAdmin/forest-express/issues/698)) ([c27bfb9](https://github.com/ForestAdmin/forest-express/commit/c27bfb9b644c0c8836f926f67a1ebf01b4e0f02d))
+
 # [8.4.0](https://github.com/ForestAdmin/forest-express/compare/v8.3.2...v8.4.0) (2021-04-27)
 
 
