@@ -129,6 +129,21 @@ describe('services > config-store', () => {
 
       expect(() => configStore.validateOptions()).toThrow('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
     });
+
+    it('should log an error when schemaDir does not exist', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      const schemaDir = new Date();
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: {},
+        schemaDir,
+      };
+
+      expect(() => configStore.validateOptions()).toThrow(`Your schemaDir ("./${schemaDir}") does not exist. Please make sure it is set correctly.`);
+    });
   });
 
   describe('when the given configuration is valid', () => {
@@ -182,22 +197,6 @@ describe('services > config-store', () => {
 
       expect(() => configStore.validateOptions()).not.toThrow();
       expect(logger.warn).toHaveBeenCalledWith(`Your configDir ("./${configDir}") does not exist. Please make sure it is set correctly.`);
-    });
-
-    it('should log a warning when schemaDir does not exist', () => {
-      expect.assertions(2);
-      jest.clearAllMocks();
-
-      const schemaDir = new Date();
-      configStore.lianaOptions = {
-        authSecret,
-        envSecret,
-        connections: validConnections,
-        schemaDir,
-      };
-
-      expect(() => configStore.validateOptions()).not.toThrow();
-      expect(logger.warn).toHaveBeenCalledWith(`Your schemaDir ("./${schemaDir}") does not exist. Please make sure it is set correctly.`);
     });
 
     it('should log a warning when includedModels and excludedModels at used in the same time', () => {

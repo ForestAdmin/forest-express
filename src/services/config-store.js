@@ -83,7 +83,7 @@ class ConfigStore {
     }
 
     if (!this.doesSchemaDirExist()) {
-      this.logger.warn(`Your schemaDir ("${this.schemaDir}") does not exist. Please make sure it is set correctly.`);
+      throw new Error(`Your schemaDir ("${this.schemaDir}") does not exist. Please make sure it is set correctly.`);
     }
 
     if (options.onlyCrudModule) {
