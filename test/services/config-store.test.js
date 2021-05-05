@@ -17,7 +17,16 @@ describe('services > config-store', () => {
     resolve: jest.fn((root, dir) => `${root}/${dir}`),
   };
 
-  const configStore = new ConfigStore({ logger, fs, path });
+  const projectDirectoryFinder = {
+    getAbsolutePath: jest.fn(() => './forest'),
+  };
+
+  const configStore = new ConfigStore({
+    logger,
+    fs,
+    path,
+    projectDirectoryFinder,
+  });
 
   describe('when the given configuration is invalid', () => {
     it('should log an error when no options are provided', () => {

@@ -133,6 +133,7 @@ function initServices(context) {
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addInstance('baseFilterParser', baseFilterParser);
+  context.addClass(ProjectDirectoryFinder);
   context.addClass(ConfigStore);
   context.addClass(PermissionsGetter);
   context.addClass(PermissionsChecker);
@@ -147,7 +148,6 @@ function initServices(context) {
   context.addClass(OidcClientManagerService);
   context.addClass(AuthenticationService);
   context.addClass(SmartActionHook);
-  context.addClass(ProjectDirectoryFinder);
 }
 
 /**

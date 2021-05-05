@@ -1,6 +1,5 @@
 class ProjectDirectoryFinder {
-  constructor({ configStore, path }) {
-    this.pathSchemaDir = configStore?.lianaOptions?.schemaDir;
+  constructor({ path }) {
     this.path = path;
     this.dirname = __dirname;
 
@@ -24,10 +23,6 @@ class ProjectDirectoryFinder {
   }
 
   getAbsolutePath() {
-    if (this.pathSchemaDir) {
-      return this.ensureAbsolutePath(this.pathSchemaDir.split(this.path.sep));
-    }
-
     for (let index = 0; index <= this.PATHS_ROOT_PACKAGES.length; index += 1) {
       const rootPackagesPath = this.PATHS_ROOT_PACKAGES[index];
       // NOTICE: forest-express has not been sym linked.

@@ -33,7 +33,6 @@ const {
   apimapFieldsFormater,
   apimapSender,
   schemaFileUpdater,
-  projectDirectoryFinder,
   configStore,
   modelsManager,
   fs,
@@ -129,7 +128,7 @@ function generateAndSendSchema(envSecret) {
   let collectionsSent;
   let metaSent;
 
-  const pathSchemaFile = path.join(projectDirectoryFinder.getAbsolutePath(), '.forestadmin-schema.json');
+  const pathSchemaFile = path.join(configStore.schemaDir, '.forestadmin-schema.json');
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {

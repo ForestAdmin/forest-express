@@ -1,5 +1,10 @@
 class ConfigStore {
-  constructor({ logger, fs, path }) {
+  constructor({
+    logger,
+    fs,
+    path,
+    projectDirectoryFinder,
+  }) {
     this.Implementation = null;
     this.lianaOptions = null;
     this.integrator = null;
@@ -7,6 +12,7 @@ class ConfigStore {
     this.logger = logger;
     this.fs = fs;
     this.path = path;
+    this.projectDirectoryFinder = projectDirectoryFinder;
   }
 
   get configDir() {
@@ -21,8 +27,12 @@ class ConfigStore {
   }
 
   get schemaDir() {
-    if (!this.lianaOptions?.schemaDir) return null;
-    return this.path.resolve('.', this.lianaOptions.schemaDir);
+    const schemaDir = this.lianaOptions?.schemaDir;
+    if (schemaDir) {
+      return this.path.resolve('.', `${schemaDir}`);
+    }
+
+    return this.path.resolve('.', this.projectDirectoryFinder.getAbsolutePath());
   }
 
   doesConfigDirExist() {
@@ -30,7 +40,7 @@ class ConfigStore {
   }
 
   doesSchemaDirExist() {
-    return !this.schemaDir || this.fs.existsSync(this.schemaDir);
+    return this.fs.existsSync(this.schemaDir);
   }
 
   validateOptions() {
