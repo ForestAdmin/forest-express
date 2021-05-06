@@ -64,7 +64,9 @@ module.exports = function Resources(app, model) {
   };
 
   this.get = (request, response, next) =>
-    new Implementation.ResourceGetter(model, request.params, request.user)
+    new Implementation.ResourceGetter(model, {
+      ...request.query, recordId: request.params.recordId,
+    }, request.user)
       .perform()
       .then((record) => new ResourceSerializer(
         Implementation,
@@ -81,7 +83,9 @@ module.exports = function Resources(app, model) {
     new ResourceDeserializer(Implementation, model, request.body, true, {
       omitNullAttributes: true,
     }).perform()
-      .then((params) => new Implementation.ResourceCreator(model, params, request.user).perform())
+      .then((body) => new Implementation.ResourceCreator(
+        model, request.query, body, request.user,
+      ).perform())
       .then((record) => new ResourceSerializer(
         Implementation,
         model,
@@ -114,24 +118,28 @@ module.exports = function Resources(app, model) {
       });
   };
 
-  this.remove = (request, response, next) => {
-    new Implementation.ResourceRemover(model, request.params, request.user)
-      .perform()
-      .then(() => {
-        response.status(204).send();
-      })
-      .catch(next);
+  this.remove = async (request, response, next) => {
+    const remover = new Implementation.ResourceRemover(
+      model, { ...request.query, recordId: request.params.recordId }, request.user,
+    );
+
+    try {
+      await remover.perform();
+      response.status(204).send();
+    } catch (e) {
+      next(e);
+    }
   };
 
   this.removeMany = async (request, response, next) => {
     const ids = await new RecordsGetter(model).getIdsFromRequest(request);
 
     try {
-      await new Implementation.ResourcesRemover(model, ids, request.user).perform();
+      await new Implementation.ResourcesRemover(model, request.query, ids, request.user).perform();
+      response.status(204).send();
     } catch (e) {
       next(e);
     }
-    response.status(204).send();
   };
 
   const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
