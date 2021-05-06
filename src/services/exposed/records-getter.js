@@ -7,7 +7,9 @@ class RecordsGetter extends AbstractRecordService {
   getAll(params) {
     this.searchValue = params.search;
     this.fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
-    return new this.Implementation.ResourcesGetter(this.model, this.lianaOptions, params, this.user)
+    return new this.Implementation.ResourcesGetter(
+      this.model, this.lianaOptions, { ...this.params, ...params }, this.user,
+    )
       .perform()
       .then(([records, fieldsSearched]) => {
         this.fieldsSearched = fieldsSearched;
@@ -33,6 +35,7 @@ class RecordsGetter extends AbstractRecordService {
           this.model,
           this.lianaOptions,
           {
+            ...this.params,
             ...params,
             ...attributes.allRecordsSubsetQuery,
             page: attributes.page,
@@ -54,7 +57,12 @@ class RecordsGetter extends AbstractRecordService {
           parentModel,
           this.model,
           this.lianaOptions,
-          { ...params, recordId: parentCollectionId, associationName: parentAssociationName },
+          {
+            ...this.params,
+            ...params,
+            recordId: parentCollectionId,
+            associationName: parentAssociationName,
+          },
           this.user,
         ).count();
       }
@@ -62,7 +70,7 @@ class RecordsGetter extends AbstractRecordService {
       return new this.Implementation.ResourcesGetter(
         this.model,
         this.lianaOptions,
-        attributes.allRecordsSubsetQuery,
+        { ...this.params, allRecordsSubsetQuery: attributes.allRecordsSubsetQuery },
         this.user,
       ).count(attributes.allRecordsSubsetQuery);
     };

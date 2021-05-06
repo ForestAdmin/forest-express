@@ -1,7 +1,7 @@
 const AbstractRecordService = require('./abstract-records-service');
 
 class RecordSerializer extends AbstractRecordService {
-  constructor(model, user) {
+  constructor(model, user, params) {
     if (!model) {
       throw new Error('RecordSerializer initialization error: missing first argument "model"');
     }
@@ -11,7 +11,7 @@ class RecordSerializer extends AbstractRecordService {
     if (!model.modelName) {
       model.modelName = model.name;
     }
-    super(model, user);
+    super(model, user, params);
   }
 }
 

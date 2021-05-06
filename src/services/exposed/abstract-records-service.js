@@ -2,9 +2,12 @@ const ResourceSerializer = require('../../serializers/resource');
 const context = require('../../context');
 
 class AbstractRecordService {
-  constructor(model, user, { configStore, modelsManager } = context.inject()) {
+  constructor(model, user, params, { configStore, modelsManager } = context.inject()) {
+    if (!params.timezone) throw new Error('Missing timezone in parameters');
+
     this.model = model;
     this.user = user;
+    this.params = params;
     this.configStore = configStore;
     this.modelsManager = modelsManager;
   }
