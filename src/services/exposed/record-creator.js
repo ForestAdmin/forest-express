@@ -3,7 +3,7 @@ const ResourceDeserializer = require('../../deserializers/resource');
 
 class RecordCreator extends AbstractRecordService {
   create(record) {
-    return new this.Implementation.ResourceCreator(this.model, record)
+    return new this.Implementation.ResourceCreator(this.model, record, this.user)
       .perform();
   }
 

@@ -2,8 +2,9 @@ const ResourceSerializer = require('../../serializers/resource');
 const context = require('../../context');
 
 class AbstractRecordService {
-  constructor(model, { configStore, modelsManager } = context.inject()) {
+  constructor(model, user, { configStore, modelsManager } = context.inject()) {
     this.model = model;
+    this.user = user;
     this.configStore = configStore;
     this.modelsManager = modelsManager;
   }

@@ -7,6 +7,8 @@ class RecordsExporter extends AbstractRecordService {
       this.model,
       this.lianaOptions,
       params,
+      null,
+      this.user,
     );
     const modelName = this.Implementation.getModelName(this.model);
     return new CSVExporter(params, response, modelName, recordsExporter)

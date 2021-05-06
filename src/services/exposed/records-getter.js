@@ -7,7 +7,7 @@ class RecordsGetter extends AbstractRecordService {
   getAll(params) {
     this.searchValue = params.search;
     this.fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
-    return new this.Implementation.ResourcesGetter(this.model, this.lianaOptions, params)
+    return new this.Implementation.ResourcesGetter(this.model, this.lianaOptions, params, this.user)
       .perform()
       .then(([records, fieldsSearched]) => {
         this.fieldsSearched = fieldsSearched;
@@ -39,6 +39,7 @@ class RecordsGetter extends AbstractRecordService {
             recordId: parentCollectionId,
             associationName: parentAssociationName,
           },
+          this.user,
         ).perform();
         return records;
       }
@@ -54,12 +55,15 @@ class RecordsGetter extends AbstractRecordService {
           this.model,
           this.lianaOptions,
           { ...params, recordId: parentCollectionId, associationName: parentAssociationName },
+          this.user,
         ).count();
       }
+
       return new this.Implementation.ResourcesGetter(
         this.model,
         this.lianaOptions,
         attributes.allRecordsSubsetQuery,
+        this.user,
       ).count(attributes.allRecordsSubsetQuery);
     };
     const primaryKeysGetter = () => Schemas.schemas[this.Implementation.getModelName(this.model)];
