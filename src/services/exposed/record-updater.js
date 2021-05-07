@@ -3,7 +3,9 @@ const ResourceDeserializer = require('../../deserializers/resource');
 
 class RecordUpdater extends AbstractRecordService {
   update(record, recordId) {
-    return new this.Implementation.ResourceUpdater(this.model, { recordId }, record)
+    return new this.Implementation.ResourceUpdater(
+      this.model, { ...this.params, recordId }, record, this.user,
+    )
       .perform();
   }
 
