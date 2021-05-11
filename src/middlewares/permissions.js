@@ -47,6 +47,11 @@ class PermissionMiddlewareCreator {
     // NOTICE: Remove useless information
     delete parameters.timezone;
 
+    // NOTICE: Remove the field information from group_by_field => collection:id
+    if (parameters.group_by_field) {
+      [parameters.group_by_field] = parameters.group_by_field.split(':');
+    }
+
     return parameters;
   }
 
