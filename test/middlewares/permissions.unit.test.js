@@ -1,5 +1,7 @@
 const PermissionMiddlewareCreator = require('../../src/middlewares/permissions');
 const context = require('../../src/context');
+const Schemas = require('../../src/generators/schemas');
+const usersSchema = require('../fixtures/users-schema.js');
 
 describe('middlewares > permissions', () => {
   const defaultDependencies = {
@@ -104,6 +106,50 @@ describe('middlewares > permissions', () => {
 
         expect(next).toHaveBeenCalledTimes(1);
         expect(next).toHaveBeenCalledWith();
+      });
+    });
+  });
+
+  describe('_getSmartActionInfoFromRequest', () => {
+    describe('when no smart action can be found', () => {
+      it('should throw an error', () => {
+        expect.assertions(1);
+
+        Schemas.schemas = { users: usersSchema };
+
+        const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
+          ...defaultDependencies,
+        });
+
+        const request = {
+          user: { id: 1 }, baseUrl: '/forest', path: '/actions/test-me-unknown', method: 'POST',
+        };
+        const smartActionEndpoint = `${request.baseUrl}${request.path}`;
+        const smartActionHTTPMethod = 'POST';
+        const expectedErrorMessage = `Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`;
+
+        expect(() => permissionMiddlewareCreator._getSmartActionInfoFromRequest(request))
+          .toThrow(expectedErrorMessage);
+      });
+    });
+
+    describe('when there is a matching smart action', () => {
+      it('should return the userId and actionName', () => {
+        expect.assertions(1);
+
+        Schemas.schemas = { users: usersSchema };
+
+        const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
+          ...defaultDependencies,
+        });
+        const userId = 1;
+        const request = {
+          user: { id: userId }, baseUrl: '/forest', path: '/actions/test-me', method: 'POST',
+        };
+
+        const smartActionInfo = permissionMiddlewareCreator._getSmartActionInfoFromRequest(request);
+
+        expect(smartActionInfo).toStrictEqual({ userId, actionName: 'Test me' });
       });
     });
   });
