@@ -2,6 +2,8 @@ const httpError = require('http-errors');
 const { parameterize } = require('../utils/string');
 const context = require('../context');
 const Schemas = require('../generators/schemas');
+const QueryDeserializer = require('../deserializers/query');
+const RecordsCounter = require('../services/exposed/records-counter');
 
 const getRenderingIdFromUser = (user) => user.renderingId;
 
@@ -15,10 +17,10 @@ class PermissionMiddlewareCreator {
   }
 
   _getSmartActionInfoFromRequest(request) {
-    const smartActionEndpoint = request.originalUrl;
+    const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
-      const endpoint = action.endpoint || `/forest/actions/${parameterize(action.name)}`;
+      const endpoint = action.endpoint || `/actions/${parameterize(action.name)}`;
       const method = action.httpMethod || 'POST';
       return endpoint === smartActionEndpoint && method === smartActionHTTPMethod;
     });
@@ -86,6 +88,47 @@ class PermissionMiddlewareCreator {
     };
   }
 
+  static _getRequestAttributes(request) {
+    const hasBodyAttributes = request.body && request.body.data && request.body.data.attributes;
+    return hasBodyAttributes
+      && new QueryDeserializer(request.body.data.attributes).perform();
+  }
+
+  _ensureRecordIdsInScope(model) {
+    if (!model) throw new Error('missing model');
+
+    return async (request, response, next) => {
+      const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
+
+      // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
+      if (attributes.allRecords) return next();
+
+      const tragetRecordIds = attributes.ids;
+      const modelName = this.configStore.Implementation.getModelName(model);
+      const { idField } = Schemas.schemas[modelName];
+
+      // TODO: scope smartAction calls properly on table with composite primary keys
+      if (idField === 'forestCompositePrimary') return next();
+
+      const checkIdsFilter = JSON.stringify({
+        field: idField,
+        operator: 'in',
+        value: tragetRecordIds,
+      });
+      // count records matching the provided filters (with scopes applied by the RecordCounter)
+      const count = await new RecordsCounter(
+        model, request.user, { filters: checkIdsFilter, timezone: 'Europe/Paris' },
+      ).count();
+
+      // some record ids are outside of scope
+      if (count !== tragetRecordIds.length) {
+        return response.status(400).send({ error: 'Smart Action: target records are out of scope' });
+      }
+
+      return next();
+    };
+  }
+
   list() {
     return this._checkPermission('browseEnabled');
   }
@@ -110,8 +153,8 @@ class PermissionMiddlewareCreator {
     return this._checkPermission('deleteEnabled');
   }
 
-  smartAction() {
-    return this._checkPermission('actions');
+  smartAction(model) {
+    return [this._checkPermission('actions'), this._ensureRecordIdsInScope(model)];
   }
 
   liveQueries() {
