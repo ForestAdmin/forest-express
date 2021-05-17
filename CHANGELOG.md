@@ -1,3 +1,10 @@
+## [8.5.1](https://github.com/ForestAdmin/forest-express/compare/v8.5.0...v8.5.1) (2021-05-17)
+
+
+### Bug Fixes
+
+* charts using groupby on relationship should not throws 403 forbidden ([#710](https://github.com/ForestAdmin/forest-express/issues/710)) ([480eb94](https://github.com/ForestAdmin/forest-express/commit/480eb9444a952799a37f93f6763445cafcf588e4))
+
 # [8.5.0](https://github.com/ForestAdmin/forest-express/compare/v8.4.0...v8.5.0) (2021-05-05)
 
 
