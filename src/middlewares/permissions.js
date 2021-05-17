@@ -94,7 +94,7 @@ class PermissionMiddlewareCreator {
       && new QueryDeserializer(request.body.data.attributes).perform();
   }
 
-  // Generat a middleware that will check that ids provided by the request exist
+  // generate a middleware that will check that ids provided by the request exist
   // whithin the registered scope
   _ensureRecordIdsInScope(model) {
     if (!model) throw new Error('missing model');
