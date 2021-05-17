@@ -308,4 +308,21 @@ describe('middlewares > permissions', () => {
       });
     });
   });
+
+  describe('smartAction', () => {
+    it('should generate an array of middlewares', () => {
+      expect.assertions(3);
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
+        ...defaultDependencies,
+      });
+
+      const smartActionPermissionMiddlewares = permissionMiddlewareCreator
+        .smartAction({ name: 'users' });
+
+      expect(smartActionPermissionMiddlewares).toHaveLength(2);
+      expect(typeof smartActionPermissionMiddlewares[0]).toStrictEqual('function');
+      expect(typeof smartActionPermissionMiddlewares[1]).toStrictEqual('function');
+    });
+  });
 });
