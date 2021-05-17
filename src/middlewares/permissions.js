@@ -94,6 +94,8 @@ class PermissionMiddlewareCreator {
       && new QueryDeserializer(request.body.data.attributes).perform();
   }
 
+  // Generat a middleware that will check that ids provided by the request exist
+  // whithin the registered scope
   _ensureRecordIdsInScope(model) {
     if (!model) throw new Error('missing model');
 
@@ -103,18 +105,19 @@ class PermissionMiddlewareCreator {
       // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
       if (attributes.allRecords) return next();
 
-      const tragetRecordIds = attributes.ids;
       const modelName = this.configStore.Implementation.getModelName(model);
       const { idField } = Schemas.schemas[modelName];
 
       // TODO: scope smartAction calls properly on table with composite primary keys
       if (idField === 'forestCompositePrimary') return next();
 
+      const tragetRecordIds = attributes.ids;
       const checkIdsFilter = JSON.stringify({
         field: idField,
         operator: 'in',
         value: tragetRecordIds,
       });
+
       // count records matching the provided filters (with scopes applied by the RecordCounter)
       const count = await new RecordsCounter(
         model, request.user, { filters: checkIdsFilter, timezone: 'Europe/Paris' },
