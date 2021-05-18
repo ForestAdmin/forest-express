@@ -97,8 +97,6 @@ class PermissionMiddlewareCreator {
   // generate a middleware that will check that ids provided by the request exist
   // whithin the registered scope
   _ensureRecordIdsInScope(model) {
-    if (!model) throw new Error('missing model');
-
     return async (request, response, next) => {
       const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
       const { timezone } = request.query;
@@ -158,6 +156,8 @@ class PermissionMiddlewareCreator {
   }
 
   smartAction(model) {
+    if (!model) throw new Error('missing model in the smartAction middleware definition');
+
     return [this._checkPermission('actions'), this._ensureRecordIdsInScope(model)];
   }
 
