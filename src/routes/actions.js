@@ -44,7 +44,7 @@ class Actions {
   async getRecord(recordId, timezone, user) {
     return this.model
       ? new this.implementation.ResourceGetter(this.model, { recordId, timezone }, user).perform()
-      : null;
+      : { id: recordId };
   }
 
   /**
@@ -61,7 +61,7 @@ class Actions {
     const record = await this.getRecord(recordId, request.query.timezone, request.user);
 
     try {
-      const updatedFields = await hook(record, recordId);
+      const updatedFields = await hook(record);
 
       return response.status(200).send({ fields: updatedFields });
     } catch (error) {
@@ -78,11 +78,10 @@ class Actions {
    */
   getHookLoadController(action) {
     return async (request, response) => (
-      this.getHook(request, response, async (record, recordId) => this.smartActionHook.getResponse(
+      this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
         action.hooks.load,
         action.fields,
         record,
-        recordId,
       )));
   }
 
@@ -97,12 +96,16 @@ class Actions {
       const { changedField } = request.body;
 
       return this.getHook(request, response,
-        async (record, recordId) => this.smartActionHook.getResponse(
-          action.hooks.change[changedField],
-          request.body.fields,
-          record,
-          recordId,
-        ));
+        async (record) => {
+          const { fields } = request.body;
+          const fieldChanged = fields.find((field) => field.field === changedField);
+          return this.smartActionHook.getResponse(
+            action.hooks.change[changedField],
+            fields,
+            record,
+            fieldChanged,
+          );
+        });
     };
   }
 

@@ -21,13 +21,13 @@ describe('services > smart-action-hook', () => {
       await expect(smartActionHook.getResponse(null, [], {})).rejects.toThrow('hook must be a function');
     });
 
-    it('should throw with message when hook does not return an object', async () => {
+    it('should throw with message when hook does not return an array', async () => {
       expect.assertions(1);
 
       const { smartActionHook } = initContext(jest.fn()).inject();
 
       await expect(smartActionHook.getResponse(jest.fn(() => false), [], {}))
-        .rejects.toThrow('hook must return an object');
+        .rejects.toThrow('hook must return an array');
     });
 
     it('should throw with message when fields have changed', async () => {
@@ -35,7 +35,7 @@ describe('services > smart-action-hook', () => {
 
       const { smartActionHook } = initContext(jest.fn(() => false)).inject();
 
-      await expect(smartActionHook.getResponse(jest.fn(() => ({})), [], {}))
+      await expect(smartActionHook.getResponse(jest.fn(() => ([])), [], {}))
         .rejects.toThrow('fields must be unchanged (no addition nor deletion allowed)');
     });
 
@@ -44,37 +44,37 @@ describe('services > smart-action-hook', () => {
 
       const isSameDataStructure = jest.fn(() => true);
       const { smartActionHook } = initContext(isSameDataStructure).inject();
-      const fields = [{
+      const field = {
         field: 'myField',
         type: 'String',
-      }];
+      };
+      const fields = [field];
       const expected = {
         field: 'myField',
         type: 'String',
         value: 'foo',
       };
 
-      const hook = jest.fn(() => ({
-        myField: {
-          field: 'myField',
-          type: 'String',
-          value: 'foo',
-        },
-      }));
+      const hook = jest.fn(() => ([{
+        field: 'myField',
+        type: 'String',
+        value: 'foo',
+      }]));
 
       const response = await smartActionHook.getResponse(hook, fields, {});
       await expect(response).toStrictEqual([expected]);
       expect(hook).toHaveBeenNthCalledWith(
         1,
         {
-          fields: { myField: { ...expected, value: null } },
+          fields: [{ ...field, value: null }],
           record: {},
+          changedField: null,
         },
       );
       expect(isSameDataStructure).toHaveBeenNthCalledWith(
         1,
-        { myField: { ...expected, value: null } },
-        { myField: expected },
+        [{ ...field, value: null }],
+        [expected],
         1,
       );
     });
@@ -86,21 +86,22 @@ describe('services > smart-action-hook', () => {
 
           const isSameDataStructure = jest.fn(() => true);
           const { smartActionHook } = initContext(isSameDataStructure).inject();
-          const fields = [{
+          const field = {
             field: 'myField',
             type: 'Enum',
             enums: ['a', 'b', 'c'],
             value: 'b',
-          }];
+          };
+          const fields = [field];
           const expected = {
-            ...fields[0],
+            ...field,
             enums: ['d', 'e', 'f'],
             value: null,
           };
 
-          const hook = jest.fn(() => ({
-            myField: { ...fields[0], enums: ['d', 'e', 'f'] },
-          }));
+          const hook = jest.fn(() => ([
+            { ...field, enums: ['d', 'e', 'f'] },
+          ]));
 
           const response = await smartActionHook.getResponse(hook, fields, {});
           await expect(response).toStrictEqual([expected]);
@@ -111,21 +112,22 @@ describe('services > smart-action-hook', () => {
 
           const isSameDataStructure = jest.fn(() => true);
           const { smartActionHook } = initContext(isSameDataStructure).inject();
-          const fields = [{
+          const field = {
             field: 'myField',
             type: 'Enum',
             enums: ['a', 'b', 'c'],
             value: 'b',
-          }];
+          };
+          const fields = [field];
           const expected = {
-            ...fields[0],
+            ...field,
             enums: ['d', 'e', 'f'],
             value: 'e',
           };
 
-          const hook = jest.fn(() => ({
-            myField: { ...fields[0], enums: ['d', 'e', 'f'], value: 'e' },
-          }));
+          const hook = jest.fn(() => ([
+            { ...field, enums: ['d', 'e', 'f'], value: 'e' },
+          ]));
 
           const response = await smartActionHook.getResponse(hook, fields, {});
           await expect(response).toStrictEqual([expected]);
@@ -138,21 +140,22 @@ describe('services > smart-action-hook', () => {
 
           const isSameDataStructure = jest.fn(() => true);
           const { smartActionHook } = initContext(isSameDataStructure).inject();
-          const fields = [{
+          const field = {
             field: 'myField',
             type: ['Enum'],
             enums: ['a', 'b', 'c'],
             value: ['a', 'b'],
-          }];
+          };
+          const fields = [field];
           const expected = {
-            ...fields[0],
+            ...field,
             enums: ['d', 'e', 'f'],
             value: null,
           };
 
-          const hook = jest.fn(() => ({
-            myField: { ...fields[0], enums: ['d', 'e', 'f'] },
-          }));
+          const hook = jest.fn(() => ([
+            { ...field, enums: ['d', 'e', 'f'] },
+          ]));
 
           const response = await smartActionHook.getResponse(hook, fields, {});
           await expect(response).toStrictEqual([expected]);
@@ -163,21 +166,22 @@ describe('services > smart-action-hook', () => {
 
           const isSameDataStructure = jest.fn(() => true);
           const { smartActionHook } = initContext(isSameDataStructure).inject();
-          const fields = [{
+          const field = {
             field: 'myField',
             type: ['Enum'],
             enums: ['a', 'b', 'c'],
             value: ['a'],
-          }];
+          };
+          const fields = [field];
           const expected = {
-            ...fields[0],
+            ...field,
             enums: ['a', 'b', 'c', 'd', 'e', 'f'],
             value: ['a', 'b'],
           };
 
-          const hook = jest.fn(() => ({
-            myField: { ...fields[0], enums: ['a', 'b', 'c', 'd', 'e', 'f'], value: ['a', 'b'] },
-          }));
+          const hook = jest.fn(() => ([
+            { ...field, enums: ['a', 'b', 'c', 'd', 'e', 'f'], value: ['a', 'b'] },
+          ]));
 
           const response = await smartActionHook.getResponse(hook, fields, {});
           await expect(response).toStrictEqual([expected]);

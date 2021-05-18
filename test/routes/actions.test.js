@@ -196,7 +196,6 @@ describe('routes > actions', () => {
             load,
             [{ field: 'invoice number', type: 'String' }],
             { id: 1, name: 'Jane' },
-            1,
           );
         });
 
@@ -260,7 +259,7 @@ describe('routes > actions', () => {
             undefined,
             [{ field: 'invoice number', type: 'String' }],
             { id: 1, name: 'Jane' },
-            1,
+            undefined,
           );
         });
 
@@ -288,7 +287,7 @@ describe('routes > actions', () => {
           expect(implementation.ResourceGetter)
             .toHaveBeenNthCalledWith(1, model, { recordId: 1, timezone: 'Europe/Paris' }, { id: 1 });
           expect(smartActionHookGetResponse)
-            .toHaveBeenNthCalledWith(1, change.foo, [field], { id: 1, name: 'Jane' }, 1);
+            .toHaveBeenNthCalledWith(1, change.foo, [field], { id: 1, name: 'Jane' }, field);
         });
 
         it('should fail with message when change hook service throws', async () => {
