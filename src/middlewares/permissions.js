@@ -20,7 +20,7 @@ class PermissionMiddlewareCreator {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
-      const endpoint = action.endpoint || `/actions/${parameterize(action.name)}`;
+      const endpoint = action.endpoint || `/forest/actions/${parameterize(action.name)}`;
       const method = action.httpMethod || 'POST';
       return endpoint === smartActionEndpoint && method === smartActionHTTPMethod;
     });
@@ -101,6 +101,7 @@ class PermissionMiddlewareCreator {
 
     return async (request, response, next) => {
       const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
+      const { timezone } = request.query;
 
       // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
       if (attributes.allRecords) return next();
@@ -111,20 +112,20 @@ class PermissionMiddlewareCreator {
       // TODO: scope smartAction calls properly on table with composite primary keys
       if (idField === 'forestCompositePrimary') return next();
 
-      const tragetRecordIds = attributes.ids;
+      const targetRecordIds = attributes.ids;
       const checkIdsFilter = JSON.stringify({
         field: idField,
         operator: 'in',
-        value: tragetRecordIds,
+        value: targetRecordIds,
       });
 
       // count records matching the provided filters (with scopes applied by the RecordCounter)
       const count = await new RecordsCounter(
-        model, request.user, { filters: checkIdsFilter, timezone: 'Europe/Paris' },
+        model, request.user, { filters: checkIdsFilter, timezone },
       ).count();
 
       // some record ids are outside of scope
-      if (count !== tragetRecordIds.length) {
+      if (count !== targetRecordIds.length) {
         return response.status(400).send({ error: 'Smart Action: target records are out of scope' });
       }
 
