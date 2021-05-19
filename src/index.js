@@ -39,6 +39,7 @@ const {
   fs,
   tokenService,
   scopeManager,
+  smartActionFieldValidator,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -114,12 +115,15 @@ function generateAndSendSchema(envSecret) {
     .filter((collection) => collection.actions && collection.actions.length)
     // NOTICE: Check each Smart Action declaration to detect configuration errors.
     .forEach((collection) => {
-      const isFieldsInvalid = (action) => action.fields && !Array.isArray(action.fields);
       collection.actions.forEach((action) => {
         if (!action.name) {
           logger.warn(`An unnamed Smart Action of collection "${collection.name}" has been ignored.`);
-        } else if (isFieldsInvalid(action)) {
-          logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
+        } else {
+          try {
+            smartActionFieldValidator.validateSmartActionFields(action, collection.name);
+          } catch (error) {
+            logger.error(error.message);
+          }
         }
       });
       // NOTICE: Ignore actions without a name.

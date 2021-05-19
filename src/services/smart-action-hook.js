@@ -1,6 +1,5 @@
 class SmartActionHook {
-  constructor({ isSameDataStructure, setFieldWidget, smartActionFieldValidator }) {
-    this.isSameDataStructure = isSameDataStructure;
+  constructor({ setFieldWidget, smartActionFieldValidator }) {
     this.setFieldWidget = setFieldWidget;
     this.smartActionFieldValidator = smartActionFieldValidator;
   }
@@ -27,7 +26,7 @@ class SmartActionHook {
    * @param {Array} fields the array of fields.
    * @param {Object} record the current record that has to be passed to load hook.
    */
-  async getResponse(hook, fields, record, changedField = null) {
+  async getResponse(action, hook, fields, record, changedField = null) {
     const fieldsForUser = this.getFieldsForUser(fields);
 
     if (typeof hook !== 'function') throw new Error('hook must be a function');
@@ -37,12 +36,12 @@ class SmartActionHook {
 
     if (!(result && Array.isArray(result))) {
       throw new Error('hook must return an array');
-    } else if (!this.isSameDataStructure(fieldsForUser, result, 1)) {
-      throw new Error('fields must be unchanged (no addition nor deletion allowed)');
     }
 
     return result.map((field) => {
       this.smartActionFieldValidator.validateField(field);
+      this.smartActionFieldValidator
+        .validateFieldChangeHook(field, action.name, action.hooks?.change);
       // Reset `value` when not present in `enums` (which means `enums` has changed).
       if (Array.isArray(field.enums)) {
         // `Value` can be an array if the type of fields is `[x]`

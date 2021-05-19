@@ -79,6 +79,7 @@ class Actions {
   getHookLoadController(action) {
     return async (request, response) => (
       this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
+        action,
         action.hooks.load,
         action.fields,
         record,
@@ -99,8 +100,10 @@ class Actions {
         async (record) => {
           const { fields } = request.body;
           const fieldChanged = fields.find((field) => field.field === changedField);
+
           return this.smartActionHook.getResponse(
-            action.hooks.change[changedField],
+            action,
+            action.hooks.change[fieldChanged?.hook],
             fields,
             record,
             fieldChanged,
