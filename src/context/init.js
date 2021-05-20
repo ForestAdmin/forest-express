@@ -28,6 +28,7 @@ const PermissionsChecker = require('../services/permissions-checker');
 const PermissionsGetter = require('../services/permissions-getter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const ScopeManager = require('../services/scope-manager');
+const SmartActionFieldValidator = require('../services/smart-action-field-validator');
 const SmartActionHook = require('../services/smart-action-hook');
 const schemasGenerator = require('../generators/schemas');
 const ModelsManager = require('../services/models-manager');
@@ -150,6 +151,7 @@ function initServices(context) {
   context.addClass(OidcConfigurationRetrieverService);
   context.addClass(OidcClientManagerService);
   context.addClass(AuthenticationService);
+  context.addClass(SmartActionFieldValidator);
   context.addClass(SmartActionHook);
 }
 

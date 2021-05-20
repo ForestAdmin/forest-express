@@ -1,11 +1,13 @@
 const ApplicationContext = require('../../src/context/application-context');
 const SmartActionHook = require('../../src/services/smart-action-hook');
+const SmartFieldActionFieldValidator = require('../../src/services/smart-action-field-validator');
 
 function initContext(isSameDataStructure) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('isSameDataStructure', isSameDataStructure)
     .addInstance('setFieldWidget', jest.fn())
+    .addClass(SmartFieldActionFieldValidator)
     .addClass(SmartActionHook));
 
   return context;
