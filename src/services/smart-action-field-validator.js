@@ -44,7 +44,7 @@ class SmartActionFieldValidator {
 
     if (isReadOnly && typeof isReadOnly !== 'boolean') throw new Error(`isReadOnly of "${fieldName}" must be a boolean.`);
 
-    if (reference && typeof reference !== 'string') throw new Error(`reference of "${fieldName}" should be a string.`);
+    if (reference && typeof reference !== 'string') throw new Error(`reference of "${fieldName}" must be a string.`);
 
     if (type !== undefined && (Array.isArray(type)
       ? !this.validFieldArrayType.includes(type[0])
