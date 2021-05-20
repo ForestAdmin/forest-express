@@ -42,6 +42,9 @@ class SmartActionHook {
       this.smartActionFieldValidator.validateField(field);
       this.smartActionFieldValidator
         .validateFieldChangeHook(field, action.name, action.hooks?.change);
+
+      if (field.value === undefined) field.value = null;
+
       // Reset `value` when not present in `enums` (which means `enums` has changed).
       if (Array.isArray(field.enums)) {
         // `Value` can be an array if the type of fields is `[x]`
