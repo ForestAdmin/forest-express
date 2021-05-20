@@ -55,7 +55,7 @@ class SmartActionFieldValidator {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  validateFieldChangeHook(field, actionName, hooks = []) {
+  validateFieldChangeHook(field, actionName, hooks = {}) {
     if (field.hook && !hooks[field.hook]) {
       throw new Error(`The hook "${field.hook}" of "${field.field}" field on the smart action "${actionName}" is not defined.`);
     }

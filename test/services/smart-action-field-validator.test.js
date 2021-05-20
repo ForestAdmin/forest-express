@@ -119,4 +119,94 @@ describe('services > smart-action-field-validator', () => {
       });
     });
   });
+
+  describe('validateFieldChangeHook', () => {
+    it('should not throw if field does not have defined hook', () => {
+      expect.assertions(1);
+
+      const field = { field: 'test' };
+      const actionName = 'actionTest';
+      const hooks = [];
+
+      expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
+        .not.toThrow();
+    });
+
+    it('should not throw if field have defined hook', () => {
+      expect.assertions(1);
+
+      const field = { field: 'test', hook: 'onChange' };
+      const actionName = 'actionTest';
+      const hooks = {
+        onChange: () => {},
+      };
+
+      expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
+        .not.toThrow();
+    });
+
+    it('should throw if field have not defined hook', () => {
+      expect.assertions(1);
+
+      const field = { field: 'test', hook: 'onChange' };
+      const actionName = 'actionTest';
+      const hooks = {};
+
+      expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
+        .toThrow(`The hook "${field.hook}" of "${field.field}" field on the smart action "${actionName}" is not defined.`);
+    });
+  });
+
+  describe('validateSmartActionFields', () => {
+    it('should do nothing if action does not have field', () => {
+      expect.assertions(3);
+
+      jest.resetAllMocks();
+
+      const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
+      const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
+
+      const action = {};
+      const collectionName = 'collectionTest';
+
+      expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
+        .not.toThrow();
+      expect(validateFieldSpy).not.toHaveBeenCalled();
+      expect(validateFieldChangeHook).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if action.fields is not an array', () => {
+      expect.assertions(3);
+
+      jest.resetAllMocks();
+
+      const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
+      const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
+
+      const action = { fields: 'toto' };
+      const collectionName = 'collectionTest';
+
+      expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
+        .toThrow(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collectionName}" collection. The fields option must be an array.`);
+      expect(validateFieldSpy).not.toHaveBeenCalled();
+      expect(validateFieldChangeHook).not.toHaveBeenCalled();
+    });
+
+    it('should call validateFieldSpy and validateFieldChangeHook on each fields', () => {
+      expect.assertions(3);
+
+      jest.resetAllMocks();
+
+      const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
+      const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
+
+      const action = { fields: [{ field: 'toto' }, { field: 'tata' }] };
+      const collectionName = 'collectionTest';
+
+      expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
+        .not.toThrow();
+      expect(validateFieldSpy).toHaveBeenCalledTimes(2);
+      expect(validateFieldChangeHook).toHaveBeenCalledTimes(2);
+    });
+  });
 });
