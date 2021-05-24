@@ -136,7 +136,6 @@ function generateAndSendSchema(envSecret) {
       liana: configStore.Implementation.getLianaName(),
       liana_version: configStore.Implementation.getLianaVersion(),
       engine: 'nodejs',
-      engine_version: process.versions && process.versions.node,
       orm_version: configStore.Implementation.getOrmVersion(),
     };
     const content = schemaFileUpdater.update(pathSchemaFile, collections, meta, serializerOptions);
