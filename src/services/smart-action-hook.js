@@ -36,7 +36,8 @@ class SmartActionHook {
     if (typeof hook !== 'function') throw new Error('hook must be a function');
 
     // Call the user-defined load hook.
-    const result = await hook({ record: { id: recordId, ...record }, fields: fieldsForUser });
+    if (!record) record = { id: recordId };
+    const result = await hook({ record, fields: fieldsForUser });
 
     if (!(result && typeof result === 'object')) {
       throw new Error('hook must return an object');
