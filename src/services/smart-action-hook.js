@@ -39,7 +39,7 @@ class SmartActionHook {
     }
 
     return result.map((field) => {
-      this.smartActionFieldValidator.validateField(field);
+      this.smartActionFieldValidator.validateField(field, action.name);
       this.smartActionFieldValidator
         .validateFieldChangeHook(field, action.name, action.hooks?.change);
 
