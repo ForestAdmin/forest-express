@@ -15,9 +15,9 @@ class ScopeManager {
     this.scopesCache = {};
   }
 
-  async appendScopeForUser(previousFilter, user, collectionName) {
-    const newFilter = await this.getScopeForUser(user, collectionName, true);
-    const filters = [previousFilter, newFilter].filter(Boolean);
+  async appendScopeForUser(existingFilter, user, collectionName) {
+    const scopeFilter = await this.getScopeForUser(user, collectionName, true);
+    const filters = [existingFilter, scopeFilter].filter(Boolean);
 
     switch (filters.length) {
       case 0:
@@ -25,7 +25,7 @@ class ScopeManager {
       case 1:
         return filters[0];
       default:
-        return `{"aggregator":"and","conditions":[${previousFilter},${newFilter}]}`;
+        return `{"aggregator":"and","conditions":[${existingFilter},${scopeFilter}]}`;
     }
   }
 
