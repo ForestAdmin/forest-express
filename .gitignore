@@ -31,7 +31,6 @@ dist
 
 # Editor
 .vscode
-.idea
 
 # Tests
 .forestadmin-schema.json
