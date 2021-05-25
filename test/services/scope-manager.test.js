@@ -8,51 +8,107 @@ describe('services > ScopeManager', () => {
     logger: {},
   };
 
-  describe('getScopeForUser', () => {
-    const defaultUser = {
-      id: '1',
-      email: 'mycroft@canner.com',
-      firstName: 'Mycroft',
-      lastName: 'Canner',
-      team: 'humanist',
-      renderingId: 334,
-    };
-    const lianaOptions = { envSecret: 'hush' };
-    const defaultRenderingScopes = {
-      myCollection: {
-        scope: {
-          filter: {
-            aggregator: 'and',
-            conditions: [
-              {
-                field: 'name',
-                operator: 'equal',
-                value: 'Thisbe',
-              },
-            ],
-          },
-          dynamicScopesValues: { },
+  const defaultUser = {
+    id: '1',
+    email: 'mycroft@canner.com',
+    firstName: 'Mycroft',
+    lastName: 'Canner',
+    team: 'humanist',
+    renderingId: 334,
+  };
+  const lianaOptions = { envSecret: 'hush' };
+  const defaultRenderingScopes = {
+    myCollection: {
+      scope: {
+        filter: {
+          aggregator: 'and',
+          conditions: [
+            {
+              field: 'name',
+              operator: 'equal',
+              value: 'Thisbe',
+            },
+          ],
         },
+        dynamicScopesValues: { },
       },
-    };
-    const newRenderingScopes = {
-      myCollection: {
-        scope: {
-          filter: {
-            aggregator: 'and',
-            conditions: [
-              {
-                field: 'name',
-                operator: 'equal',
-                value: 'Ockham',
-              },
-            ],
-          },
-          dynamicScopesValues: { },
+    },
+  };
+  const newRenderingScopes = {
+    myCollection: {
+      scope: {
+        filter: {
+          aggregator: 'and',
+          conditions: [
+            {
+              field: 'name',
+              operator: 'equal',
+              value: 'Ockham',
+            },
+          ],
         },
+        dynamicScopesValues: { },
       },
-    };
+    },
+  };
 
+  describe('appendScopeForUser', () => {
+    it('should work with neither scopes nor customer filter', async () => {
+      expect.assertions(1);
+
+      const scopeManager = new ScopeManager({});
+      const spy = jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
+      const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
+      spy.mockRestore();
+
+      expect(newFilter).toBeUndefined();
+    });
+
+    it('should work with scopes, but not customer filter', async () => {
+      expect.assertions(1);
+
+      const scopeManager = new ScopeManager({});
+      const spy = jest.spyOn(scopeManager, 'getScopeForUser')
+        .mockImplementation(() => Promise.resolve('{"field":"id","operator":"equal","value":1}'));
+      const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
+      spy.mockRestore();
+
+      expect(newFilter).toStrictEqual('{"field":"id","operator":"equal","value":1}');
+    });
+
+    it('should work with customer filter, but no scopes', async () => {
+      expect.assertions(1);
+
+      const scopeManager = new ScopeManager({});
+      const spy = jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
+      const newFilter = await scopeManager
+        .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
+      spy.mockRestore();
+
+      expect(newFilter).toStrictEqual('{"field":"id","operator":"equal","value":1}');
+    });
+
+    it('should work with both customer filter and scopes', async () => {
+      expect.assertions(1);
+
+      const scopeManager = new ScopeManager({});
+      const spy = jest.spyOn(scopeManager, 'getScopeForUser')
+        .mockImplementation(() => Promise.resolve('{"field":"book.id","operator":"equal","value":1}'));
+      const newFilter = await scopeManager
+        .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
+      spy.mockRestore();
+
+      expect(newFilter).toStrictEqual(JSON.stringify({
+        aggregator: 'and',
+        conditions: [
+          { field: 'id', operator: 'equal', value: 1 },
+          { field: 'book.id', operator: 'equal', value: 1 },
+        ],
+      }));
+    });
+  });
+
+  describe('getScopeForUser', () => {
     describe('with bad inputs', () => {
       const scopeManager = new ScopeManager(defaultDependencies);
 

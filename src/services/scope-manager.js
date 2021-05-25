@@ -15,6 +15,20 @@ class ScopeManager {
     this.scopesCache = {};
   }
 
+  async appendScopeForUser(previousFilter, user, collectionName) {
+    const newFilter = await this.getScopeForUser(user, collectionName, true);
+    const filters = [previousFilter, newFilter].filter(Boolean);
+
+    switch (filters.length) {
+      case 0:
+        return undefined;
+      case 1:
+        return filters[0];
+      default:
+        return `{"aggregator":"and","conditions":[${previousFilter},${newFilter}]}`;
+    }
+  }
+
   async getScopeForUser(user, collectionName, asString = false) {
     if (!user.renderingId) throw new Error('Missing required renderingId');
     if (!collectionName) throw new Error('Missing required collectionName');
@@ -22,7 +36,7 @@ class ScopeManager {
     const collectionScope = await this._getScopeCollectionScope(user.renderingId, collectionName);
     const filters = ScopeManager._formatDynamicValues(user.id, collectionScope);
 
-    return asString ? JSON.stringify(filters) : filters;
+    return asString && !!filters ? JSON.stringify(filters) : filters;
   }
 
   static _formatDynamicValues(userId, collectionScope) {
