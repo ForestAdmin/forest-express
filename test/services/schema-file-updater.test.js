@@ -10,14 +10,16 @@ describe('services > schema-file-updater', () => {
     .addClass(SchemaFileUpdater));
 
   const meta = {
-    database_type: 'some-db-type',
     liana: 'some-liana',
     liana_version: 'some-liana-version',
-    engine: 'some-engine',
-    engine_version: 'some-engine-version',
-    framework: 'some-framework',
-    framework_version: 'some-framework-version',
-    orm_version: 'some-orm-version',
+    stack: {
+      database_type: 'some-db-type',
+      engine: 'some-engine',
+      engine_version: 'some-engine-version',
+      framework: 'some-framework',
+      framework_version: 'some-framework-version',
+      orm_version: 'some-orm-version',
+    },
   };
   const schemaSerializer = new SchemaSerializer();
   const { options: serializerOptions } = schemaSerializer;
