@@ -39,6 +39,10 @@ class ScopeManager {
     return asString && !!filters ? JSON.stringify(filters) : filters;
   }
 
+  invalidateScopeCache(renderingId) {
+    delete this.scopesCache[renderingId];
+  }
+
   static _formatDynamicValues(userId, collectionScope) {
     if (!collectionScope?.scope?.filter) return null;
 
