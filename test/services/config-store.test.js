@@ -10,14 +10,23 @@ describe('services > config-store', () => {
   };
 
   const fs = {
-    existsSync: jest.fn((dir) => dir.includes('forest')),
+    existsSync: jest.fn((directory) => directory.includes('forest')),
   };
 
   const path = {
     resolve: jest.fn((root, dir) => `${root}/${dir}`),
   };
 
-  const configStore = new ConfigStore({ logger, fs, path });
+  const projectDirectoryFinder = {
+    getAbsolutePath: jest.fn(() => './forest'),
+  };
+
+  const configStore = new ConfigStore({
+    logger,
+    fs,
+    path,
+    projectDirectoryFinder,
+  });
 
   describe('when the given configuration is invalid', () => {
     it('should log an error when no options are provided', () => {
@@ -119,6 +128,21 @@ describe('services > config-store', () => {
       };
 
       expect(() => configStore.validateOptions()).toThrow('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
+    });
+
+    it('should log an error when schemaDir does not exist', () => {
+      expect.assertions(1);
+      jest.clearAllMocks();
+
+      const schemaDir = new Date();
+      configStore.lianaOptions = {
+        authSecret,
+        envSecret,
+        connections: {},
+        schemaDir,
+      };
+
+      expect(() => configStore.validateOptions()).toThrow(`Your schemaDir ("./${schemaDir}") does not exist. Please make sure it is set correctly.`);
     });
   });
 

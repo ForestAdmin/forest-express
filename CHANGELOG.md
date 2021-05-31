@@ -1,3 +1,160 @@
+## [8.5.2](https://github.com/ForestAdmin/forest-express/compare/v8.5.1...v8.5.2) (2021-05-25)
+
+
+### Bug Fixes
+
+* **smart-actions-change-hook:** record is no longer altered and is sent correctly ([#722](https://github.com/ForestAdmin/forest-express/issues/722)) ([f2ecfce](https://github.com/ForestAdmin/forest-express/commit/f2ecfce15c62ef0f9b0344b695010361c9b56aed))
+
+## [8.5.1](https://github.com/ForestAdmin/forest-express/compare/v8.5.0...v8.5.1) (2021-05-17)
+
+
+### Bug Fixes
+
+* charts using groupby on relationship should not throws 403 forbidden ([#710](https://github.com/ForestAdmin/forest-express/issues/710)) ([480eb94](https://github.com/ForestAdmin/forest-express/commit/480eb9444a952799a37f93f6763445cafcf588e4))
+
+# [8.5.0](https://github.com/ForestAdmin/forest-express/compare/v8.4.0...v8.5.0) (2021-05-05)
+
+
+### Features
+
+* **schema:** developers can specify manually the path of the .forestadmin-schema.json file ([#698](https://github.com/ForestAdmin/forest-express/issues/698)) ([c27bfb9](https://github.com/ForestAdmin/forest-express/commit/c27bfb9b644c0c8836f926f67a1ebf01b4e0f02d))
+
+# [8.4.0](https://github.com/ForestAdmin/forest-express/compare/v8.3.2...v8.4.0) (2021-04-27)
+
+
+### Features
+
+* support yarn 2 plug n play install mode ([#697](https://github.com/ForestAdmin/forest-express/issues/697)) ([33c3e58](https://github.com/ForestAdmin/forest-express/commit/33c3e585fd6b921a06994d68633aa4babae25896))
+
+## [8.3.2](https://github.com/ForestAdmin/forest-express/compare/v8.3.1...v8.3.2) (2021-04-21)
+
+
+### Bug Fixes
+
+* **security:** patch ssri dependency vulnerability ([#691](https://github.com/ForestAdmin/forest-express/issues/691)) ([ba84ea1](https://github.com/ForestAdmin/forest-express/commit/ba84ea19615fcfa669ea484b7c0464239a6d09eb))
+
+## [8.3.1](https://github.com/ForestAdmin/forest-express/compare/v8.3.0...v8.3.1) (2021-04-15)
+
+
+### Bug Fixes
+
+* **date-filter:** filtering only on hours now returns the expected records ([#686](https://github.com/ForestAdmin/forest-express/issues/686)) ([b361818](https://github.com/ForestAdmin/forest-express/commit/b361818ef8628ff15cb7108c974367ad9d18490d))
+
+# [8.3.0](https://github.com/ForestAdmin/forest-express/compare/v8.2.0...v8.3.0) (2021-04-12)
+
+
+### Features
+
+* **smart-action:** handle isReadOnly field in smart action forms ([#671](https://github.com/ForestAdmin/forest-express/issues/671)) ([4de9540](https://github.com/ForestAdmin/forest-express/commit/4de95408a34afa47388c3af8a715b19bafe78ed3))
+
+# [8.2.0](https://github.com/ForestAdmin/forest-express/compare/v8.1.4...v8.2.0) (2021-04-08)
+
+
+### Features
+
+* **smart-action:** support hooks for smart-collection ([#680](https://github.com/ForestAdmin/forest-express/issues/680)) ([0fd96d6](https://github.com/ForestAdmin/forest-express/commit/0fd96d69ccebe889c46cbaa419691490786b3719))
+
+## [8.1.4](https://github.com/ForestAdmin/forest-express/compare/v8.1.3...v8.1.4) (2021-04-07)
+
+
+### Bug Fixes
+
+* include `/forest` route in CORS and authentication config ([#682](https://github.com/ForestAdmin/forest-express/issues/682)) ([9b7ad28](https://github.com/ForestAdmin/forest-express/commit/9b7ad2878c9c024581f39bc6cd7e326717a0738d))
+
+## [8.1.3](https://github.com/ForestAdmin/forest-express/compare/v8.1.2...v8.1.3) (2021-03-31)
+
+
+### Bug Fixes
+
+* **security:** patch node-notifier vulnerabilities ([#679](https://github.com/ForestAdmin/forest-express/issues/679)) ([24b59b6](https://github.com/ForestAdmin/forest-express/commit/24b59b6df99a9347503747f244844f1d182e6501))
+
+## [8.1.2](https://github.com/ForestAdmin/forest-express/compare/v8.1.1...v8.1.2) (2021-03-31)
+
+
+### Bug Fixes
+
+* **security:** patch ini dependency vulnérability ([#678](https://github.com/ForestAdmin/forest-express/issues/678)) ([e8b0101](https://github.com/ForestAdmin/forest-express/commit/e8b010138e3a91bf928290cb5524c7f965fd627b))
+* **security:** patch npm-user-validate dependency vulnerabilities ([#677](https://github.com/ForestAdmin/forest-express/issues/677)) ([d630b4f](https://github.com/ForestAdmin/forest-express/commit/d630b4fbf8bbb4c58f1e900e6cfe09f39dce1c26))
+
+## [8.1.1](https://github.com/ForestAdmin/forest-express/compare/v8.1.0...v8.1.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* **security:** patch y18n dependency vulnerabilities ([#676](https://github.com/ForestAdmin/forest-express/issues/676)) ([03cf696](https://github.com/ForestAdmin/forest-express/commit/03cf69662343fb0f4bd0ee43a848aebec9de348d))
+
+# [8.1.0](https://github.com/ForestAdmin/forest-express/compare/v8.0.5...v8.1.0) (2021-03-15)
+
+
+### Features
+
+* **security:** authorised only allowed stats queries using permissions ([#666](https://github.com/ForestAdmin/forest-express/issues/666)) ([b92d16e](https://github.com/ForestAdmin/forest-express/commit/b92d16e68013f7b03cfcb030d9333e7246e737d6))
+
+## [8.0.5](https://github.com/ForestAdmin/forest-express/compare/v8.0.4...v8.0.5) (2021-03-10)
+
+
+### Bug Fixes
+
+* **security:** decrease the time before expiration of forest session token ([#656](https://github.com/ForestAdmin/forest-express/issues/656)) ([037a5af](https://github.com/ForestAdmin/forest-express/commit/037a5af5dba43daab7107418ecb162be233e34cb))
+
+## [8.0.4](https://github.com/ForestAdmin/forest-express/compare/v8.0.3...v8.0.4) (2021-03-10)
+
+
+### Bug Fixes
+
+* **authentication:** unable to login when the agents respond to an url starting with a prefix ([#667](https://github.com/ForestAdmin/forest-express/issues/667)) ([2c7cef0](https://github.com/ForestAdmin/forest-express/commit/2c7cef082ab9e590916737bc1f7f7c7e8aeed1b3))
+
+## [8.0.3](https://github.com/ForestAdmin/forest-express/compare/v8.0.2...v8.0.3) (2021-03-05)
+
+
+### Bug Fixes
+
+* **security:** patch lodash vulnerabilities ([#645](https://github.com/ForestAdmin/forest-express/issues/645)) ([f986106](https://github.com/ForestAdmin/forest-express/commit/f986106a7ca04adb060f73f702abe91496f479d4))
+
+## [8.0.2](https://github.com/ForestAdmin/forest-express/compare/v8.0.1...v8.0.2) (2021-03-04)
+
+
+### Bug Fixes
+
+* **authentication:** safari cannot login on remote lianas because of third party cookies ([#662](https://github.com/ForestAdmin/forest-express/issues/662)) ([9003a64](https://github.com/ForestAdmin/forest-express/commit/9003a64639630bb8e162298e2eaf70685ec2031b))
+
+## [8.0.1](https://github.com/ForestAdmin/forest-express/compare/v8.0.0...v8.0.1) (2021-03-04)
+
+
+### Bug Fixes
+
+* **authentication:** return better errors when a user is not authorized to access a rendering ([#660](https://github.com/ForestAdmin/forest-express/issues/660)) ([c34dfc0](https://github.com/ForestAdmin/forest-express/commit/c34dfc03ced41b98c10a6ea651a1ebf5ab5c780a))
+
+# [8.0.0](https://github.com/ForestAdmin/forest-express/compare/v7.10.1...v8.0.0) (2021-02-22)
+
+
+### Bug Fixes
+
+* **authentication:** error when authenticating with an invalid token in cookies ([#611](https://github.com/ForestAdmin/forest-express/issues/611)) ([e6d6737](https://github.com/ForestAdmin/forest-express/commit/e6d6737c896c882ebc774ddee2be90337c787c2b))
+* send back response to frontend instead of redirecting ([#609](https://github.com/ForestAdmin/forest-express/issues/609)) ([6f37521](https://github.com/ForestAdmin/forest-express/commit/6f375212c41c5451b14d8761c7b62a3e851c8f60))
+* user being disconnected after 33min instead of 14 days ([#610](https://github.com/ForestAdmin/forest-express/issues/610)) ([80580e7](https://github.com/ForestAdmin/forest-express/commit/80580e710a7764d1fe4d7ec912352d74594cd685))
+* **auth:** oidc authentication when running multiple instances of the agent ([#608](https://github.com/ForestAdmin/forest-express/issues/608)) ([ef25acb](https://github.com/ForestAdmin/forest-express/commit/ef25acb278142e4aa933b279665245dd7bb18646))
+
+
+### Features
+
+* merge master into beta ([131cb73](https://github.com/ForestAdmin/forest-express/commit/131cb73ba582b2586720a316853b82fa48fdf348))
+* **authentication:** remove old authentication routes ([#624](https://github.com/ForestAdmin/forest-express/issues/624)) ([b0ffc50](https://github.com/ForestAdmin/forest-express/commit/b0ffc504e819c1a16b3935937725325349e71ddb))
+* **authentication:** return a specific error during authorization if received an error about 2FA ([#622](https://github.com/ForestAdmin/forest-express/issues/622)) ([3a59a12](https://github.com/ForestAdmin/forest-express/commit/3a59a12daa4e7273879b38512e6b9ef73e199438))
+* **permissions:** handle mutliple permissions cache ([7114244](https://github.com/ForestAdmin/forest-express/commit/7114244da267a2e14b502339ed39e1ab2b9248fc))
+* authenticate with openid connect ([#555](https://github.com/ForestAdmin/forest-express/issues/555)) ([72b2cc8](https://github.com/ForestAdmin/forest-express/commit/72b2cc86510caeb1e7de6593f9163b59d536bbeb))
+* delete cookie when client logout ([#545](https://github.com/ForestAdmin/forest-express/issues/545)) ([#560](https://github.com/ForestAdmin/forest-express/issues/560)) ([5188206](https://github.com/ForestAdmin/forest-express/commit/51882065163f0f295b0c35f3ae0f73db64e4ec6a))
+
+
+* feat!: ease the multi-database setup by providing a map of connections on liana.init (#525) ([2e9dc94](https://github.com/ForestAdmin/forest-express/commit/2e9dc94dc6ba7366798f045c457d297308c20b33)), closes [#525](https://github.com/ForestAdmin/forest-express/issues/525)
+
+
+### BREAKING CHANGES
+
+* **authentication:** all previous authentication routes have been removed
+* onlyCrudModule, modelsDir, secretKey, authKey options are not supported anymore by Liana.init().
+Instead of sequelize/mongoose & Sequelize/Mongoose, connections & objectMapping are now required.
+
 # [8.0.0-beta.16](https://github.com/ForestAdmin/forest-express/compare/v8.0.0-beta.15...v8.0.0-beta.16) (2021-02-22)
 
 

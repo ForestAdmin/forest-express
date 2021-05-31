@@ -107,4 +107,54 @@ describe('middlewares > permissions', () => {
       });
     });
   });
+
+  describe('_getStatWithParametersInfoFromRequest', () => {
+    describe('with group_by_field informations - collection:field', () => {
+      it('should remove the field from group_by_field and return the right parameters', async () => {
+        expect.assertions(1);
+
+        const request = {
+          body: { aggregate: 'Count', collection: 'collection', group_by_field: 'otherCollection:id' },
+          notTheBody: {},
+        };
+
+        const parameters = PermissionMiddlewareCreator
+          ._getStatWithParametersInfoFromRequest(request);
+
+        expect(parameters).toStrictEqual({ aggregate: 'Count', collection: 'collection', group_by_field: 'otherCollection' });
+      });
+    });
+
+    describe('with group_by_field informations - collection only', () => {
+      it('should return the right parameters', async () => {
+        expect.assertions(1);
+
+        const request = {
+          body: { aggregate: 'Count', collection: 'collection', group_by_field: 'otherCollection' },
+          notTheBody: {},
+        };
+
+        const parameters = PermissionMiddlewareCreator
+          ._getStatWithParametersInfoFromRequest(request);
+
+        expect(parameters).toStrictEqual({ aggregate: 'Count', collection: 'collection', group_by_field: 'otherCollection' });
+      });
+    });
+
+    describe('without group_by_field informations', () => {
+      it('should return the right parameters', async () => {
+        expect.assertions(1);
+
+        const request = {
+          body: { aggregate: 'Count', collection: 'collection', type: 'Pie' },
+          notTheBody: {},
+        };
+
+        const parameters = PermissionMiddlewareCreator
+          ._getStatWithParametersInfoFromRequest(request);
+
+        expect(parameters).toStrictEqual({ aggregate: 'Count', collection: 'collection', type: 'Pie' });
+      });
+    });
+  });
 });

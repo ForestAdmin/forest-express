@@ -28,6 +28,21 @@ class PermissionsChecker {
     return PermissionsChecker._isPermissionAllowed(triggerEnabled, userId);
   }
 
+  static _isLiveQueryAllowed(liveQueriesPermissions, permissionInfos) {
+    return liveQueriesPermissions.includes(permissionInfos);
+  }
+
+  static _isStatWithParametersAllowed(statsPermissions, permissionInfos) {
+    const permissionsPool = statsPermissions[`${permissionInfos.type.toLowerCase()}s`];
+
+    const arrayPermissionInfos = Object.values(permissionInfos);
+
+    return permissionsPool.some((statPermission) => {
+      const arrayStatPermission = Object.values(statPermission);
+      return arrayPermissionInfos.every((info) => arrayStatPermission.includes(info));
+    });
+  }
+
   // Compute a scope to replace $currentUser variables with the actual user values. This will
   // generate the expected conditions filters when applied on the server scope response.
   static _computeConditionFiltersFromScope(userId, scope) {
@@ -127,6 +142,11 @@ class PermissionsChecker {
         return this._isCollectionBrowseAllowed(
           permissions.collection, permissionInfos, permissions.scope,
         );
+      case 'liveQueries':
+        return PermissionsChecker._isLiveQueryAllowed(permissions.stats.queries, permissionInfos);
+      case 'statWithParameters':
+        return PermissionsChecker._isStatWithParametersAllowed(permissions.stats, permissionInfos);
+
       default:
         return permissions.collection
           ? PermissionsChecker

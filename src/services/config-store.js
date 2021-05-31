@@ -1,5 +1,10 @@
 class ConfigStore {
-  constructor({ logger, fs, path }) {
+  constructor({
+    logger,
+    fs,
+    path,
+    projectDirectoryFinder,
+  }) {
     this.Implementation = null;
     this.lianaOptions = null;
     this.integrator = null;
@@ -7,6 +12,7 @@ class ConfigStore {
     this.logger = logger;
     this.fs = fs;
     this.path = path;
+    this.projectDirectoryFinder = projectDirectoryFinder;
   }
 
   get configDir() {
@@ -20,8 +26,21 @@ class ConfigStore {
     return this.path.resolve('.', 'forest');
   }
 
-  isConfigDirExist() {
+  get schemaDir() {
+    const schemaDir = this.lianaOptions?.schemaDir;
+    if (schemaDir) {
+      return this.path.resolve('.', `${schemaDir}`);
+    }
+
+    return this.path.resolve('.', this.projectDirectoryFinder.getAbsolutePath());
+  }
+
+  doesConfigDirExist() {
     return this.fs.existsSync(this.configDir);
+  }
+
+  doesSchemaDirExist() {
+    return this.fs.existsSync(this.schemaDir);
   }
 
   validateOptions() {
@@ -59,8 +78,12 @@ class ConfigStore {
       throw new Error('The excludedModels option seems incorrectly set. Please check it is an array of model names.');
     }
 
-    if (!this.isConfigDirExist()) {
+    if (!this.doesConfigDirExist()) {
       this.logger.warn(`Your configDir ("${this.configDir}") does not exist. Please make sure it is set correctly.`);
+    }
+
+    if (!this.doesSchemaDirExist()) {
+      throw new Error(`Your schemaDir ("${this.schemaDir}") does not exist. Please make sure it is set correctly.`);
     }
 
     if (options.onlyCrudModule) {

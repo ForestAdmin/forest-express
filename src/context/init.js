@@ -11,6 +11,7 @@ const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
 const isSameDataStructure = require('../utils/is-same-data-structure');
+const joinUrl = require('../utils/join-url');
 const { setFieldWidget } = require('../utils/widgets');
 const logger = require('../services/logger');
 const pathService = require('../services/path');
@@ -33,6 +34,7 @@ const AuthenticationService = require('../services/authentication');
 const TokenService = require('../services/token');
 const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 const OidcClientManagerService = require('../services/oidc-client-manager');
+const ProjectDirectoryFinder = require('../services/project-directory-finder');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -62,6 +64,7 @@ function initValue(context) {
  *  errorUtils: import('../utils/error');
  *  isSameDataStructure: import('../utils/object-have-same-keys')
  *  setFieldWidget: import('../utils/widgets').setFieldWidget
+ *  joinUrl: import('../utils/join-url')
  * }} Utils
  *
  * @typedef {{
@@ -116,6 +119,7 @@ function initUtils(context) {
   context.addInstance('errorUtils', errorUtils);
   context.addInstance('isSameDataStructure', isSameDataStructure);
   context.addInstance('setFieldWidget', setFieldWidget);
+  context.addInstance('joinUrl', joinUrl);
 }
 
 /**
@@ -129,6 +133,7 @@ function initServices(context) {
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addInstance('baseFilterParser', baseFilterParser);
+  context.addClass(ProjectDirectoryFinder);
   context.addClass(ConfigStore);
   context.addClass(PermissionsGetter);
   context.addClass(PermissionsChecker);

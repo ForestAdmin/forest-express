@@ -73,6 +73,7 @@ function SchemaSerializer() {
           'defaultValue',
           'enums',
           'isRequired',
+          'isReadOnly',
           'reference',
           'description',
           'position',

@@ -8,10 +8,13 @@ const PUBLIC_ROUTES = [
   `/${LOGOUT_ROUTE}`,
 ];
 
-function getCallbackUrl(applicationUrl) {
-  const url = new URL(`/forest/${CALLBACK_AUTHENTICATION_ROUTE}`, applicationUrl);
-
-  return url.toString();
+/**
+ * @param {import('../context/init').Context} context
+ * @param {string} applicationUrl
+ * @returns {string}
+ */
+function getCallbackUrl(context, applicationUrl) {
+  return context.joinUrl(applicationUrl, `/forest/${CALLBACK_AUTHENTICATION_ROUTE}`);
 }
 
 /**
@@ -84,7 +87,7 @@ async function startAuthentication(context, request, response, next) {
     const renderingId = getAndCheckRenderingId(request, context);
 
     const result = await context.authenticationService.startAuthentication(
-      getCallbackUrl(context.env.APPLICATION_URL),
+      getCallbackUrl(context, context.env.APPLICATION_URL),
       { renderingId },
     );
 
@@ -104,34 +107,14 @@ async function startAuthentication(context, request, response, next) {
 async function authenticationCallback(context, options, request, response, next) {
   try {
     const token = await context.authenticationService.verifyCodeAndGenerateToken(
-      getCallbackUrl(context.env.APPLICATION_URL),
+      getCallbackUrl(context, context.env.APPLICATION_URL),
       request.query,
       options,
     );
 
-    // Cookies with secure=true & sameSite:'none' will only work
-    // on localhost or https
-    // These are the only 2 supported situations for agents, that's
-    // why the token is not returned inside the body
-    response.cookie(
-      context.tokenService.forestCookieName,
-      token,
-      {
-        httpOnly: true,
-        secure: true,
-        maxAge: context.tokenService.expirationInSeconds * 1e3,
-        sameSite: 'none',
-      },
-    );
     response.status(200);
-    // The token is sent decoded, because we don't want to share the whole, signed token
-    // that is used to authenticate people
-    // but the token itself contains interesting values, such as its expiration date
     response.send({
-      ...(!context.env.APPLICATION_URL.startsWith('https://')
-        ? { token }
-        : {}
-      ),
+      token,
       tokenData: context.jsonwebtoken.decode(token),
     });
   } catch (e) {
@@ -145,17 +128,7 @@ async function authenticationCallback(context, options, request, response, next)
  * @param {import('express').Response} response
  */
 async function logout(context, request, response) {
-  const cookies = request.headers.cookie;
-
-  if (cookies) {
-    const forestSessionToken = context.tokenService.extractForestSessionToken(cookies);
-
-    if (forestSessionToken) {
-      const deletedToken = context.tokenService.deleteToken();
-
-      response.cookie(context.tokenService.forestCookieName, forestSessionToken, deletedToken);
-    }
-  }
+  // Not needed anymore, as we don't use cookies
   response.status(204).send();
 }
 
