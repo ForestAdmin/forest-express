@@ -2,14 +2,16 @@ const AbstractRecordService = require('./abstract-records-service');
 const CSVExporter = require('../csv-exporter');
 
 class RecordsExporter extends AbstractRecordService {
-  streamExport(response, params) {
+  streamExport(response) {
     const recordsExporter = new this.Implementation.ResourcesExporter(
       this.model,
       this.lianaOptions,
-      params,
+      this.params,
+      null,
+      this.user,
     );
     const modelName = this.Implementation.getModelName(this.model);
-    return new CSVExporter(params, response, modelName, recordsExporter)
+    return new CSVExporter(this.params, response, modelName, recordsExporter)
       .perform();
   }
 }

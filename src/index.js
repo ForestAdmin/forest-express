@@ -18,6 +18,7 @@ const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
 const ForestRoutes = require('./routes/forest');
 const HealthCheckRoute = require('./routes/healthcheck');
+const initScopeRoutes = require('./routes/scopes');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
@@ -37,6 +38,7 @@ const {
   modelsManager,
   fs,
   tokenService,
+  scopeManager,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -84,6 +86,7 @@ async function buildSchema() {
 
 exports.Schemas = Schemas;
 exports.logger = logger;
+exports.scopeManager = scopeManager;
 exports.ResourcesRoute = {};
 
 /**
@@ -251,6 +254,7 @@ exports.init = async (Implementation) => {
   }
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
+  initScopeRoutes(app, context.inject());
   initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
 
   // Init
@@ -379,6 +383,7 @@ exports.RecordCreator = require('./services/exposed/record-creator');
 exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordsRemover = require('./services/exposed/records-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
+exports.ScopeManager = require('./services/scope-manager');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;

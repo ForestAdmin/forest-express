@@ -52,7 +52,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     const { params, associationModel } = getContext(request);
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
-    return new Implementation.HasManyGetter(model, associationModel, opts, params)
+    return new Implementation.HasManyGetter(model, associationModel, opts, params, request.user)
       .perform()
       .then(([records, fieldsSearched]) => new ResourceSerializer(
         Implementation,
@@ -71,7 +71,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   function count(request, response, next) {
     const { params, associationModel } = getContext(request);
 
-    return new Implementation.HasManyGetter(model, associationModel, opts, params)
+    return new Implementation.HasManyGetter(model, associationModel, opts, params, request.user)
       .count()
       .then((recordsCount) => response.send({ count: recordsCount }))
       .catch(next);
@@ -85,6 +85,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
       opts,
       params,
       associationModel,
+      request.user,
     );
     return new CSVExporter(
       params, response,
@@ -139,11 +140,14 @@ module.exports = function Associations(app, model, Implementation, integrator, o
             ...attributes.allRecordsSubsetQuery,
             page: attributes.page,
           },
+          request.user,
         ).perform();
         return records;
       };
       const recordsCounter = async () =>
-        new Implementation.HasManyGetter(model, associationModel, opts, params).count();
+        new Implementation.HasManyGetter(
+          model, associationModel, opts, params, request.user,
+        ).count();
       const primaryKeysGetter = () =>
         Schemas.schemas[Implementation.getModelName(associationModel)];
       const ids = await new IdsFromRequestRetriever(

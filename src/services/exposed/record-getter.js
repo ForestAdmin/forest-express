@@ -2,7 +2,9 @@ const AbstractRecordService = require('./abstract-records-service');
 
 class RecordGetter extends AbstractRecordService {
   get(recordId) {
-    return new this.Implementation.ResourceGetter(this.model, { recordId })
+    return new this.Implementation.ResourceGetter(
+      this.model, { ...this.params, recordId }, this.user,
+    )
       .perform();
   }
 }
