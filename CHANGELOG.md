@@ -1,3 +1,13 @@
+# [9.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v8.5.2...v9.0.0-beta.1) (2021-05-31)
+
+
+* feat(scopes)!: enforce scopes restrictions on a wider range of requests (#702) ([e36026e](https://github.com/ForestAdmin/forest-express/commit/e36026ef71409974c3335064afc1ff7c9d6729dc)), closes [#702](https://github.com/ForestAdmin/forest-express/issues/702)
+
+
+### BREAKING CHANGES
+
+* the public API of the package has changed to include the parameters which are needed to evaluate scope filters. This includes PermissionMiddlewareCreator, all classes on the /exposed folder and most services.
+
 ## [8.5.2](https://github.com/ForestAdmin/forest-express/compare/v8.5.1...v8.5.2) (2021-05-25)
 
 
