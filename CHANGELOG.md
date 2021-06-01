@@ -1,3 +1,10 @@
+## [8.5.2](https://github.com/ForestAdmin/forest-express/compare/v8.5.1...v8.5.2) (2021-05-25)
+
+
+### Bug Fixes
+
+* **smart-actions-change-hook:** record is no longer altered and is sent correctly ([#722](https://github.com/ForestAdmin/forest-express/issues/722)) ([f2ecfce](https://github.com/ForestAdmin/forest-express/commit/f2ecfce15c62ef0f9b0344b695010361c9b56aed))
+
 ## [8.5.1](https://github.com/ForestAdmin/forest-express/compare/v8.5.0...v8.5.1) (2021-05-17)
 
 
