@@ -16,8 +16,6 @@ describe('services > schema-file-updater', () => {
       database_type: 'some-db-type',
       engine: 'some-engine',
       engine_version: 'some-engine-version',
-      framework: 'some-framework',
-      framework_version: 'some-framework-version',
       orm_version: 'some-orm-version',
     },
   };
