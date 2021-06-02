@@ -1,3 +1,10 @@
+# [8.6.0](https://github.com/ForestAdmin/forest-express/compare/v8.5.2...v8.6.0) (2021-06-02)
+
+
+### Features
+
+* **schema:** add embedded key stack into meta of the forestadmin schema ([#724](https://github.com/ForestAdmin/forest-express/issues/724)) ([5ff5a12](https://github.com/ForestAdmin/forest-express/commit/5ff5a12a267f97166753ef51142ad98d82788235))
+
 ## [8.5.2](https://github.com/ForestAdmin/forest-express/compare/v8.5.1...v8.5.2) (2021-05-25)
 
 
