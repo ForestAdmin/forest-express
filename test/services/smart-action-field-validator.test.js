@@ -18,7 +18,7 @@ describe('services > smart-action-field-validator', () => {
       expect(() => smartActionFieldValidator.validateField(field)).not.toThrow();
     });
 
-    describe('field is not an object', () => {
+    describe('when the field is not an object', () => {
       it('should throw if field is null', () => {
         expect.assertions(1);
 
@@ -44,7 +44,7 @@ describe('services > smart-action-field-validator', () => {
       });
     });
 
-    describe('field property is not valid', () => {
+    describe('when the field property is not valid', () => {
       const generateField = () => ({ field: 'test' });
 
       it('should throw if field.field is not defined', () => {

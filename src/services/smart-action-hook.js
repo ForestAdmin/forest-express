@@ -13,6 +13,7 @@ class SmartActionHook {
    */
   getFieldsForUser(fields) {
     return fields.map((field) => {
+      // Update widget from legacy to current format.
       this.setFieldWidget(field);
       if (field.value === undefined) field.value = null;
       return field;
