@@ -20,7 +20,7 @@ class SmartActionFieldValidator {
   ];
 
   validateField(field, actionName) {
-    if (!field || Array.isArray(field) || typeof field !== 'object') throw new Error(`Field inside fileds array on the smart action "${actionName}" must be an object.`);
+    if (!field || Array.isArray(field) || typeof field !== 'object') throw new Error(`Field inside fields array on the smart action "${actionName}" must be an object.`);
 
     const {
       field: fieldName,
@@ -32,9 +32,9 @@ class SmartActionFieldValidator {
       type,
     } = field;
 
-    if (!fieldName) throw new Error(`field attribute inside fileds array on the smart action "${actionName}" must be defined.`);
+    if (!fieldName) throw new Error(`field attribute inside fields array on the smart action "${actionName}" must be defined.`);
 
-    if (typeof fieldName !== 'string') throw new Error(`field attribute inside fileds array on the smart action "${actionName}" must be a string.`);
+    if (typeof fieldName !== 'string') throw new Error(`field attribute inside fields array on the smart action "${actionName}" must be a string.`);
 
     if (description && typeof description !== 'string') throw new Error(`description of "${fieldName}" on the smart action "${actionName}" must be a string.`);
 

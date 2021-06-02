@@ -98,61 +98,65 @@ describe('services > smart-action-hook', () => {
           );
         });
 
-        it('should assign null value if no one is provided', async () => {
-          expect.assertions(2);
+        describe('when the new field has no value defined', () => {
+          it('should assign value to null', async () => {
+            expect.assertions(2);
 
-          const { smartActionHook } = initContext().inject();
-          const field = {
-            field: 'myField',
-            type: 'String',
-            value: 'foo',
-          };
-          const addedField = {
-            field: 'myNewField',
-            type: 'String',
-          };
+            const { smartActionHook } = initContext().inject();
+            const field = {
+              field: 'myField',
+              type: 'String',
+              value: 'foo',
+            };
+            const addedField = {
+              field: 'myNewField',
+              type: 'String',
+            };
 
-          const fields = [field];
-          const expected = [field, {
-            ...addedField,
-            value: null,
-          }];
+            const fields = [field];
+            const expected = [field, {
+              ...addedField,
+              value: null,
+            }];
 
-          const hook = jest.fn(() => ([field, addedField]));
+            const hook = jest.fn(() => ([field, addedField]));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual(expected);
-          expect(hook).toHaveBeenNthCalledWith(
-            1,
-            {
-              fields,
-              record: {},
-              changedField: null,
-            },
-          );
+            const response = await smartActionHook.getResponse({}, hook, fields, {});
+            await expect(response).toStrictEqual(expected);
+            expect(hook).toHaveBeenNthCalledWith(
+              1,
+              {
+                fields,
+                record: {},
+                changedField: null,
+              },
+            );
+          });
         });
 
-        it('should throw an error if the new field is malformed', async () => {
-          expect.assertions(1);
+        describe('when the new field is malformed', () => {
+          it('should throw an error', async () => {
+            expect.assertions(1);
 
-          const { smartActionHook } = initContext().inject();
-          const action = { name: 'actionTest' };
+            const { smartActionHook } = initContext().inject();
+            const action = { name: 'actionTest' };
 
-          const field = {
-            field: 'myField',
-            type: 'String',
-            value: 'foo',
-          };
-          const addedField = {
-            type: 'String',
-          };
+            const field = {
+              field: 'myField',
+              type: 'String',
+              value: 'foo',
+            };
+            const addedField = {
+              type: 'String',
+            };
 
-          const fields = [field, addedField];
+            const fields = [field, addedField];
 
-          const hook = jest.fn(() => ([field, addedField]));
+            const hook = jest.fn(() => ([field, addedField]));
 
-          await expect(smartActionHook.getResponse(action, hook, fields, {}))
-            .rejects.toThrow(`field attribute inside fileds array on the smart action "${action.name}" must be defined.`);
+            await expect(smartActionHook.getResponse(action, hook, fields, {}))
+              .rejects.toThrow(`field attribute inside fields array on the smart action "${action.name}" must be defined.`);
+          });
         });
 
         it('should throw an error if the fiel have an undefined hook', async () => {
@@ -181,36 +185,38 @@ describe('services > smart-action-hook', () => {
         });
       });
 
-      it('should have one less filed', async () => {
-        expect.assertions(2);
+      describe('when user remove a field', () => {
+        it('should have one less field', async () => {
+          expect.assertions(2);
 
-        const { smartActionHook } = initContext().inject();
-        const field = {
-          field: 'myField',
-          type: 'String',
-          value: 'foo',
-        };
-        const anotherField = {
-          field: 'myNewField',
-          type: 'String',
-          value: 'bar',
-        };
+          const { smartActionHook } = initContext().inject();
+          const field = {
+            field: 'myField',
+            type: 'String',
+            value: 'foo',
+          };
+          const anotherField = {
+            field: 'myNewField',
+            type: 'String',
+            value: 'bar',
+          };
 
-        const fields = [field, anotherField];
-        const expected = [field];
+          const fields = [field, anotherField];
+          const expected = [field];
 
-        const hook = jest.fn(() => (expected));
+          const hook = jest.fn(() => (expected));
 
-        const response = await smartActionHook.getResponse({}, hook, fields, {});
-        await expect(response).toStrictEqual(expected);
-        expect(hook).toHaveBeenNthCalledWith(
-          1,
-          {
-            fields,
-            record: {},
-            changedField: null,
-          },
-        );
+          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          await expect(response).toStrictEqual(expected);
+          expect(hook).toHaveBeenNthCalledWith(
+            1,
+            {
+              fields,
+              record: {},
+              changedField: null,
+            },
+          );
+        });
       });
     });
 

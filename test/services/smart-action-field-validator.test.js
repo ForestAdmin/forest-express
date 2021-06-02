@@ -4,19 +4,21 @@ const smartActionFieldValidator = new SmartActionFieldValidator();
 
 describe('services > smart-action-field-validator', () => {
   describe('validateField', () => {
-    it('should not throw if the field is valid', () => {
-      expect.assertions(1);
+    describe('when the field is valid', () => {
+      it('should do nothing', () => {
+        expect.assertions(1);
 
-      const actionName = 'actionTest';
-      const field = {
-        field: 'test',
-        description: 'a description',
-        isRequired: false,
-        isReadOnly: false,
-        type: 'String',
-      };
+        const actionName = 'actionTest';
+        const field = {
+          field: 'test',
+          description: 'a description',
+          isRequired: false,
+          isReadOnly: false,
+          type: 'String',
+        };
 
-      expect(() => smartActionFieldValidator.validateField(field, actionName)).not.toThrow();
+        expect(() => smartActionFieldValidator.validateField(field, actionName)).not.toThrow();
+      });
     });
 
     describe('when the field is not an object', () => {
@@ -26,7 +28,7 @@ describe('services > smart-action-field-validator', () => {
         const actionName = 'actionTest';
         const field = null;
 
-        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Field inside fileds array on the smart action "${actionName}" must be an object.`);
+        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Field inside fields array on the smart action "${actionName}" must be an object.`);
       });
 
       it('should throw if field is an array', () => {
@@ -35,7 +37,7 @@ describe('services > smart-action-field-validator', () => {
         const actionName = 'actionTest';
         const field = [];
 
-        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Field inside fileds array on the smart action "${actionName}" must be an object.`);
+        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Field inside fields array on the smart action "${actionName}" must be an object.`);
       });
 
       it('should throw if field is a function', () => {
@@ -44,7 +46,7 @@ describe('services > smart-action-field-validator', () => {
         const actionName = 'actionTest';
         const field = () => {};
 
-        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Field inside fileds array on the smart action "${actionName}" must be an object.`);
+        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Field inside fields array on the smart action "${actionName}" must be an object.`);
       });
     });
 
@@ -57,7 +59,7 @@ describe('services > smart-action-field-validator', () => {
         const actionName = 'actionTest';
         const field = {};
 
-        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`field attribute inside fileds array on the smart action "${actionName}" must be defined.`);
+        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`field attribute inside fields array on the smart action "${actionName}" must be defined.`);
       });
 
       it('should throw if field.field is not a string', () => {
@@ -67,7 +69,7 @@ describe('services > smart-action-field-validator', () => {
         const field = generateField();
         field.field = 1;
 
-        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`field attribute inside fileds array on the smart action "${actionName}" must be a string.`);
+        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`field attribute inside fields array on the smart action "${actionName}" must be a string.`);
       });
 
       it('should throw if field.description is not a string', () => {
@@ -133,75 +135,87 @@ describe('services > smart-action-field-validator', () => {
   });
 
   describe('validateFieldChangeHook', () => {
-    it('should not throw if field does not have defined hook', () => {
-      expect.assertions(1);
+    describe('when the field does not use the change hook feature', () => {
+      it('should do nothing', () => {
+        expect.assertions(1);
 
-      const field = { field: 'test' };
-      const actionName = 'actionTest';
-      const hooks = [];
+        const field = { field: 'test' };
+        const actionName = 'actionTest';
+        const hooks = [];
 
-      expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
-        .not.toThrow();
+        expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
+          .not.toThrow();
+      });
     });
 
-    it('should not throw if field have defined hook', () => {
-      expect.assertions(1);
+    describe('when the field uses the hook feature', () => {
+      describe('when the hook is correctly defined', () => {
+        it('should do nothing', () => {
+          expect.assertions(1);
 
-      const field = { field: 'test', hook: 'onChange' };
-      const actionName = 'actionTest';
-      const hooks = {
-        onChange: () => {},
-      };
+          const field = { field: 'test', hook: 'onChange' };
+          const actionName = 'actionTest';
+          const hooks = {
+            onChange: () => {},
+          };
 
-      expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
-        .not.toThrow();
-    });
+          expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
+            .not.toThrow();
+        });
+      });
 
-    it('should throw if field have not defined hook', () => {
-      expect.assertions(1);
+      describe('when the field hook does not exist', () => {
+        it('should throw an error', () => {
+          expect.assertions(1);
 
-      const field = { field: 'test', hook: 'onChange' };
-      const actionName = 'actionTest';
-      const hooks = {};
+          const field = { field: 'test', hook: 'onChange' };
+          const actionName = 'actionTest';
+          const hooks = {};
 
-      expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
-        .toThrow(`The hook "${field.hook}" of "${field.field}" field on the smart action "${actionName}" is not defined.`);
+          expect(() => smartActionFieldValidator.validateFieldChangeHook(field, actionName, hooks))
+            .toThrow(`The hook "${field.hook}" of "${field.field}" field on the smart action "${actionName}" is not defined.`);
+        });
+      });
     });
   });
 
   describe('validateSmartActionFields', () => {
-    it('should do nothing if action does not have field', () => {
-      expect.assertions(3);
+    describe('when the action does not have any fields', () => {
+      it('should do nothing', () => {
+        expect.assertions(3);
 
-      jest.resetAllMocks();
+        jest.resetAllMocks();
 
-      const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
-      const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
+        const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
+        const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
 
-      const action = {};
-      const collectionName = 'collectionTest';
+        const action = {};
+        const collectionName = 'collectionTest';
 
-      expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
-        .not.toThrow();
-      expect(validateFieldSpy).not.toHaveBeenCalled();
-      expect(validateFieldChangeHook).not.toHaveBeenCalled();
+        expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
+          .not.toThrow();
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+        expect(validateFieldChangeHook).not.toHaveBeenCalled();
+      });
     });
 
-    it('should throw an error if action.fields is not an array', () => {
-      expect.assertions(3);
+    describe('when the action uses incorrect parameters', () => {
+      it('should throw an error for fields not being an array', () => {
+        expect.assertions(3);
 
-      jest.resetAllMocks();
+        jest.resetAllMocks();
 
-      const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
-      const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
+        const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
+        const validateFieldChangeHook = jest.spyOn(smartActionFieldValidator, 'validateFieldChangeHook');
 
-      const action = { fields: 'toto' };
-      const collectionName = 'collectionTest';
+        const action = { fields: 'toto' };
+        const collectionName = 'collectionTest';
 
-      expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
-        .toThrow(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collectionName}" collection. The fields option must be an array.`);
-      expect(validateFieldSpy).not.toHaveBeenCalled();
-      expect(validateFieldChangeHook).not.toHaveBeenCalled();
+        expect(() => smartActionFieldValidator.validateSmartActionFields(action, collectionName))
+          .toThrow(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collectionName}" collection. The fields option must be an array.`);
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+        expect(validateFieldChangeHook).not.toHaveBeenCalled();
+      });
     });
 
     it('should call validateFieldSpy and validateFieldChangeHook on each fields', () => {
