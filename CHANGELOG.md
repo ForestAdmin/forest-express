@@ -1,3 +1,10 @@
+## [8.6.1](https://github.com/ForestAdmin/forest-express/compare/v8.6.0...v8.6.1) (2021-06-03)
+
+
+### Bug Fixes
+
+* correctly get the IP address from the request headers ([#731](https://github.com/ForestAdmin/forest-express/issues/731)) ([f2b5905](https://github.com/ForestAdmin/forest-express/commit/f2b59052219e13ece21b81d53f1381777407bd66))
+
 # [8.6.0](https://github.com/ForestAdmin/forest-express/compare/v8.5.2...v8.6.0) (2021-06-02)
 
 
