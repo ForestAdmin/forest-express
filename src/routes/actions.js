@@ -41,9 +41,9 @@ class Actions {
   /**
    * @param {Number} recordId
    */
-  async getRecord(recordId) {
+  async getRecord(recordId, timezone, user) {
     return this.model
-      ? new this.implementation.ResourceGetter(this.model, { recordId }).perform()
+      ? new this.implementation.ResourceGetter(this.model, { recordId, timezone }, user).perform()
       : null;
   }
 
@@ -58,7 +58,7 @@ class Actions {
    */
   async getHook(request, response, hook) {
     const recordId = request.body.recordIds[0];
-    const record = await this.getRecord(recordId);
+    const record = await this.getRecord(recordId, request.query.timezone, request.user);
 
     try {
       const updatedFields = await hook(record, recordId);
