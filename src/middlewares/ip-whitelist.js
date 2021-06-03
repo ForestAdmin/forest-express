@@ -1,5 +1,6 @@
 const httpError = require('http-errors');
 const ipWhitelistService = require('../services/ip-whitelist');
+const getIpFromRequest = require('../utils/get-ip-from-request');
 
 function retrieveWhitelist(environmentSecret, ip, next) {
   return ipWhitelistService
@@ -10,7 +11,7 @@ function retrieveWhitelist(environmentSecret, ip, next) {
 
 function createIpAuthorizer(environmentSecret) {
   return function ipAuthorizer(request, response, next) {
-    const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+    const ip = getIpFromRequest(request);
 
     if (!ipWhitelistService.isIpWhitelistRetrieved() || !ipWhitelistService.isIpValid(ip)) {
       return retrieveWhitelist(environmentSecret, ip, next);
