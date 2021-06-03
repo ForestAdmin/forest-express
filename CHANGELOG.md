@@ -1,3 +1,10 @@
+# [9.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.1...v9.0.0-beta.2) (2021-06-03)
+
+
+### Bug Fixes
+
+* update record getter usage in action route to use global scope ([#730](https://github.com/ForestAdmin/forest-express/issues/730)) ([b92f158](https://github.com/ForestAdmin/forest-express/commit/b92f158055e7f7f33a279ea2095eb00adf3b6a06))
+
 # [9.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v8.5.2...v9.0.0-beta.1) (2021-05-31)
 
 
