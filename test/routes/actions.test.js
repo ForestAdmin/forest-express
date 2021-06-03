@@ -35,7 +35,7 @@ async function callHook(hooks, smartActionHookGetResponse, requestBody) {
     actions, model, app, logger,
   } = initContext(schemas, smartActionHookGetResponse).inject();
 
-  const request = { body: requestBody || { recordIds: [1] } };
+  const request = { body: requestBody || { recordIds: [1] }, query: { timezone: 'Europe/Paris' }, user: { id: 1 } };
   const send = jest.fn((values) => values);
   const response = { status: jest.fn(() => ({ send })) };
   const perform = jest.fn(() => ({ id: 1, name: 'Jane' }));
@@ -189,7 +189,8 @@ describe('routes > actions', () => {
           const smartActionHookGetResponse = jest.fn();
           const { model, implementation } = await callHook({ load }, smartActionHookGetResponse);
 
-          expect(implementation.ResourceGetter).toHaveBeenNthCalledWith(1, model, { recordId: 1 });
+          expect(implementation.ResourceGetter)
+            .toHaveBeenNthCalledWith(1, model, { recordId: 1, timezone: 'Europe/Paris' }, { id: 1 });
           expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
             1,
             load,
@@ -284,7 +285,8 @@ describe('routes > actions', () => {
             },
           );
 
-          expect(implementation.ResourceGetter).toHaveBeenNthCalledWith(1, model, { recordId: 1 });
+          expect(implementation.ResourceGetter)
+            .toHaveBeenNthCalledWith(1, model, { recordId: 1, timezone: 'Europe/Paris' }, { id: 1 });
           expect(smartActionHookGetResponse)
             .toHaveBeenNthCalledWith(1, change.foo, [field], { id: 1, name: 'Jane' }, 1);
         });
