@@ -1,3 +1,15 @@
+# [9.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.2...v9.0.0-beta.3) (2021-06-04)
+
+
+### Bug Fixes
+
+* correctly get the IP address from the request headers ([#731](https://github.com/ForestAdmin/forest-express/issues/731)) ([f2b5905](https://github.com/ForestAdmin/forest-express/commit/f2b59052219e13ece21b81d53f1381777407bd66))
+
+
+### Features
+
+* **schema:** add embedded key stack into meta of the forestadmin schema ([#724](https://github.com/ForestAdmin/forest-express/issues/724)) ([5ff5a12](https://github.com/ForestAdmin/forest-express/commit/5ff5a12a267f97166753ef51142ad98d82788235))
+
 ## [8.6.1](https://github.com/ForestAdmin/forest-express/compare/v8.6.0...v8.6.1) (2021-06-03)
 
 
