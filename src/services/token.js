@@ -52,6 +52,7 @@ class TokenService {
       firstName: user.first_name,
       lastName: user.last_name,
       team: user.teams[0],
+      role: user.role,
       renderingId,
     }, authSecret, {
       expiresIn: `${this.expirationInHours} hours`,
