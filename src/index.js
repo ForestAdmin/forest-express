@@ -135,12 +135,14 @@ function generateAndSendSchema(envSecret) {
 
   if (ENVIRONMENT_DEVELOPMENT) {
     const meta = {
-      database_type: configStore.Implementation.getDatabaseType(),
       liana: configStore.Implementation.getLianaName(),
       liana_version: configStore.Implementation.getLianaVersion(),
-      engine: 'nodejs',
-      engine_version: process.versions && process.versions.node,
-      orm_version: configStore.Implementation.getOrmVersion(),
+      stack: {
+        database_type: configStore.Implementation.getDatabaseType(),
+        engine: 'nodejs',
+        engine_version: process.versions && process.versions.node,
+        orm_version: configStore.Implementation.getOrmVersion(),
+      },
     };
     const content = schemaFileUpdater.update(pathSchemaFile, collections, meta, serializerOptions);
     collectionsSent = content.collections;
