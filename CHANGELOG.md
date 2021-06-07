@@ -1,3 +1,15 @@
+# [9.0.0-beta.4](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.3...v9.0.0-beta.4) (2021-06-07)
+
+
+### Features
+
+* **smart-action:** add changedField argument on hook function ([#716](https://github.com/ForestAdmin/forest-express/issues/716)) ([709fe32](https://github.com/ForestAdmin/forest-express/commit/709fe3236f5a4998e3e568d209f1e193796637ac))
+
+
+### BREAKING CHANGES
+
+* **smart-action:** fields parameters on hook function is no longer a map of field, it is now an array.
+
 # [9.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.2...v9.0.0-beta.3) (2021-06-04)
 
 
