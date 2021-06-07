@@ -1,3 +1,15 @@
+# [9.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.4...v9.0.0-beta.5) (2021-06-07)
+
+
+### Features
+
+* **smart-action:** user can add dynamically field with hook on smart action form ([#717](https://github.com/ForestAdmin/forest-express/issues/717)) ([910df2b](https://github.com/ForestAdmin/forest-express/commit/910df2b487cc4685fcdfc182c5291aebc774ad5e))
+
+
+### BREAKING CHANGES
+
+* **smart-action:** change hook is no longer choosen by the field name, field need to have hook defined inside it definition by addin a props hook
+
 # [9.0.0-beta.4](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.3...v9.0.0-beta.4) (2021-06-07)
 
 
