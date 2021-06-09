@@ -1,3 +1,10 @@
+# [8.7.0](https://github.com/ForestAdmin/forest-express/compare/v8.6.1...v8.7.0) (2021-06-09)
+
+
+### Features
+
+* include role in the user data inside the request ([#733](https://github.com/ForestAdmin/forest-express/issues/733)) ([e74ce72](https://github.com/ForestAdmin/forest-express/commit/e74ce724d80102387a2b5dd2d80581126fc66fee))
+
 ## [8.6.1](https://github.com/ForestAdmin/forest-express/compare/v8.6.0...v8.6.1) (2021-06-03)
 
 
