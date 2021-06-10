@@ -12,6 +12,7 @@ describe('middlewares > permissions', () => {
     logger: {},
     permissionsChecker: {},
     configStore: {},
+    modelsManager: {},
   };
 
   const createPermissionMiddlewareCreator = (collectionName, dependencies) => {
@@ -212,9 +213,7 @@ describe('middlewares > permissions', () => {
     it('should return a middleware', () => {
       expect.assertions(1);
 
-      const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-        ...defaultDependencies,
-      });
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', defaultDependencies);
       const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope({});
       expect(typeof middleware).toStrictEqual('function');
     });
@@ -230,6 +229,19 @@ describe('middlewares > permissions', () => {
         smart_action_id: 'users-action@@@bulk',
       };
 
+      const getDependencies = () => ({
+        ...defaultDependencies,
+        modelsManager: {
+          getModelByName: jest.fn().mockReturnValue({ name: 'users' }),
+        },
+        configStore: {
+          Implementation: {
+            getModelName: jest.fn().mockReturnValue('users'),
+            ResourcesGetter: jest.fn().mockImplementation(() => ({ count: () => 3 })),
+          },
+        },
+      });
+
       Schemas.schemas = { users: usersSchema };
 
       describe('when asking for all records', () => {
@@ -239,9 +251,8 @@ describe('middlewares > permissions', () => {
           const request = buildRequest({ ...defaultAttributes, all_records: true });
           const next = jest.fn();
 
-          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-            ...defaultDependencies,
-          });
+          const dependencies = getDependencies();
+          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', dependencies);
           const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope(model);
           await middleware(request, defaultResponse, next);
 
@@ -252,7 +263,7 @@ describe('middlewares > permissions', () => {
 
       describe('on a model with composite primary keys', () => {
         it('should call next without other checks', async () => {
-          expect.assertions(4);
+          expect.assertions(2);
 
           Schemas.schemas.users.idField = 'forestCompositePrimary';
           Schemas.schemas.users.isCompositePrimary = true;
@@ -260,20 +271,11 @@ describe('middlewares > permissions', () => {
           const request = buildRequest({ ...defaultAttributes });
           const next = jest.fn();
 
-          const configStore = {
-            Implementation: {
-              getModelName: jest.fn().mockReturnValue('users'),
-            },
-          };
-          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-            ...defaultDependencies,
-            configStore,
-          });
+          const dependencies = getDependencies();
+          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', dependencies);
           const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope(model);
           await middleware(request, defaultResponse, next);
 
-          expect(configStore.Implementation.getModelName).toHaveBeenCalledTimes(1);
-          expect(configStore.Implementation.getModelName).toHaveBeenCalledWith(model);
           expect(next).toHaveBeenCalledTimes(1);
           expect(next).toHaveBeenCalledWith();
 
@@ -284,28 +286,18 @@ describe('middlewares > permissions', () => {
 
       describe('when some ids don\'t match the registered scope', () => {
         it('should send a 400 http response', async () => {
-          expect.assertions(7);
+          expect.assertions(5);
 
           const request = buildRequest({ ...defaultAttributes, ids: ['1', '2'] });
           const next = jest.fn();
           const statusReturnValue = { send: jest.fn() };
           const response = { status: jest.fn().mockReturnValue(statusReturnValue) };
 
-          const configStore = {
-            Implementation: {
-              getModelName: jest.fn().mockReturnValue('users'),
-              ResourcesGetter: jest.fn().mockImplementation(() => ({ count: () => 3 })),
-            },
-          };
-          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-            ...defaultDependencies,
-            configStore,
-          });
+          const dependencies = getDependencies();
+          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', dependencies);
           const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope(model);
           await middleware(request, response, next);
 
-          expect(configStore.Implementation.getModelName).toHaveBeenCalledTimes(1);
-          expect(configStore.Implementation.getModelName).toHaveBeenCalledWith(model);
           expect(response.status).toHaveBeenCalledTimes(1);
           expect(response.status).toHaveBeenCalledWith(400);
           expect(statusReturnValue.send).toHaveBeenCalledTimes(1);
@@ -318,27 +310,17 @@ describe('middlewares > permissions', () => {
 
       describe('all provided ids are within the registered scope', () => {
         it('should call next without other checks', async () => {
-          expect.assertions(5);
+          expect.assertions(3);
 
           const request = buildRequest({ ...defaultAttributes, ids: ['1', '2', '3'] });
           const next = jest.fn();
           const response = { status: jest.fn() };
 
-          const configStore = {
-            Implementation: {
-              getModelName: jest.fn().mockReturnValue('users'),
-              ResourcesGetter: jest.fn().mockImplementation(() => ({ count: () => 3 })),
-            },
-          };
-          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-            ...defaultDependencies,
-            configStore,
-          });
+          const dependencies = getDependencies();
+          const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', dependencies);
           const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope(model);
           await middleware(request, response, next);
 
-          expect(configStore.Implementation.getModelName).toHaveBeenCalledTimes(1);
-          expect(configStore.Implementation.getModelName).toHaveBeenCalledWith(model);
           expect(response.status).not.toHaveBeenCalled();
           expect(next).toHaveBeenCalledTimes(1);
           expect(next).toHaveBeenCalledWith();
@@ -348,34 +330,19 @@ describe('middlewares > permissions', () => {
   });
 
   describe('smartAction', () => {
-    describe('when no model is provided', () => {
-      it('should raise an error', () => {
-        expect.assertions(1);
+    it('should generate an array of middlewares', () => {
+      expect.assertions(3);
 
-        const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-          ...defaultDependencies,
-        });
-
-        expect(() => permissionMiddlewareCreator.smartAction())
-          .toThrow('missing model in the smartAction middleware definition');
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
+        ...defaultDependencies,
       });
-    });
 
-    describe('when a valid model is provided', () => {
-      it('should generate an array of middlewares', () => {
-        expect.assertions(3);
+      const smartActionPermissionMiddlewares = permissionMiddlewareCreator
+        .smartAction({ name: 'users' });
 
-        const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
-          ...defaultDependencies,
-        });
-
-        const smartActionPermissionMiddlewares = permissionMiddlewareCreator
-          .smartAction({ name: 'users' });
-
-        expect(smartActionPermissionMiddlewares).toHaveLength(2);
-        expect(typeof smartActionPermissionMiddlewares[0]).toStrictEqual('function');
-        expect(typeof smartActionPermissionMiddlewares[1]).toStrictEqual('function');
-      });
+      expect(smartActionPermissionMiddlewares).toHaveLength(2);
+      expect(typeof smartActionPermissionMiddlewares[0]).toStrictEqual('function');
+      expect(typeof smartActionPermissionMiddlewares[1]).toStrictEqual('function');
     });
   });
 });
