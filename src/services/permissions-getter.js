@@ -72,7 +72,7 @@ class PermissionsGetter {
       : null;
   }
 
-  _getStatsPermissions({ environmentId } = {}) {
+  _getStatsPermissions(renderingId, { environmentId } = {}) {
     const defaultStatsPermissions = {
       queries: [],
       leaderboards: [],
@@ -83,7 +83,13 @@ class PermissionsGetter {
       values: [],
     };
 
-    const { stats = defaultStatsPermissions } = this._getPermissions({ environmentId });
+    const getPermissionsInRendering = this._getPermissionsInRendering(
+      renderingId,
+      { environmentId },
+    );
+
+    const { stats = defaultStatsPermissions } = getPermissionsInRendering
+      && getPermissionsInRendering.data;
 
     return stats;
   }
@@ -145,11 +151,6 @@ class PermissionsGetter {
     };
   }
 
-  _setStatsPermissions(permissions, { environmentId } = {}) {
-    this._getPermissions({ environmentId, initIfNotExisting: true })
-      .stats = permissions;
-  }
-
   _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
     this._setCollectionsPermissions(permissions.collections, { environmentId });
     if (permissions.renderings && permissions.renderings[renderingId]) {
@@ -161,14 +162,15 @@ class PermissionsGetter {
 
   // In the teamACL format, all the permissions are stored by renderingId into "renderings".
   // For the rolesACL format, the collections permissions are stored directly into "collections",
-  // and only their scopes are stored by renderingId into "renderings".
-  _setPermissions(renderingId, permissions, { environmentId } = {}) {
+  // and only their scopes and stats are stored by renderingId into "renderings".
+  _setPermissions(renderingId, permissions, stats, { environmentId } = {}) {
     if (this.isRolesACLActivated) {
       this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
       const newFormatPermissions = permissions
         ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)
         : null;
+      newFormatPermissions.stats = stats;
       this._setRenderingPermissions(renderingId, newFormatPermissions, { environmentId });
     }
   }
@@ -238,17 +240,22 @@ class PermissionsGetter {
 
         if (!responseBody.data) return null;
 
-        // NOTICE: Addtional permissions - live queries, stats parameters
-        this._setStatsPermissions(responseBody.stats, { environmentId });
-
         if (renderingOnly) {
+          // NOTICE: Addtional permissions - live queries, stats parameters
           return responseBody.data.renderings
             ? this._setRenderingPermissions(
-              renderingId, responseBody.data.renderings[renderingId], { environmentId },
+              renderingId,
+              { stats: responseBody.stats, ...responseBody.data.renderings[renderingId] },
+              { environmentId },
             )
             : null;
         }
-        return this._setPermissions(renderingId, responseBody.data, { environmentId });
+        return this._setPermissions(
+          renderingId,
+          responseBody.data,
+          responseBody.stats,
+          { environmentId },
+        );
       })
       .catch((error) => Promise.reject(new this.VError(error, 'Permissions error')));
   }
@@ -271,7 +278,7 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
-    const stats = this._getStatsPermissions({ environmentId });
+    const stats = this._getStatsPermissions(renderingId, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
