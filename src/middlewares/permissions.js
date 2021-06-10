@@ -10,10 +10,13 @@ const getRenderingIdFromUser = (user) => user.renderingId;
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
-    const { configStore, logger, permissionsChecker } = context.inject();
+    const {
+      configStore, logger, permissionsChecker, modelsManager,
+    } = context.inject();
     this.logger = logger;
     this.permissionsChecker = permissionsChecker;
     this.configStore = configStore;
+    this.modelsManager = modelsManager;
   }
 
   _getSmartActionInfoFromRequest(request) {
@@ -101,16 +104,16 @@ class PermissionMiddlewareCreator {
 
   // generate a middleware that will check that ids provided by the request exist
   // whithin the registered scope
-  _ensureRecordIdsInScope(model) {
+  _ensureRecordIdsInScope() {
     return async (request, response, next) => {
+      const model = this.modelsManager.getModelByName(this.collectionName);
       const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
       const { timezone } = request.query;
 
       // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
       if (attributes.allRecords) return next();
 
-      const modelName = this.configStore.Implementation.getModelName(model);
-      const { idField } = Schemas.schemas[modelName];
+      const { idField } = Schemas.schemas[this.collectionName];
 
       // TODO: scope smartAction calls properly on table with composite primary keys
       if (idField === 'forestCompositePrimary') return next();
