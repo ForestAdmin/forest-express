@@ -1,3 +1,10 @@
+# [9.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.5...v9.0.0-beta.6) (2021-06-10)
+
+
+### Bug Fixes
+
+* remove breaking change on smart action middleware ([#739](https://github.com/ForestAdmin/forest-express/issues/739)) ([b2a8f74](https://github.com/ForestAdmin/forest-express/commit/b2a8f74206054642f32b6e4cdd207f2c8bb67cf1))
+
 # [9.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.4...v9.0.0-beta.5) (2021-06-07)
 
 
