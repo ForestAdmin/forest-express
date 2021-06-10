@@ -1,3 +1,10 @@
+## [8.7.1](https://github.com/ForestAdmin/forest-express/compare/v8.7.0...v8.7.1) (2021-06-10)
+
+
+### Bug Fixes
+
+* prevent IP check from failing for the proxies including the port in the headers ([#738](https://github.com/ForestAdmin/forest-express/issues/738)) ([810d0c1](https://github.com/ForestAdmin/forest-express/commit/810d0c1e013d9ec3e2af201f1b53bd125eb6af2f))
+
 # [8.7.0](https://github.com/ForestAdmin/forest-express/compare/v8.6.1...v8.7.0) (2021-06-09)
 
 
