@@ -211,6 +211,82 @@ describe('services > PermissionsGetter', () => {
           jest.restoreAllMocks();
         });
       });
+
+      describe('with stats permissions', () => {
+        it('should set correctly the permissions', () => {
+          expect.assertions(4);
+
+          const environmentId = 100;
+          const permissions = {
+            collections: 'collectionsPermissions',
+            renderings: {
+              1: { renderingPermissions: 'renderingPermissions' },
+            },
+          };
+          const stats = {
+            queries: ['someQuery'],
+          };
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          permissionsGetter.isRolesACLActivated = true;
+
+          jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
+          jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
+
+          permissionsGetter._setPermissions(1, permissions, { environmentId }, stats);
+          expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
+          expect(permissionsGetter._setRolesACLPermissions)
+            .toHaveBeenCalledWith(1, permissions, { environmentId });
+          expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
+
+          const renderingPermissions = permissionsGetter
+            ._getPermissionsInRendering(1, { environmentId }).data;
+          expect(renderingPermissions.stats).toStrictEqual(stats);
+
+          jest.restoreAllMocks();
+        });
+
+        it('should set correctly the permissions and keep all renderings informations', () => {
+          expect.assertions(2);
+
+          const environmentId = 100;
+          const permissions1 = {
+            collections: 'collectionsPermissions',
+            renderings: {
+              1: { renderingPermissions: 'renderingPermissions' },
+            },
+          };
+          const stats1 = {
+            queries: ['someQuery'],
+          };
+          const permissions2 = {
+            collections: 'collectionsPermissions',
+            renderings: {
+              2: {},
+            },
+          };
+          const stats2 = {
+            queries: ['someOtherQuery'],
+          };
+
+          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          permissionsGetter.isRolesACLActivated = true;
+
+
+          permissionsGetter._setPermissions(1, permissions1, { environmentId }, stats1);
+          permissionsGetter._setPermissions(2, permissions2, { environmentId }, stats2);
+
+          const renderingPermissions1 = permissionsGetter
+            ._getPermissionsInRendering(1, { environmentId }).data;
+          expect(renderingPermissions1.stats).toStrictEqual(stats1);
+
+          const renderingPermissions2 = permissionsGetter
+            ._getPermissionsInRendering(2, { environmentId }).data;
+          expect(renderingPermissions2.stats).toStrictEqual(stats2);
+
+          jest.restoreAllMocks();
+        });
+      });
     });
 
     describe('when isRolesACLActivated is false', () => {
@@ -261,6 +337,69 @@ describe('services > PermissionsGetter', () => {
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
         expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
           .toHaveBeenCalledWith(permissions);
+
+        jest.restoreAllMocks();
+      });
+    });
+
+    describe('with stats permissions', () => {
+      it('should set correctly the permissions', () => {
+        expect.assertions(5);
+
+        const environmentId = 100;
+        const permissions = {};
+        const stats = {
+          queries: ['someQuery'],
+        };
+
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter.isRolesACLActivated = false;
+        jest.spyOn(permissionsGetter, '_setRenderingPermissions');
+        jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
+        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
+
+        permissionsGetter._setPermissions(1, permissions, { environmentId }, stats);
+
+        expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
+        expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
+        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
+          .toHaveBeenCalledWith(permissions);
+
+        const renderingPermissions = permissionsGetter
+          ._getPermissionsInRendering(1, { environmentId }).data;
+        expect(renderingPermissions.stats).toStrictEqual(stats);
+
+        jest.restoreAllMocks();
+      });
+
+      it('should set correctly the permissions and keep all renderings informations', () => {
+        expect.assertions(2);
+
+        const environmentId = 100;
+        const permissions1 = {};
+        const stats1 = {
+          queries: ['someQuery'],
+        };
+        const permissions2 = {};
+        const stats2 = {
+          queries: ['someOtherQuery'],
+        };
+
+        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        permissionsGetter.isRolesACLActivated = false;
+
+
+        permissionsGetter._setPermissions(1, permissions1, { environmentId }, stats1);
+        permissionsGetter._setPermissions(2, permissions2, { environmentId }, stats2);
+
+        const renderingPermissions1 = permissionsGetter
+          ._getPermissionsInRendering(1, { environmentId }).data;
+        expect(renderingPermissions1.stats).toStrictEqual(stats1);
+
+        const renderingPermissions2 = permissionsGetter
+          ._getPermissionsInRendering(2, { environmentId }).data;
+        expect(renderingPermissions2.stats).toStrictEqual(stats2);
 
         jest.restoreAllMocks();
       });

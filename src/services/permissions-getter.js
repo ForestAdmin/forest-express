@@ -232,7 +232,8 @@ class PermissionsGetter {
   async _handleRetrieve(
     responseBody,
     renderingId,
-    { renderingOnly = false, environmentId } = {},
+    renderingOnly,
+    environmentId,
   ) {
     this.isRolesACLActivated = responseBody.meta
       ? responseBody.meta.rolesACLActivated
