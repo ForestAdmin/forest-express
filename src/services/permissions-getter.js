@@ -73,25 +73,23 @@ class PermissionsGetter {
   }
 
   _getStatsPermissions(renderingId, { environmentId } = {}) {
-    const defaultStatsPermissions = {
-      queries: [],
-      leaderboards: [],
-      lines: [],
-      objectives: [],
-      percentages: [],
-      pies: [],
-      values: [],
-    };
-
     const getPermissionsInRendering = this._getPermissionsInRendering(
-      renderingId,
-      { environmentId },
+      renderingId, { environmentId },
     );
 
-    const { stats = defaultStatsPermissions } = getPermissionsInRendering
-      && getPermissionsInRendering.data;
-
-    return stats;
+    return getPermissionsInRendering
+      && getPermissionsInRendering.data
+      && getPermissionsInRendering.data.stats
+      ? getPermissionsInRendering.data.stats
+      : {
+        queries: [],
+        leaderboards: [],
+        lines: [],
+        objectives: [],
+        percentages: [],
+        pies: [],
+        values: [],
+      };
   }
 
   static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
@@ -163,18 +161,19 @@ class PermissionsGetter {
   // In the teamACL format, all the permissions are stored by renderingId into "renderings".
   // For the rolesACL format, the collections permissions are stored directly into "collections",
   // and only their scopes and stats are stored by renderingId into "renderings".
-  _setPermissions(renderingId, permissions, stats, { environmentId } = {}) {
+  _setPermissions(renderingId, permissions, { environmentId } = {}, stats) {
     if (this.isRolesACLActivated) {
-      // NOTICE: Add stats permissions to the RenderingPermissions
-      permissions.renderings[renderingId].stats = stats;
       this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
       const newFormatPermissions = permissions
         ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)
         : null;
-      // NOTICE: Add stats permissions to the RenderingPermissions
-      newFormatPermissions.stats = stats;
       this._setRenderingPermissions(renderingId, newFormatPermissions, { environmentId });
+    }
+
+    // NOTICE: Add stats permissions to the RenderingPermissions
+    if (stats) {
+      this._getPermissionsInRendering(renderingId, { environmentId }).data.stats = stats;
     }
   }
 
@@ -256,8 +255,8 @@ class PermissionsGetter {
         return this._setPermissions(
           renderingId,
           responseBody.data,
-          responseBody.stats,
           { environmentId },
+          responseBody.stats,
         );
       })
       .catch((error) => Promise.reject(new this.VError(error, 'Permissions error')));
