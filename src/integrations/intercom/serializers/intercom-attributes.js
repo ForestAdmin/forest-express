@@ -3,6 +3,17 @@ const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 function serializeIntercomAttributes(attributes, collectionName, meta) {
   const type = `${collectionName}_intercom_attributes`;
 
+  const unixTimestampToDateOrNull = (unixTimestamp) =>
+    unixTimestamp && new Date(unixTimestamp * 1000);
+
+  // Attributes keys ending with `_at` are unix timestamp
+  // thus they need to be converted to js Date
+  Object.entries(attributes).forEach(([attributeKey, attributeValue]) => {
+    if (attributeKey.endsWith('_at')) {
+      attributes[attributeKey] = unixTimestampToDateOrNull(attributeValue);
+    }
+  });
+
   return new JSONAPISerializer(type, attributes, {
     attributes: [
       'email',
