@@ -165,11 +165,14 @@ class PermissionsGetter {
   // and only their scopes and stats are stored by renderingId into "renderings".
   _setPermissions(renderingId, permissions, stats, { environmentId } = {}) {
     if (this.isRolesACLActivated) {
+      // NOTICE: Add stats permissions to the RenderingPermissions
+      permissions.renderings[renderingId].stats = stats;
       this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
       const newFormatPermissions = permissions
         ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)
         : null;
+      // NOTICE: Add stats permissions to the RenderingPermissions
       newFormatPermissions.stats = stats;
       this._setRenderingPermissions(renderingId, newFormatPermissions, { environmentId });
     }
