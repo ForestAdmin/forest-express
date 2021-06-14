@@ -229,36 +229,42 @@ class PermissionsGetter {
       && this._isPermissionExpired(lastRetrieve);
   }
 
+  async _handleRetrieve(
+    responseBody,
+    renderingId,
+    { renderingOnly = false, environmentId } = {},
+  ) {
+    this.isRolesACLActivated = responseBody.meta
+      ? responseBody.meta.rolesACLActivated
+      : false;
+
+    if (!responseBody.data) return null;
+
+    if (renderingOnly) {
+      return responseBody.data.renderings
+        ? this._setRenderingPermissions(
+          renderingId,
+          { stats: responseBody.stats, ...responseBody.data.renderings[renderingId] },
+          { environmentId },
+        )
+        : null;
+    }
+
+    return this._setPermissions(
+      renderingId,
+      responseBody.data,
+      { environmentId },
+      responseBody.stats,
+    );
+  }
+
   async _retrievePermissions(renderingId, { renderingOnly = false, environmentId } = {}) {
     const queryParams = { renderingId };
     if (renderingOnly) queryParams.renderingSpecificOnly = true;
 
     return this.forestServerRequester
       .perform('/liana/v3/permissions', this.environmentSecret, queryParams)
-      .then((responseBody) => {
-        this.isRolesACLActivated = responseBody.meta
-          ? responseBody.meta.rolesACLActivated
-          : false;
-
-        if (!responseBody.data) return null;
-
-        if (renderingOnly) {
-          // NOTICE: Addtional permissions - live queries, stats parameters
-          return responseBody.data.renderings
-            ? this._setRenderingPermissions(
-              renderingId,
-              { stats: responseBody.stats, ...responseBody.data.renderings[renderingId] },
-              { environmentId },
-            )
-            : null;
-        }
-        return this._setPermissions(
-          renderingId,
-          responseBody.data,
-          { environmentId },
-          responseBody.stats,
-        );
-      })
+      .then((res) => this._handleRetrieve(res, renderingId, renderingOnly, environmentId))
       .catch((error) => Promise.reject(new this.VError(error, 'Permissions error')));
   }
 
