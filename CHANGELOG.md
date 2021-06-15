@@ -1,3 +1,10 @@
+## [8.7.2](https://github.com/ForestAdmin/forest-express/compare/v8.7.1...v8.7.2) (2021-06-15)
+
+
+### Bug Fixes
+
+* **intercom:** fix date conversion from unix timestamp to js date of intercom attributes ([#742](https://github.com/ForestAdmin/forest-express/issues/742)) ([97fa090](https://github.com/ForestAdmin/forest-express/commit/97fa09016f8c99bb75532c2272e7ba202f7054d4))
+
 ## [8.7.1](https://github.com/ForestAdmin/forest-express/compare/v8.7.0...v8.7.1) (2021-06-10)
 
 
