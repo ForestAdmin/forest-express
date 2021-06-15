@@ -1,9 +1,10 @@
 class PermissionsGetter {
   constructor({
-    configStore, env, forestServerRequester, moment, VError,
+    configStore, env, permissionsFormatter, forestServerRequester, moment, VError,
   }) {
     this.configStore = configStore;
     this.forestServerRequester = forestServerRequester;
+    this.permissionsFormatter = permissionsFormatter;
     this.moment = moment;
     this.VError = VError;
 
@@ -92,45 +93,6 @@ class PermissionsGetter {
       };
   }
 
-  static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
-    const newSmartActionsPermissions = {};
-    Object.keys(smartActionsPermissions).forEach((actionName) => {
-      const action = smartActionsPermissions[actionName];
-      newSmartActionsPermissions[actionName] = {
-        triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
-      };
-    });
-    return newSmartActionsPermissions;
-  }
-
-  static _transformPermissionsFromOldToNewFormat(permissions) {
-    const newPermissions = {};
-
-    Object.keys(permissions).forEach((modelName) => {
-      const modelPermissions = permissions[modelName];
-      const { collection } = modelPermissions;
-
-      newPermissions[modelName] = {
-        collection: {
-          browseEnabled: collection.list || collection.searchToEdit,
-          readEnabled: collection.show,
-          editEnabled: collection.update,
-          addEnabled: collection.create,
-          deleteEnabled: collection.delete,
-          exportEnabled: collection.export,
-        },
-        scope: modelPermissions.scope,
-      };
-
-      if (modelPermissions.actions) {
-        newPermissions[modelName].actions = PermissionsGetter
-          ._transformActionsPermissionsFromOldToNewFormat(modelPermissions.actions);
-      }
-    });
-
-    return newPermissions;
-  }
-
   _setRenderingPermissions(renderingId, permissions, { environmentId } = {}) {
     const options = { environmentId, initIfNotExisting: true };
     if (!this._getPermissions(options).renderings) {
@@ -166,7 +128,7 @@ class PermissionsGetter {
       this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
       const newFormatPermissions = permissions
-        ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)
+        ? this.permissionsFormatter.transformPermissionsFromOldToNewFormat(permissions)
         : null;
       this._setRenderingPermissions(renderingId, newFormatPermissions, { environmentId });
     }

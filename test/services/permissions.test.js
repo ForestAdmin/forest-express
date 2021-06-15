@@ -610,7 +610,7 @@ describe('services > permissions', () => {
         it('should retrieve the permissions', async () => {
           expect.assertions(4);
           resetNock();
-          const { permissionsGetter } = context.inject();
+          const { permissionsGetter, permissionsFormatter } = context.inject();
           let lastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
           let retrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
 
@@ -644,8 +644,8 @@ describe('services > permissions', () => {
               lastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
 
               expect(lastRetrieve).not.toBeNull();
-              const permissionsInNewFormat = permissionsGetter.constructor
-                ._transformPermissionsFromOldToNewFormat(permissions.data);
+              const permissionsInNewFormat = permissionsFormatter
+                .transformPermissionsFromOldToNewFormat(permissions.data);
               expect(retrievedPermissions.data).toStrictEqual(permissionsInNewFormat);
             });
         });
@@ -655,7 +655,7 @@ describe('services > permissions', () => {
         it('should re-retrieve the permissions', async () => {
           expect.assertions(6);
           resetNock();
-          const { permissionsGetter } = context.inject();
+          const { permissionsGetter, permissionsFormatter } = context.inject();
           permissionsGetter.expirationInSeconds = 1;
 
           const intialLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
@@ -704,8 +704,8 @@ describe('services > permissions', () => {
 
           const firstRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
           const firstLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
-          const permissions1InNewFormat = permissionsGetter.constructor
-            ._transformPermissionsFromOldToNewFormat(permissions1.data);
+          const permissions1InNewFormat = permissionsFormatter
+            .transformPermissionsFromOldToNewFormat(permissions1.data);
 
           expect(firstRetrievedPermissions.data).toStrictEqual(permissions1InNewFormat);
           expect(firstLastRetrieve).not.toBeNull();
@@ -725,8 +725,8 @@ describe('services > permissions', () => {
             .then(() => {
               const secondRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
               const secondLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
-              const permissions2InNewFormat = permissionsGetter.constructor
-                ._transformPermissionsFromOldToNewFormat(permissions2.data);
+              const permissions2InNewFormat = permissionsFormatter
+                .transformPermissionsFromOldToNewFormat(permissions2.data);
 
               expect(secondRetrievedPermissions.data).toStrictEqual(permissions2InNewFormat);
               expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
@@ -738,7 +738,7 @@ describe('services > permissions', () => {
         it('should not re-retrieve the permissions', async () => {
           expect.assertions(6);
           resetNock();
-          const { permissionsGetter } = context.inject();
+          const { permissionsGetter, permissionsFormatter } = context.inject();
           permissionsGetter.expirationInSeconds = 1000;
 
           const intialLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
@@ -787,8 +787,8 @@ describe('services > permissions', () => {
 
           const firstRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
           const firstLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
-          const permissions1InNewFormat = permissionsGetter.constructor
-            ._transformPermissionsFromOldToNewFormat(permissions1.data);
+          const permissions1InNewFormat = permissionsFormatter
+            .transformPermissionsFromOldToNewFormat(permissions1.data);
 
           expect(firstRetrievedPermissions.data).toStrictEqual(permissions1InNewFormat);
           expect(firstLastRetrieve).not.toBeNull();

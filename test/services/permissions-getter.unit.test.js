@@ -7,6 +7,7 @@ describe('services > PermissionsGetter', () => {
     env: {},
     configStore: {},
     forestServerRequester: {},
+    permissionsFormatter: {},
     moment,
     VError,
   };
@@ -169,19 +170,24 @@ describe('services > PermissionsGetter', () => {
           },
         };
 
-        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          permissionsFormatter: {
+            transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+          },
+        });
+
         permissionsGetter.isRolesACLActivated = true;
 
         jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
-        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         permissionsGetter._setPermissions(1, permissions);
         expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._setRolesACLPermissions)
           .toHaveBeenCalledWith(1, permissions, { environmentId: undefined });
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
-
-        jest.restoreAllMocks();
+        expect(mockTransformPermissionsFromOldToNewFormat)
+          .not.toHaveBeenCalled();
       });
 
       describe('with environmentId', () => {
@@ -196,17 +202,24 @@ describe('services > PermissionsGetter', () => {
             },
           };
 
-          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+          const permissionsGetter = new PermissionsGetter({
+            ...defaultDependencies,
+            permissionsFormatter: {
+              transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+            },
+          });
+
           permissionsGetter.isRolesACLActivated = true;
 
           jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
-          jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
           permissionsGetter._setPermissions(1, permissions, { environmentId });
           expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
           expect(permissionsGetter._setRolesACLPermissions)
             .toHaveBeenCalledWith(1, permissions, { environmentId });
-          expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
+          expect(mockTransformPermissionsFromOldToNewFormat)
+            .not.toHaveBeenCalled();
 
           jest.restoreAllMocks();
         });
@@ -227,17 +240,24 @@ describe('services > PermissionsGetter', () => {
             queries: ['someQuery'],
           };
 
-          const permissionsGetter = new PermissionsGetter(defaultDependencies);
+          const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+          const permissionsGetter = new PermissionsGetter({
+            ...defaultDependencies,
+            permissionsFormatter: {
+              transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+            },
+          });
+
           permissionsGetter.isRolesACLActivated = true;
 
           jest.spyOn(permissionsGetter, '_setRolesACLPermissions');
-          jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
           permissionsGetter._setPermissions(1, permissions, { environmentId }, stats);
           expect(permissionsGetter._setRolesACLPermissions).toHaveBeenCalledTimes(1);
           expect(permissionsGetter._setRolesACLPermissions)
             .toHaveBeenCalledWith(1, permissions, { environmentId });
-          expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).not.toHaveBeenCalled();
+          expect(mockTransformPermissionsFromOldToNewFormat)
+            .not.toHaveBeenCalled();
 
           const renderingPermissions = permissionsGetter
             ._getPermissionsInRendering(1, { environmentId }).data;
@@ -295,11 +315,17 @@ describe('services > PermissionsGetter', () => {
 
         const permissions = {};
 
-        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          permissionsFormatter: {
+            transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+          },
+        });
+
         permissionsGetter.isRolesACLActivated = false;
         jest.spyOn(permissionsGetter, '_setRenderingPermissions');
         jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
-        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         permissionsGetter._setPermissions(1, permissions);
 
@@ -307,8 +333,9 @@ describe('services > PermissionsGetter', () => {
         expect(permissionsGetter._setRenderingPermissions)
           .toHaveBeenCalledWith(1, permissions, { environmentId: undefined });
         expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
+        expect(mockTransformPermissionsFromOldToNewFormat)
+          .toHaveBeenCalledTimes(1);
+        expect(mockTransformPermissionsFromOldToNewFormat)
           .toHaveBeenCalledWith(permissions);
 
         jest.restoreAllMocks();
@@ -322,11 +349,17 @@ describe('services > PermissionsGetter', () => {
         const environmentId = 100;
         const permissions = {};
 
-        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          permissionsFormatter: {
+            transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+          },
+        });
+
         permissionsGetter.isRolesACLActivated = false;
         jest.spyOn(permissionsGetter, '_setRenderingPermissions');
         jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
-        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         permissionsGetter._setPermissions(1, permissions, { environmentId });
 
@@ -334,8 +367,9 @@ describe('services > PermissionsGetter', () => {
         expect(permissionsGetter._setRenderingPermissions)
           .toHaveBeenCalledWith(1, permissions, { environmentId });
         expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
+        expect(mockTransformPermissionsFromOldToNewFormat)
+          .toHaveBeenCalledTimes(1);
+        expect(mockTransformPermissionsFromOldToNewFormat)
           .toHaveBeenCalledWith(permissions);
 
         jest.restoreAllMocks();
@@ -352,19 +386,24 @@ describe('services > PermissionsGetter', () => {
           queries: ['someQuery'],
         };
 
-        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          permissionsFormatter: {
+            transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+          },
+        });
+
         permissionsGetter.isRolesACLActivated = false;
         jest.spyOn(permissionsGetter, '_setRenderingPermissions');
         jest.spyOn(permissionsGetter, '_setCollectionsPermissions');
-        jest.spyOn(PermissionsGetter, '_transformPermissionsFromOldToNewFormat');
 
         permissionsGetter._setPermissions(1, permissions, { environmentId }, stats);
 
         expect(permissionsGetter._setRenderingPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsGetter._setCollectionsPermissions).not.toHaveBeenCalled();
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
-        expect(PermissionsGetter._transformPermissionsFromOldToNewFormat)
-          .toHaveBeenCalledWith(permissions);
+        expect(mockTransformPermissionsFromOldToNewFormat).toHaveBeenCalledTimes(1);
+        expect(mockTransformPermissionsFromOldToNewFormat).toHaveBeenCalledWith(permissions);
 
         const renderingPermissions = permissionsGetter
           ._getPermissionsInRendering(1, { environmentId }).data;
@@ -386,7 +425,13 @@ describe('services > PermissionsGetter', () => {
           queries: ['someOtherQuery'],
         };
 
-        const permissionsGetter = new PermissionsGetter(defaultDependencies);
+        const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
+        const permissionsGetter = new PermissionsGetter({
+          ...defaultDependencies,
+          permissionsFormatter: {
+            transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
+          },
+        });
         permissionsGetter.isRolesACLActivated = false;
 
 
@@ -679,6 +724,8 @@ describe('services > PermissionsGetter', () => {
           data: {},
           meta: {},
         };
+
+        const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
         const mockForestServerRequesterPerform = jest.fn(async () => fakeResponse);
         const permissionsGetter = new PermissionsGetter({
           ...defaultDependencies,
@@ -689,6 +736,9 @@ describe('services > PermissionsGetter', () => {
           },
           forestServerRequester: {
             perform: mockForestServerRequesterPerform,
+          },
+          permissionsFormatter: {
+            transformPermissionsFromOldToNewFormat: mockTransformPermissionsFromOldToNewFormat,
           },
         });
 
