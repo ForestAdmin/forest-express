@@ -1,9 +1,10 @@
 class PermissionsGetter {
   constructor({
-    configStore, env, forestServerRequester, moment, VError,
+    configStore, env, permissionsFormatter, forestServerRequester, moment, VError,
   }) {
     this.configStore = configStore;
     this.forestServerRequester = forestServerRequester;
+    this.permissionsFormatter = permissionsFormatter;
     this.moment = moment;
     this.VError = VError;
 
@@ -72,59 +73,24 @@ class PermissionsGetter {
       : null;
   }
 
-  _getStatsPermissions({ environmentId } = {}) {
-    const defaultStatsPermissions = {
-      queries: [],
-      leaderboards: [],
-      lines: [],
-      objectives: [],
-      percentages: [],
-      pies: [],
-      values: [],
-    };
+  _getStatsPermissions(renderingId, { environmentId } = {}) {
+    const getPermissionsInRendering = this._getPermissionsInRendering(
+      renderingId, { environmentId },
+    );
 
-    const { stats = defaultStatsPermissions } = this._getPermissions({ environmentId });
-
-    return stats;
-  }
-
-  static _transformActionsPermissionsFromOldToNewFormat(smartActionsPermissions) {
-    const newSmartActionsPermissions = {};
-    Object.keys(smartActionsPermissions).forEach((actionName) => {
-      const action = smartActionsPermissions[actionName];
-      newSmartActionsPermissions[actionName] = {
-        triggerEnabled: action.users ? action.allowed && action.users : action.allowed,
+    return getPermissionsInRendering
+      && getPermissionsInRendering.data
+      && getPermissionsInRendering.data.stats
+      ? getPermissionsInRendering.data.stats
+      : {
+        queries: [],
+        leaderboards: [],
+        lines: [],
+        objectives: [],
+        percentages: [],
+        pies: [],
+        values: [],
       };
-    });
-    return newSmartActionsPermissions;
-  }
-
-  static _transformPermissionsFromOldToNewFormat(permissions) {
-    const newPermissions = {};
-
-    Object.keys(permissions).forEach((modelName) => {
-      const modelPermissions = permissions[modelName];
-      const { collection } = modelPermissions;
-
-      newPermissions[modelName] = {
-        collection: {
-          browseEnabled: collection.list || collection.searchToEdit,
-          readEnabled: collection.show,
-          editEnabled: collection.update,
-          addEnabled: collection.create,
-          deleteEnabled: collection.delete,
-          exportEnabled: collection.export,
-        },
-        scope: modelPermissions.scope,
-      };
-
-      if (modelPermissions.actions) {
-        newPermissions[modelName].actions = PermissionsGetter
-          ._transformActionsPermissionsFromOldToNewFormat(modelPermissions.actions);
-      }
-    });
-
-    return newPermissions;
   }
 
   _setRenderingPermissions(renderingId, permissions, { environmentId } = {}) {
@@ -145,11 +111,6 @@ class PermissionsGetter {
     };
   }
 
-  _setStatsPermissions(permissions, { environmentId } = {}) {
-    this._getPermissions({ environmentId, initIfNotExisting: true })
-      .stats = permissions;
-  }
-
   _setRolesACLPermissions(renderingId, permissions, { environmentId } = {}) {
     this._setCollectionsPermissions(permissions.collections, { environmentId });
     if (permissions.renderings && permissions.renderings[renderingId]) {
@@ -161,15 +122,20 @@ class PermissionsGetter {
 
   // In the teamACL format, all the permissions are stored by renderingId into "renderings".
   // For the rolesACL format, the collections permissions are stored directly into "collections",
-  // and only their scopes are stored by renderingId into "renderings".
-  _setPermissions(renderingId, permissions, { environmentId } = {}) {
+  // and only their scopes and stats are stored by renderingId into "renderings".
+  _setPermissions(renderingId, permissions, { environmentId } = {}, stats) {
     if (this.isRolesACLActivated) {
       this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
       const newFormatPermissions = permissions
-        ? PermissionsGetter._transformPermissionsFromOldToNewFormat(permissions)
+        ? this.permissionsFormatter.transformPermissionsFromOldToNewFormat(permissions)
         : null;
       this._setRenderingPermissions(renderingId, newFormatPermissions, { environmentId });
+    }
+
+    // NOTICE: Add stats permissions to the RenderingPermissions
+    if (stats) {
+      this._getPermissionsInRendering(renderingId, { environmentId }).data.stats = stats;
     }
   }
 
@@ -225,31 +191,43 @@ class PermissionsGetter {
       && this._isPermissionExpired(lastRetrieve);
   }
 
+  async _handleRetrieve(
+    responseBody,
+    renderingId,
+    renderingOnly,
+    environmentId,
+  ) {
+    this.isRolesACLActivated = responseBody.meta
+      ? responseBody.meta.rolesACLActivated
+      : false;
+
+    if (!responseBody.data) return null;
+
+    if (renderingOnly) {
+      return responseBody.data.renderings
+        ? this._setRenderingPermissions(
+          renderingId,
+          { stats: responseBody.stats, ...responseBody.data.renderings[renderingId] },
+          { environmentId },
+        )
+        : null;
+    }
+
+    return this._setPermissions(
+      renderingId,
+      responseBody.data,
+      { environmentId },
+      responseBody.stats,
+    );
+  }
+
   async _retrievePermissions(renderingId, { renderingOnly = false, environmentId } = {}) {
     const queryParams = { renderingId };
     if (renderingOnly) queryParams.renderingSpecificOnly = true;
 
     return this.forestServerRequester
       .perform('/liana/v3/permissions', this.environmentSecret, queryParams)
-      .then((responseBody) => {
-        this.isRolesACLActivated = responseBody.meta
-          ? responseBody.meta.rolesACLActivated
-          : false;
-
-        if (!responseBody.data) return null;
-
-        // NOTICE: Addtional permissions - live queries, stats parameters
-        this._setStatsPermissions(responseBody.stats, { environmentId });
-
-        if (renderingOnly) {
-          return responseBody.data.renderings
-            ? this._setRenderingPermissions(
-              renderingId, responseBody.data.renderings[renderingId], { environmentId },
-            )
-            : null;
-        }
-        return this._setPermissions(renderingId, responseBody.data, { environmentId });
-      })
+      .then((res) => this._handleRetrieve(res, renderingId, renderingOnly, environmentId))
       .catch((error) => Promise.reject(new this.VError(error, 'Permissions error')));
   }
 
@@ -271,7 +249,7 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
-    const stats = this._getStatsPermissions({ environmentId });
+    const stats = this._getStatsPermissions(renderingId, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,

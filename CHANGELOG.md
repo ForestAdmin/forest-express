@@ -1,9 +1,41 @@
-# [9.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.5...v9.0.0-beta.6) (2021-06-10)
+## [8.7.3](https://github.com/ForestAdmin/forest-express/compare/v8.7.2...v8.7.3) (2021-06-16)
 
 
 ### Bug Fixes
 
+* stats permissions should be retrieved only one time per team ([#741](https://github.com/ForestAdmin/forest-express/issues/741)) ([8d05d75](https://github.com/ForestAdmin/forest-express/commit/8d05d757992c11c7b7a2ce3b4465a54e2430e755))
+
+## [8.7.2](https://github.com/ForestAdmin/forest-express/compare/v8.7.1...v8.7.2) (2021-06-15)
+
+
+### Bug Fixes
+
+* **intercom:** fix date conversion from unix timestamp to js date of intercom attributes ([#742](https://github.com/ForestAdmin/forest-express/issues/742)) ([97fa090](https://github.com/ForestAdmin/forest-express/commit/97fa09016f8c99bb75532c2272e7ba202f7054d4))
+
+# [9.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.5...v9.0.0-beta.6) (2021-06-10)
+
+### Bug Fixes
+
 * remove breaking change on smart action middleware ([#739](https://github.com/ForestAdmin/forest-express/issues/739)) ([b2a8f74](https://github.com/ForestAdmin/forest-express/commit/b2a8f74206054642f32b6e4cdd207f2c8bb67cf1))
+
+## [8.7.1](https://github.com/ForestAdmin/forest-express/compare/v8.7.0...v8.7.1) (2021-06-10)
+
+
+### Bug Fixes
+
+* correctly get the IP address from the request headers ([#731](https://github.com/ForestAdmin/forest-express/issues/731)) ([f2b5905](https://github.com/ForestAdmin/forest-express/commit/f2b59052219e13ece21b81d53f1381777407bd66))
+
+* prevent IP check from failing for the proxies including the port in the headers ([#738](https://github.com/ForestAdmin/forest-express/issues/738)) ([810d0c1](https://github.com/ForestAdmin/forest-express/commit/810d0c1e013d9ec3e2af201f1b53bd125eb6af2f))
+
+# [8.7.0](https://github.com/ForestAdmin/forest-express/compare/v8.6.1...v8.7.0) (2021-06-09)
+
+
+### Features
+
+* **schema:** add embedded key stack into meta of the forestadmin schema ([#724](https://github.com/ForestAdmin/forest-express/issues/724)) ([5ff5a12](https://github.com/ForestAdmin/forest-express/commit/5ff5a12a267f97166753ef51142ad98d82788235))
+
+* include role in the user data inside the request ([#733](https://github.com/ForestAdmin/forest-express/issues/733)) ([e74ce72](https://github.com/ForestAdmin/forest-express/commit/e74ce724d80102387a2b5dd2d80581126fc66fee))
+
 
 # [9.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.4...v9.0.0-beta.5) (2021-06-07)
 
@@ -32,14 +64,12 @@
 # [9.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.2...v9.0.0-beta.3) (2021-06-04)
 
 
+# [9.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.1...v9.0.0-beta.2) (2021-06-03)
+
 ### Bug Fixes
 
-* correctly get the IP address from the request headers ([#731](https://github.com/ForestAdmin/forest-express/issues/731)) ([f2b5905](https://github.com/ForestAdmin/forest-express/commit/f2b59052219e13ece21b81d53f1381777407bd66))
+* update record getter usage in action route to use global scope ([#730](https://github.com/ForestAdmin/forest-express/issues/730)) ([b92f158](https://github.com/ForestAdmin/forest-express/commit/b92f158055e7f7f33a279ea2095eb00adf3b6a06))
 
-
-### Features
-
-* **schema:** add embedded key stack into meta of the forestadmin schema ([#724](https://github.com/ForestAdmin/forest-express/issues/724)) ([5ff5a12](https://github.com/ForestAdmin/forest-express/commit/5ff5a12a267f97166753ef51142ad98d82788235))
 
 ## [8.6.1](https://github.com/ForestAdmin/forest-express/compare/v8.6.0...v8.6.1) (2021-06-03)
 
@@ -47,13 +77,6 @@
 ### Bug Fixes
 
 * correctly get the IP address from the request headers ([#731](https://github.com/ForestAdmin/forest-express/issues/731)) ([f2b5905](https://github.com/ForestAdmin/forest-express/commit/f2b59052219e13ece21b81d53f1381777407bd66))
-
-# [9.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.1...v9.0.0-beta.2) (2021-06-03)
-
-
-### Bug Fixes
-
-* update record getter usage in action route to use global scope ([#730](https://github.com/ForestAdmin/forest-express/issues/730)) ([b92f158](https://github.com/ForestAdmin/forest-express/commit/b92f158055e7f7f33a279ea2095eb00adf3b6a06))
 
 # [8.6.0](https://github.com/ForestAdmin/forest-express/compare/v8.5.2...v8.6.0) (2021-06-02)
 
