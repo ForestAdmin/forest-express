@@ -1,3 +1,10 @@
+## [8.7.3](https://github.com/ForestAdmin/forest-express/compare/v8.7.2...v8.7.3) (2021-06-16)
+
+
+### Bug Fixes
+
+* stats permissions should be retrieved only one time per team ([#741](https://github.com/ForestAdmin/forest-express/issues/741)) ([8d05d75](https://github.com/ForestAdmin/forest-express/commit/8d05d757992c11c7b7a2ce3b4465a54e2430e755))
+
 ## [8.7.2](https://github.com/ForestAdmin/forest-express/compare/v8.7.1...v8.7.2) (2021-06-15)
 
 
