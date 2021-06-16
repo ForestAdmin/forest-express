@@ -249,7 +249,7 @@ class PermissionsGetter {
       renderingId, collectionName, { environmentId },
     );
     const segments = this._getSegmentsPermissions(renderingId, collectionName, { environmentId });
-    const stats = this._getStatsPermissions({ environmentId });
+    const stats = this._getStatsPermissions(renderingId, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
