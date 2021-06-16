@@ -52,6 +52,7 @@ class PermissionsChecker {
       case 'actions':
         return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
       case 'browseEnabled':
+        console.log('browseEnabled CHECKING', JSON.stringify(permissions));
         return PermissionsChecker
           ._isCollectionBrowseAllowed(permissions.collection, permissionInfos);
       case 'liveQueries':
