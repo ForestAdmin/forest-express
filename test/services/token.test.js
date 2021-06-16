@@ -50,6 +50,7 @@ describe('token service', () => {
       first_name: 'Alice',
       last_name: 'Doe',
       teams: [1, 2, 4],
+      role: 'Test',
     };
 
     const result = tokenService.createToken(
@@ -65,6 +66,7 @@ describe('token service', () => {
       firstName: 'Alice',
       lastName: 'Doe',
       team: 1,
+      role: 'Test',
       renderingId: 42,
     },
     'THIS IS SECRET',

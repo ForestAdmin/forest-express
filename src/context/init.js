@@ -25,6 +25,7 @@ const baseFilterParser = require('../services/base-filters-parser');
 const ConfigStore = require('../services/config-store');
 const PermissionsChecker = require('../services/permissions-checker');
 const PermissionsGetter = require('../services/permissions-getter');
+const permissionsFormatter = require('../services/permissions-formatter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const ScopeManager = require('../services/scope-manager');
 const SmartActionFieldValidator = require('../services/smart-action-field-validator');
@@ -133,6 +134,7 @@ function initServices(context) {
   context.addInstance('forestServerRequester', forestServerRequester);
   context.addInstance('schemasGenerator', schemasGenerator);
   context.addInstance('baseFilterParser', baseFilterParser);
+  context.addInstance('permissionsFormatter', permissionsFormatter);
   context.addClass(ProjectDirectoryFinder);
   context.addClass(ConfigStore);
   context.addClass(PermissionsGetter);
