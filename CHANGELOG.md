@@ -1,3 +1,17 @@
+# [9.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.6...v9.0.0-beta.7) (2021-06-16)
+
+
+### Bug Fixes
+
+* stats permissions should be retrieved only one time per team ([#741](https://github.com/ForestAdmin/forest-express/issues/741)) ([8d05d75](https://github.com/ForestAdmin/forest-express/commit/8d05d757992c11c7b7a2ce3b4465a54e2430e755))
+* **intercom:** fix date conversion from unix timestamp to js date of intercom attributes ([#742](https://github.com/ForestAdmin/forest-express/issues/742)) ([97fa090](https://github.com/ForestAdmin/forest-express/commit/97fa09016f8c99bb75532c2272e7ba202f7054d4))
+* prevent IP check from failing for the proxies including the port in the headers ([#738](https://github.com/ForestAdmin/forest-express/issues/738)) ([810d0c1](https://github.com/ForestAdmin/forest-express/commit/810d0c1e013d9ec3e2af201f1b53bd125eb6af2f))
+
+
+### Features
+
+* include role in the user data inside the request ([#733](https://github.com/ForestAdmin/forest-express/issues/733)) ([e74ce72](https://github.com/ForestAdmin/forest-express/commit/e74ce724d80102387a2b5dd2d80581126fc66fee))
+
 ## [8.7.3](https://github.com/ForestAdmin/forest-express/compare/v8.7.2...v8.7.3) (2021-06-16)
 
 
