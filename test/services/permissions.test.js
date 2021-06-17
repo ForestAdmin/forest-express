@@ -1402,4 +1402,90 @@ describe('services > permissions', () => {
       });
     });
   });
+
+  describe('with segments permissions', () => {
+    describe('if the segment is not allowed to be executed', () => {
+      it('should return a rejected promise', async () => {
+        expect.assertions(1);
+
+        resetAndClearCache();
+        nock.cleanAll();
+        nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
+          meta: { rolesACLActivated: false },
+          data: {
+            products: {
+              collection: {
+                list: true,
+              },
+            },
+          },
+        });
+
+        const permissionInfos = { userId: 1, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
+        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'products', 'browseEnabled', permissionInfos))
+          .rejects.toThrow("'browseEnabled' access forbidden on products");
+        nockObj.persist(false);
+      });
+    });
+
+    describe('if the segment query is allowed', () => {
+      describe('on not rolesACLActivated (OLD permissions)', () => {
+        it('should return a resolved promise', async () => {
+          expect.assertions(1);
+
+          resetAndClearCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
+            meta: { rolesACLActivated: false },
+            data: {
+              products: {
+                collection: {
+                  list: true,
+                },
+                segments: ['SELECT COUNT(*) AS value FROM products;'],
+              },
+            },
+          });
+
+          const permissionInfos = { userId: 1, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
+          await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'products', 'browseEnabled', permissionInfos))
+            .toResolve();
+        });
+      });
+      describe('on rolesACLActivated', () => {
+        it('should return a resolved promise', async () => {
+          expect.assertions(1);
+
+          resetAndClearCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
+            meta: { rolesACLActivated: true },
+            data: {
+              collections: {
+                products: {
+                  collection: {
+                    addEnabled: false,
+                    browseEnabled: true,
+                    deleteEnabled: false,
+                    editEnabled: false,
+                    exportEnabled: false,
+                    readEnabled: false,
+                  },
+                },
+              },
+              renderings: {
+                1: {
+                  products: { segments: ['SELECT COUNT(*) AS value FROM products;'] },
+                },
+              },
+            },
+          });
+
+          const permissionInfos = { userId: 1, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
+          await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'products', 'browseEnabled', permissionInfos))
+            .toResolve();
+        });
+      });
+    });
+  });
 });
