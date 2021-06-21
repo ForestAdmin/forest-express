@@ -1,5 +1,6 @@
 const ApplicationContext = require('../../src/context/application-context');
 const ActionsRoutes = require('../../src/routes/actions');
+const SmartActionHookDeserializer = require('../../src/deserializers/smart-action-hook');
 
 function initContext(schemas, smartActionHookGetResponse) {
   const context = new ApplicationContext();
@@ -14,6 +15,7 @@ function initContext(schemas, smartActionHookGetResponse) {
     })
     .addInstance('schemasGenerator', { schemas })
     .addInstance('smartActionHook', { getResponse: smartActionHookGetResponse })
+    .addInstance('smartActionHookDeserializer', new SmartActionHookDeserializer())
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })
     .addValue('implementation', { getModelName: jest.fn((m) => m.name) })
@@ -21,7 +23,7 @@ function initContext(schemas, smartActionHookGetResponse) {
   return context;
 }
 
-async function callHook(hooks, smartActionHookGetResponse, requestBody) {
+async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttributes) {
   const schemas = {
     users: {
       actions: [{
@@ -35,7 +37,13 @@ async function callHook(hooks, smartActionHookGetResponse, requestBody) {
     actions, model, app, logger,
   } = initContext(schemas, smartActionHookGetResponse).inject();
 
-  const request = { body: requestBody || { recordIds: [1] }, query: { timezone: 'Europe/Paris' }, user: { id: 1 } };
+  const body = {
+    data: {
+      attributes: requestBodyDataAttributes || { ids: [1] },
+    },
+  };
+
+  const request = { body, query: { timezone: 'Europe/Paris' }, user: { id: 1 } };
   const send = jest.fn((values) => values);
   const response = { status: jest.fn(() => ({ send })) };
   const perform = jest.fn(() => ({ id: 1, name: 'Jane' }));
@@ -256,7 +264,7 @@ describe('routes > actions', () => {
           const { schema } = await callHook(
             { change: { foo: jest.fn() } },
             smartActionHookGetResponse,
-            { recordIds: [1], fields: [{ field: 'invoice number', type: 'String' }], changedField: 'this field does not exist' },
+            { ids: [1], fields: [{ field: 'invoice number', type: 'String' }], changed_field: 'this field does not exist' },
           );
 
           expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
@@ -285,9 +293,9 @@ describe('routes > actions', () => {
             { change },
             smartActionHookGetResponse,
             {
-              recordIds: [1],
+              ids: [1],
               fields: [field],
-              changedField: 'foo',
+              changed_field: 'foo',
             },
           );
 
@@ -312,7 +320,7 @@ describe('routes > actions', () => {
             { change },
             smartActionHookGetResponse,
             {
-              recordIds: [1],
+              ids: [1],
               fields: [field],
             },
           );
@@ -343,7 +351,7 @@ describe('routes > actions', () => {
             { change },
             smartActionHookGetResponse,
             {
-              recordIds: [1],
+              ids: [1],
               fields: [field],
             },
           );
