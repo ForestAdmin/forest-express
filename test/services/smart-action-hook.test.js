@@ -58,7 +58,7 @@ describe('services > smart-action-hook', () => {
         1,
         {
           fields: [{ ...field, value: null }],
-          record: {},
+          request: {},
           changedField: null,
         },
       );
@@ -92,7 +92,7 @@ describe('services > smart-action-hook', () => {
             1,
             {
               fields,
-              record: {},
+              request: {},
               changedField: null,
             },
           );
@@ -127,7 +127,7 @@ describe('services > smart-action-hook', () => {
               1,
               {
                 fields,
-                record: {},
+                request: {},
                 changedField: null,
               },
             );
@@ -212,7 +212,7 @@ describe('services > smart-action-hook', () => {
             1,
             {
               fields,
-              record: {},
+              request: {},
               changedField: null,
             },
           );

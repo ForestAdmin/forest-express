@@ -61,7 +61,7 @@ async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttrib
   await callback(request, response);
 
   return {
-    send, response, model, implementation, logger, schema,
+    send, response, model, implementation, logger, schema, request,
   };
 }
 
@@ -191,24 +191,18 @@ describe('routes > actions', () => {
 
       describe('when calling the route controller', () => {
         it('should call the load hook service', async () => {
-          expect.assertions(2);
+          expect.assertions(1);
 
           const load = jest.fn();
           const smartActionHookGetResponse = jest.fn();
-          const {
-            model,
-            implementation,
-            schema,
-          } = await callHook({ load }, smartActionHookGetResponse);
+          const { schema, request } = await callHook({ load }, smartActionHookGetResponse);
 
-          expect(implementation.ResourceGetter)
-            .toHaveBeenNthCalledWith(1, model, { recordId: 1, timezone: 'Europe/Paris' }, { id: 1 });
           expect(smartActionHookGetResponse).toHaveBeenNthCalledWith(
             1,
             schema.actions[0],
             load,
             [{ field: 'invoice number', type: 'String' }],
-            { id: 1, name: 'Jane' },
+            request,
           );
         });
 
@@ -261,7 +255,7 @@ describe('routes > actions', () => {
           expect.assertions(1);
 
           const smartActionHookGetResponse = jest.fn();
-          const { schema } = await callHook(
+          const { schema, request } = await callHook(
             { change: { foo: jest.fn() } },
             smartActionHookGetResponse,
             { ids: [1], fields: [{ field: 'invoice number', type: 'String' }], changed_field: 'this field does not exist' },
@@ -272,13 +266,13 @@ describe('routes > actions', () => {
             schema.actions[0],
             undefined,
             [{ field: 'invoice number', type: 'String' }],
-            { id: 1, name: 'Jane' },
+            request,
             undefined,
           );
         });
 
         it('should call the change hook service', async () => {
-          expect.assertions(2);
+          expect.assertions(1);
 
           const smartActionHookGetResponse = jest.fn();
           const field = {
@@ -289,7 +283,7 @@ describe('routes > actions', () => {
             hook: 'foo',
           };
           const change = { bar: jest.fn(), foo: jest.fn(), baz: jest.fn() };
-          const { implementation, model, schema } = await callHook(
+          const { schema, request } = await callHook(
             { change },
             smartActionHookGetResponse,
             {
@@ -299,10 +293,8 @@ describe('routes > actions', () => {
             },
           );
 
-          expect(implementation.ResourceGetter)
-            .toHaveBeenNthCalledWith(1, model, { recordId: 1, timezone: 'Europe/Paris' }, { id: 1 });
           expect(smartActionHookGetResponse)
-            .toHaveBeenNthCalledWith(1, schema.actions[0], change.foo, [field], { id: 1, name: 'Jane' }, field);
+            .toHaveBeenNthCalledWith(1, schema.actions[0], change.foo, [field], request, field);
         });
 
         it('should fail with message when change hook service throws', async () => {
