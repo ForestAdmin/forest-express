@@ -21,30 +21,6 @@ class Actions {
   }
 
   /**
-   * Generate a callback for express that handles the `values` route.
-   * This legacy route is used to handle smart actions' forms initialization.
-   * Users should use the `load` hook now.
-   *
-   * @param {Object} action The smart action
-   * @returns {Function} A route callback for express
-   */
-  getValuesController(action) {
-    return (request, response) => {
-      const successResponse = (object) => response.status(200).send(object);
-      const values = action.values ? action.values(request.body.data.attributes.values) : {};
-
-      if (!(values.then && typeof values.then === 'function')) return successResponse(values);
-
-      return values
-        .then((valuesComputed) => successResponse(valuesComputed))
-        .catch((error) => {
-          this.logger.error(`Cannot send the values of the "${action.name}" Smart Actions because of an unexpected error: `, error);
-          return successResponse({});
-        });
-    };
-  }
-
-  /**
    * Generate a callback for express that handles the `load` hook.
    *
    * @param {Object} action The smart action
@@ -124,15 +100,6 @@ class Actions {
       this.app.post(route, this.auth.ensureAuthenticated, controller);
 
     actions.forEach((action) => {
-      // Create a `values` routes for smart actions.
-      // One route is created for each action which have a `values` property.
-      if (action.values) {
-        this.logger.warn('DEPRECATION WARNING: Declaring `values` in a Smart Action is deprecated. Please use `load` hook.');
-        createDynamicRoute(
-          this.getRoute(action, 'values', this.options),
-          this.getValuesController(action),
-        );
-      }
       // Create a `load` routes for smart actions.
       // One route is created for each action which have a `hooks.load` property.
       if (action.hooks && action.hooks.load) {
