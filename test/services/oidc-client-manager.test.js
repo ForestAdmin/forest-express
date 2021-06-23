@@ -21,11 +21,17 @@ describe('service > OidcClientManager', () => {
       error: jest.fn(),
     };
 
+    const configStore = {
+      lianaOptions: {
+      },
+    };
+
     const oidcClientManager = new OidcClientManagerService({
       openIdClient,
       oidcConfigurationRetrieverService,
       env,
       logger,
+      configStore,
     });
 
     return {
@@ -35,6 +41,7 @@ describe('service > OidcClientManager', () => {
       issuer,
       env,
       logger,
+      configStore,
     };
   }
   describe('getClientForCallbackUrl', () => {
@@ -60,6 +67,32 @@ describe('service > OidcClientManager', () => {
         redirect_uris: ['https://here.local'],
       }, {
         initialAccessToken: 'the-secret',
+      });
+    });
+
+    it('should use the envSecret from lianaOptions', async () => {
+      expect.assertions(2);
+
+      const {
+        oidcClientManager, oidcConfigurationRetrieverService, issuer, configStore, env,
+      } = setupTest();
+
+      env.FOREST_ENV_SECRET = undefined;
+      configStore.lianaOptions.envSecret = 'secret-from-options';
+
+      const configuration = { issuer: 'forest admin' };
+      const newClient = { client_id: 'the-id' };
+      oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
+      issuer.Client.register.mockReturnValue(Promise.resolve(newClient));
+
+      const result = await oidcClientManager.getClientForCallbackUrl('https://here.local');
+
+      expect(result).toBe(newClient);
+      expect(issuer.Client.register).toHaveBeenCalledWith({
+        token_endpoint_auth_method: 'none',
+        redirect_uris: ['https://here.local'],
+      }, {
+        initialAccessToken: 'secret-from-options',
       });
     });
 
