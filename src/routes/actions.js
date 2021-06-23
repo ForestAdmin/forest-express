@@ -45,38 +45,6 @@ class Actions {
   }
 
   /**
-   * @param {Number} recordId
-   */
-  async getRecord(recordId, timezone, user) {
-    return this.model
-      ? new this.implementation.ResourceGetter(this.model, { recordId, timezone }, user).perform()
-      : { id: recordId };
-  }
-
-  /**
-   * Generic hook controller.
-   *
-   * @param {Object} request the express.js request object
-   * @param {Object} response the express.js response object
-   * @param {Function} hook returns the response thanks to smartActionHook service
-   * @returns {*} the express.js response object
-   * @see getHookLoadController and getHookChangeController
-   */
-  async getHook(data, query, user, response, hook) {
-    const [recordId] = data.recordIds;
-    const record = await this.getRecord(recordId, query.timezone, user);
-
-    try {
-      const updatedFields = await hook(record);
-
-      return response.status(200).send({ fields: updatedFields });
-    } catch (error) {
-      this.logger.error('Error in smart action hook: ', error);
-      return response.status(500).send({ message: error.message });
-    }
-  }
-
-  /**
    * Generate a callback for express that handles the `load` hook.
    *
    * @param {Object} action The smart action
@@ -84,19 +52,19 @@ class Actions {
    */
   getHookLoadController(action) {
     return async (request, response) => {
-      const data = this.smartActionHookDeserializer.deserialize(request.body);
-      return this.getHook(
-        data,
-        request.query,
-        request.user,
-        response,
-        async (record) => this.smartActionHook.getResponse(
+      try {
+        const loadedFields = await this.smartActionHook.getResponse(
           action,
           action.hooks.load,
           action.fields,
-          record,
-        ),
-      );
+          request,
+        );
+
+        return response.status(200).send({ fields: loadedFields });
+      } catch (error) {
+        this.logger.error('Error in smart load action hook: ', error);
+        return response.status(500).send({ message: error.message });
+      }
     };
   }
 
@@ -108,25 +76,25 @@ class Actions {
    */
   getHookChangeController(action) {
     return async (request, response) => {
-      const data = this.smartActionHookDeserializer.deserialize(request.body);
-      return this.getHook(
-        data,
-        request.query,
-        request.user,
-        response,
-        async (record) => {
-          const { fields, changedField } = data;
-          const fieldChanged = fields.find((field) => field.field === changedField);
+      try {
+        const data = this.smartActionHookDeserializer.deserialize(request.body);
 
-          return this.smartActionHook.getResponse(
-            action,
-            action.hooks.change[fieldChanged?.hook],
-            fields,
-            record,
-            fieldChanged,
-          );
-        },
-      );
+        const { fields, changedField } = data;
+        const fieldChanged = fields.find((field) => field.field === changedField);
+
+        const updatedFields = await this.smartActionHook.getResponse(
+          action,
+          action.hooks.change[fieldChanged?.hook],
+          fields,
+          request,
+          fieldChanged,
+        );
+
+        return response.status(200).send({ fields: updatedFields });
+      } catch (error) {
+        this.logger.error('Error in smart action change hook: ', error);
+        return response.status(500).send({ message: error.message });
+      }
     };
   }
 
