@@ -21,12 +21,13 @@ class OidcClientManagerService {
    * @param {import('../context/init').Context} dependencies
    */
   constructor({
-    oidcConfigurationRetrieverService, openIdClient, env, logger,
+    oidcConfigurationRetrieverService, openIdClient, env, logger, configStore,
   }) {
     this.oidcConfigurationRetrieverService = oidcConfigurationRetrieverService;
     this.openIdClient = openIdClient;
     this.env = env;
     this.logger = logger;
+    this.configStore = configStore;
   }
 
   /**
@@ -37,7 +38,12 @@ class OidcClientManagerService {
     if (!this.cache.has(callbackUrl)) {
       const configuration = await this.oidcConfigurationRetrieverService.retrieve();
       const issuer = new this.openIdClient.Issuer(configuration);
-      const clientId = this.env.FOREST_CLIENT_ID || undefined;
+      const clientId = this.configStore.lianaOptions.clientId
+        || this.env.FOREST_CLIENT_ID
+        || undefined;
+      const envSecret = this.configStore.lianaOptions.envSecret
+        || this.env.FOREST_ENV_SECRET;
+
       const registration = {
         client_id: clientId,
         redirect_uris: [callbackUrl],
@@ -47,7 +53,7 @@ class OidcClientManagerService {
       const registrationPromise = clientId
         ? new issuer.Client(registration)
         : issuer.Client.register(
-          registration, { initialAccessToken: this.env.FOREST_ENV_SECRET },
+          registration, { initialAccessToken: envSecret },
         ).catch((error) => {
           this.logger.error('Unable to register the client', {
             configuration,
