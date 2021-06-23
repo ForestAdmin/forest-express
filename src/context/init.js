@@ -85,7 +85,6 @@ function initValue(context) {
  *  tokenService: import('../services/token');
  *  oidcConfigurationRetrieverService: import('../services/oidc-configuration-retriever');
  *  oidcClientManagerService: import('../services/oidc-client-manager')
- *  configStore: import('../services/config-store')
  * }} Services
  *
  * @typedef {{
