@@ -1,3 +1,10 @@
+## [8.7.4](https://github.com/ForestAdmin/forest-express/compare/v8.7.3...v8.7.4) (2021-06-23)
+
+
+### Bug Fixes
+
+* **authentication:** error during authentication when the environment is secret passed as a liana option and not an environment variable ([#752](https://github.com/ForestAdmin/forest-express/issues/752)) ([af19146](https://github.com/ForestAdmin/forest-express/commit/af19146826a903b279c07345b34860f95a832e84))
+
 ## [8.7.3](https://github.com/ForestAdmin/forest-express/compare/v8.7.2...v8.7.3) (2021-06-16)
 
 
