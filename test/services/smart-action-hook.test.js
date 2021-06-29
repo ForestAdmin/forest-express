@@ -1,10 +1,11 @@
 const ApplicationContext = require('../../src/context/application-context');
 const SmartActionHook = require('../../src/services/smart-action-hook');
 
-function initContext(isSameDataStructure) {
+function initContext(isSameDataStructure, formatDefaultValue) {
   const context = new ApplicationContext();
   context.init((ctx) => ctx
     .addInstance('isSameDataStructure', isSameDataStructure)
+    .addInstance('formatDefaultValue', formatDefaultValue)
     .addInstance('setFieldWidget', jest.fn())
     .addClass(SmartActionHook));
 
@@ -16,7 +17,7 @@ describe('services > smart-action-hook', () => {
     it('should throw with message when hook is not a function', async () => {
       expect.assertions(1);
 
-      const { smartActionHook } = initContext(jest.fn()).inject();
+      const { smartActionHook } = initContext(jest.fn(), jest.fn()).inject();
 
       await expect(smartActionHook.getResponse(null, [], {})).rejects.toThrow('hook must be a function');
     });
@@ -24,7 +25,7 @@ describe('services > smart-action-hook', () => {
     it('should throw with message when hook does not return an object', async () => {
       expect.assertions(1);
 
-      const { smartActionHook } = initContext(jest.fn()).inject();
+      const { smartActionHook } = initContext(jest.fn(), jest.fn()).inject();
 
       await expect(smartActionHook.getResponse(jest.fn(() => false), [], {}))
         .rejects.toThrow('hook must return an object');
@@ -33,7 +34,7 @@ describe('services > smart-action-hook', () => {
     it('should throw with message when fields have changed', async () => {
       expect.assertions(1);
 
-      const { smartActionHook } = initContext(jest.fn(() => false)).inject();
+      const { smartActionHook } = initContext(jest.fn(() => false), jest.fn()).inject();
 
       await expect(smartActionHook.getResponse(jest.fn(() => ({})), [], {}))
         .rejects.toThrow('fields must be unchanged (no addition nor deletion allowed)');
@@ -43,7 +44,7 @@ describe('services > smart-action-hook', () => {
       expect.assertions(3);
 
       const isSameDataStructure = jest.fn(() => true);
-      const { smartActionHook } = initContext(isSameDataStructure).inject();
+      const { smartActionHook } = initContext(isSameDataStructure, jest.fn()).inject();
       const fields = [{
         field: 'myField',
         type: 'String',
@@ -55,11 +56,7 @@ describe('services > smart-action-hook', () => {
       };
 
       const hook = jest.fn(() => ({
-        myField: {
-          field: 'myField',
-          type: 'String',
-          value: 'foo',
-        },
+        myField: expected,
       }));
 
       const response = await smartActionHook.getResponse(hook, fields, {});
@@ -79,13 +76,44 @@ describe('services > smart-action-hook', () => {
       );
     });
 
+    it('should return an array of fields with stringified defaultValue', async () => {
+      expect.assertions(2);
+
+      const isSameDataStructure = jest.fn(() => true);
+      const formatDefaultValue = jest.fn();
+      const { smartActionHook } = initContext(isSameDataStructure, formatDefaultValue).inject();
+      const fields = [{
+        field: 'myField',
+        type: 'Boolean',
+        defaultValue: true,
+      }];
+      const expected = {
+        field: 'myField',
+        type: 'Boolean',
+        value: true,
+        defaultValue: 'true',
+      };
+
+      const hook = jest.fn(() => ({
+        myField: expected,
+      }));
+
+      const response = await smartActionHook.getResponse(hook, fields, {});
+      await expect(response).toStrictEqual([expected]);
+      expect(formatDefaultValue).toHaveBeenNthCalledWith(
+        1,
+        'Boolean',
+        true,
+      );
+    });
+
     describe('when field has enums', () => {
       describe('when field value is a single value', () => {
         it('should reset value when it has been dropped from enum', async () => {
           expect.assertions(1);
 
           const isSameDataStructure = jest.fn(() => true);
-          const { smartActionHook } = initContext(isSameDataStructure).inject();
+          const { smartActionHook } = initContext(isSameDataStructure, jest.fn()).inject();
           const fields = [{
             field: 'myField',
             type: 'Enum',
@@ -110,7 +138,7 @@ describe('services > smart-action-hook', () => {
           expect.assertions(1);
 
           const isSameDataStructure = jest.fn(() => true);
-          const { smartActionHook } = initContext(isSameDataStructure).inject();
+          const { smartActionHook } = initContext(isSameDataStructure, jest.fn()).inject();
           const fields = [{
             field: 'myField',
             type: 'Enum',
@@ -137,7 +165,7 @@ describe('services > smart-action-hook', () => {
           expect.assertions(1);
 
           const isSameDataStructure = jest.fn(() => true);
-          const { smartActionHook } = initContext(isSameDataStructure).inject();
+          const { smartActionHook } = initContext(isSameDataStructure, jest.fn()).inject();
           const fields = [{
             field: 'myField',
             type: ['Enum'],
@@ -162,7 +190,7 @@ describe('services > smart-action-hook', () => {
           expect.assertions(1);
 
           const isSameDataStructure = jest.fn(() => true);
-          const { smartActionHook } = initContext(isSameDataStructure).inject();
+          const { smartActionHook } = initContext(isSameDataStructure, jest.fn()).inject();
           const fields = [{
             field: 'myField',
             type: ['Enum'],

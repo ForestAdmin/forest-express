@@ -1,7 +1,8 @@
 class SmartActionHook {
-  constructor({ isSameDataStructure, setFieldWidget }) {
+  constructor({ isSameDataStructure, setFieldWidget, formatDefaultValue }) {
     this.isSameDataStructure = isSameDataStructure;
     this.setFieldWidget = setFieldWidget;
+    this.formatDefaultValue = formatDefaultValue;
   }
 
   /**
@@ -17,7 +18,11 @@ class SmartActionHook {
       // Return the field(with a default value set to null when none is provided).
       return {
         ...previous,
-        [current.field]: { value: null, ...current },
+        [current.field]: {
+          value: null,
+          ...current,
+          defaultValue: this.formatDefaultValue(current.type, current.defaultValue),
+        },
       };
     }, {});
   }

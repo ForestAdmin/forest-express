@@ -11,6 +11,7 @@ const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
 const isSameDataStructure = require('../utils/is-same-data-structure');
+const formatDefaultValue = require('../utils/format-default-value');
 const joinUrl = require('../utils/join-url');
 const { setFieldWidget } = require('../utils/widgets');
 const logger = require('../services/logger');
@@ -120,6 +121,7 @@ function initUtils(context) {
   context.addInstance('stringUtils', stringUtils);
   context.addInstance('errorUtils', errorUtils);
   context.addInstance('isSameDataStructure', isSameDataStructure);
+  context.addInstance('formatDefaultValue', formatDefaultValue);
   context.addInstance('setFieldWidget', setFieldWidget);
   context.addInstance('joinUrl', joinUrl);
 }
