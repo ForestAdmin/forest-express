@@ -49,7 +49,7 @@ module.exports = class ModelsManager {
     return this.models;
   }
 
-  getModelByName() {
-    return this.getModels().find((m) => m.name === this.collectionName);
+  getModelByName(name) {
+    return this.getModels()[name];
   }
 };

@@ -163,10 +163,8 @@ class PermissionMiddlewareCreator {
     return this._checkPermission('deleteEnabled');
   }
 
-  smartAction(model) {
-    if (!model) throw new Error('missing model in the smartAction middleware definition');
-
-    return [this._checkPermission('actions'), this._ensureRecordIdsInScope(model)];
+  smartAction() {
+    return [this._checkPermission('actions'), this._ensureRecordIdsInScope()];
   }
 
   liveQueries() {
