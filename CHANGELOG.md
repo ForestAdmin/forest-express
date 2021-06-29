@@ -1,3 +1,10 @@
+# [9.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.7...v9.0.0-beta.8) (2021-06-29)
+
+
+### Bug Fixes
+
+* **smart-action:** smart actions after trying to mitigate breaking change ([#754](https://github.com/ForestAdmin/forest-express/issues/754)) ([c413992](https://github.com/ForestAdmin/forest-express/commit/c4139925c5ca5608d90d0b80bdee511f52b8f37f))
+
 # [9.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.6...v9.0.0-beta.7) (2021-06-16)
 
 
