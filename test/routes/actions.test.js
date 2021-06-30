@@ -14,7 +14,7 @@ function initContext(schemas, smartActionHookGetResponse) {
       parameterize: jest.fn((name) => name),
     })
     .addInstance('schemasGenerator', { schemas })
-    .addInstance('smartActionHook', { getResponse: smartActionHookGetResponse })
+    .addInstance('smartActionHookService', { getResponse: smartActionHookGetResponse })
     .addInstance('smartActionHookDeserializer', new SmartActionHookDeserializer())
     .addClass(ActionsRoutes)
     .addValue('model', { name: 'users' })

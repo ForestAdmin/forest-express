@@ -29,7 +29,7 @@ const permissionsFormatter = require('../services/permissions-formatter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
 const ScopeManager = require('../services/scope-manager');
 const SmartActionFieldValidator = require('../services/smart-action-field-validator');
-const SmartActionHook = require('../services/smart-action-hook');
+const SmartActionHookService = require('../services/smart-action-hook-service');
 const schemasGenerator = require('../generators/schemas');
 const ModelsManager = require('../services/models-manager');
 const AuthenticationService = require('../services/authentication');
@@ -81,7 +81,7 @@ function initValue(context) {
  *  apimapSender: import('../services/apimap-sender');
  *  permissionsChecker: import('../services/permissions-checker');
  *  permissionsGetter: import('../services/permissions-getter');
- *  smartActionHook: import('../services/smart-action-hook');
+ *  smartActionHookService: import('../services/smart-action-hook-service');
  *  schemasGenerator: import('../generators/schemas');
  *  authenticationService: import('../services/authentication');
  *  tokenService: import('../services/token');
@@ -152,7 +152,7 @@ function initServices(context) {
   context.addClass(OidcClientManagerService);
   context.addClass(AuthenticationService);
   context.addClass(SmartActionFieldValidator);
-  context.addClass(SmartActionHook);
+  context.addClass(SmartActionHookService);
   context.addClass(SmartActionHookDeserializer);
 }
 

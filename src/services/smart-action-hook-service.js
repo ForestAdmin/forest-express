@@ -1,4 +1,4 @@
-class SmartActionHook {
+class SmartActionHookService {
   constructor({ setFieldWidget, smartActionFieldValidator }) {
     this.setFieldWidget = setFieldWidget;
     this.smartActionFieldValidator = smartActionFieldValidator;
@@ -65,4 +65,4 @@ class SmartActionHook {
   }
 }
 
-module.exports = SmartActionHook;
+module.exports = SmartActionHookService;

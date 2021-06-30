@@ -9,14 +9,14 @@ class Actions {
     pathService,
     stringUtils,
     schemasGenerator,
-    smartActionHook,
+    smartActionHookService,
     smartActionHookDeserializer,
   } = context.inject()) {
     this.path = pathService;
     this.logger = logger;
     this.stringUtils = stringUtils;
     this.schemasGenerator = schemasGenerator;
-    this.smartActionHook = smartActionHook;
+    this.smartActionHookService = smartActionHookService;
     this.smartActionHookDeserializer = smartActionHookDeserializer;
   }
 
@@ -29,7 +29,7 @@ class Actions {
   getHookLoadController(action) {
     return async (request, response) => {
       try {
-        const loadedFields = await this.smartActionHook.getResponse(
+        const loadedFields = await this.smartActionHookService.getResponse(
           action,
           action.hooks.load,
           action.fields,
@@ -58,7 +58,7 @@ class Actions {
         const { fields, changedField } = data;
         const fieldChanged = fields.find((field) => field.field === changedField);
 
-        const updatedFields = await this.smartActionHook.getResponse(
+        const updatedFields = await this.smartActionHookService.getResponse(
           action,
           action.hooks.change[fieldChanged?.hook],
           fields,
