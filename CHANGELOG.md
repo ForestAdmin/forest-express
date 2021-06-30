@@ -1,3 +1,10 @@
+## [8.7.5](https://github.com/ForestAdmin/forest-express/compare/v8.7.4...v8.7.5) (2021-06-30)
+
+
+### Bug Fixes
+
+* **related-data:** reaching an embedded has-many relationship by URL does not display any records on mongoose ([#758](https://github.com/ForestAdmin/forest-express/issues/758)) ([9cfae72](https://github.com/ForestAdmin/forest-express/commit/9cfae729b9c8fb93136fded3c69b23722c65f658))
+
 ## [8.7.4](https://github.com/ForestAdmin/forest-express/compare/v8.7.3...v8.7.4) (2021-06-23)
 
 
