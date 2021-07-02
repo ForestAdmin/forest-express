@@ -1,3 +1,10 @@
+# [9.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.9...v9.0.0-beta.10) (2021-07-02)
+
+
+### Bug Fixes
+
+* handle composite primary key case when checking permissions for smart actions ([#756](https://github.com/ForestAdmin/forest-express/issues/756)) ([30e8002](https://github.com/ForestAdmin/forest-express/commit/30e80022a5ea011b161fc8a17318eb350e66428a))
+
 # [9.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.8...v9.0.0-beta.9) (2021-07-02)
 
 
