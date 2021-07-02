@@ -1,3 +1,10 @@
+# [9.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.8...v9.0.0-beta.9) (2021-07-02)
+
+
+### Features
+
+* **security:** secure segments queries ([#747](https://github.com/ForestAdmin/forest-express/issues/747)) ([23e8817](https://github.com/ForestAdmin/forest-express/commit/23e88170b499d92a67ac2b246cccd0373676027e))
+
 # [9.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.7...v9.0.0-beta.8) (2021-06-29)
 
 
