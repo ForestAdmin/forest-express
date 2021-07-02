@@ -106,36 +106,41 @@ class PermissionMiddlewareCreator {
   // whithin the registered scope
   _ensureRecordIdsInScope() {
     return async (request, response, next) => {
-      const model = this.modelsManager.getModelByName(this.collectionName);
-      const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
-      const { timezone } = request.query;
+      try {
+        // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
+        const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
+        if (attributes.allRecords) {
+          return next();
+        }
 
-      // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
-      if (attributes.allRecords) return next();
+        // Otherwise, check that all records are within scope.
+        const { primaryKeys } = Schemas.schemas[this.collectionName];
+        const filters = JSON.stringify(primaryKeys.length === 1
+          ? { field: primaryKeys[0], operator: 'in', value: attributes.ids }
+          : {
+            aggregator: 'or',
+            conditions: attributes.ids.map((compositeId) => ({
+              aggregator: 'and',
+              conditions: compositeId.split('|').map((id, index) => ({
+                field: primaryKeys[index], operator: 'equal', value: id,
+              })),
+            })),
+          });
 
-      const { idField } = Schemas.schemas[this.collectionName];
+        const counter = new RecordsCounter(
+          this.modelsManager.getModelByName(this.collectionName),
+          request.user,
+          { filters, timezone: request.query.timezone },
+        );
 
-      // TODO: scope smartAction calls properly on table with composite primary keys
-      if (idField === 'forestCompositePrimary') return next();
+        if (await counter.count() === attributes.ids.length) {
+          return next();
+        }
 
-      const targetRecordIds = attributes.ids;
-      const checkIdsFilter = JSON.stringify({
-        field: idField,
-        operator: 'in',
-        value: targetRecordIds,
-      });
-
-      // count records matching the provided filters (with scopes applied by the RecordCounter)
-      const count = await new RecordsCounter(
-        model, request.user, { filters: checkIdsFilter, timezone },
-      ).count();
-
-      // some record ids are outside of scope
-      if (count !== targetRecordIds.length) {
         return response.status(400).send({ error: 'Smart Action: target records are out of scope' });
+      } catch {
+        return response.status(500).send({ error: 'Smart Action: failed to evaluate permissions' });
       }
-
-      return next();
     };
   }
 
