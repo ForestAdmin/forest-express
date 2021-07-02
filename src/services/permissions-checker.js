@@ -40,7 +40,20 @@ class PermissionsChecker {
     });
   }
 
-  static async _isCollectionBrowseAllowed(collectionPermissions, permissionInfos) {
+  static async _isCollectionBrowseAllowed(permissions, permissionInfos) {
+    const { collection: collectionPermissions, segments } = permissions;
+
+    // NOTICE: Security - Segment Query check additional permission
+    if (permissionInfos.segmentQuery) {
+      // NOTICE: The segmentQuery should be in the segments
+      if (!segments) {
+        return false;
+      }
+      if (!segments.includes(permissionInfos.segmentQuery)) {
+        return false;
+      }
+    }
+
     return collectionPermissions
       && permissionInfos
       && PermissionsChecker
@@ -53,7 +66,7 @@ class PermissionsChecker {
         return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
       case 'browseEnabled':
         return PermissionsChecker
-          ._isCollectionBrowseAllowed(permissions.collection, permissionInfos);
+          ._isCollectionBrowseAllowed(permissions, permissionInfos);
       case 'liveQueries':
         return PermissionsChecker._isLiveQueryAllowed(permissions.stats.queries, permissionInfos);
       case 'statWithParameters':
