@@ -119,6 +119,7 @@ class SchemaFileUpdater {
     SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'fields', []);
     SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'segments', []);
     SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'actions', []);
+    SchemaFileUpdater.setDefaultValueIfNecessary(collection, 'flatten', null);
 
     collection.fields = SchemaFileUpdater.cleanFields(collection.fields);
     collection.segments = SchemaFileUpdater.cleanSegments(collection.segments);

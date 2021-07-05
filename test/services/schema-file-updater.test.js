@@ -51,6 +51,7 @@ describe('services > schema-file-updater', () => {
       fields: [],
       segments: [],
       actions: [],
+      flatten: null,
     });
   });
 

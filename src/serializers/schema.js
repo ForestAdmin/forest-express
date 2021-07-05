@@ -23,6 +23,7 @@ function SchemaSerializer() {
       'fields',
       'segments',
       'actions',
+      'flatten',
     ],
     fields: {
       attributes: [
