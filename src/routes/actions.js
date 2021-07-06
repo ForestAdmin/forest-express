@@ -5,13 +5,19 @@ const context = require('../context');
  */
 class Actions {
   constructor({
-    logger, pathService, stringUtils, schemasGenerator, smartActionHook,
+    logger,
+    pathService,
+    stringUtils,
+    schemasGenerator,
+    smartActionHook,
+    smartActionHookDeserializer,
   } = context.inject()) {
     this.path = pathService;
     this.logger = logger;
     this.stringUtils = stringUtils;
     this.schemasGenerator = schemasGenerator;
     this.smartActionHook = smartActionHook;
+    this.smartActionHookDeserializer = smartActionHookDeserializer;
   }
 
   /**
@@ -56,9 +62,9 @@ class Actions {
    * @returns {*} the express.js response object
    * @see getHookLoadController and getHookChangeController
    */
-  async getHook(request, response, hook) {
-    const recordId = request.body.recordIds[0];
-    const record = await this.getRecord(recordId, request.query.timezone, request.user);
+  async getHook(data, query, user, response, hook) {
+    const [recordId] = data.recordIds;
+    const record = await this.getRecord(recordId, query.timezone, user);
 
     try {
       const updatedFields = await hook(record);
@@ -77,13 +83,21 @@ class Actions {
    * @returns {Function} A route callback for express
    */
   getHookLoadController(action) {
-    return async (request, response) => (
-      this.getHook(request, response, async (record) => this.smartActionHook.getResponse(
-        action,
-        action.hooks.load,
-        action.fields,
-        record,
-      )));
+    return async (request, response) => {
+      const data = this.smartActionHookDeserializer.deserialize(request.body);
+      return this.getHook(
+        data,
+        request.query,
+        request.user,
+        response,
+        async (record) => this.smartActionHook.getResponse(
+          action,
+          action.hooks.load,
+          action.fields,
+          record,
+        ),
+      );
+    };
   }
 
   /**
@@ -94,11 +108,14 @@ class Actions {
    */
   getHookChangeController(action) {
     return async (request, response) => {
-      const { changedField } = request.body;
-
-      return this.getHook(request, response,
+      const data = this.smartActionHookDeserializer.deserialize(request.body);
+      return this.getHook(
+        data,
+        request.query,
+        request.user,
+        response,
         async (record) => {
-          const { fields } = request.body;
+          const { fields, changedField } = data;
           const fieldChanged = fields.find((field) => field.field === changedField);
 
           return this.smartActionHook.getResponse(
@@ -108,7 +125,8 @@ class Actions {
             record,
             fieldChanged,
           );
-        });
+        },
+      );
     };
   }
 
