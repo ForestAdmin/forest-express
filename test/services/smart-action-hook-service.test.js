@@ -1,5 +1,5 @@
 const ApplicationContext = require('../../src/context/application-context');
-const SmartActionHook = require('../../src/services/smart-action-hook');
+const SmartActionHookService = require('../../src/services/smart-action-hook-service');
 const SmartActionFieldValidator = require('../../src/services/smart-action-field-validator');
 
 function initContext() {
@@ -7,7 +7,7 @@ function initContext() {
   context.init((ctx) => ctx
     .addInstance('setFieldWidget', jest.fn())
     .addClass(SmartActionFieldValidator)
-    .addClass(SmartActionHook));
+    .addClass(SmartActionHookService));
 
   return context;
 }
@@ -17,24 +17,24 @@ describe('services > smart-action-hook', () => {
     it('should throw with message when hook is not a function', async () => {
       expect.assertions(1);
 
-      const { smartActionHook } = initContext(jest.fn()).inject();
+      const { smartActionHookService } = initContext(jest.fn()).inject();
 
-      await expect(smartActionHook.getResponse({}, null, [], {})).rejects.toThrow('hook must be a function');
+      await expect(smartActionHookService.getResponse({}, null, [], {})).rejects.toThrow('hook must be a function');
     });
 
     it('should throw with message when hook does not return an array', async () => {
       expect.assertions(1);
 
-      const { smartActionHook } = initContext(jest.fn()).inject();
+      const { smartActionHookService } = initContext(jest.fn()).inject();
 
-      await expect(smartActionHook.getResponse({}, jest.fn(() => false), [], {}))
+      await expect(smartActionHookService.getResponse({}, jest.fn(() => false), [], {}))
         .rejects.toThrow('hook must return an array');
     });
 
     it('should return an array of fields', async () => {
       expect.assertions(2);
 
-      const { smartActionHook } = initContext().inject();
+      const { smartActionHookService } = initContext().inject();
       const field = {
         field: 'myField',
         type: 'String',
@@ -52,13 +52,13 @@ describe('services > smart-action-hook', () => {
         value: 'foo',
       }]));
 
-      const response = await smartActionHook.getResponse({}, hook, fields, {});
+      const response = await smartActionHookService.getResponse({}, hook, fields, {});
       await expect(response).toStrictEqual([expected]);
       expect(hook).toHaveBeenNthCalledWith(
         1,
         {
           fields: [{ ...field, value: null }],
-          record: {},
+          request: {},
           changedField: null,
         },
       );
@@ -69,7 +69,7 @@ describe('services > smart-action-hook', () => {
         it('should have one more field', async () => {
           expect.assertions(2);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const field = {
             field: 'myField',
             type: 'String',
@@ -86,13 +86,13 @@ describe('services > smart-action-hook', () => {
 
           const hook = jest.fn(() => (expected));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          const response = await smartActionHookService.getResponse({}, hook, fields, {});
           await expect(response).toStrictEqual(expected);
           expect(hook).toHaveBeenNthCalledWith(
             1,
             {
               fields,
-              record: {},
+              request: {},
               changedField: null,
             },
           );
@@ -102,7 +102,7 @@ describe('services > smart-action-hook', () => {
           it('should assign value to null', async () => {
             expect.assertions(2);
 
-            const { smartActionHook } = initContext().inject();
+            const { smartActionHookService } = initContext().inject();
             const field = {
               field: 'myField',
               type: 'String',
@@ -121,13 +121,13 @@ describe('services > smart-action-hook', () => {
 
             const hook = jest.fn(() => ([field, addedField]));
 
-            const response = await smartActionHook.getResponse({}, hook, fields, {});
+            const response = await smartActionHookService.getResponse({}, hook, fields, {});
             await expect(response).toStrictEqual(expected);
             expect(hook).toHaveBeenNthCalledWith(
               1,
               {
                 fields,
-                record: {},
+                request: {},
                 changedField: null,
               },
             );
@@ -138,7 +138,7 @@ describe('services > smart-action-hook', () => {
           it('should throw an error', async () => {
             expect.assertions(1);
 
-            const { smartActionHook } = initContext().inject();
+            const { smartActionHookService } = initContext().inject();
             const action = { name: 'actionTest' };
 
             const field = {
@@ -154,7 +154,7 @@ describe('services > smart-action-hook', () => {
 
             const hook = jest.fn(() => ([field, addedField]));
 
-            await expect(smartActionHook.getResponse(action, hook, fields, {}))
+            await expect(smartActionHookService.getResponse(action, hook, fields, {}))
               .rejects.toThrow(`field attribute inside fields array on the smart action "${action.name}" must be defined.`);
           });
         });
@@ -162,7 +162,7 @@ describe('services > smart-action-hook', () => {
         it('should throw an error if the fiel have an undefined hook', async () => {
           expect.assertions(1);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const action = { name: 'actionTest', hooks: { change: {} } };
 
           const field = {
@@ -180,7 +180,7 @@ describe('services > smart-action-hook', () => {
 
           const hook = jest.fn(() => ([field, addedField]));
 
-          await expect(smartActionHook.getResponse(action, hook, fields, {}))
+          await expect(smartActionHookService.getResponse(action, hook, fields, {}))
             .rejects.toThrow(`The hook "${addedField.hook}" of "${addedField.field}" field on the smart action "${action.name}" is not defined.`);
         });
       });
@@ -189,7 +189,7 @@ describe('services > smart-action-hook', () => {
         it('should have one less field', async () => {
           expect.assertions(2);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const field = {
             field: 'myField',
             type: 'String',
@@ -206,13 +206,13 @@ describe('services > smart-action-hook', () => {
 
           const hook = jest.fn(() => (expected));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          const response = await smartActionHookService.getResponse({}, hook, fields, {});
           await expect(response).toStrictEqual(expected);
           expect(hook).toHaveBeenNthCalledWith(
             1,
             {
               fields,
-              record: {},
+              request: {},
               changedField: null,
             },
           );
@@ -225,7 +225,7 @@ describe('services > smart-action-hook', () => {
         it('should reset value when it has been dropped from enum', async () => {
           expect.assertions(1);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const field = {
             field: 'myField',
             type: 'Enum',
@@ -243,14 +243,14 @@ describe('services > smart-action-hook', () => {
             { ...field, enums: ['d', 'e', 'f'] },
           ]));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          const response = await smartActionHookService.getResponse({}, hook, fields, {});
           await expect(response).toStrictEqual([expected]);
         });
 
         it('should keep value when it is still present in enums', async () => {
           expect.assertions(1);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const field = {
             field: 'myField',
             type: 'Enum',
@@ -268,7 +268,7 @@ describe('services > smart-action-hook', () => {
             { ...field, enums: ['d', 'e', 'f'], value: 'e' },
           ]));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          const response = await smartActionHookService.getResponse({}, hook, fields, {});
           await expect(response).toStrictEqual([expected]);
         });
       });
@@ -277,7 +277,7 @@ describe('services > smart-action-hook', () => {
         it('should reset value when it has been dropped from enum', async () => {
           expect.assertions(1);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const field = {
             field: 'myField',
             type: ['Enum'],
@@ -295,14 +295,14 @@ describe('services > smart-action-hook', () => {
             { ...field, enums: ['d', 'e', 'f'] },
           ]));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          const response = await smartActionHookService.getResponse({}, hook, fields, {});
           await expect(response).toStrictEqual([expected]);
         });
 
         it('should keep value when it is still present in enums', async () => {
           expect.assertions(1);
 
-          const { smartActionHook } = initContext().inject();
+          const { smartActionHookService } = initContext().inject();
           const field = {
             field: 'myField',
             type: ['Enum'],
@@ -320,7 +320,7 @@ describe('services > smart-action-hook', () => {
             { ...field, enums: ['a', 'b', 'c', 'd', 'e', 'f'], value: ['a', 'b'] },
           ]));
 
-          const response = await smartActionHook.getResponse({}, hook, fields, {});
+          const response = await smartActionHookService.getResponse({}, hook, fields, {});
           await expect(response).toStrictEqual([expected]);
         });
       });
