@@ -1,3 +1,15 @@
+# [9.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.10...v9.0.0-beta.11) (2021-07-06)
+
+
+### Features
+
+* smart action hooks now have access to the http request ([#753](https://github.com/ForestAdmin/forest-express/issues/753)) ([ea5cd59](https://github.com/ForestAdmin/forest-express/commit/ea5cd59d45c114dd8ee4c3f35a057d32d9316c01))
+
+
+### BREAKING CHANGES
+
+* record is no longer send to the hook midleware & values option on smart action is no longer supported
+
 # [9.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.9...v9.0.0-beta.10) (2021-07-02)
 
 
