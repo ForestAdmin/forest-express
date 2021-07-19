@@ -1,3 +1,11 @@
+# [9.0.0-beta.12](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.11...v9.0.0-beta.12) (2021-07-19)
+
+
+### Bug Fixes
+
+* **authentication:** error during authentication when the environment is secret passed as a liana option and not an environment variable ([#752](https://github.com/ForestAdmin/forest-express/issues/752)) ([af19146](https://github.com/ForestAdmin/forest-express/commit/af19146826a903b279c07345b34860f95a832e84))
+* **related-data:** reaching an embedded has-many relationship by URL does not display any records on mongoose ([#758](https://github.com/ForestAdmin/forest-express/issues/758)) ([9cfae72](https://github.com/ForestAdmin/forest-express/commit/9cfae729b9c8fb93136fded3c69b23722c65f658))
+
 # [9.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.10...v9.0.0-beta.11) (2021-07-06)
 
 
