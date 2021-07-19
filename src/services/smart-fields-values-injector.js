@@ -76,18 +76,23 @@ function SmartFieldsValuesInjector(
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
+      const fieldWasRequested = isRequestedField(requestedField || modelName, field.field);
+
       if (record && field.isVirtual && (field.get || field.value)) {
-        if (fieldsPerModel && !isRequestedField(requestedField || modelName, field.field)) {
+        if (fieldsPerModel && !fieldWasRequested) {
           return null;
         }
 
         return setSmartFieldValue(record, field, modelName);
       }
 
-      if (!record[field.field] && _.isArray(field.type)) {
+      // If a field containing a list was requested but is not provided, use an empty array.
+      if (fieldWasRequested && !record[field.field] && _.isArray(field.type)) {
         record[field.field] = [];
-      } else if (field.reference && !_.isArray(field.type)) {
-        // NOTICE: Set Smart Fields values to "belongsTo" associated records.
+      }
+
+      // Set Smart Fields values to "belongsTo" associated records.
+      if (field.reference && !_.isArray(field.type)) {
         const modelNameAssociation = getReferencedModelName(field);
         const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
