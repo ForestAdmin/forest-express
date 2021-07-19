@@ -24,12 +24,26 @@
 
 * **security:** secure segments queries ([#747](https://github.com/ForestAdmin/forest-express/issues/747)) ([23e8817](https://github.com/ForestAdmin/forest-express/commit/23e88170b499d92a67ac2b246cccd0373676027e))
 
+## [8.7.5](https://github.com/ForestAdmin/forest-express/compare/v8.7.4...v8.7.5) (2021-06-30)
+
+### Bug Fixes
+
+* **related-data:** reaching an embedded has-many relationship by URL does not display any records on mongoose ([#758](https://github.com/ForestAdmin/forest-express/issues/758)) ([9cfae72](https://github.com/ForestAdmin/forest-express/commit/9cfae729b9c8fb93136fded3c69b23722c65f658))
+
 # [9.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.7...v9.0.0-beta.8) (2021-06-29)
 
 
 ### Bug Fixes
 
 * **smart-action:** smart actions after trying to mitigate breaking change ([#754](https://github.com/ForestAdmin/forest-express/issues/754)) ([c413992](https://github.com/ForestAdmin/forest-express/commit/c4139925c5ca5608d90d0b80bdee511f52b8f37f))
+
+
+## [8.7.4](https://github.com/ForestAdmin/forest-express/compare/v8.7.3...v8.7.4) (2021-06-23)
+
+### Bug Fixes
+
+* **authentication:** error during authentication when the environment is secret passed as a liana option and not an environment variable ([#752](https://github.com/ForestAdmin/forest-express/issues/752)) ([af19146](https://github.com/ForestAdmin/forest-express/commit/af19146826a903b279c07345b34860f95a832e84))
+
 
 # [9.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.6...v9.0.0-beta.7) (2021-06-16)
 
