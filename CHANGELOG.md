@@ -1,3 +1,32 @@
+# [9.0.0](https://github.com/ForestAdmin/forest-express/compare/v8.7.5...v9.0.0) (2021-07-19)
+
+
+### Bug Fixes
+
+* handle composite primary key case when checking permissions for smart actions ([#756](https://github.com/ForestAdmin/forest-express/issues/756)) ([30e8002](https://github.com/ForestAdmin/forest-express/commit/30e80022a5ea011b161fc8a17318eb350e66428a))
+* **smart-action:** smart actions after trying to mitigate breaking change ([#754](https://github.com/ForestAdmin/forest-express/issues/754)) ([c413992](https://github.com/ForestAdmin/forest-express/commit/c4139925c5ca5608d90d0b80bdee511f52b8f37f))
+* remove breaking change on smart action middleware ([#739](https://github.com/ForestAdmin/forest-express/issues/739)) ([b2a8f74](https://github.com/ForestAdmin/forest-express/commit/b2a8f74206054642f32b6e4cdd207f2c8bb67cf1))
+* update record getter usage in action route to use global scope ([#730](https://github.com/ForestAdmin/forest-express/issues/730)) ([b92f158](https://github.com/ForestAdmin/forest-express/commit/b92f158055e7f7f33a279ea2095eb00adf3b6a06))
+
+
+### Features
+
+* smart action hooks now have access to the http request ([#753](https://github.com/ForestAdmin/forest-express/issues/753)) ([ea5cd59](https://github.com/ForestAdmin/forest-express/commit/ea5cd59d45c114dd8ee4c3f35a057d32d9316c01))
+* **security:** secure segments queries ([#747](https://github.com/ForestAdmin/forest-express/issues/747)) ([23e8817](https://github.com/ForestAdmin/forest-express/commit/23e88170b499d92a67ac2b246cccd0373676027e))
+* **smart-action:** add changedField argument on hook function ([#716](https://github.com/ForestAdmin/forest-express/issues/716)) ([709fe32](https://github.com/ForestAdmin/forest-express/commit/709fe3236f5a4998e3e568d209f1e193796637ac))
+* **smart-action:** user can add dynamically field with hook on smart action form ([#717](https://github.com/ForestAdmin/forest-express/issues/717)) ([910df2b](https://github.com/ForestAdmin/forest-express/commit/910df2b487cc4685fcdfc182c5291aebc774ad5e))
+
+
+* feat(scopes)!: enforce scopes restrictions on a wider range of requests (#702) ([e36026e](https://github.com/ForestAdmin/forest-express/commit/e36026ef71409974c3335064afc1ff7c9d6729dc)), closes [#702](https://github.com/ForestAdmin/forest-express/issues/702)
+
+
+### BREAKING CHANGES
+
+* record is no longer send to the hook midleware & values option on smart action is no longer supported
+* **smart-action:** change hook is no longer choosen by the field name, field need to have hook defined inside it definition by addin a props hook
+* **smart-action:** fields parameters on hook function is no longer a map of field, it is now an array.
+* the public API of the package has changed to include the parameters which are needed to evaluate scope filters. This includes PermissionMiddlewareCreator, all classes on the /exposed folder and most services.
+
 # [9.0.0-beta.12](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.11...v9.0.0-beta.12) (2021-07-19)
 
 
