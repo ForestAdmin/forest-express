@@ -346,258 +346,6 @@ describe('services > permissions', () => {
       });
     });
 
-    describe('handling user list on collection with scope', () => {
-      const scopedCollectionResponse = {
-        meta: { rolesACLActivated: false },
-        data: {
-          Users: {
-            collection: {
-              list: true,
-            },
-            scope: {
-              filter: {
-                aggregator: 'or',
-                conditions: [
-                  {
-                    field: 'name',
-                    value: '$currentUser.firstName',
-                    operator: 'equal',
-                  },
-                  {
-                    field: 'name',
-                    value: '$currentUser.team.name',
-                    operator: 'equal',
-                  },
-                ],
-              },
-              dynamicScopesValues: {
-                users: {
-                  100: {
-                    '$currentUser.firstName': 'John',
-                    '$currentUser.team.name': 'Admin',
-                  },
-                },
-              },
-            },
-          },
-          Posts: {
-            collection: {
-              list: true,
-            },
-            scope: {
-              filter: {
-                aggregator: 'and',
-                conditions: [
-                  {
-                    field: 'name',
-                    value: 'toto',
-                    operator: 'equal',
-                  },
-                ],
-              },
-            },
-          },
-        },
-      };
-
-      describe('when the request match with the expected scope', () => {
-        describe('without additional filters', () => {
-          it('should return a resolved promise', async () => {
-            expect.assertions(1);
-
-            resetAndClearCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-            const collectionListParameters = {
-              userId: 100,
-              filters: JSON.stringify({
-                aggregator: 'or',
-                conditions: [
-                  { field: 'name', operator: 'equal', value: 'John' },
-                  { field: 'name', operator: 'equal', value: 'Admin' },
-                ],
-              }),
-            };
-
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-              .toResolve();
-          });
-
-          it('should return a resolved promise when scope uses a single scope', async () => {
-            expect.assertions(1);
-
-            resetAndClearCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-            const collectionListParameters = {
-              userId: 100,
-              filters: JSON.stringify(
-                { field: 'name', operator: 'equal', value: 'toto' },
-              ),
-            };
-
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
-              .toResolve();
-          });
-        });
-
-        describe('with additional filters', () => {
-          it('should return a resolved promise when sending scope and manual filters', async () => {
-            expect.assertions(1);
-
-            resetAndClearCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-            const collectionListParameters = {
-              userId: 100,
-              filters: JSON.stringify({
-                aggregator: 'and',
-                conditions: [
-                  { field: 'name', operator: 'equal', value: 'Arnaud' },
-                  {
-                    aggregator: 'or',
-                    conditions: [
-                      { field: 'name', operator: 'equal', value: 'John' },
-                      { field: 'name', operator: 'equal', value: 'Admin' },
-                    ],
-                  },
-                ],
-              }),
-            };
-
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-              .toResolve();
-          });
-        });
-
-        it('should return a resolved promise when scope uses a single scope', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              aggregator: 'and',
-              conditions: [
-                { field: 'name', operator: 'equal', value: 'toto' },
-                { field: 'name', operator: 'equal', value: 'blbl' },
-              ],
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
-            .toResolve();
-        });
-      });
-
-      describe('when the request does not match with the expected scope', () => {
-        it('should return a rejected promise when only a part of the scope is found', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              field: 'name', operator: 'equal', value: 'John',
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-            .rejects.toThrow("'browseEnabled' access forbidden on Users");
-          nockObj.persist(false);
-        });
-
-        it('should return a rejected promise when editing direct values', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              aggregator: 'and',
-              conditions: [
-                { field: 'name', operator: 'equal', value: 'DefinitelyNotJohn' },
-                { field: 'name', operator: 'equal', value: 'DefinitelyNotAdmin' },
-              ],
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-            .rejects.toThrow("'browseEnabled' access forbidden on Users");
-          nockObj.persist(false);
-        });
-
-        it('should return a rejected promise if scope is ignored', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              aggregator: 'or',
-              conditions: [
-                { field: 'name', operator: 'equal', value: 'valueThatIWantToGet' },
-                {
-                  aggregator: 'and',
-                  conditions: [
-                    { field: 'name', operator: 'equal', value: 'John' },
-                    { field: 'name', operator: 'equal', value: 'Admin' },
-                  ],
-                },
-              ],
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-            .rejects.toThrow("'browseEnabled' access forbidden on Users");
-          nockObj.persist(false);
-        });
-      });
-    });
-
     describe('check expiration', () => {
       function resetNock() {
         const { permissionsGetter } = context.inject();
@@ -1267,268 +1015,6 @@ describe('services > permissions', () => {
       });
     });
 
-    describe('handling user list on collection with scope', () => {
-      const scopedCollectionResponse = {
-        meta: { rolesACLActivated: true },
-        data: {
-          collections: {
-            Users: {
-              collection: {
-                browseEnabled: true,
-              },
-            },
-            Posts: {
-              collection: {
-                browseEnabled: true,
-              },
-            },
-          },
-          renderings: {
-            1: {
-              Users: {
-                scope: {
-                  filter: {
-                    aggregator: 'or',
-                    conditions: [
-                      {
-                        field: 'name',
-                        value: '$currentUser.firstName',
-                        operator: 'equal',
-                      },
-                      {
-                        field: 'name',
-                        value: '$currentUser.team.name',
-                        operator: 'equal',
-                      },
-                    ],
-                  },
-                  dynamicScopesValues: {
-                    users: {
-                      100: {
-                        '$currentUser.firstName': 'John',
-                        '$currentUser.team.name': 'Admin',
-                      },
-                    },
-                  },
-                },
-              },
-              Posts: {
-                scope: {
-                  filter: {
-                    aggregator: 'and',
-                    conditions: [
-                      {
-                        field: 'name',
-                        value: 'toto',
-                        operator: 'equal',
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        },
-      };
-
-      describe('when the request match with the expected scope', () => {
-        describe('without additional filters', () => {
-          it('should return a resolved promise', async () => {
-            expect.assertions(1);
-
-            resetAndClearCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-            const collectionListParameters = {
-              userId: 100,
-              filters: JSON.stringify({
-                aggregator: 'or',
-                conditions: [
-                  { field: 'name', operator: 'equal', value: 'John' },
-                  { field: 'name', operator: 'equal', value: 'Admin' },
-                ],
-              }),
-            };
-
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-              .toResolve();
-          });
-
-          it('should return a resolved promise when scope uses a single scope', async () => {
-            expect.assertions(1);
-
-            resetAndClearCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-            const collectionListParameters = {
-              userId: 100,
-              filters: JSON.stringify(
-                { field: 'name', operator: 'equal', value: 'toto' },
-              ),
-            };
-
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
-              .toResolve();
-          });
-        });
-
-        describe('with additional filters', () => {
-          it('should return a resolved promise when sending scope and manual filters', async () => {
-            expect.assertions(1);
-
-            resetAndClearCache();
-            nock.cleanAll();
-            nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-            const collectionListParameters = {
-              userId: 100,
-              filters: JSON.stringify({
-                aggregator: 'and',
-                conditions: [
-                  { field: 'name', operator: 'equal', value: 'Arnaud' },
-                  {
-                    aggregator: 'or',
-                    conditions: [
-                      { field: 'name', operator: 'equal', value: 'John' },
-                      { field: 'name', operator: 'equal', value: 'Admin' },
-                    ],
-                  },
-                ],
-              }),
-            };
-
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-              .toResolve();
-          });
-        });
-
-        it('should return a resolved promise when scope uses a single scope', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              aggregator: 'and',
-              conditions: [
-                { field: 'name', operator: 'equal', value: 'toto' },
-                { field: 'name', operator: 'equal', value: 'blbl' },
-              ],
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
-            .toResolve();
-        });
-      });
-
-      describe('when the request does not match with the expected scope', () => {
-        it('should return a rejected promise when only a part of the scope is found', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              field: 'name', operator: 'equal', value: 'John',
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-            .rejects.toThrow("'browseEnabled' access forbidden on Users");
-          nockObj.persist(false);
-        });
-
-        it('should return a rejected promise when editing direct values', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              aggregator: 'and',
-              conditions: [
-                { field: 'name', operator: 'equal', value: 'DefinitelyNotJohn' },
-                { field: 'name', operator: 'equal', value: 'DefinitelyNotAdmin' },
-              ],
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-            .rejects.toThrow("'browseEnabled' access forbidden on Users");
-          nockObj.persist(false);
-        });
-
-        it('should return a rejected promise if scope is ignored', async () => {
-          expect.assertions(1);
-
-          resetAndClearCache();
-          nock.cleanAll();
-          nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, scopedCollectionResponse);
-
-          const collectionListParameters = {
-            userId: 100,
-            filters: JSON.stringify({
-              aggregator: 'or',
-              conditions: [
-                { field: 'name', operator: 'equal', value: 'valueThatIWantToGet' },
-                {
-                  aggregator: 'and',
-                  conditions: [
-                    { field: 'name', operator: 'equal', value: 'John' },
-                    { field: 'name', operator: 'equal', value: 'Admin' },
-                  ],
-                },
-              ],
-            }),
-          };
-
-          await expect(new PermissionsChecker({
-            ...context.inject(),
-            configStore: {
-              lianaOptions: {
-                envSecret: 'envSecret',
-              },
-            },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
-            .rejects.toThrow("'browseEnabled' access forbidden on Users");
-          nockObj.persist(false);
-        });
-      });
-    });
-
     describe('check expiration', () => {
       function resetNock() {
         const { permissionsGetter } = context.inject();
@@ -1913,6 +1399,92 @@ describe('services > permissions', () => {
 
         const statsWithParameterParameters = { type: 'Value', someInfo: 'Count', otherInfo: 'SomeCollection' };
         await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'statWithParameters', statsWithParameterParameters)).toResolve();
+      });
+    });
+  });
+
+  describe('with segments permissions', () => {
+    describe('if the segment is not allowed to be executed', () => {
+      it('should return a rejected promise', async () => {
+        expect.assertions(1);
+
+        resetAndClearCache();
+        nock.cleanAll();
+        nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
+          meta: { rolesACLActivated: false },
+          data: {
+            products: {
+              collection: {
+                list: true,
+              },
+            },
+          },
+        });
+
+        const permissionInfos = { userId: 1, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
+        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'products', 'browseEnabled', permissionInfos))
+          .rejects.toThrow("'browseEnabled' access forbidden on products");
+        nockObj.persist(false);
+      });
+    });
+
+    describe('if the segment query is allowed', () => {
+      describe('on not rolesACLActivated (OLD permissions)', () => {
+        it('should return a resolved promise', async () => {
+          expect.assertions(1);
+
+          resetAndClearCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
+            meta: { rolesACLActivated: false },
+            data: {
+              products: {
+                collection: {
+                  list: true,
+                },
+                segments: ['SELECT COUNT(*) AS value FROM products;'],
+              },
+            },
+          });
+
+          const permissionInfos = { userId: 1, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
+          await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'products', 'browseEnabled', permissionInfos))
+            .toResolve();
+        });
+      });
+      describe('on rolesACLActivated', () => {
+        it('should return a resolved promise', async () => {
+          expect.assertions(1);
+
+          resetAndClearCache();
+          nock.cleanAll();
+          nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
+            meta: { rolesACLActivated: true },
+            data: {
+              collections: {
+                products: {
+                  collection: {
+                    addEnabled: false,
+                    browseEnabled: true,
+                    deleteEnabled: false,
+                    editEnabled: false,
+                    exportEnabled: false,
+                    readEnabled: false,
+                  },
+                },
+              },
+              renderings: {
+                1: {
+                  products: { segments: ['SELECT COUNT(*) AS value FROM products;'] },
+                },
+              },
+            },
+          });
+
+          const permissionInfos = { userId: 1, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
+          await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'products', 'browseEnabled', permissionInfos))
+            .toResolve();
+        });
       });
     });
   });

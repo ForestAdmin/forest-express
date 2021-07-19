@@ -10,7 +10,6 @@ const jsonwebtoken = require('jsonwebtoken');
 const errorMessages = require('../utils/error-messages');
 const errorUtils = require('../utils/error');
 const stringUtils = require('../utils/string');
-const isSameDataStructure = require('../utils/is-same-data-structure');
 const joinUrl = require('../utils/join-url');
 const { setFieldWidget } = require('../utils/widgets');
 const logger = require('../services/logger');
@@ -28,7 +27,9 @@ const PermissionsChecker = require('../services/permissions-checker');
 const PermissionsGetter = require('../services/permissions-getter');
 const permissionsFormatter = require('../services/permissions-formatter');
 const SchemaFileUpdater = require('../services/schema-file-updater');
-const SmartActionHook = require('../services/smart-action-hook');
+const ScopeManager = require('../services/scope-manager');
+const SmartActionFieldValidator = require('../services/smart-action-field-validator');
+const SmartActionHookService = require('../services/smart-action-hook-service');
 const schemasGenerator = require('../generators/schemas');
 const ModelsManager = require('../services/models-manager');
 const AuthenticationService = require('../services/authentication');
@@ -36,6 +37,7 @@ const TokenService = require('../services/token');
 const OidcConfigurationRetrieverService = require('../services/oidc-configuration-retriever');
 const OidcClientManagerService = require('../services/oidc-client-manager');
 const ProjectDirectoryFinder = require('../services/project-directory-finder');
+const SmartActionHookDeserializer = require('../deserializers/smart-action-hook');
 
 function initValue(context) {
   context.addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
@@ -63,7 +65,6 @@ function initValue(context) {
  *  errorMessages: import('../utils/error-messages');
  *  stringUtils: import('../utils/string');
  *  errorUtils: import('../utils/error');
- *  isSameDataStructure: import('../utils/object-have-same-keys')
  *  setFieldWidget: import('../utils/widgets').setFieldWidget
  *  joinUrl: import('../utils/join-url')
  * }} Utils
@@ -76,10 +77,11 @@ function initValue(context) {
  *  forestServerRequester: import('../services/forest-server-requester');
  *  authorizationFinder: import('../services/authorization-finder');
  *  schemaFileUpdater: import('../services/schema-file-updater');
+ *  scopeManager: import('../services/scope-manager');
  *  apimapSender: import('../services/apimap-sender');
  *  permissionsChecker: import('../services/permissions-checker');
  *  permissionsGetter: import('../services/permissions-getter');
- *  smartActionHook: import('../services/smart-action-hook');
+ *  smartActionHookService: import('../services/smart-action-hook-service');
  *  schemasGenerator: import('../generators/schemas');
  *  authenticationService: import('../services/authentication');
  *  tokenService: import('../services/token');
@@ -119,7 +121,6 @@ function initUtils(context) {
   context.addInstance('errorMessages', errorMessages);
   context.addInstance('stringUtils', stringUtils);
   context.addInstance('errorUtils', errorUtils);
-  context.addInstance('isSameDataStructure', isSameDataStructure);
   context.addInstance('setFieldWidget', setFieldWidget);
   context.addInstance('joinUrl', joinUrl);
 }
@@ -145,12 +146,15 @@ function initServices(context) {
   context.addClass(ApimapSorter);
   context.addClass(ApimapSender);
   context.addClass(SchemaFileUpdater);
+  context.addClass(ScopeManager);
   context.addClass(ModelsManager);
   context.addClass(TokenService);
   context.addClass(OidcConfigurationRetrieverService);
   context.addClass(OidcClientManagerService);
   context.addClass(AuthenticationService);
-  context.addClass(SmartActionHook);
+  context.addClass(SmartActionFieldValidator);
+  context.addClass(SmartActionHookService);
+  context.addClass(SmartActionHookDeserializer);
 }
 
 /**

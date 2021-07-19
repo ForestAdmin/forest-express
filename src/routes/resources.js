@@ -17,7 +17,7 @@ module.exports = function Resources(app, model) {
     const params = request.query;
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
-    return new Implementation.ResourcesGetter(model, lianaOptions, params)
+    return new Implementation.ResourcesGetter(model, lianaOptions, params, request.user)
       .perform()
       .then((results) => {
         const records = results[0];
@@ -43,7 +43,7 @@ module.exports = function Resources(app, model) {
   this.count = (request, response, next) => {
     const params = request.query;
 
-    return new Implementation.ResourcesGetter(model, lianaOptions, params)
+    return new Implementation.ResourcesGetter(model, lianaOptions, params, request.user)
       .count()
       .then((count) => response.send({ count }))
       .catch(next);
@@ -55,30 +55,37 @@ module.exports = function Resources(app, model) {
       model,
       lianaOptions,
       params,
+      null,
+      request.user,
     );
     return new CSVExporter(params, response, modelName, recordsExporter)
       .perform()
       .catch(next);
   };
 
-  this.get = (request, response, next) => new Implementation.ResourceGetter(model, request.params)
-    .perform()
-    .then((record) => new ResourceSerializer(
-      Implementation,
-      model,
-      record,
-      integrator,
-    ).perform())
-    .then((record) => {
-      response.send(record);
-    })
-    .catch(next);
+  this.get = (request, response, next) =>
+    new Implementation.ResourceGetter(model, {
+      ...request.query, recordId: request.params.recordId,
+    }, request.user)
+      .perform()
+      .then((record) => new ResourceSerializer(
+        Implementation,
+        model,
+        record,
+        integrator,
+      ).perform())
+      .then((record) => {
+        response.send(record);
+      })
+      .catch(next);
 
   this.create = (request, response, next) => {
     new ResourceDeserializer(Implementation, model, request.body, true, {
       omitNullAttributes: true,
     }).perform()
-      .then((params) => new Implementation.ResourceCreator(model, params).perform())
+      .then((body) => new Implementation.ResourceCreator(
+        model, request.query, body, request.user,
+      ).perform())
       .then((record) => new ResourceSerializer(
         Implementation,
         model,
@@ -95,7 +102,7 @@ module.exports = function Resources(app, model) {
     new ResourceDeserializer(Implementation, model, request.body, false)
       .perform()
       .then((record) => {
-        new Implementation.ResourceUpdater(model, request.params, record)
+        new Implementation.ResourceUpdater(model, request.params, record, request.user)
           .perform()
           .then((updatedRecord) => new ResourceSerializer(
             Implementation,
@@ -111,24 +118,28 @@ module.exports = function Resources(app, model) {
       });
   };
 
-  this.remove = (request, response, next) => {
-    new Implementation.ResourceRemover(model, request.params)
-      .perform()
-      .then(() => {
-        response.status(204).send();
-      })
-      .catch(next);
+  this.remove = async (request, response, next) => {
+    const remover = new Implementation.ResourceRemover(
+      model, { ...request.query, recordId: request.params.recordId }, request.user,
+    );
+
+    try {
+      await remover.perform();
+      response.status(204).send();
+    } catch (e) {
+      next(e);
+    }
   };
 
   this.removeMany = async (request, response, next) => {
     const ids = await new RecordsGetter(model).getIdsFromRequest(request);
 
     try {
-      await new Implementation.ResourcesRemover(model, ids).perform();
+      await new Implementation.ResourcesRemover(model, request.query, ids, request.user).perform();
+      response.status(204).send();
     } catch (e) {
       next(e);
     }
-    response.status(204).send();
   };
 
   const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);

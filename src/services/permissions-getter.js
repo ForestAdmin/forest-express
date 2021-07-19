@@ -62,14 +62,14 @@ class PermissionsGetter {
       : null;
   }
 
-  _getScopePermissions(renderingId, collectionName, { environmentId } = {}) {
+  _getSegmentsPermissions(renderingId, collectionName, { environmentId } = {}) {
     const getPermissionsInRendering = this._getPermissionsInRendering(
       renderingId, { environmentId },
     );
     return getPermissionsInRendering
       && getPermissionsInRendering.data
       && getPermissionsInRendering.data[collectionName]
-      ? getPermissionsInRendering.data[collectionName].scope
+      ? getPermissionsInRendering.data[collectionName].segments
       : null;
   }
 
@@ -248,14 +248,14 @@ class PermissionsGetter {
     const collectionPermissions = this._getCollectionPermissions(
       renderingId, collectionName, { environmentId },
     );
-    const scope = this._getScopePermissions(renderingId, collectionName, { environmentId });
+    const segments = this._getSegmentsPermissions(renderingId, collectionName, { environmentId });
     const stats = this._getStatsPermissions(renderingId, { environmentId });
 
     return {
       collection: collectionPermissions ? collectionPermissions.collection : null,
       actions: collectionPermissions ? collectionPermissions.actions : null,
       stats,
-      scope,
+      segments,
     };
   }
 }

@@ -1,16 +1,71 @@
-## [8.7.5](https://github.com/ForestAdmin/forest-express/compare/v8.7.4...v8.7.5) (2021-06-30)
-
-
-### Bug Fixes
-
-* **related-data:** reaching an embedded has-many relationship by URL does not display any records on mongoose ([#758](https://github.com/ForestAdmin/forest-express/issues/758)) ([9cfae72](https://github.com/ForestAdmin/forest-express/commit/9cfae729b9c8fb93136fded3c69b23722c65f658))
-
-## [8.7.4](https://github.com/ForestAdmin/forest-express/compare/v8.7.3...v8.7.4) (2021-06-23)
+# [9.0.0-beta.12](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.11...v9.0.0-beta.12) (2021-07-19)
 
 
 ### Bug Fixes
 
 * **authentication:** error during authentication when the environment is secret passed as a liana option and not an environment variable ([#752](https://github.com/ForestAdmin/forest-express/issues/752)) ([af19146](https://github.com/ForestAdmin/forest-express/commit/af19146826a903b279c07345b34860f95a832e84))
+* **related-data:** reaching an embedded has-many relationship by URL does not display any records on mongoose ([#758](https://github.com/ForestAdmin/forest-express/issues/758)) ([9cfae72](https://github.com/ForestAdmin/forest-express/commit/9cfae729b9c8fb93136fded3c69b23722c65f658))
+
+# [9.0.0-beta.11](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.10...v9.0.0-beta.11) (2021-07-06)
+
+
+### Features
+
+* smart action hooks now have access to the http request ([#753](https://github.com/ForestAdmin/forest-express/issues/753)) ([ea5cd59](https://github.com/ForestAdmin/forest-express/commit/ea5cd59d45c114dd8ee4c3f35a057d32d9316c01))
+
+
+### BREAKING CHANGES
+
+* record is no longer send to the hook midleware & values option on smart action is no longer supported
+
+# [9.0.0-beta.10](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.9...v9.0.0-beta.10) (2021-07-02)
+
+
+### Bug Fixes
+
+* handle composite primary key case when checking permissions for smart actions ([#756](https://github.com/ForestAdmin/forest-express/issues/756)) ([30e8002](https://github.com/ForestAdmin/forest-express/commit/30e80022a5ea011b161fc8a17318eb350e66428a))
+
+# [9.0.0-beta.9](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.8...v9.0.0-beta.9) (2021-07-02)
+
+
+### Features
+
+* **security:** secure segments queries ([#747](https://github.com/ForestAdmin/forest-express/issues/747)) ([23e8817](https://github.com/ForestAdmin/forest-express/commit/23e88170b499d92a67ac2b246cccd0373676027e))
+
+## [8.7.5](https://github.com/ForestAdmin/forest-express/compare/v8.7.4...v8.7.5) (2021-06-30)
+
+### Bug Fixes
+
+* **related-data:** reaching an embedded has-many relationship by URL does not display any records on mongoose ([#758](https://github.com/ForestAdmin/forest-express/issues/758)) ([9cfae72](https://github.com/ForestAdmin/forest-express/commit/9cfae729b9c8fb93136fded3c69b23722c65f658))
+
+# [9.0.0-beta.8](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.7...v9.0.0-beta.8) (2021-06-29)
+
+
+### Bug Fixes
+
+* **smart-action:** smart actions after trying to mitigate breaking change ([#754](https://github.com/ForestAdmin/forest-express/issues/754)) ([c413992](https://github.com/ForestAdmin/forest-express/commit/c4139925c5ca5608d90d0b80bdee511f52b8f37f))
+
+
+## [8.7.4](https://github.com/ForestAdmin/forest-express/compare/v8.7.3...v8.7.4) (2021-06-23)
+
+### Bug Fixes
+
+* **authentication:** error during authentication when the environment is secret passed as a liana option and not an environment variable ([#752](https://github.com/ForestAdmin/forest-express/issues/752)) ([af19146](https://github.com/ForestAdmin/forest-express/commit/af19146826a903b279c07345b34860f95a832e84))
+
+
+# [9.0.0-beta.7](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.6...v9.0.0-beta.7) (2021-06-16)
+
+
+### Bug Fixes
+
+* stats permissions should be retrieved only one time per team ([#741](https://github.com/ForestAdmin/forest-express/issues/741)) ([8d05d75](https://github.com/ForestAdmin/forest-express/commit/8d05d757992c11c7b7a2ce3b4465a54e2430e755))
+* **intercom:** fix date conversion from unix timestamp to js date of intercom attributes ([#742](https://github.com/ForestAdmin/forest-express/issues/742)) ([97fa090](https://github.com/ForestAdmin/forest-express/commit/97fa09016f8c99bb75532c2272e7ba202f7054d4))
+* prevent IP check from failing for the proxies including the port in the headers ([#738](https://github.com/ForestAdmin/forest-express/issues/738)) ([810d0c1](https://github.com/ForestAdmin/forest-express/commit/810d0c1e013d9ec3e2af201f1b53bd125eb6af2f))
+
+
+### Features
+
+* include role in the user data inside the request ([#733](https://github.com/ForestAdmin/forest-express/issues/733)) ([e74ce72](https://github.com/ForestAdmin/forest-express/commit/e74ce724d80102387a2b5dd2d80581126fc66fee))
 
 ## [8.7.3](https://github.com/ForestAdmin/forest-express/compare/v8.7.2...v8.7.3) (2021-06-16)
 
@@ -26,10 +81,18 @@
 
 * **intercom:** fix date conversion from unix timestamp to js date of intercom attributes ([#742](https://github.com/ForestAdmin/forest-express/issues/742)) ([97fa090](https://github.com/ForestAdmin/forest-express/commit/97fa09016f8c99bb75532c2272e7ba202f7054d4))
 
+# [9.0.0-beta.6](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.5...v9.0.0-beta.6) (2021-06-10)
+
+### Bug Fixes
+
+* remove breaking change on smart action middleware ([#739](https://github.com/ForestAdmin/forest-express/issues/739)) ([b2a8f74](https://github.com/ForestAdmin/forest-express/commit/b2a8f74206054642f32b6e4cdd207f2c8bb67cf1))
+
 ## [8.7.1](https://github.com/ForestAdmin/forest-express/compare/v8.7.0...v8.7.1) (2021-06-10)
 
 
 ### Bug Fixes
+
+* correctly get the IP address from the request headers ([#731](https://github.com/ForestAdmin/forest-express/issues/731)) ([f2b5905](https://github.com/ForestAdmin/forest-express/commit/f2b59052219e13ece21b81d53f1381777407bd66))
 
 * prevent IP check from failing for the proxies including the port in the headers ([#738](https://github.com/ForestAdmin/forest-express/issues/738)) ([810d0c1](https://github.com/ForestAdmin/forest-express/commit/810d0c1e013d9ec3e2af201f1b53bd125eb6af2f))
 
@@ -38,7 +101,44 @@
 
 ### Features
 
+* **schema:** add embedded key stack into meta of the forestadmin schema ([#724](https://github.com/ForestAdmin/forest-express/issues/724)) ([5ff5a12](https://github.com/ForestAdmin/forest-express/commit/5ff5a12a267f97166753ef51142ad98d82788235))
+
 * include role in the user data inside the request ([#733](https://github.com/ForestAdmin/forest-express/issues/733)) ([e74ce72](https://github.com/ForestAdmin/forest-express/commit/e74ce724d80102387a2b5dd2d80581126fc66fee))
+
+
+# [9.0.0-beta.5](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.4...v9.0.0-beta.5) (2021-06-07)
+
+
+### Features
+
+* **smart-action:** user can add dynamically field with hook on smart action form ([#717](https://github.com/ForestAdmin/forest-express/issues/717)) ([910df2b](https://github.com/ForestAdmin/forest-express/commit/910df2b487cc4685fcdfc182c5291aebc774ad5e))
+
+
+### BREAKING CHANGES
+
+* **smart-action:** change hook is no longer choosen by the field name, field need to have hook defined inside it definition by addin a props hook
+
+# [9.0.0-beta.4](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.3...v9.0.0-beta.4) (2021-06-07)
+
+
+### Features
+
+* **smart-action:** add changedField argument on hook function ([#716](https://github.com/ForestAdmin/forest-express/issues/716)) ([709fe32](https://github.com/ForestAdmin/forest-express/commit/709fe3236f5a4998e3e568d209f1e193796637ac))
+
+
+### BREAKING CHANGES
+
+* **smart-action:** fields parameters on hook function is no longer a map of field, it is now an array.
+
+# [9.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.2...v9.0.0-beta.3) (2021-06-04)
+
+
+# [9.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v9.0.0-beta.1...v9.0.0-beta.2) (2021-06-03)
+
+### Bug Fixes
+
+* update record getter usage in action route to use global scope ([#730](https://github.com/ForestAdmin/forest-express/issues/730)) ([b92f158](https://github.com/ForestAdmin/forest-express/commit/b92f158055e7f7f33a279ea2095eb00adf3b6a06))
+
 
 ## [8.6.1](https://github.com/ForestAdmin/forest-express/compare/v8.6.0...v8.6.1) (2021-06-03)
 
@@ -53,6 +153,16 @@
 ### Features
 
 * **schema:** add embedded key stack into meta of the forestadmin schema ([#724](https://github.com/ForestAdmin/forest-express/issues/724)) ([5ff5a12](https://github.com/ForestAdmin/forest-express/commit/5ff5a12a267f97166753ef51142ad98d82788235))
+
+# [9.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v8.5.2...v9.0.0-beta.1) (2021-05-31)
+
+
+* feat(scopes)!: enforce scopes restrictions on a wider range of requests (#702) ([e36026e](https://github.com/ForestAdmin/forest-express/commit/e36026ef71409974c3335064afc1ff7c9d6729dc)), closes [#702](https://github.com/ForestAdmin/forest-express/issues/702)
+
+
+### BREAKING CHANGES
+
+* the public API of the package has changed to include the parameters which are needed to evaluate scope filters. This includes PermissionMiddlewareCreator, all classes on the /exposed folder and most services.
 
 ## [8.5.2](https://github.com/ForestAdmin/forest-express/compare/v8.5.1...v8.5.2) (2021-05-25)
 

@@ -36,6 +36,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
       );
     }
 
+    const params = { timezone: request.query.timezone, ...request.body };
     let { type } = request.body;
     if (type === CHART_TYPE_OBJECTIVE) { type = CHART_TYPE_VALUE; }
 
@@ -44,9 +45,9 @@ module.exports = function Stats(app, model, Implementation, opts) {
       const modelRelationship = getAssociationModel(schema, request.body.relationship_field);
 
       promise = new Implementation
-        .LeaderboardStatGetter(model, modelRelationship, request.body, opts).perform();
+        .LeaderboardStatGetter(model, modelRelationship, params, request.user).perform();
     } else {
-      promise = new Implementation[`${type}StatGetter`](model, request.body, opts).perform();
+      promise = new Implementation[`${type}StatGetter`](model, params, opts, request.user).perform();
     }
 
     if (!promise) {
@@ -55,7 +56,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
 
     return promise
       .then((stat) => {
-        if (request.body.type === CHART_TYPE_OBJECTIVE) {
+        if (type === CHART_TYPE_OBJECTIVE) {
           stat.value.value = stat.value.countCurrent;
           delete stat.value.countCurrent;
           delete stat.value.countPrevious;

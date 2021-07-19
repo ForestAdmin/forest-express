@@ -18,6 +18,7 @@ const AssociationsRoutes = require('./routes/associations');
 const StatRoutes = require('./routes/stats');
 const ForestRoutes = require('./routes/forest');
 const HealthCheckRoute = require('./routes/healthcheck');
+const initScopeRoutes = require('./routes/scopes');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
@@ -37,6 +38,8 @@ const {
   modelsManager,
   fs,
   tokenService,
+  scopeManager,
+  smartActionFieldValidator,
 } = context.inject();
 
 const PUBLIC_ROUTES = [
@@ -84,6 +87,7 @@ async function buildSchema() {
 
 exports.Schemas = Schemas;
 exports.logger = logger;
+exports.scopeManager = scopeManager;
 exports.ResourcesRoute = {};
 
 /**
@@ -111,12 +115,15 @@ function generateAndSendSchema(envSecret) {
     .filter((collection) => collection.actions && collection.actions.length)
     // NOTICE: Check each Smart Action declaration to detect configuration errors.
     .forEach((collection) => {
-      const isFieldsInvalid = (action) => action.fields && !Array.isArray(action.fields);
       collection.actions.forEach((action) => {
         if (!action.name) {
           logger.warn(`An unnamed Smart Action of collection "${collection.name}" has been ignored.`);
-        } else if (isFieldsInvalid(action)) {
-          logger.error(`Cannot find the fields you defined for the Smart action "${action.name}" of your "${collection.name}" collection. The fields option must be an array.`);
+        } else {
+          try {
+            smartActionFieldValidator.validateSmartActionFields(action, collection.name);
+          } catch (error) {
+            logger.error(error.message);
+          }
         }
       });
       // NOTICE: Ignore actions without a name.
@@ -253,6 +260,7 @@ exports.init = async (Implementation) => {
   }
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
+  initScopeRoutes(app, context.inject());
   initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
 
   // Init
@@ -381,6 +389,7 @@ exports.RecordCreator = require('./services/exposed/record-creator');
 exports.RecordRemover = require('./services/exposed/record-remover');
 exports.RecordsRemover = require('./services/exposed/records-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
+exports.ScopeManager = require('./services/scope-manager');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 
 exports.errorHandler = errorHandler;

@@ -27,6 +27,7 @@ const transformPermissionsFromOldToNewFormat = (permissions) => {
         exportEnabled: collection.export,
       },
       scope: modelPermissions.scope,
+      segments: modelPermissions.segments,
     };
 
     if (modelPermissions.actions) {

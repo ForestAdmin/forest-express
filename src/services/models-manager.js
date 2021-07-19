@@ -48,4 +48,8 @@ module.exports = class ModelsManager {
     if (!this.models) this._generateModelList();
     return this.models;
   }
+
+  getModelByName(name) {
+    return this.getModels()[name];
+  }
 };

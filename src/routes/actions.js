@@ -5,69 +5,19 @@ const context = require('../context');
  */
 class Actions {
   constructor({
-    logger, pathService, stringUtils, schemasGenerator, smartActionHook,
+    logger,
+    pathService,
+    stringUtils,
+    schemasGenerator,
+    smartActionHookService,
+    smartActionHookDeserializer,
   } = context.inject()) {
     this.path = pathService;
     this.logger = logger;
     this.stringUtils = stringUtils;
     this.schemasGenerator = schemasGenerator;
-    this.smartActionHook = smartActionHook;
-  }
-
-  /**
-   * Generate a callback for express that handles the `values` route.
-   * This legacy route is used to handle smart actions' forms initialization.
-   * Users should use the `load` hook now.
-   *
-   * @param {Object} action The smart action
-   * @returns {Function} A route callback for express
-   */
-  getValuesController(action) {
-    return (request, response) => {
-      const successResponse = (object) => response.status(200).send(object);
-      const values = action.values ? action.values(request.body.data.attributes.values) : {};
-
-      if (!(values.then && typeof values.then === 'function')) return successResponse(values);
-
-      return values
-        .then((valuesComputed) => successResponse(valuesComputed))
-        .catch((error) => {
-          this.logger.error(`Cannot send the values of the "${action.name}" Smart Actions because of an unexpected error: `, error);
-          return successResponse({});
-        });
-    };
-  }
-
-  /**
-   * @param {Number} recordId
-   */
-  async getRecord(recordId) {
-    return this.model
-      ? new this.implementation.ResourceGetter(this.model, { recordId }).perform()
-      : null;
-  }
-
-  /**
-   * Generic hook controller.
-   *
-   * @param {Object} request the express.js request object
-   * @param {Object} response the express.js response object
-   * @param {Function} hook returns the response thanks to smartActionHook service
-   * @returns {*} the express.js response object
-   * @see getHookLoadController and getHookChangeController
-   */
-  async getHook(request, response, hook) {
-    const recordId = request.body.recordIds[0];
-    const record = await this.getRecord(recordId);
-
-    try {
-      const updatedFields = await hook(record, recordId);
-
-      return response.status(200).send({ fields: updatedFields });
-    } catch (error) {
-      this.logger.error('Error in smart action hook: ', error);
-      return response.status(500).send({ message: error.message });
-    }
+    this.smartActionHookService = smartActionHookService;
+    this.smartActionHookDeserializer = smartActionHookDeserializer;
   }
 
   /**
@@ -77,13 +27,21 @@ class Actions {
    * @returns {Function} A route callback for express
    */
   getHookLoadController(action) {
-    return async (request, response) => (
-      this.getHook(request, response, async (record, recordId) => this.smartActionHook.getResponse(
-        action.hooks.load,
-        action.fields,
-        record,
-        recordId,
-      )));
+    return async (request, response) => {
+      try {
+        const loadedFields = await this.smartActionHookService.getResponse(
+          action,
+          action.hooks.load,
+          action.fields,
+          request,
+        );
+
+        return response.status(200).send({ fields: loadedFields });
+      } catch (error) {
+        this.logger.error('Error in smart load action hook: ', error);
+        return response.status(500).send({ message: error.message });
+      }
+    };
   }
 
   /**
@@ -94,15 +52,25 @@ class Actions {
    */
   getHookChangeController(action) {
     return async (request, response) => {
-      const { changedField } = request.body;
+      try {
+        const data = this.smartActionHookDeserializer.deserialize(request.body);
 
-      return this.getHook(request, response,
-        async (record, recordId) => this.smartActionHook.getResponse(
-          action.hooks.change[changedField],
-          request.body.fields,
-          record,
-          recordId,
-        ));
+        const { fields, changedField } = data;
+        const fieldChanged = fields.find((field) => field.field === changedField);
+
+        const updatedFields = await this.smartActionHookService.getResponse(
+          action,
+          action.hooks.change[fieldChanged?.hook],
+          fields,
+          request,
+          fieldChanged,
+        );
+
+        return response.status(200).send({ fields: updatedFields });
+      } catch (error) {
+        this.logger.error('Error in smart action change hook: ', error);
+        return response.status(500).send({ message: error.message });
+      }
     };
   }
 
@@ -132,15 +100,6 @@ class Actions {
       this.app.post(route, this.auth.ensureAuthenticated, controller);
 
     actions.forEach((action) => {
-      // Create a `values` routes for smart actions.
-      // One route is created for each action which have a `values` property.
-      if (action.values) {
-        this.logger.warn('DEPRECATION WARNING: Declaring `values` in a Smart Action is deprecated. Please use `load` hook.');
-        createDynamicRoute(
-          this.getRoute(action, 'values', this.options),
-          this.getValuesController(action),
-        );
-      }
       // Create a `load` routes for smart actions.
       // One route is created for each action which have a `hooks.load` property.
       if (action.hooks && action.hooks.load) {

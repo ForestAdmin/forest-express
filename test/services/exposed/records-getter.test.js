@@ -13,8 +13,11 @@ const collection = [
   { id: '3', name: 'baz' },
 ];
 
+const defaultUser = { id: 1, renderingId: 2 };
+const defaultParams = { timezone: 'UTC' };
+
 function getMockedRecordsGetter(modelName = null) {
-  const recordsGetter = new RecordsGetter(modelName);
+  const recordsGetter = new RecordsGetter(modelName, defaultUser, defaultParams);
   recordsGetter.configStore.Implementation = {
     ResourcesGetter() {
       return {
@@ -39,7 +42,7 @@ describe('services › exposed › records-getter', () => {
       expect.assertions(1);
       const expectedIds = ['1', '2'];
       const request = bodyDataAttributes({ ids: expectedIds });
-      const ids = await new RecordsGetter().getIdsFromRequest(request);
+      const ids = await new RecordsGetter('users', defaultUser, defaultParams).getIdsFromRequest(request);
       expect(ids).toBe(expectedIds);
     });
 
