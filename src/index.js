@@ -363,7 +363,7 @@ exports.collection = (name, opts) => {
     opts.fields = apimapFieldsFormater.formatFieldsByCollectionName(opts.fields, name);
     Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
 
-    if (configStore.Implementation.FieldsFlattener) {
+    if (configStore?.Implementation?.FieldsFlattener) {
       const fieldsFlattener = new configStore.Implementation.FieldsFlattener(
         Schemas.schemas[name],
         opts.flatten,
