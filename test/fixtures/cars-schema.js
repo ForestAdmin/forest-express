@@ -24,27 +24,8 @@ module.exports = {
     inverseOf: null,
     validations: [],
   }, {
-    field: 'engine',
-    type: {
-      fields: [{
-        field: 'horsepower',
-        type: 'String',
-      }, {
-        field: 'cylinder',
-        type: 'Number',
-      }, {
-        field: 'identification',
-        type: {
-          fields: [{
-            field: 'manufacturer',
-            type: 'String',
-          }, {
-            field: 'serialNumber',
-            type: 'String',
-          }],
-        },
-      }],
-    },
+    field: 'engine|horsePower',
+    type: 'String',
     defaultValue: null,
     enums: null,
     integration: null,
@@ -58,7 +39,7 @@ module.exports = {
     inverseOf: null,
     validations: [],
   }, {
-    field: 'engine|horsePower',
+    field: 'engine|identification|manufacturer',
     type: 'String',
     defaultValue: null,
     enums: null,

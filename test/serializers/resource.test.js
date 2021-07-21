@@ -19,7 +19,7 @@ describe('serializers > resource', () => {
     );
   }
 
-  it('should correctly serialize with flattened fields', async () => {
+  it('should serialize the flattened fields', async () => {
     expect.assertions(1);
     const records = [
       {
@@ -29,7 +29,6 @@ describe('serializers > resource', () => {
           identification: { manufacturer: 'Renault' },
           horsePower: '125cv',
         },
-        __v: 0,
       }, {
         _id: '5f928f4f1eedcfbce937bbd0',
         name: 'Ibiza',
@@ -41,12 +40,8 @@ describe('serializers > resource', () => {
       data: [{
         attributes: {
           _id: '5fbfb0ee67e7953f9b8414bf',
-          engine: {
-            identification: {
-              manufacturer: 'Renault',
-            },
-          },
           'engine|horsePower': '125cv',
+          'engine|identification|manufacturer': 'Renault',
           name: 'Zoey',
         },
         type: 'cars',
@@ -54,6 +49,7 @@ describe('serializers > resource', () => {
         attributes: {
           _id: '5f928f4f1eedcfbce937bbd0',
           'engine|horsePower': null,
+          'engine|identification|manufacturer': null,
           name: 'Ibiza',
         },
         type: 'cars',
