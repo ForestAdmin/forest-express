@@ -76,8 +76,10 @@ function SmartFieldsValuesInjector(
 
   this.perform = () =>
     P.each(schema.fields, (field) => {
+      const fieldWasRequested = isRequestedField(requestedField || modelName, field.field);
+
       if (record && field.isVirtual && (field.get || field.value)) {
-        if (fieldsPerModel && !isRequestedField(requestedField || modelName, field.field)) {
+        if (fieldsPerModel && !fieldWasRequested) {
           return null;
         }
 
