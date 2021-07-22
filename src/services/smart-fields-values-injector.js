@@ -86,13 +86,20 @@ function SmartFieldsValuesInjector(
         return setSmartFieldValue(record, field, modelName);
       }
 
-      // If a field containing a list was requested but is not provided, use an empty array.
-      if (fieldWasRequested && !record[field.field] && _.isArray(field.type)) {
-        record[field.field] = [];
-      }
+      if (
+        !record[field.field]
+        && _.isArray(field.type)
+        && (field.relationship || field.isVirtual)) {
+        // Add empty arrays on relation fields so that JsonApiSerializer add the relevant
+        // `data.x.relationships` section in the response.
+        //
+        // The field must match the following condition
+        // - field is a real or a smart HasMany / BelongsToMany relation
+        // - field is NOT an 'embedded' relationship (@see mongoose)
 
-      // Set Smart Fields values to "belongsTo" associated records.
-      if (field.reference && !_.isArray(field.type)) {
+        record[field.field] = [];
+      } else if (field.reference && !_.isArray(field.type)) {
+        // NOTICE: Set Smart Fields values to "belongsTo" associated records.
         const modelNameAssociation = getReferencedModelName(field);
         const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
