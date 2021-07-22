@@ -84,15 +84,17 @@ function SmartFieldsValuesInjector(
         return setSmartFieldValue(record, field, modelName);
       }
 
-      if (!record[field.field] && _.isArray(field.type) && field.relationship) {
-        // This condition is unrelated to smart fields, and should _not_ be in this file.
-        // It add empty arrays on the model for HasMany and BelongsToMany relationships which
-        // were not fetched so that JsonApiSerializer add the relevant `data.x.relationships`
-        // section.
+      if (
+        !record[field.field]
+        && _.isArray(field.type)
+        && (field.relationship || field.isVirtual)) {
+        // Add empty arrays on relation fields so that JsonApiSerializer add the relevant
+        // `data.x.relationships` section in the response.
+        //
+        // The field must match the following condition
+        // - field is a real or a smart HasMany / BelongsToMany relation
+        // - field is NOT an 'embedded' relationship (@see mongoose)
 
-        // Bugfix: The test that field.relationship is != undefined, is there to ensure
-        // that the GUI does not break when using embedded relationships for mongodb models
-        // @see https://app.clickup.com/t/9u1yw4
         record[field.field] = [];
       } else if (field.reference && !_.isArray(field.type)) {
         // NOTICE: Set Smart Fields values to "belongsTo" associated records.
