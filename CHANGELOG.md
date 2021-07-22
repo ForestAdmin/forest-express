@@ -1,3 +1,10 @@
+## [9.0.1](https://github.com/ForestAdmin/forest-express/compare/v9.0.0...v9.0.1) (2021-07-22)
+
+
+### Bug Fixes
+
+* **related-data:** sequelize related data are not displayed ([#772](https://github.com/ForestAdmin/forest-express/issues/772)) ([27008e9](https://github.com/ForestAdmin/forest-express/commit/27008e9fcd29a7d7755c43707bc593be9fce1b21))
+
 # [9.0.0](https://github.com/ForestAdmin/forest-express/compare/v8.7.5...v9.0.0) (2021-07-19)
 
 
