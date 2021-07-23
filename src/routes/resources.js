@@ -8,8 +8,7 @@ const PermissionMiddlewareCreator = require('../middlewares/permissions');
 const context = require('../context');
 const RecordsGetter = require('../services/exposed/records-getter.js');
 
-module.exports = function Resources(app, model) {
-  const { configStore } = context.inject();
+module.exports = function Resources(app, model, { configStore } = context.inject()) {
   const { Implementation, integrator, lianaOptions } = configStore;
   const modelName = Implementation.getModelName(model);
 
