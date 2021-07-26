@@ -1,3 +1,10 @@
+## [9.0.2](https://github.com/ForestAdmin/forest-express/compare/v9.0.1...v9.0.2) (2021-07-26)
+
+
+### Bug Fixes
+
+* **actions:** provide user and timezone to remove many action ([#773](https://github.com/ForestAdmin/forest-express/issues/773)) ([1550386](https://github.com/ForestAdmin/forest-express/commit/155038688c9a1cbcb1a62a3ad1b92f2bc702a6a7))
+
 ## [9.0.1](https://github.com/ForestAdmin/forest-express/compare/v9.0.0...v9.0.1) (2021-07-22)
 
 
