@@ -6,7 +6,7 @@ jest.mock('../../src/services/exposed/records-getter.js');
 
 describe('routes > resources', () => {
   it('should delete', async () => {
-    expect.assertions(3);
+    expect.assertions(5);
 
     // Mock configStore
     const resourceRemoverPerform = jest.fn();
@@ -20,7 +20,7 @@ describe('routes > resources', () => {
     context.init((ctx) => ctx.addInstance('configStore', configStore));
 
     // Mock RecordsGetter
-    jest
+    const getRecords = jest
       .spyOn(RecordsGetter.prototype, 'getIdsFromRequest')
       .mockImplementation(() => [1, 2, 3]);
 
@@ -39,6 +39,9 @@ describe('routes > resources', () => {
     // Test
     const subject = new Resources(app, model, context.inject());
     await subject.removeMany(req, res, next);
+
+    expect(RecordsGetter).toHaveBeenCalledWith(model, req.user, req.query);
+    expect(getRecords).toHaveBeenCalledWith(req);
 
     expect(configStore.Implementation.getModelName)
       .toHaveBeenCalledWith(model);
