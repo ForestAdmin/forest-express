@@ -1,54 +1,119 @@
 const ApplicationContext = require('../../src/context/application-context');
-const Resources = require('../../src/routes/resources');
 const RecordsGetter = require('../../src/services/exposed/records-getter.js');
+const Resources = require('../../src/routes/resources');
+const ResourceSerializer = require('../../src/serializers/resource');
+const ResourceDeserializer = require('../../src/deserializers/resource');
 
 jest.mock('../../src/services/exposed/records-getter.js');
+jest.mock('../../src/serializers/resource');
+jest.mock('../../src/deserializers/resource');
 
+/**
+ * Those tests are not super useful.
+ *
+ * They check that Implementation.ResourceUpdater() and Implementation.ResourcesRemover
+ * are called with the proper parameters to avoid new regressions when the interface
+ * between forest-express and the dependent packages changes.
+ */
 describe('routes > resources', () => {
-  it('should delete', async () => {
-    expect.assertions(5);
+  describe('.update', () => {
+    it('should work when all parameters are valid', async () => {
+      expect.assertions(3);
 
-    // Mock configStore
-    const resourceRemoverPerform = jest.fn();
-    const configStore = {
-      Implementation: {
-        getModelName: jest.fn(() => 'books'),
-        ResourcesRemover: jest.fn(() => ({ perform: resourceRemoverPerform })),
-      },
-    };
-    const context = new ApplicationContext();
-    context.init((ctx) => ctx.addInstance('configStore', configStore));
+      // Mock app state
+      const app = {};
+      const model = { name: 'book' };
+      const record = { id: 1, title: 'MyTitle' };
 
-    // Mock RecordsGetter
-    const getRecords = jest
-      .spyOn(RecordsGetter.prototype, 'getIdsFromRequest')
-      .mockImplementation(() => [1, 2, 3]);
+      // Mock configStore
+      const resourceUpdaterPerform = jest.fn(() => Promise.resolve());
+      const configStore = {
+        Implementation: {
+          getModelName: jest.fn(() => 'books'),
+          ResourceUpdater: jest.fn(() => ({ perform: resourceUpdaterPerform })),
+        },
+      };
+      const context = new ApplicationContext();
+      context.init((ctx) => ctx.addInstance('configStore', configStore));
 
-    // Mock express
-    const req = { query: { timezone: 'Europe/Paris', ids: '1,2,3' }, user: {} };
-    const res = { }; // eslint-disable-line sonarjs/prefer-object-literal
-    res.status = () => res;
-    res.send = () => res;
+      // Mock deserializer / serializer
+      ResourceDeserializer.mockImplementation(function MyResourceDeserializer() {
+        this.perform = () => Promise.resolve(record);
+      });
+      ResourceSerializer.mockImplementation(function MyResourceSerializer() {
+        this.perform = () => Promise.resolve(record);
+      });
 
-    const next = jest.fn();
+      // Mock express
+      const next = jest.fn();
+      const req = {
+        params: { recordId: '1' },
+        query: { timezone: 'Europe/Paris' },
+        user: { renderingId: 1 },
+      };
+      const res = { }; // eslint-disable-line sonarjs/prefer-object-literal
+      res.status = () => res;
+      res.send = () => res;
 
-    // Mock app state
-    const app = {};
-    const model = {};
+      // Test
+      const subject = new Resources(app, model, context.inject());
+      await subject.update(req, res, next);
 
-    // Test
-    const subject = new Resources(app, model, context.inject());
-    await subject.removeMany(req, res, next);
+      expect(configStore.Implementation.getModelName)
+        .toHaveBeenCalledWith(model);
 
-    expect(RecordsGetter).toHaveBeenCalledWith(model, req.user, req.query);
-    expect(getRecords).toHaveBeenCalledWith(req);
+      expect(configStore.Implementation.ResourceUpdater)
+        .toHaveBeenCalledWith(model, { timezone: 'Europe/Paris', recordId: '1' }, record, req.user);
 
-    expect(configStore.Implementation.getModelName)
-      .toHaveBeenCalledWith(model);
+      expect(resourceUpdaterPerform).toHaveBeenCalledWith();
+    });
+  });
 
-    expect(configStore.Implementation.ResourcesRemover)
-      .toHaveBeenCalledWith(model, req.query, [1, 2, 3], req.user);
+  describe('.delete', () => {
+    it('should work when all parameters are valid', async () => {
+      expect.assertions(5);
 
-    expect(resourceRemoverPerform).toHaveBeenCalledWith();
+      // Mock app state
+      const app = {};
+      const model = { name: 'book' };
+
+      // Mock configStore
+      const resourceRemoverPerform = jest.fn();
+      const configStore = {
+        Implementation: {
+          getModelName: jest.fn(() => 'books'),
+          ResourcesRemover: jest.fn(() => ({ perform: resourceRemoverPerform })),
+        },
+      };
+      const context = new ApplicationContext();
+      context.init((ctx) => ctx.addInstance('configStore', configStore));
+
+      // Mock RecordsGetter
+      const recordsGetterGetRecords = jest
+        .spyOn(RecordsGetter.prototype, 'getIdsFromRequest')
+        .mockImplementation(() => [1, 2, 3]);
+
+      // Mock express
+      const next = jest.fn();
+      const req = { query: { timezone: 'Europe/Paris', ids: '1,2,3' }, user: { renderingId: 1 } };
+      const res = { }; // eslint-disable-line sonarjs/prefer-object-literal
+      res.status = () => res;
+      res.send = () => res;
+
+      // Test
+      const subject = new Resources(app, model, context.inject());
+      await subject.removeMany(req, res, next);
+
+      expect(RecordsGetter).toHaveBeenCalledWith(model, req.user, req.query);
+      expect(recordsGetterGetRecords).toHaveBeenCalledWith(req);
+
+      expect(configStore.Implementation.getModelName)
+        .toHaveBeenCalledWith(model);
+
+      expect(configStore.Implementation.ResourcesRemover)
+        .toHaveBeenCalledWith(model, req.query, [1, 2, 3], req.user);
+
+      expect(resourceRemoverPerform).toHaveBeenCalledWith();
+    });
   });
 });

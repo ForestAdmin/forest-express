@@ -98,10 +98,11 @@ module.exports = function Resources(app, model, { configStore } = context.inject
   };
 
   this.update = (request, response, next) => {
-    new ResourceDeserializer(Implementation, model, request.body, false)
+    const params = { timezone: request.query.timezone, ...request.params };
+    return new ResourceDeserializer(Implementation, model, request.body, false)
       .perform()
       .then((record) => {
-        new Implementation.ResourceUpdater(model, request.params, record, request.user)
+        new Implementation.ResourceUpdater(model, params, record, request.user)
           .perform()
           .then((updatedRecord) => new ResourceSerializer(
             Implementation,
