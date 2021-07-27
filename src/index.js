@@ -271,6 +271,10 @@ exports.init = async (Implementation) => {
       loadCollections(configStore.configDir);
     }
 
+    if (configStore?.Implementation?.RequestUnflattener) {
+      app.use(configStore.Implementation.RequestUnflattener);
+    }
+
     models.forEach((model) => {
       const modelName = configStore.Implementation.getModelName(model);
 

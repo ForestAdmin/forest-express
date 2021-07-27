@@ -236,6 +236,45 @@ describe('liana > index', () => {
           expect(response.status).not.toStrictEqual(404);
         });
       });
+
+      describe('when implementation exposes RequestUnflattener middleware', () => {
+        const requestUnflattener = jest.fn((req, res, next) => next());
+
+        const initForestAppWithModels = () => {
+          const forestExpress = resetRequireIndex();
+
+          const implementation = createFakeImplementation({
+            connections: {
+              db1: {
+                models: {
+                  modelFoo: {
+                    modelName: 'modelFoo',
+                  },
+                },
+              },
+            },
+          }, {
+            getModelName: (model) => model.modelName,
+            getLianaName: () => 'forest-implementation',
+            getLianaVersion: () => '0.1.2',
+            getOrmVersion: () => '2.1.0',
+            getDatabaseType: () => 'awesome-sgbd',
+            SchemaAdapter: () => Promise.resolve({}),
+            RequestUnflattener: requestUnflattener,
+          });
+
+          return forestExpress.init(implementation);
+        };
+
+        it('should call the middleware on all the routes', async () => {
+          expect.assertions(1);
+
+          const app = await initForestAppWithModels();
+          await request(app).get('/forest/modelFoo');
+
+          expect(requestUnflattener).toHaveBeenCalledTimes(1);
+        });
+      });
     });
   });
 
