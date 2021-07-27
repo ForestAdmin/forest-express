@@ -1,3 +1,10 @@
+## [9.0.3](https://github.com/ForestAdmin/forest-express/compare/v9.0.2...v9.0.3) (2021-07-27)
+
+
+### Bug Fixes
+
+* **update:** fix update record regression ([#774](https://github.com/ForestAdmin/forest-express/issues/774)) ([57e69ab](https://github.com/ForestAdmin/forest-express/commit/57e69ab375a9564f7cffe3fcdbdcf338755d127d))
+
 ## [9.0.2](https://github.com/ForestAdmin/forest-express/compare/v9.0.1...v9.0.2) (2021-07-26)
 
 
