@@ -319,15 +319,18 @@ describe('liana > index', () => {
 
         const forestExpress = resetRequireIndex();
 
-        class FakeFieldsFlattener {
+        class FakeFlattener {
           // eslint-disable-next-line class-methods-use-this
           flattenFields() {
             expect(true).toBeTrue();
           }
+
+          // eslint-disable-next-line class-methods-use-this
+          static requestUnflattener(req, res, next) { next(); }
         }
 
         const fakeImplementation = createFakeImplementation({}, {
-          FieldsFlattener: FakeFieldsFlattener,
+          Flattener: FakeFlattener,
         });
 
         // Used only to initialise Implementation
