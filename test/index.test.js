@@ -238,38 +238,18 @@ describe('liana > index', () => {
       });
 
       describe('when implementation exposes RequestUnflattener middleware', () => {
-        const requestUnflattener = jest.fn((req, res, next) => next());
-
-        const initForestAppWithModels = () => {
-          const forestExpress = resetRequireIndex();
-
-          const implementation = createFakeImplementation({
-            connections: {
-              db1: {
-                models: {
-                  modelFoo: {
-                    modelName: 'modelFoo',
-                  },
-                },
-              },
-            },
-          }, {
-            getModelName: (model) => model.modelName,
-            getLianaName: () => 'forest-implementation',
-            getLianaVersion: () => '0.1.2',
-            getOrmVersion: () => '2.1.0',
-            getDatabaseType: () => 'awesome-sgbd',
-            SchemaAdapter: () => Promise.resolve({}),
-            RequestUnflattener: requestUnflattener,
-          });
-
-          return forestExpress.init(implementation);
-        };
-
         it('should call the middleware on all the routes', async () => {
           expect.assertions(1);
 
-          const app = await initForestAppWithModels();
+          const requestUnflattener = jest.fn((req, res, next) => next());
+          const fakeImplementation = createFakeImplementation({}, {
+            Flattener: {
+              requestUnflattener,
+            },
+          });
+          const forestExpress = resetRequireIndex();
+          const app = await forestExpress.init(fakeImplementation);
+
           await request(app).get('/forest/modelFoo');
 
           expect(requestUnflattener).toHaveBeenCalledTimes(1);
@@ -339,15 +319,18 @@ describe('liana > index', () => {
 
         const forestExpress = resetRequireIndex();
 
-        class FakeFieldsFlattener {
+        class FakeFlattener {
           // eslint-disable-next-line class-methods-use-this
           flattenFields() {
             expect(true).toBeTrue();
           }
+
+          // eslint-disable-next-line class-methods-use-this
+          static requestUnflattener(req, res, next) { next(); }
         }
 
         const fakeImplementation = createFakeImplementation({}, {
-          FieldsFlattener: FakeFieldsFlattener,
+          Flattener: FakeFlattener,
         });
 
         // Used only to initialise Implementation

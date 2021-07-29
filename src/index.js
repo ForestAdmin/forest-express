@@ -271,8 +271,8 @@ exports.init = async (Implementation) => {
       loadCollections(configStore.configDir);
     }
 
-    if (configStore?.Implementation?.RequestUnflattener) {
-      app.use(configStore.Implementation.RequestUnflattener);
+    if (configStore?.Implementation?.Flattener) {
+      app.use(configStore.Implementation.Flattener.requestUnflattener);
     }
 
     models.forEach((model) => {
@@ -363,12 +363,12 @@ exports.collection = (name, opts) => {
     opts.fields = apimapFieldsFormater.formatFieldsByCollectionName(opts.fields, name);
     Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
 
-    if (configStore?.Implementation?.FieldsFlattener) {
-      const fieldsFlattener = new configStore.Implementation.FieldsFlattener(
+    if (configStore?.Implementation?.Flattener) {
+      const Flattener = new configStore.Implementation.Flattener(
         Schemas.schemas[name],
         opts.flatten,
       );
-      fieldsFlattener.flattenFields();
+      Flattener.flattenFields();
     }
 
     if (opts.searchFields) {
