@@ -19,28 +19,28 @@ function resetRequireIndex(mockExtraModules) {
 }
 
 describe('liana > index', () => {
-  describe('init', () => {
-    const envSecret = Array(65).join('0');
-    const authSecret = Array(65).join('1');
-    const createFakeImplementation = (extraConfiguration, extraImplementation) => ({
-      opts: {
-        envSecret,
-        authSecret,
-        connections: {
-          db1: {
-            models: {},
-          },
+  const envSecret = Array(65).join('0');
+  const authSecret = Array(65).join('1');
+  const createFakeImplementation = (extraConfiguration, extraImplementation) => ({
+    opts: {
+      envSecret,
+      authSecret,
+      connections: {
+        db1: {
+          models: {},
         },
-        ...extraConfiguration,
       },
-      getModelName: (model) => model.modelName,
-      getLianaName: () => {},
-      getLianaVersion: () => {},
-      getOrmVersion: () => {},
-      getDatabaseType: () => {},
-      ...extraImplementation,
-    });
+      ...extraConfiguration,
+    },
+    getModelName: (model) => model.modelName,
+    getLianaName: () => {},
+    getLianaVersion: () => {},
+    getOrmVersion: () => {},
+    getDatabaseType: () => {},
+    ...extraImplementation,
+  });
 
+  describe('init', () => {
     describe('with an invalid configuration', () => {
       it('should not throw an error', async () => {
         expect.assertions(1);
@@ -332,6 +332,30 @@ describe('liana > index', () => {
           isReadOnly: true,
         }];
         expect(collectionTest.fields).toStrictEqual(expectedFields);
+      });
+
+      it('should call field flattener if any', async () => {
+        expect.assertions(1);
+
+        const forestExpress = resetRequireIndex();
+
+        class FakeFieldsFlattener {
+          // eslint-disable-next-line class-methods-use-this
+          flattenFields() {
+            expect(true).toBeTrue();
+          }
+        }
+
+        const fakeImplementation = createFakeImplementation({}, {
+          FieldsFlattener: FakeFieldsFlattener,
+        });
+
+        // Used only to initialise Implementation
+        await forestExpress.init(fakeImplementation);
+
+        forestExpress.Schemas.schemas.collectionTest = { nameOld: 'collectionTest', name: 'collectionTest' };
+
+        forestExpress.collection('collectionTest', config);
       });
     });
 
