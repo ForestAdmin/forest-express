@@ -142,9 +142,6 @@ function ResourceSerializer(
     }
 
     const attributes = getFieldsNames(schema.fields);
-    const flattenedFieldsNames = attributes?.filter((attribute) => attribute.includes('|'));
-
-    const flattenedFieldsAccessors = flattenedFieldsNames?.map((elem) => ({ [elem]: elem.split('|') }));
 
     const serializationOptions = {
       id: schema.idField,
@@ -154,15 +151,23 @@ function ResourceSerializer(
       meta,
     };
 
-    if (flattenedFieldsAccessors.length) {
-      serializationOptions.transform = (record) => {
-        flattenedFieldsAccessors.forEach((accessors) => {
-          Object.entries(accessors).forEach(([fieldName, accessor]) => {
-            record[fieldName] = accessor.reduce((a, prop) => (a ? a[prop] : null), record);
+    if (Implementation?.Flattener) {
+      const flattenedFieldsNames = attributes?.filter(
+        (attribute) => Implementation.Flattener._isFieldFlattened(attribute));
+
+      const flattenedFieldsAccessors = flattenedFieldsNames
+        ?.map((elem) => ({ [elem]: Implementation.Flattener.splitOnSeparator(elem) }));
+
+      if (flattenedFieldsAccessors.length) {
+        serializationOptions.transform = (record) => {
+          flattenedFieldsAccessors.forEach((accessors) => {
+            Object.entries(accessors).forEach(([fieldName, accessor]) => {
+              record[fieldName] = accessor.reduce((a, prop) => (a ? a[prop] : null), record);
+            });
           });
-        });
-        return record;
-      };
+          return record;
+        };
+      }
     }
 
     getAttributesFor(serializationOptions, schema.fields);
