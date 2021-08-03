@@ -366,7 +366,7 @@ exports.collection = (name, opts) => {
     if (configStore?.Implementation?.Flattener) {
       const Flattener = new configStore.Implementation.Flattener(
         Schemas.schemas[name],
-        opts.flatten,
+        opts.fieldsToFlatten,
       );
       Flattener.flattenFields();
     }
