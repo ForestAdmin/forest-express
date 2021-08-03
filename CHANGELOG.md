@@ -1,3 +1,10 @@
+# [9.1.0](https://github.com/ForestAdmin/forest-express/compare/v9.0.3...v9.1.0) (2021-08-03)
+
+
+### Features
+
+* users can now flatten nested fields from mongoose models ([9d51940](https://github.com/ForestAdmin/forest-express/commit/9d51940ba5b629ba94949bea902ffdc9718e34c1))
+
 ## [9.0.3](https://github.com/ForestAdmin/forest-express/compare/v9.0.2...v9.0.3) (2021-07-27)
 
 
