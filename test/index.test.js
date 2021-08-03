@@ -19,28 +19,28 @@ function resetRequireIndex(mockExtraModules) {
 }
 
 describe('liana > index', () => {
-  describe('init', () => {
-    const envSecret = Array(65).join('0');
-    const authSecret = Array(65).join('1');
-    const createFakeImplementation = (extraConfiguration, extraImplementation) => ({
-      opts: {
-        envSecret,
-        authSecret,
-        connections: {
-          db1: {
-            models: {},
-          },
+  const envSecret = Array(65).join('0');
+  const authSecret = Array(65).join('1');
+  const createFakeImplementation = (extraConfiguration, extraImplementation) => ({
+    opts: {
+      envSecret,
+      authSecret,
+      connections: {
+        db1: {
+          models: {},
         },
-        ...extraConfiguration,
       },
-      getModelName: (model) => model.modelName,
-      getLianaName: () => {},
-      getLianaVersion: () => {},
-      getOrmVersion: () => {},
-      getDatabaseType: () => {},
-      ...extraImplementation,
-    });
+      ...extraConfiguration,
+    },
+    getModelName: (model) => model.modelName,
+    getLianaName: () => {},
+    getLianaVersion: () => {},
+    getOrmVersion: () => {},
+    getDatabaseType: () => {},
+    ...extraImplementation,
+  });
 
+  describe('init', () => {
     describe('with an invalid configuration', () => {
       it('should not throw an error', async () => {
         expect.assertions(1);
@@ -236,6 +236,25 @@ describe('liana > index', () => {
           expect(response.status).not.toStrictEqual(404);
         });
       });
+
+      describe('when implementation exposes RequestUnflattener middleware', () => {
+        it('should call the middleware on all the routes', async () => {
+          expect.assertions(1);
+
+          const requestUnflattener = jest.fn((req, res, next) => next());
+          const fakeImplementation = createFakeImplementation({}, {
+            Flattener: {
+              requestUnflattener,
+            },
+          });
+          const forestExpress = resetRequireIndex();
+          const app = await forestExpress.init(fakeImplementation);
+
+          await request(app).get('/forest/modelFoo');
+
+          expect(requestUnflattener).toHaveBeenCalledTimes(1);
+        });
+      });
     });
   });
 
@@ -293,6 +312,33 @@ describe('liana > index', () => {
           isReadOnly: true,
         }];
         expect(collectionTest.fields).toStrictEqual(expectedFields);
+      });
+
+      it('should call field flattener if any', async () => {
+        expect.assertions(1);
+
+        const forestExpress = resetRequireIndex();
+
+        class FakeFlattener {
+          // eslint-disable-next-line class-methods-use-this
+          flattenFields() {
+            expect(true).toBeTrue();
+          }
+
+          // eslint-disable-next-line class-methods-use-this
+          static requestUnflattener(req, res, next) { next(); }
+        }
+
+        const fakeImplementation = createFakeImplementation({}, {
+          Flattener: FakeFlattener,
+        });
+
+        // Used only to initialise Implementation
+        await forestExpress.init(fakeImplementation);
+
+        forestExpress.Schemas.schemas.collectionTest = { nameOld: 'collectionTest', name: 'collectionTest' };
+
+        forestExpress.collection('collectionTest', config);
       });
     });
 

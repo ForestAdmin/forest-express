@@ -271,6 +271,10 @@ exports.init = async (Implementation) => {
       loadCollections(configStore.configDir);
     }
 
+    if (configStore?.Implementation?.Flattener) {
+      app.use(configStore.Implementation.Flattener.requestUnflattener);
+    }
+
     models.forEach((model) => {
       const modelName = configStore.Implementation.getModelName(model);
 
@@ -358,6 +362,14 @@ exports.collection = (name, opts) => {
     // NOTICE: Smart Field definition case
     opts.fields = apimapFieldsFormater.formatFieldsByCollectionName(opts.fields, name);
     Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
+
+    if (configStore?.Implementation?.Flattener) {
+      const Flattener = new configStore.Implementation.Flattener(
+        Schemas.schemas[name],
+        opts.fieldsToFlatten,
+      );
+      Flattener.flattenFields();
+    }
 
     if (opts.searchFields) {
       Schemas.schemas[name].searchFields = opts.searchFields;
