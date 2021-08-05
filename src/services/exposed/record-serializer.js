@@ -13,11 +13,7 @@ class RecordSerializer {
     return this.configStore.lianaOptions;
   }
 
-  /**
-   * User and query parameters are not used but kept for retro-compatibility.
-   * they should be dropped on V9
-   */
-  constructor(model, user, query, { configStore } = context.inject()) {
+  constructor(model, user = null, params = null, { configStore } = context.inject()) {
     if (!model) {
       throw new Error('RecordSerializer initialization error: missing first argument "model"');
     }
@@ -31,6 +27,8 @@ class RecordSerializer {
     }
 
     this.model = model;
+    this.user = user;
+    this.params = params;
     this.configStore = configStore;
   }
 

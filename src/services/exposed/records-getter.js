@@ -6,10 +6,8 @@ const IdsFromRequestRetriever = require('../../services/ids-from-request-retriev
 const RecordSerializer = require('./record-serializer');
 
 class RecordsGetter extends RecordSerializer {
-  constructor(model, user, params, { modelsManager } = context.inject()) {
-    super(model);
-    this.user = user;
-    this.params = params;
+  constructor(model, user, params, { configStore, modelsManager } = context.inject()) {
+    super(model, user, params, { configStore });
     this.modelsManager = modelsManager;
 
     if (!params?.timezone) {

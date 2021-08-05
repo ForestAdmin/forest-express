@@ -1,10 +1,9 @@
+const context = require('../../context');
 const RecordSerializer = require('./record-serializer');
 
 class RecordCreator extends RecordSerializer {
-  constructor(model, user, params) {
-    super(model);
-    this.user = user;
-    this.params = params;
+  constructor(model, user, params, { configStore } = context.inject()) {
+    super(model, user, params, { configStore });
 
     if (!params?.timezone) {
       throw new Error(
