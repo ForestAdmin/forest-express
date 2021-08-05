@@ -1,18 +1,30 @@
-const AbstractRecordService = require('./abstract-records-service');
 const CSVExporter = require('../csv-exporter');
+const RecordSerializer = require('./record-serializer');
 
-class RecordsExporter extends AbstractRecordService {
+class RecordsExporter extends RecordSerializer {
+  constructor(model, user, params) {
+    super(model);
+    this.user = user;
+    this.params = params;
+
+    if (!params?.timezone) {
+      throw new Error(
+        'Since v8.0.0 the RecordsExporter\'s constructor has changed and requires access to the requesting user and query string.\n'
+        + 'Please check the migration guide at https://docs.forestadmin.com/documentation/how-tos/maintain/upgrade-notes-sql-mongodb/upgrade-to-v8',
+      );
+    }
+  }
+
+  /**
+   * Stream a CSV export of records matching request provided in constructor in the provided
+   * express response object.
+   */
   streamExport(response) {
-    const recordsExporter = new this.Implementation.ResourcesExporter(
-      this.model,
-      this.lianaOptions,
-      this.params,
-      null,
-      this.user,
-    );
     const modelName = this.Implementation.getModelName(this.model);
-    return new CSVExporter(this.params, response, modelName, recordsExporter)
-      .perform();
+    const recordsExporter = new this.Implementation
+      .ResourcesExporter(this.model, this.lianaOptions, this.params, null, this.user);
+
+    return new CSVExporter(this.params, response, modelName, recordsExporter).perform();
   }
 }
 

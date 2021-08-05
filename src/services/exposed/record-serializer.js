@@ -1,16 +1,31 @@
-const ResourceSerializer = require('../../serializers/resource');
 const context = require('../../context');
+const ResourceDeserializer = require('../../deserializers/resource');
+const ResourceSerializer = require('../../serializers/resource');
 
 class RecordSerializer {
+  /** @protected */
+  get Implementation() {
+    return this.configStore.Implementation;
+  }
+
+  /** @protected */
+  get lianaOptions() {
+    return this.configStore.lianaOptions;
+  }
+
+  /**
+   * User and query parameters are not used but kept for retro-compatibility.
+   * they should be dropped on V9
+   */
   constructor(model, user, query, { configStore } = context.inject()) {
-    // user and query parameters are kept for retro-compatibility for v8.
-    // Should be dropped when releasing the next major.
     if (!model) {
       throw new Error('RecordSerializer initialization error: missing first argument "model"');
     }
+
     if (!(model instanceof Object)) {
       throw new Error('RecordSerializer initialization error: "model" argument should be an object (ex: `{ name: "myModel" }`)');
     }
+
     if (!model.modelName) {
       model.modelName = model.name;
     }
@@ -19,9 +34,30 @@ class RecordSerializer {
     this.configStore = configStore;
   }
 
+  /**
+   * Deserialize one record.
+   *
+   * Unless otherwise specified this method does not deserializes neither relationships nor omits
+   * null attributes, which is desired for records that come from update forms.
+   *
+   * Pass `false` to both parameters for creation forms.
+   */
+  deserialize(body, withRelationships = false, omitNullAttributes = false) {
+    return new ResourceDeserializer(
+      this.Implementation,
+      this.model,
+      body,
+      withRelationships,
+      { omitNullAttributes },
+    ).perform();
+  }
+
+  /**
+   * Serialize one _or_ multiple records.
+   */
   serialize(records, meta = null) {
     return new ResourceSerializer(
-      this.configStore.Implementation,
+      this.Implementation,
       this.model,
       records,
       this.configStore.integrator,

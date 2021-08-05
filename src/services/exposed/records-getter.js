@@ -1,17 +1,36 @@
-const AbstractRecordService = require('./abstract-records-service');
+const context = require('../../context');
 const ParamsFieldsDeserializer = require('../../deserializers/params-fields');
 const Schemas = require('../../generators/schemas');
+const ResourceSerializer = require('../../serializers/resource');
 const IdsFromRequestRetriever = require('../../services/ids-from-request-retriever');
+const RecordSerializer = require('./record-serializer');
 
-class RecordsGetter extends AbstractRecordService {
+class RecordsGetter extends RecordSerializer {
+  constructor(model, user, params, { modelsManager } = context.inject()) {
+    super(model);
+    this.user = user;
+    this.params = params;
+    this.modelsManager = modelsManager;
+
+    if (!params?.timezone) {
+      throw new Error(
+        `Since v8.0.0 the RecordsGetter's constructor has changed and requires access to the requesting user and query string.\n
+        Please check the migration guide at https://docs.forestadmin.com/documentation/how-tos/maintain/upgrade-notes-sql-mongodb/upgrade-to-v8`,
+      );
+    }
+  }
+
+  /**
+   * Retrieve records matching request provided in constructor.
+   */
   async getAll(extraParams = {}) {
     // extraParams is used by getIdsFromRequest for record selection on bulk smart actions.
     const params = { ...this.params, ...extraParams };
 
     // Load records
-    const { ResourcesGetter } = this.Implementation;
-    const getter = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
-    const [records, fieldsSearched] = await getter.perform();
+    const [records, fieldsSearched] = await new this.Implementation
+      .ResourcesGetter(this.model, this.lianaOptions, params, this.user)
+      .perform();
 
     // Save search value and searched fields for 'meta' generation on serialization
     // (used for search highlighting on the frontend).
@@ -23,10 +42,45 @@ class RecordsGetter extends AbstractRecordService {
     return records;
   }
 
-  // NOTICE: This function accept either query or ID list params and return an ID list.
-  //         It could be used to handle both "select all" (query) and "select some" (ids).
-  //         It also handles related data.
+  /**
+   * Serialize records.
+   *
+   * Note that, if called _immediately_ after `getAll()`, this methods
+   * - adds meta information for search term highlighting
+   * - does not load smartfields that were not explicitly requested by the frontend
+   */
+  serialize(records, meta = null) {
+    return new ResourceSerializer(
+      this.Implementation,
+      this.model,
+      records,
+      this.configStore.integrator,
+      meta,
+      this.fieldsSearched, // for search highlighting
+      this.searchValue, // for search highlighting
+      this.fieldsPerModel, // smartfield serialization
+    ).perform();
+  }
+
+  /**
+   * Extract list of ids from an express request for bulk smart actions.
+   *
+   * @todo This method and the associated service need refactoring for code clarity
+   *
+   * @todo Improve performance: on first sight it seems that applying a bulk smart action checking
+   *       "all records" will load the whole table from db just to extract the list of ids.
+   *
+   * @todo Rename `params` to `request`.
+   *       This method is taking `params` but documentation says it takes the express request.
+   *
+   * @todo Investigate: why is `params` being exploded in the HasManyGetter parameters, but not
+   *       provided neither when calling `getAll` or the common ResourcesGetter?
+   */
   async getIdsFromRequest(params) {
+    // This function accept either query or ID list params and return an ID list.
+    // It could be used to handle both "select all" (query) and "select some" (ids).
+    // It also handles related data.
+
     const isRelatedData = (attributes) =>
       attributes.parentCollectionId
       && attributes.parentCollectionName
