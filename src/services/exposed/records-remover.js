@@ -1,4 +1,4 @@
-const { context } = require('../../context');
+const context = require('../../context');
 const RecordSerializer = require('./record-serializer');
 
 class RecordsRemover extends RecordSerializer {
