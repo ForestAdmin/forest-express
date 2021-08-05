@@ -38,7 +38,7 @@ class RecordSerializer {
    * Unless otherwise specified this method does not deserializes neither relationships nor omits
    * null attributes, which is desired for records that come from update forms.
    *
-   * Pass `false` to both parameters for creation forms.
+   * Pass `true` to both parameters for creation forms.
    */
   deserialize(body, withRelationships = false, omitNullAttributes = false) {
     return new ResourceDeserializer(
