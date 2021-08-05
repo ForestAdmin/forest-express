@@ -4,17 +4,23 @@ const Schemas = require('../../generators/schemas');
 const IdsFromRequestRetriever = require('../../services/ids-from-request-retriever');
 
 class RecordsGetter extends AbstractRecordService {
-  getAll(params) {
+  async getAll(extraParams = {}) {
+    // extraParams is used by getIdsFromRequest for record selection on bulk smart actions.
+    const params = { ...this.params, ...extraParams };
+
+    // Load records
+    const { ResourcesGetter } = this.Implementation;
+    const getter = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
+    const [records, fieldsSearched] = await getter.perform();
+
+    // Save search value and searched fields for 'meta' generation on serialization
+    // (used for search highlighting on the frontend).
     this.searchValue = params.search;
+    this.fieldsSearched = fieldsSearched;
+
+    // Save list of requested fields for smartfield serialization
     this.fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
-    return new this.Implementation.ResourcesGetter(
-      this.model, this.lianaOptions, { ...this.params, ...params }, this.user,
-    )
-      .perform()
-      .then(([records, fieldsSearched]) => {
-        this.fieldsSearched = fieldsSearched;
-        return records;
-      });
+    return records;
   }
 
   // NOTICE: This function accept either query or ID list params and return an ID list.
