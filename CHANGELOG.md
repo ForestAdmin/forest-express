@@ -1,3 +1,10 @@
+## [9.1.1](https://github.com/ForestAdmin/forest-express/compare/v9.1.0...v9.1.1) (2021-08-05)
+
+
+### Bug Fixes
+
+* **exposed:** reduce number of mandatory parameters in records-getter and record-serializer ([#785](https://github.com/ForestAdmin/forest-express/issues/785)) ([6de3dae](https://github.com/ForestAdmin/forest-express/commit/6de3daea6f3a65d8cd5738d7fa159a8df8654ad9))
+
 # [9.1.0](https://github.com/ForestAdmin/forest-express/compare/v9.0.3...v9.1.0) (2021-08-03)
 
 
