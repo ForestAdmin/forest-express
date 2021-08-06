@@ -61,7 +61,7 @@ class RecordsGetter extends RecordSerializer {
   }
 
   /**
-   * Extract list of ids from an express request for bulk smart actions.
+   * Extract list of ids from an express request for bulk smart-actions / deleteMany.
    *
    * @todo This method and the associated service need refactoring for code clarity
    *
