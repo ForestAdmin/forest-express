@@ -32,6 +32,8 @@ class RecordsGetter extends AbstractRecordService {
       && attributes.parentCollectionName
       && attributes.parentAssociationName;
 
+    const primaryKeysGetter = () => Schemas.schemas[this.Implementation.getModelName(this.model)];
+
     const recordsGetter = async (attributes) => {
       const { parentCollectionId, parentCollectionName, parentAssociationName } = attributes;
       if (isRelatedData(attributes)) {
@@ -52,7 +54,12 @@ class RecordsGetter extends AbstractRecordService {
         ).perform();
         return records;
       }
-      return this.getAll({ ...attributes.allRecordsSubsetQuery, page: attributes.page });
+
+      return this.getAll({
+        ...attributes.allRecordsSubsetQuery,
+        page: attributes.page,
+        fields: { [this.model.name]: primaryKeysGetter().primaryKeys.join(',') || '_id' },
+      });
     };
 
     const recordsCounter = async (attributes) => {
@@ -80,7 +87,6 @@ class RecordsGetter extends AbstractRecordService {
         this.user,
       ).count(attributes.allRecordsSubsetQuery);
     };
-    const primaryKeysGetter = () => Schemas.schemas[this.Implementation.getModelName(this.model)];
 
     return new IdsFromRequestRetriever(recordsGetter, recordsCounter, primaryKeysGetter)
       .perform(params);
