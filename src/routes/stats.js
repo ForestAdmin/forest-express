@@ -37,8 +37,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
     }
 
     const params = { timezone: request.query.timezone, ...request.body };
-    let { type } = request.body;
-    if (type === CHART_TYPE_OBJECTIVE) { type = CHART_TYPE_VALUE; }
+    const { type } = request.body;
 
     if (type === CHART_TYPE_LEADERBOARD) {
       const schema = Schemas.schemas[model.name];
@@ -47,7 +46,10 @@ module.exports = function Stats(app, model, Implementation, opts) {
       promise = new Implementation
         .LeaderboardStatGetter(model, modelRelationship, params, request.user).perform();
     } else {
-      promise = new Implementation[`${type}StatGetter`](model, params, opts, request.user).perform();
+      // Objective chart uses a value stat getter to retrieve the value.
+      const statGetterType = type === CHART_TYPE_OBJECTIVE ? CHART_TYPE_VALUE : type;
+
+      promise = new Implementation[`${statGetterType}StatGetter`](model, params, opts, request.user).perform();
     }
 
     if (!promise) {
