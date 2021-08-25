@@ -1,7 +1,10 @@
-const AbstractRecordService = require('./abstract-records-service');
+const ResourceSerializer = require('../../serializers/resource');
+const context = require('../../context');
 
-class RecordSerializer extends AbstractRecordService {
-  constructor(model, user, params) {
+class RecordSerializer {
+  constructor(model, user, query, { configStore } = context.inject()) {
+    // user and query parameters are kept for retro-compatibility for v8.
+    // Should be dropped when releasing the next major.
     if (!model) {
       throw new Error('RecordSerializer initialization error: missing first argument "model"');
     }
@@ -11,7 +14,19 @@ class RecordSerializer extends AbstractRecordService {
     if (!model.modelName) {
       model.modelName = model.name;
     }
-    super(model, user, params);
+
+    this.model = model;
+    this.configStore = configStore;
+  }
+
+  serialize(records, meta = null) {
+    return new ResourceSerializer(
+      this.configStore.Implementation,
+      this.model,
+      records,
+      this.configStore.integrator,
+      meta,
+    ).perform();
   }
 }
 
