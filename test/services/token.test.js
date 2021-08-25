@@ -51,6 +51,7 @@ describe('token service', () => {
       last_name: 'Doe',
       teams: [1, 2, 4],
       role: 'Test',
+      tags: [{ key: 'city', value: 'Paris' }],
     };
 
     const result = tokenService.createToken(
@@ -68,6 +69,7 @@ describe('token service', () => {
       team: 1,
       role: 'Test',
       renderingId: 42,
+      tags: [{ key: 'city', value: 'Paris' }],
     },
     'THIS IS SECRET',
     { expiresIn: '1 hours' });
