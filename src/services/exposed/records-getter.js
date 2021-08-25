@@ -1,3 +1,4 @@
+const { pick } = require('lodash');
 const AbstractRecordService = require('./abstract-records-service');
 const ParamsFieldsDeserializer = require('../../deserializers/params-fields');
 const Schemas = require('../../generators/schemas');
@@ -34,11 +35,11 @@ class RecordsGetter extends AbstractRecordService {
    *
    * @fixme Composite ids are returned separated by a dash "-".
    *        Not sure why, we are using pipes "|" in forest-express-sequelize but changing it
-   *        would be a breking change.
+   *        would be a breaking change.
    */
   async getIdsFromRequest(request) {
     const attrs = new QueryDeserializer(request?.body?.data?.attributes ?? {}).perform();
-    const idsExcludedAsString = attrs?.allRecordsIdsExcluded?.map(String);
+    const idsExcludedAsString = attrs?.allRecordsIdsExcluded?.map?.(String) ?? [];
 
     // "select all records" is not selected
     if (attrs?.allRecords !== true && attrs.ids) {
@@ -49,15 +50,11 @@ class RecordsGetter extends AbstractRecordService {
     const ids = [];
     const pageSize = 1000;
     for (let pageNo = 1, done = false; !done; pageNo += 1) {
-      const loader = this._getPageLoader(attrs, pageNo, pageSize);
-
-      // ... and keep only packed ids.
-      const [records] = await loader.perform(); // eslint-disable-line no-await-in-loop
-      let recordIds = records.map((record) => this._extractPackedPrimaryKey(record));
-      if (attrs.allRecordsIdsExcluded) {
-        // Ensure that IDs are comparables (avoid ObjectId or Integer issues).
-        recordIds = recordIds.filter((id) => !idsExcludedAsString.includes(String(id)));
-      }
+      // eslint-disable-next-line no-await-in-loop
+      const records = await this._loadPage(attrs, pageNo, pageSize);
+      const recordIds = records
+        .map((record) => this._extractPackedPrimaryKey(record))
+        .filter((id) => !idsExcludedAsString.includes(String(id)));
 
       ids.push(...recordIds);
       done = records.length < pageSize;
@@ -67,30 +64,34 @@ class RecordsGetter extends AbstractRecordService {
   }
 
   /** @private helper function for getIdsFromRequest */
-  _getPageLoader(attrs, pageNo, pageSize) {
+  async _loadPage(attrs, pageNo, pageSize) {
     const { ResourcesGetter, HasManyGetter, getModelName } = this.Implementation;
     const { primaryKeys } = Schemas.schemas[getModelName(this.model)];
 
     const params = {
-      ...this.params,
-      ...attrs.allRecordsSubsetQuery,
+      // Drop sorting, which may slow down the request + other invalid params.
+      ...pick(this.params, ['filters', 'search', 'searchExtended', 'timezone']),
+      ...pick(attrs.allRecordsSubsetQuery, ['filters', 'search', 'searchExtended', 'timezone']),
+      page: { number: pageNo, size: pageSize },
+
+      // We only need the primary keys
       restrictFieldsOnRootModel: true,
       fields: { [getModelName(this.model)]: primaryKeys.join(',') },
-      page: { number: pageNo, size: pageSize },
     };
 
+    let loader = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
     if (attrs.parentCollectionName && attrs.parentCollectionId && attrs.parentAssociationName) {
-      const parentModel = this.modelsManager.getModelByName(attrs.parentCollectionName);
-      const parentParams = {
+      const newModel = this.modelsManager.getModelByName(attrs.parentCollectionName);
+      const newParams = {
         ...params,
         recordId: attrs.parentCollectionId,
         associationName: attrs.parentAssociationName,
       };
 
-      return new HasManyGetter(parentModel, this.model, this.lianaOptions, parentParams, this.user);
+      loader = new HasManyGetter(newModel, this.model, this.lianaOptions, newParams, this.user);
     }
 
-    return new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
+    return (await loader.perform())[0];
   }
 
   /** @private helper function for getIdsFromRequest */
