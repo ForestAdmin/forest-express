@@ -1,3 +1,24 @@
+# [9.2.0](https://github.com/ForestAdmin/forest-express/compare/v9.1.2...v9.2.0) (2021-08-25)
+
+
+### Features
+
+* include tags in the user data inside the request ([#789](https://github.com/ForestAdmin/forest-express/issues/789)) ([883290b](https://github.com/ForestAdmin/forest-express/commit/883290ba6ad9a338a5e1d7c50b47665bdef915d2))
+
+## [9.1.2](https://github.com/ForestAdmin/forest-express/compare/v9.1.1...v9.1.2) (2021-08-25)
+
+
+### Bug Fixes
+
+* **charts:** objective charts now returns correct values ([#790](https://github.com/ForestAdmin/forest-express/issues/790)) ([c8e7b43](https://github.com/ForestAdmin/forest-express/commit/c8e7b4315cfce15a881f7b377390695dc327c0a8))
+
+## [9.1.1](https://github.com/ForestAdmin/forest-express/compare/v9.1.0...v9.1.1) (2021-08-05)
+
+
+### Bug Fixes
+
+* **exposed:** reduce number of mandatory parameters in records-getter and record-serializer ([#785](https://github.com/ForestAdmin/forest-express/issues/785)) ([6de3dae](https://github.com/ForestAdmin/forest-express/commit/6de3daea6f3a65d8cd5738d7fa159a8df8654ad9))
+
 # [9.1.0](https://github.com/ForestAdmin/forest-express/compare/v9.0.3...v9.1.0) (2021-08-03)
 
 
