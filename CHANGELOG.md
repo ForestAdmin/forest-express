@@ -1,3 +1,10 @@
+# [9.2.0](https://github.com/ForestAdmin/forest-express/compare/v9.1.2...v9.2.0) (2021-08-25)
+
+
+### Features
+
+* include tags in the user data inside the request ([#789](https://github.com/ForestAdmin/forest-express/issues/789)) ([883290b](https://github.com/ForestAdmin/forest-express/commit/883290ba6ad9a338a5e1d7c50b47665bdef915d2))
+
 ## [9.1.2](https://github.com/ForestAdmin/forest-express/compare/v9.1.1...v9.1.2) (2021-08-25)
 
 
