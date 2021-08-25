@@ -1,3 +1,10 @@
+## [9.1.2](https://github.com/ForestAdmin/forest-express/compare/v9.1.1...v9.1.2) (2021-08-25)
+
+
+### Bug Fixes
+
+* **charts:** objective charts now returns correct values ([#790](https://github.com/ForestAdmin/forest-express/issues/790)) ([c8e7b43](https://github.com/ForestAdmin/forest-express/commit/c8e7b4315cfce15a881f7b377390695dc327c0a8))
+
 ## [9.1.1](https://github.com/ForestAdmin/forest-express/compare/v9.1.0...v9.1.1) (2021-08-05)
 
 
