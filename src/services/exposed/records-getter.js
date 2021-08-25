@@ -8,10 +8,10 @@ class RecordsGetter extends AbstractRecordService {
    * @param extraParams Deprecated. Should be removed for forest-express@10
    */
   async getAll(extraParams = {}) {
-    const params = { ...this.params, ...extraParams };
+    const { ResourcesGetter } = this.Implementation;
 
     // Load records
-    const { ResourcesGetter } = this.Implementation;
+    const params = { ...this.params, ...extraParams };
     const getter = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
     const [records, fieldsSearched] = await getter.perform();
 
@@ -29,9 +29,6 @@ class RecordsGetter extends AbstractRecordService {
    * Takes a request from a frontend bulk action (bulk smart-action, bulk delete, ...) and
    * returns the list of ids that should be affected.
    *
-   * @fixme Cursors should be used instead of offset/limit.
-   *        This will be plainfully slow on big collections.
-   *
    * @fixme why are we testing for attrs?.allRecords !== true && attrs.ids to detect "all records"
    *        queries? IMHO this should be only attrs?.allRecords
    *
@@ -40,48 +37,46 @@ class RecordsGetter extends AbstractRecordService {
    *        would be a breking change.
    */
   async getIdsFromRequest(request) {
-    const { getModelName } = this.Implementation;
-    const { primaryKeys } = Schemas.schemas[getModelName(this.model)];
     const attrs = new QueryDeserializer(request?.body?.data?.attributes ?? {}).perform();
     const idsExcludedAsString = attrs?.allRecordsIdsExcluded?.map(String);
 
-    // "select all records" is not selected => we are done.
+    // "select all records" is not selected
     if (attrs?.allRecords !== true && attrs.ids) {
       return attrs.ids;
     }
 
     // Otherwise, query database in a loop to retrieve all ids.
     const ids = [];
+    const pageSize = 1000;
     for (let pageNo = 1, done = false; !done; pageNo += 1) {
-      const loader = this._getLoader(attrs);
+      const loader = this._getPageLoader(attrs, pageNo, pageSize);
 
       // ... and keep only packed ids.
       const [records] = await loader.perform(); // eslint-disable-line no-await-in-loop
-      let recordIds = records.map((record) => primaryKeys.map((primaryKey) => record[primaryKey]).join('-'));
+      let recordIds = records.map((record) => this._extractPackedPrimaryKey(record));
       if (attrs.allRecordsIdsExcluded) {
         // Ensure that IDs are comparables (avoid ObjectId or Integer issues).
         recordIds = recordIds.filter((id) => !idsExcludedAsString.includes(String(id)));
       }
 
       ids.push(...recordIds);
-      done = records.length < 1000;
+      done = records.length < pageSize;
     }
 
     return ids;
   }
 
   /** @private helper function for getIdsFromRequest */
-  _getLoader(attrs, pageNo) {
+  _getPageLoader(attrs, pageNo, pageSize) {
     const { ResourcesGetter, HasManyGetter, getModelName } = this.Implementation;
-    const modelName = getModelName(this.model);
-    const { primaryKeys } = Schemas.schemas[modelName];
+    const { primaryKeys } = Schemas.schemas[getModelName(this.model)];
 
     const params = {
       ...this.params,
-      ...attrs.allRecordsSubsetQuery, // Where does this comes from?
+      ...attrs.allRecordsSubsetQuery,
       restrictFieldsOnRootModel: true,
-      fields: { [modelName]: primaryKeys.join(',') }, // load only ids
-      page: { number: pageNo, size: 1000 }, // max batch size
+      fields: { [getModelName(this.model)]: primaryKeys.join(',') },
+      page: { number: pageNo, size: pageSize },
     };
 
     if (attrs.parentCollectionName && attrs.parentCollectionId && attrs.parentAssociationName) {
@@ -96,6 +91,14 @@ class RecordsGetter extends AbstractRecordService {
     }
 
     return new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
+  }
+
+  /** @private helper function for getIdsFromRequest */
+  _extractPackedPrimaryKey(record) {
+    const { getModelName } = this.Implementation;
+    const { primaryKeys } = Schemas.schemas[getModelName(this.model)];
+
+    return primaryKeys.map((primaryKey) => record[primaryKey]).join('-');
   }
 }
 

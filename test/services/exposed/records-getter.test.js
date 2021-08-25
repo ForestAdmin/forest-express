@@ -1,8 +1,3 @@
-const context = require('../../../src/context');
-const initContext = require('../../../src/context/init');
-
-context.init(initContext);
-
 const RecordsGetter = require('../../../src/services/exposed/records-getter.js');
 const Schemas = require('../../../src/generators/schemas');
 const usersSchema = require('../../fixtures/users-schema.js');
@@ -13,23 +8,25 @@ const collection = [
   { id: '3', name: 'baz' },
 ];
 
-const defaultUser = { id: 1, renderingId: 2 };
-const defaultParams = { timezone: 'UTC' };
 
 function getMockedRecordsGetter(modelName = null) {
-  const recordsGetter = new RecordsGetter(modelName, defaultUser, defaultParams);
-  recordsGetter.configStore.Implementation = {
-    ResourcesGetter() {
-      return {
-        perform: () => Promise.resolve([collection, ['id']]),
-        count: () => 2,
-      };
-    },
-    getModelName(name) {
-      return name;
+  const defaultUser = { id: 1, renderingId: 2 };
+  const defaultParams = { timezone: 'UTC' };
+  const configStore = {
+    Implementation: {
+      ResourcesGetter() {
+        return {
+          perform: () => Promise.resolve([collection, ['id']]),
+          count: () => 2,
+        };
+      },
+      getModelName(name) {
+        return name;
+      },
     },
   };
-  return recordsGetter;
+
+  return new RecordsGetter(modelName, defaultUser, defaultParams, { configStore });
 }
 
 function bodyDataAttributes(attributes) {
@@ -42,7 +39,7 @@ describe('services › exposed › records-getter', () => {
       expect.assertions(1);
       const expectedIds = ['1', '2'];
       const request = bodyDataAttributes({ ids: expectedIds });
-      const ids = await new RecordsGetter('users', defaultUser, defaultParams).getIdsFromRequest(request);
+      const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toBe(expectedIds);
     });
 
