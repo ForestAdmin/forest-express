@@ -130,7 +130,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     if (!hasBodyAttributes && isLegacyRequest) {
       body = request.body;
     } else if (hasBodyAttributes) {
-      const getter = new RecordsGetter(model, request.user, request.query);
+      const getter = new RecordsGetter(associationModel, request.user, request.query);
       const ids = await getter.getIdsFromRequest(request);
 
       body = { data: ids.map((id) => ({ id })) };

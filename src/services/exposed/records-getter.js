@@ -69,9 +69,12 @@ class RecordsGetter extends AbstractRecordService {
     const { primaryKeys } = Schemas.schemas[getModelName(this.model)];
 
     const params = {
-      // Drop sorting, which may slow down the request + other invalid params.
-      ...pick(this.params, ['filters', 'search', 'searchExtended', 'timezone']),
+      // Drop unwanted params.
+      ...pick(this.params, ['timezone']),
       ...pick(attrs.allRecordsSubsetQuery, ['filters', 'search', 'searchExtended', 'timezone']),
+
+      // Ideally we would prefer specifying all primary keys but that's not supported.
+      sort: primaryKeys[0],
       page: { number: pageNo, size: pageSize },
 
       // We only need the primary keys
@@ -79,16 +82,15 @@ class RecordsGetter extends AbstractRecordService {
       fields: { [getModelName(this.model)]: primaryKeys.join(',') },
     };
 
-    let loader = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
+    let loader;
     if (attrs.parentCollectionName && attrs.parentCollectionId && attrs.parentAssociationName) {
-      const newModel = this.modelsManager.getModelByName(attrs.parentCollectionName);
-      const newParams = {
-        ...params,
-        recordId: attrs.parentCollectionId,
-        associationName: attrs.parentAssociationName,
-      };
+      const parentModel = this.modelsManager.getModelByName(attrs.parentCollectionName);
+      params.recordId = attrs.parentCollectionId;
+      params.associationName = attrs.parentAssociationName;
 
-      loader = new HasManyGetter(newModel, this.model, this.lianaOptions, newParams, this.user);
+      loader = new HasManyGetter(parentModel, this.model, this.lianaOptions, params, this.user);
+    } else {
+      loader = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
     }
 
     return (await loader.perform())[0];
