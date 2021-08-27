@@ -1,3 +1,14 @@
+## [9.2.1](https://github.com/ForestAdmin/forest-express/compare/v9.2.0...v9.2.1) (2021-08-27)
+
+
+### Bug Fixes
+
+* **security:** patch color-string dependency vulnerability ([#768](https://github.com/ForestAdmin/forest-express/issues/768)) ([3b6ea07](https://github.com/ForestAdmin/forest-express/commit/3b6ea07464d763fc4723657024e3e1c427e9db20))
+* **security:** patch handlebars dependency vulnerabilities (from 4.7.6 to 4.7.7) ([#707](https://github.com/ForestAdmin/forest-express/issues/707)) ([be1e186](https://github.com/ForestAdmin/forest-express/commit/be1e186e2c0dd23bf151bb8b3af327fdfb0b8ac8))
+* **security:** patch hosted-git-info dependency vulnerability ([#708](https://github.com/ForestAdmin/forest-express/issues/708)) ([e8bc9ea](https://github.com/ForestAdmin/forest-express/commit/e8bc9ea6cb7e3f1d1acb64fcb3baf368d20eb533))
+* **security:** patch tar dependency vulnerabilities ([#784](https://github.com/ForestAdmin/forest-express/issues/784)) ([a517464](https://github.com/ForestAdmin/forest-express/commit/a517464719a66a5d1794efb40cf88d990921fa0f)), closes [#707](https://github.com/ForestAdmin/forest-express/issues/707)
+* **security:** patch ws dependency vulnerability ([#763](https://github.com/ForestAdmin/forest-express/issues/763)) ([d299369](https://github.com/ForestAdmin/forest-express/commit/d299369e8989793aff366fded0145f709afd8535))
+
 # [9.2.0](https://github.com/ForestAdmin/forest-express/compare/v9.1.2...v9.2.0) (2021-08-25)
 
 
