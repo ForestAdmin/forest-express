@@ -336,6 +336,12 @@ exports.init = async (Implementation) => {
   }
 };
 
+function getSmartActionsUsingHTTPMethod(actions) {
+  return actions.filter(
+    (action) => Object.hasOwnProperty.call(action, 'httpMethod'),
+  );
+}
+
 exports.collection = (name, opts) => {
   if (_.isEmpty(Schemas.schemas) && opts.modelsDir) {
     logger.error(`Cannot customize your collection named "${name}" properly. Did you call the "collection" method in the /forest directory?`);
@@ -359,10 +365,15 @@ exports.collection = (name, opts) => {
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
-    Schemas.schemas[name].actions
-      .filter((action) => Object.hasOwnProperty.call(action, 'httpMethod'))
+    getSmartActionsUsingHTTPMethod(Schemas.schemas[name].actions)
       .forEach((action) => {
-        logger.warn(`DEPRECATION WARNING: The "httpMethod" property of your smart action "${action.name}" is now deprecated. Update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.`);
+        const removeHttpMethodMessage = 'Please update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.';
+
+        if (['get', 'head'].includes(action.httpMethod.toLowerCase())) {
+          logger.error(`The "httpMethod" ${action.httpMethod} of your smart action "${action.name}" is not supported. ${removeHttpMethodMessage}`);
+        } else {
+          logger.warn(`DEPRECATION WARNING: The "httpMethod" property of your smart action "${action.name}" is now deprecated. ${removeHttpMethodMessage}`);
+        }
       });
 
     // NOTICE: Smart Field definition case

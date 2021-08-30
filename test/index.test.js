@@ -511,32 +511,48 @@ describe('liana > index', () => {
       const spyLogger = () => {
         // eslint-disable-next-line global-require
         const logger = require('../src/services/logger');
-        return { spy: jest.spyOn(logger, 'warn') };
+        return {
+          spyOnWarning: jest.spyOn(logger, 'warn'),
+          spyOnError: jest.spyOn(logger, 'error'),
+        };
       };
 
       const initSchema = () => {
-        const { forestExpress, spy } = resetRequireIndex(spyLogger);
+        const { forestExpress, spyOnWarning, spyOnError } = resetRequireIndex(spyLogger);
         forestExpress.Schemas.schemas = {
           collectionTest: {
             name: 'collectionTest',
           },
         };
-        return { forestExpress, spy };
+        return { forestExpress, spyOnWarning, spyOnError };
       };
 
-      const config = {
-        actions: [{
-          name: 'actionTest',
-          httpMethod: 'GET',
-        }],
-      };
-
-      it('should log a deprecation warning', () => {
+      it('should log an error with httpMethod = GET', () => {
         expect.assertions(1);
-        const { forestExpress, spy } = initSchema();
+        const { forestExpress, spyOnError } = initSchema();
 
-        forestExpress.collection('collectionTest', config);
-        expect(spy).toHaveBeenCalledWith('DEPRECATION WARNING: The "httpMethod" property of your smart action "actionTest" is now deprecated. Update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.');
+        forestExpress.collection('collectionTest', {
+          actions: [{
+            name: 'actionTest',
+            httpMethod: 'GET',
+          }],
+        });
+
+        expect(spyOnError).toHaveBeenCalledWith('The "httpMethod" GET of your smart action "actionTest" is not supported. Please update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.');
+      });
+
+      it('should log an error with httpMethod = PUT', () => {
+        expect.assertions(1);
+        const { forestExpress, spyOnWarning } = initSchema();
+
+        forestExpress.collection('collectionTest', {
+          actions: [{
+            name: 'actionTest',
+            httpMethod: 'PUT',
+          }],
+        });
+
+        expect(spyOnWarning).toHaveBeenCalledWith('DEPRECATION WARNING: The "httpMethod" property of your smart action "actionTest" is now deprecated. Please update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.');
       });
     });
 
