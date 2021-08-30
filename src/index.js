@@ -365,6 +365,7 @@ exports.collection = (name, opts) => {
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
+    // NOTICE: `httpMethod` on smart actions will be removed in the future.
     getSmartActionsUsingHTTPMethod(Schemas.schemas[name].actions)
       .forEach((action) => {
         const removeHttpMethodMessage = 'Please update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.';
