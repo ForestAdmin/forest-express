@@ -507,6 +507,39 @@ describe('liana > index', () => {
       });
     });
 
+    describe('with a collection containing a smart action with the httpMethod property', () => {
+      const spyLogger = () => {
+        // eslint-disable-next-line global-require
+        const logger = require('../src/services/logger');
+        return { spy: jest.spyOn(logger, 'warn') };
+      };
+
+      const initSchema = () => {
+        const { forestExpress, spy } = resetRequireIndex(spyLogger);
+        forestExpress.Schemas.schemas = {
+          collectionTest: {
+            name: 'collectionTest',
+          },
+        };
+        return { forestExpress, spy };
+      };
+
+      const config = {
+        actions: [{
+          name: 'actionTest',
+          httpMethod: 'GET',
+        }],
+      };
+
+      it('should log a deprecation warning', () => {
+        expect.assertions(1);
+        const { forestExpress, spy } = initSchema();
+
+        forestExpress.collection('collectionTest', config);
+        expect(spy).toHaveBeenCalledWith('DEPRECATION WARNING: The "httpMethod" property of your smart action "actionTest" is now deprecated. Update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.');
+      });
+    });
+
     describe('with an old named collection configuration', () => {
       const spyLogger = () => {
         // eslint-disable-next-line global-require

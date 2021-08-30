@@ -359,6 +359,12 @@ exports.collection = (name, opts) => {
     Schemas.schemas[name].actions = _.union(opts.actions, Schemas.schemas[name].actions);
     Schemas.schemas[name].segments = _.union(opts.segments, Schemas.schemas[name].segments);
 
+    Schemas.schemas[name].actions
+      .filter((action) => Object.hasOwnProperty.call(action, 'httpMethod'))
+      .forEach((action) => {
+        logger.warn(`DEPRECATION WARNING: The "httpMethod" property of your smart action "${action.name}" is now deprecated. Update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.`);
+      });
+
     // NOTICE: Smart Field definition case
     opts.fields = apimapFieldsFormater.formatFieldsByCollectionName(opts.fields, name);
     Schemas.schemas[name].fields = _.concat(opts.fields, Schemas.schemas[name].fields);
