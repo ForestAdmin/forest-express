@@ -48,7 +48,7 @@ class RecordsGetter extends AbstractRecordService {
 
     // Otherwise, query database in a loop to retrieve all ids.
     const ids = [];
-    const pageSize = 1000;
+    const pageSize = process.env.FOREST_IDS_PAGE_SIZE || 5000;
     for (let pageNo = 1, done = false; !done; pageNo += 1) {
       // eslint-disable-next-line no-await-in-loop
       const records = await this._loadPage(attrs, pageNo, pageSize);
