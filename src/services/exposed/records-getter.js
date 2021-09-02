@@ -1,8 +1,9 @@
 const { pick } = require('lodash');
-const AbstractRecordService = require('./abstract-records-service');
+const context = require('../../context');
 const ParamsFieldsDeserializer = require('../../deserializers/params-fields');
-const Schemas = require('../../generators/schemas');
 const QueryDeserializer = require('../../deserializers/query');
+const Schemas = require('../../generators/schemas');
+const AbstractRecordService = require('./abstract-records-service');
 
 class RecordsGetter extends AbstractRecordService {
   /**
@@ -34,10 +35,11 @@ class RecordsGetter extends AbstractRecordService {
    *        queries? IMHO this should be only attrs?.allRecords
    *
    * @fixme Composite ids are returned separated by a dash "-".
-   *        Not sure why, we are using pipes "|" in forest-express-sequelize but changing it
-   *        would be a breaking change.
+   *        Not sure why (we are using pipes "|" in forest-express-sequelize) so those ids won't
+   *        ve compatible but changing it would be a breaking change.
    */
   async getIdsFromRequest(request) {
+    const { env } = context.inject();
     const attrs = new QueryDeserializer(request?.body?.data?.attributes ?? {}).perform();
     const idsExcludedAsString = attrs?.allRecordsIdsExcluded?.map?.(String) ?? [];
 
@@ -48,7 +50,7 @@ class RecordsGetter extends AbstractRecordService {
 
     // Otherwise, query database in a loop to retrieve all ids.
     const ids = [];
-    const pageSize = process.env.FOREST_IDS_PAGE_SIZE || 5000;
+    const pageSize = Number(env?.FOREST_IDS_PAGE_SIZE) || 4000;
     for (let pageNo = 1, done = false; !done; pageNo += 1) {
       // eslint-disable-next-line no-await-in-loop
       const records = await this._loadPage(attrs, pageNo, pageSize);
