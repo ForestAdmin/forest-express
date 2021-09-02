@@ -1,3 +1,10 @@
+## [9.2.2](https://github.com/ForestAdmin/forest-express/compare/v9.2.1...v9.2.2) (2021-09-02)
+
+
+### Performance Improvements
+
+* **bulk-actions:** improve performance when calling getIdsFromRequest ([#788](https://github.com/ForestAdmin/forest-express/issues/788)) ([949e8ef](https://github.com/ForestAdmin/forest-express/commit/949e8efdbd27600eb5a230a7339d05fdceececee))
+
 ## [9.2.1](https://github.com/ForestAdmin/forest-express/compare/v9.2.0...v9.2.1) (2021-08-27)
 
 
