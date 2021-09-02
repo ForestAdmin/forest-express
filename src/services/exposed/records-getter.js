@@ -35,8 +35,8 @@ class RecordsGetter extends AbstractRecordService {
    *        queries? IMHO this should be only attrs?.allRecords
    *
    * @fixme Composite ids are returned separated by a dash "-".
-   *        Not sure why (we are using pipes "|" in forest-express-sequelize) so those ids won't
-   *        ve compatible but changing it would be a breaking change.
+   *        I am not sure why: those ids won't be compatible with those used in
+   *        forest-express-sequelize which are using pipes "|".
    */
   async getIdsFromRequest(request) {
     const { env } = context.inject();
