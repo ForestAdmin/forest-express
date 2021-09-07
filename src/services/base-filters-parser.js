@@ -21,12 +21,12 @@ const parseCondition = async (condition, formatCondition, modelSchema) => {
     throw new InvalidFiltersFormat('Invalid condition format');
   }
 
-  if (isSmartField(modelSchema, condition.field)) {
+  if (modelSchema && isSmartField(modelSchema, condition.field)) {
     const fieldFound = getField(modelSchema, condition.field);
 
     if (!fieldFound.filter) throw new Error(`"filter" method missing on smart field "${fieldFound.field}"`);
 
-    const where = formatCondition(condition, true);
+    const where = await formatCondition(condition, true);
     const formattedCondition = await fieldFound
       .filter({
         where,
