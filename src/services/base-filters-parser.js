@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { InvalidFiltersFormat } from '../utils/error';
-import { getField, isSmartField } from '../utils/schema';
+import { getSmartField, isSmartField } from '../utils/schema';
 
 // NOTICE: Parse the given filters into a valid JSON.
 const parseFiltersString = (filtersString) => {
@@ -22,7 +22,7 @@ const parseCondition = async (condition, formatCondition, modelSchema) => {
   }
 
   if (modelSchema && isSmartField(modelSchema, condition.field)) {
-    const fieldFound = getField(modelSchema, condition.field);
+    const fieldFound = getSmartField(modelSchema, condition.field);
 
     if (!fieldFound.filter) throw new Error(`"filter" method missing on smart field "${fieldFound.field}"`);
 
