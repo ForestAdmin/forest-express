@@ -1,3 +1,10 @@
+## [9.2.5](https://github.com/ForestAdmin/forest-express/compare/v9.2.4...v9.2.5) (2021-09-14)
+
+
+### Bug Fixes
+
+* **ids-loader:** after fixing performance issue, some segments were ignored by ids loader ([#798](https://github.com/ForestAdmin/forest-express/issues/798)) ([b0c64f0](https://github.com/ForestAdmin/forest-express/commit/b0c64f09b3dbadd0bfa52ba6ebccc3ac64bf69ba))
+
 ## [9.2.4](https://github.com/ForestAdmin/forest-express/compare/v9.2.3...v9.2.4) (2021-09-14)
 
 
