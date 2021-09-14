@@ -1,3 +1,10 @@
+## [9.2.4](https://github.com/ForestAdmin/forest-express/compare/v9.2.3...v9.2.4) (2021-09-14)
+
+
+### Bug Fixes
+
+* **filter:** fix filter on field not existing to not throw an invalid error ([#797](https://github.com/ForestAdmin/forest-express/issues/797)) ([14e76bc](https://github.com/ForestAdmin/forest-express/commit/14e76bccbcba504611fed6616b139d7a0fef700d))
+
 ## [9.2.3](https://github.com/ForestAdmin/forest-express/compare/v9.2.2...v9.2.3) (2021-09-14)
 
 
