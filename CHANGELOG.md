@@ -1,3 +1,10 @@
+## [9.2.3](https://github.com/ForestAdmin/forest-express/compare/v9.2.2...v9.2.3) (2021-09-14)
+
+
+### Bug Fixes
+
+* **smart field:** fix filter on smart references ([d59a925](https://github.com/ForestAdmin/forest-express/commit/d59a9258ea01516fe9053db6012bc1a087897988))
+
 ## [9.2.2](https://github.com/ForestAdmin/forest-express/compare/v9.2.1...v9.2.2) (2021-09-02)
 
 
