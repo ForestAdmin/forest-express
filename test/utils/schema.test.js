@@ -1,5 +1,10 @@
 const {
-  getBelongsToAssociations, getHasManyAssociations, getField, isSmartField, getFieldType,
+  getBelongsToAssociations,
+  getField,
+  getFieldType,
+  getHasManyAssociations,
+  getSmartField,
+  isSmartField,
 } = require('../../src/utils/schema');
 
 describe('utils › data', () => {
@@ -80,6 +85,18 @@ describe('utils › data', () => {
         };
 
         expect(getField(schemas, 'childs:name')).toStrictEqual(fieldToFind);
+      });
+    });
+  });
+
+  describe('getSmartField', () => {
+    describe('when field is not found', () => {
+      it('should return null', () => {
+        expect.assertions(1);
+
+        const schema = { fields: [] };
+
+        expect(getSmartField(schema, 'notExisting')).toBeNull();
       });
     });
   });
