@@ -22,6 +22,7 @@ exports.getField = getField;
 
 exports.getSmartField = (schema, fieldName) => {
   const field = getField(schema, fieldName);
+  if (!field) return null;
 
   // If the field is not virtual but the field requested is something like "myField:nestedField"
   // then we want to retrieve nestedField to check if nestedField isVirtual
