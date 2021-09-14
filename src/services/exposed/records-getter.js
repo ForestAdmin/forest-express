@@ -73,7 +73,9 @@ class RecordsGetter extends AbstractRecordService {
     const params = {
       // Drop unwanted params.
       ...pick(this.params, ['timezone']),
-      ...pick(attrs.allRecordsSubsetQuery, ['filters', 'search', 'searchExtended', 'timezone']),
+      ...pick(attrs.allRecordsSubsetQuery, [
+        'filters', 'search', 'searchExtended', 'segment', 'segmentQuery', 'timezone',
+      ]),
 
       // Ideally we would prefer specifying all primary keys but that's not supported.
       sort: primaryKeys[0],
