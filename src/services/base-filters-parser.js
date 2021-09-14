@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { InvalidFiltersFormat } from '../utils/error';
+import { getSmartField, isSmartField } from '../utils/schema';
 
 // NOTICE: Parse the given filters into a valid JSON.
 const parseFiltersString = (filtersString) => {
@@ -11,7 +12,7 @@ const parseFiltersString = (filtersString) => {
 };
 
 // NOTICE: Apply the formatCondition function to a condition (leaf).
-const parseCondition = async (condition, formatCondition) => {
+const parseCondition = async (condition, formatCondition, modelSchema) => {
   if (_.isEmpty(condition)) { throw new InvalidFiltersFormat('Empty condition in filter'); }
   if (!_.isObject(condition)) { throw new InvalidFiltersFormat('Condition cannot be a raw value'); }
   if (_.isArray(condition)) { throw new InvalidFiltersFormat('Filters cannot be a raw array'); }
@@ -20,17 +21,32 @@ const parseCondition = async (condition, formatCondition) => {
     throw new InvalidFiltersFormat('Invalid condition format');
   }
 
+  if (modelSchema && isSmartField(modelSchema, condition.field)) {
+    const fieldFound = getSmartField(modelSchema, condition.field);
+
+    if (!fieldFound.filter) throw new Error(`"filter" method missing on smart field "${fieldFound.field}"`);
+
+    const where = await formatCondition(condition, true);
+    const formattedCondition = await fieldFound
+      .filter({
+        where,
+        condition,
+      });
+    if (!formattedCondition) throw new Error(`"filter" method on smart field "${fieldFound.field}" must return a condition`);
+    return formattedCondition;
+  }
+
   return formatCondition(condition);
 };
 
 // NOTICE: Call the formatAggregation function on the node and propagate it to its childs or
 //         call the parseCondition function on the node if the node is a leaf.
-const parseAggregation = async (node, formatAggregation, formatCondition) => {
+const parseAggregation = async (node, formatAggregation, formatCondition, modelSchema) => {
   if (_.isEmpty(node)) { throw new InvalidFiltersFormat('Empty condition in filter'); }
   if (!_.isObject(node)) { throw new InvalidFiltersFormat('Filters cannot be a raw value'); }
   if (_.isArray(node)) { throw new InvalidFiltersFormat('Filters cannot be a raw array'); }
 
-  if (!node.aggregator) { return parseCondition(node, formatCondition); }
+  if (!node.aggregator) { return parseCondition(node, formatCondition, modelSchema); }
 
 
   if (!_.isArray(node.conditions)) {
@@ -39,7 +55,7 @@ const parseAggregation = async (node, formatAggregation, formatCondition) => {
 
   const promises = [];
   node.conditions.forEach((condition) =>
-    promises.push(parseAggregation(condition, formatAggregation, formatCondition)));
+    promises.push(parseAggregation(condition, formatAggregation, formatCondition, modelSchema)));
 
   const formatedConditions = await Promise.all(promises);
 
@@ -48,12 +64,12 @@ const parseAggregation = async (node, formatAggregation, formatCondition) => {
 
 // NOTICE: Recursively call the formatAggregation function on the nodes of the filters tree and
 //         propagate the formatCondition function to the leaves.
-const perform = async (filtersString, formatAggregation, formatCondition) => {
+const perform = async (filtersString, formatAggregation, formatCondition, modelSchema) => {
   const filters = parseFiltersString(filtersString);
 
   if (!filters) { return null; }
 
-  return parseAggregation(filters, formatAggregation, formatCondition);
+  return parseAggregation(filters, formatAggregation, formatCondition, modelSchema);
 };
 
 const getConditionAssociation = (condition) => {
@@ -79,4 +95,5 @@ module.exports = {
   perform,
   parseFiltersString,
   getAssociations,
+  parseCondition,
 };
