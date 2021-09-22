@@ -1,3 +1,11 @@
+## [9.2.7](https://github.com/ForestAdmin/forest-express/compare/v9.2.6...v9.2.7) (2021-09-22)
+
+
+### Bug Fixes
+
+* **security:** patch jose dependency vulnerability ([#692](https://github.com/ForestAdmin/forest-express/issues/692)) ([f147d45](https://github.com/ForestAdmin/forest-express/commit/f147d45c3195fcd2ceefa784bc4bb4dac9ed5fe0))
+* **security:** patch path-parse dependency vulnerabilities ([#787](https://github.com/ForestAdmin/forest-express/issues/787)) ([e69568e](https://github.com/ForestAdmin/forest-express/commit/e69568eb2b8e8d25140b2793a9eb070f759d364f))
+
 ## [9.2.6](https://github.com/ForestAdmin/forest-express/compare/v9.2.5...v9.2.6) (2021-09-22)
 
 
