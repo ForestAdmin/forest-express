@@ -1,35 +1,40 @@
-const context = require('../../../src/context');
-const initContext = require('../../../src/context/init');
-
-context.init(initContext);
-
 const RecordsGetter = require('../../../src/services/exposed/records-getter.js');
 const Schemas = require('../../../src/generators/schemas');
+const addressesSchema = require('../../fixtures/addresses-schema');
 const usersSchema = require('../../fixtures/users-schema.js');
 
-const collection = [
-  { id: '1', name: 'foo' },
-  { id: '2', name: 'bar' },
-  { id: '3', name: 'baz' },
-];
-
-const defaultUser = { id: 1, renderingId: 2 };
-const defaultParams = { timezone: 'UTC' };
+const collection1 = [{ id: '1', name: 'foo' }, { id: '2', name: 'bar' }, { id: '3', name: 'baz' }];
+const collection2 = [{ id: '4', name: 'faa' }, { id: '5', name: 'bor' }, { id: '6', name: 'boz' }];
 
 function getMockedRecordsGetter(modelName = null) {
-  const recordsGetter = new RecordsGetter(modelName, defaultUser, defaultParams);
-  recordsGetter.configStore.Implementation = {
-    ResourcesGetter() {
-      return {
-        perform: () => Promise.resolve([collection, ['id']]),
-        count: () => 2,
-      };
-    },
-    getModelName(name) {
-      return name;
+  const defaultUser = { id: 1, renderingId: 2 };
+  const defaultParams = { timezone: 'UTC' };
+  const configStore = {
+    Implementation: {
+      ResourcesGetter() {
+        return {
+          perform: () => Promise.resolve([collection1, ['id']]),
+        };
+      },
+      HasManyGetter() {
+        return {
+          perform: () => Promise.resolve([collection2, ['id']]),
+        };
+      },
+      getModelName(model) {
+        return model.name;
+      },
     },
   };
-  return recordsGetter;
+  const modelsManager = {
+    getModelByName(name) {
+      return { name };
+    },
+  };
+
+  return new RecordsGetter(
+    { name: modelName }, defaultUser, defaultParams, { configStore, modelsManager },
+  );
 }
 
 function bodyDataAttributes(attributes) {
@@ -40,28 +45,43 @@ describe('services › exposed › records-getter', () => {
   describe('getIdsFromRequest', () => {
     it('should return IDs as is if IDs provided', async () => {
       expect.assertions(1);
-      const expectedIds = ['1', '2'];
-      const request = bodyDataAttributes({ ids: expectedIds });
-      const ids = await new RecordsGetter('users', defaultUser, defaultParams).getIdsFromRequest(request);
-      expect(ids).toBe(expectedIds);
+
+      const request = bodyDataAttributes({ ids: ['1', '2'] });
+      const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
+      expect(ids).toStrictEqual(['1', '2']);
     });
 
     it('should return all records if areAllRecordsSelected === true', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
-      const expectedIds = ['1', '2', '3'];
+
       const request = bodyDataAttributes({ all_records: true });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
-      expect(ids).toStrictEqual(expectedIds);
+      expect(ids).toStrictEqual(['1', '2', '3']);
     });
 
     it('should return all records but some if there are excluded IDs', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
-      const expectedIds = ['2'];
+
       const request = bodyDataAttributes({ all_records_ids_excluded: ['1', '3'] });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
-      expect(ids).toStrictEqual(expectedIds);
+      expect(ids).toStrictEqual(['2']);
+    });
+
+    it('should return all records if called from related data', async () => {
+      expect.assertions(1);
+      Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
+
+      const request = bodyDataAttributes({
+        all_records: true,
+        parent_collection_name: 'addresses',
+        parent_collection_id: '123',
+        parent_association_name: 'inhabitant',
+      });
+
+      const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
+      expect(ids).toStrictEqual(['4', '5', '6']);
     });
   });
 
@@ -69,7 +89,7 @@ describe('services › exposed › records-getter', () => {
     it('should return all records', async () => {
       expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
-      const expected = collection;
+      const expected = collection1;
       const users = await getMockedRecordsGetter('users').getAll({});
       expect(users).toStrictEqual(expected);
     });

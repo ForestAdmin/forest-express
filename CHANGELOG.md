@@ -1,3 +1,78 @@
+## [9.2.8](https://github.com/ForestAdmin/forest-express/compare/v9.2.7...v9.2.8) (2021-09-22)
+
+
+### Bug Fixes
+
+* **security:** patch dependencies of dependencies vulnerabilities ([#802](https://github.com/ForestAdmin/forest-express/issues/802)) ([e8db3e6](https://github.com/ForestAdmin/forest-express/commit/e8db3e6da87fc54e159c12b240c7b47a25ec9070))
+
+## [9.2.7](https://github.com/ForestAdmin/forest-express/compare/v9.2.6...v9.2.7) (2021-09-22)
+
+
+### Bug Fixes
+
+* **security:** patch jose dependency vulnerability ([#692](https://github.com/ForestAdmin/forest-express/issues/692)) ([f147d45](https://github.com/ForestAdmin/forest-express/commit/f147d45c3195fcd2ceefa784bc4bb4dac9ed5fe0))
+* **security:** patch path-parse dependency vulnerabilities ([#787](https://github.com/ForestAdmin/forest-express/issues/787)) ([e69568e](https://github.com/ForestAdmin/forest-express/commit/e69568eb2b8e8d25140b2793a9eb070f759d364f))
+
+## [9.2.6](https://github.com/ForestAdmin/forest-express/compare/v9.2.5...v9.2.6) (2021-09-22)
+
+
+### Bug Fixes
+
+* **security:** patch semantic-release dependency vulnerabilities ([#800](https://github.com/ForestAdmin/forest-express/issues/800)) ([ade029c](https://github.com/ForestAdmin/forest-express/commit/ade029c5d436f028fbf43aa950a104da498f069d))
+
+## [9.2.5](https://github.com/ForestAdmin/forest-express/compare/v9.2.4...v9.2.5) (2021-09-14)
+
+
+### Bug Fixes
+
+* **ids-loader:** after fixing performance issue, some segments were ignored by ids loader ([#798](https://github.com/ForestAdmin/forest-express/issues/798)) ([b0c64f0](https://github.com/ForestAdmin/forest-express/commit/b0c64f09b3dbadd0bfa52ba6ebccc3ac64bf69ba))
+
+## [9.2.4](https://github.com/ForestAdmin/forest-express/compare/v9.2.3...v9.2.4) (2021-09-14)
+
+
+### Bug Fixes
+
+* **filter:** fix filter on field not existing to not throw an invalid error ([#797](https://github.com/ForestAdmin/forest-express/issues/797)) ([14e76bc](https://github.com/ForestAdmin/forest-express/commit/14e76bccbcba504611fed6616b139d7a0fef700d))
+
+## [9.2.3](https://github.com/ForestAdmin/forest-express/compare/v9.2.2...v9.2.3) (2021-09-14)
+
+
+### Bug Fixes
+
+* **smart field:** fix filter on smart references ([d59a925](https://github.com/ForestAdmin/forest-express/commit/d59a9258ea01516fe9053db6012bc1a087897988))
+
+## [9.2.2](https://github.com/ForestAdmin/forest-express/compare/v9.2.1...v9.2.2) (2021-09-02)
+
+
+### Performance Improvements
+
+* **bulk-actions:** improve performance when calling getIdsFromRequest ([#788](https://github.com/ForestAdmin/forest-express/issues/788)) ([949e8ef](https://github.com/ForestAdmin/forest-express/commit/949e8efdbd27600eb5a230a7339d05fdceececee))
+
+## [9.2.1](https://github.com/ForestAdmin/forest-express/compare/v9.2.0...v9.2.1) (2021-08-27)
+
+
+### Bug Fixes
+
+* **security:** patch color-string dependency vulnerability ([#768](https://github.com/ForestAdmin/forest-express/issues/768)) ([3b6ea07](https://github.com/ForestAdmin/forest-express/commit/3b6ea07464d763fc4723657024e3e1c427e9db20))
+* **security:** patch handlebars dependency vulnerabilities (from 4.7.6 to 4.7.7) ([#707](https://github.com/ForestAdmin/forest-express/issues/707)) ([be1e186](https://github.com/ForestAdmin/forest-express/commit/be1e186e2c0dd23bf151bb8b3af327fdfb0b8ac8))
+* **security:** patch hosted-git-info dependency vulnerability ([#708](https://github.com/ForestAdmin/forest-express/issues/708)) ([e8bc9ea](https://github.com/ForestAdmin/forest-express/commit/e8bc9ea6cb7e3f1d1acb64fcb3baf368d20eb533))
+* **security:** patch tar dependency vulnerabilities ([#784](https://github.com/ForestAdmin/forest-express/issues/784)) ([a517464](https://github.com/ForestAdmin/forest-express/commit/a517464719a66a5d1794efb40cf88d990921fa0f)), closes [#707](https://github.com/ForestAdmin/forest-express/issues/707)
+* **security:** patch ws dependency vulnerability ([#763](https://github.com/ForestAdmin/forest-express/issues/763)) ([d299369](https://github.com/ForestAdmin/forest-express/commit/d299369e8989793aff366fded0145f709afd8535))
+
+# [9.2.0](https://github.com/ForestAdmin/forest-express/compare/v9.1.2...v9.2.0) (2021-08-25)
+
+
+### Features
+
+* include tags in the user data inside the request ([#789](https://github.com/ForestAdmin/forest-express/issues/789)) ([883290b](https://github.com/ForestAdmin/forest-express/commit/883290ba6ad9a338a5e1d7c50b47665bdef915d2))
+
+## [9.1.2](https://github.com/ForestAdmin/forest-express/compare/v9.1.1...v9.1.2) (2021-08-25)
+
+
+### Bug Fixes
+
+* **charts:** objective charts now returns correct values ([#790](https://github.com/ForestAdmin/forest-express/issues/790)) ([c8e7b43](https://github.com/ForestAdmin/forest-express/commit/c8e7b4315cfce15a881f7b377390695dc327c0a8))
+
 ## [9.1.1](https://github.com/ForestAdmin/forest-express/compare/v9.1.0...v9.1.1) (2021-08-05)
 
 

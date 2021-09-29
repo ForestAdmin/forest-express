@@ -7,9 +7,9 @@ const ResourceSerializer = require('../serializers/resource');
 const Schemas = require('../generators/schemas');
 const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
-const IdsFromRequestRetriever = require('../services/ids-from-request-retriever');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const context = require('../context');
+const RecordsGetter = require('../services/exposed/records-getter');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
   const { modelsManager } = context.inject();
@@ -130,31 +130,9 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     if (!hasBodyAttributes && isLegacyRequest) {
       body = request.body;
     } else if (hasBodyAttributes) {
-      const recordsGetter = async (attributes) => {
-        const [records] = await new Implementation.HasManyGetter(
-          model,
-          associationModel,
-          opts,
-          {
-            ...params,
-            ...attributes.allRecordsSubsetQuery,
-            page: attributes.page,
-          },
-          request.user,
-        ).perform();
-        return records;
-      };
-      const recordsCounter = async () =>
-        new Implementation.HasManyGetter(
-          model, associationModel, opts, params, request.user,
-        ).count();
-      const primaryKeysGetter = () =>
-        Schemas.schemas[Implementation.getModelName(associationModel)];
-      const ids = await new IdsFromRequestRetriever(
-        recordsGetter,
-        recordsCounter,
-        primaryKeysGetter,
-      ).perform(request);
+      const getter = new RecordsGetter(associationModel, request.user, request.query);
+      const ids = await getter.getIdsFromRequest(request);
+
       body = { data: ids.map((id) => ({ id })) };
     }
 
