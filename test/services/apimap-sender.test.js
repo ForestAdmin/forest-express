@@ -4,7 +4,10 @@ const ApimapSender = require('../../src/services/apimap-sender');
 describe('services > apimap-sender', () => {
   const setupTest = () => {
     const context = new ApplicationContext();
-    const superagentRequestThenFunction = jest.fn(() => Promise.resolve());
+    const superagentRequestThenResult = Symbol('superagentRequestThenResult');
+    const superagentRequestThenFunction = jest.fn(
+      (callback) => callback(superagentRequestThenResult),
+    );
     context.init((ctx) => ctx
       .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
       .addInstance('superagentRequest', {
@@ -20,17 +23,27 @@ describe('services > apimap-sender', () => {
 
     const { apimapSender, logger } = context.inject();
 
-    return { apimapSender, logger, superagentRequestThenFunction };
+    return {
+      apimapSender,
+      logger,
+      superagentRequestThenFunction,
+      superagentRequestThenResult,
+    };
   };
 
   describe('checkHash', () => {
-    it('should post content then get response from forestUrl', () => {
-      expect.assertions(1);
+    it('should post content then get response from forestUrl', async () => {
+      expect.assertions(2);
 
-      const { apimapSender, superagentRequestThenFunction } = setupTest();
+      const {
+        apimapSender,
+        superagentRequestThenFunction,
+        superagentRequestThenResult,
+      } = setupTest();
 
-      apimapSender.checkHash();
+      const result = await apimapSender.checkHash();
       expect(superagentRequestThenFunction).toHaveBeenCalledTimes(1);
+      expect(result).toBe(superagentRequestThenResult);
     });
   });
 
