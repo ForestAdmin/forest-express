@@ -1452,6 +1452,7 @@ describe('services > permissions', () => {
             .toResolve();
         });
       });
+
       describe('on rolesACLActivated', () => {
         it('should return a resolved promise', async () => {
           expect.assertions(1);

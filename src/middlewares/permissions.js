@@ -90,7 +90,7 @@ class PermissionMiddlewareCreator {
         );
         next();
       } catch (error) {
-        this.logger.error(error);
+        this.logger.error(error.message);
         next(httpError(403));
       }
     };

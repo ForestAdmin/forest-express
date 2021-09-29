@@ -49,7 +49,15 @@ class PermissionsChecker {
       if (!segments) {
         return false;
       }
-      if (!segments.includes(permissionInfos.segmentQuery)) {
+
+      // NOTICE: Handle UNION queries made by the FRONT to display available actions on details view
+      const unionQueries = permissionInfos.segmentQuery.split('/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION ');
+      if (unionQueries.length > 1) {
+        const includesAllowedQueriesOnly = unionQueries.every((unionQuery) => segments.filter((query) => query.replace(/;\s*/i, '') === unionQuery).length > 0);
+        if (!includesAllowedQueriesOnly) {
+          return false;
+        }
+      } else if (!segments.includes(permissionInfos.segmentQuery)) {
         return false;
       }
     }
