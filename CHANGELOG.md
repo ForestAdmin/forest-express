@@ -1,3 +1,10 @@
+## [9.2.9](https://github.com/ForestAdmin/forest-express/compare/v9.2.8...v9.2.9) (2021-09-29)
+
+
+### Bug Fixes
+
+* smart actions restricted to a segment using segment query should be visible ([#777](https://github.com/ForestAdmin/forest-express/issues/777)) ([93f310d](https://github.com/ForestAdmin/forest-express/commit/93f310d0a908aea09588e327847c95d03d5026a3))
+
 ## [9.2.8](https://github.com/ForestAdmin/forest-express/compare/v9.2.7...v9.2.8) (2021-09-22)
 
 
