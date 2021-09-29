@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const crypto = require('crypto');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -176,7 +177,20 @@ function generateAndSendSchema(envSecret) {
   if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
-  apimapSender.send(envSecret, schemaSent);
+
+  const hash = crypto.createHash('sha1');
+  const schemaHash = hash.update(JSON.stringify(schemaSent)).digest('hex');
+  schemaSent.meta.schemaHash = schemaHash;
+
+  apimapSender.checkHash(envSecret, schemaHash)
+    .then(({ body }) => {
+      if (body.sendSchema) {
+        logger.info('Sending apimap update to Forest...');
+        apimapSender.send(envSecret, schemaSent);
+      } else {
+        logger.info('No change in apimap, nothing sent to Forest.');
+      }
+    });
 }
 
 exports.init = async (Implementation) => {
