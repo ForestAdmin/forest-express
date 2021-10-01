@@ -108,7 +108,7 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-function generateAndSendSchema(envSecret) {
+async function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
   configStore.integrator.defineCollections(collections);
 
@@ -158,7 +158,7 @@ function generateAndSendSchema(envSecret) {
       if (!content) {
         logger.error('The .forestadmin-schema.json file is empty.');
         logger.error('The schema cannot be synchronized with Forest Admin servers.');
-        return;
+        return Promise.resolve(null);
       }
       const contentParsed = JSON.parse(content.toString());
       collectionsSent = contentParsed.collections;
@@ -170,11 +170,11 @@ function generateAndSendSchema(envSecret) {
         logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
       }
       logger.error('The schema cannot be synchronized with Forest Admin servers.');
-      return;
+      return Promise.resolve(null);
     }
   }
 
-  if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
+  if (DISABLE_AUTO_SCHEMA_APPLY) { return Promise.resolve(); }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
 
@@ -182,14 +182,14 @@ function generateAndSendSchema(envSecret) {
   const schemaHash = hash.update(JSON.stringify(schemaSent)).digest('hex');
   schemaSent.meta.schemaHash = schemaHash;
 
-  apimapSender.checkHash(envSecret, schemaHash)
+  return apimapSender.checkHash(envSecret, schemaHash)
     .then(({ body }) => {
       if (body.sendSchema) {
         logger.info('Sending apimap update to Forest...');
-        apimapSender.send(envSecret, schemaSent);
-      } else {
-        logger.info('No change in apimap, nothing sent to Forest.');
+        return apimapSender.send(envSecret, schemaSent);
       }
+      logger.info('No change in apimap, nothing sent to Forest.');
+      return Promise.resolve(null);
     });
 }
 
