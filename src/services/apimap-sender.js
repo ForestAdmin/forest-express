@@ -26,8 +26,8 @@ class ApimapSender {
   _send(envSecret, data, path) {
     return this.superagentRequest
       .post(`${this.forestUrl}/${path}`)
-      .send(data)
       .set('forest-secret-key', envSecret)
+      .send(data)
       .then((result) => {
         this.handleResult(result);
         return result;
