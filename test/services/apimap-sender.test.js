@@ -12,8 +12,8 @@ describe('services > apimap-sender', () => {
       .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
       .addInstance('superagentRequest', {
         post: () => ({
-          send: () => ({
-            set: () => ({
+          set: () => ({
+            send: () => ({
               then: superagentRequestThenFunction,
             }),
           }),
