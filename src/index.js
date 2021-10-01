@@ -331,7 +331,12 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    generateAndSendSchema(configStore.lianaOptions.envSecret);
+    const generateAndSendSchemaPromise = generateAndSendSchema(configStore.lianaOptions.envSecret);
+    // NOTICE: Hide promise for testing purpose. Waiting here in production
+    //         will change app behaviour.
+    if (process.env.NODE_ENV === 'test') {
+      app._generateAndSendSchemaPromise = generateAndSendSchemaPromise;
+    }
 
     try {
       await ipWhitelist.retrieve(configStore.lianaOptions.envSecret);
@@ -440,3 +445,7 @@ exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 exports.errorHandler = errorHandler;
 
 exports.PUBLIC_ROUTES = PUBLIC_ROUTES;
+
+if (process.env.NODE_ENV === 'test') {
+  exports.generateAndSendSchema = generateAndSendSchema;
+}
