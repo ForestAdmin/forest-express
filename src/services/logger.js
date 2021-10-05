@@ -33,7 +33,7 @@ module.exports = winston.createLogger({
         winston.format.printf((info) => {
           let message = TITLE + info.message;
 
-          if (info.metadata) {
+          if (info.metadata && Object.keys(info.metadata).length) {
             message += `\n${JSON.stringify(info.metadata, null, 2)}`;
           }
 
