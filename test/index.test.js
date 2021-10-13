@@ -507,6 +507,55 @@ describe('liana > index', () => {
       });
     });
 
+    describe('with a collection containing a smart action with the httpMethod property', () => {
+      const spyLogger = () => {
+        // eslint-disable-next-line global-require
+        const logger = require('../src/services/logger');
+        return {
+          spyOnWarning: jest.spyOn(logger, 'warn'),
+          spyOnError: jest.spyOn(logger, 'error'),
+        };
+      };
+
+      const initSchema = () => {
+        const { forestExpress, spyOnWarning, spyOnError } = resetRequireIndex(spyLogger);
+        forestExpress.Schemas.schemas = {
+          collectionTest: {
+            name: 'collectionTest',
+          },
+        };
+        return { forestExpress, spyOnWarning, spyOnError };
+      };
+
+      it('should log an error with httpMethod = GET', () => {
+        expect.assertions(1);
+        const { forestExpress, spyOnError } = initSchema();
+
+        forestExpress.collection('collectionTest', {
+          actions: [{
+            name: 'actionTest',
+            httpMethod: 'GET',
+          }],
+        });
+
+        expect(spyOnError).toHaveBeenCalledWith('The "httpMethod" GET of your smart action "actionTest" is not supported. Please update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.');
+      });
+
+      it('should log an error with httpMethod = PUT', () => {
+        expect.assertions(1);
+        const { forestExpress, spyOnWarning } = initSchema();
+
+        forestExpress.collection('collectionTest', {
+          actions: [{
+            name: 'actionTest',
+            httpMethod: 'PUT',
+          }],
+        });
+
+        expect(spyOnWarning).toHaveBeenCalledWith('DEPRECATION WARNING: The "httpMethod" property of your smart action "actionTest" is now deprecated. Please update your smart action route to use the POST verb instead, and remove the "httpMethod" property in your forest file.');
+      });
+    });
+
     describe('with an old named collection configuration', () => {
       const spyLogger = () => {
         // eslint-disable-next-line global-require
