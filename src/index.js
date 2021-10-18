@@ -182,6 +182,7 @@ async function generateAndSendSchema(envSecret) {
   const schemaFileHash = hash.update(JSON.stringify(schemaSent)).digest('hex');
   schemaSent.meta.schemaFileHash = schemaFileHash;
 
+  logger.info('Checking need for apimap update...');
   return apimapSender.checkHash(envSecret, schemaFileHash)
     .then(({ body }) => {
       if (body.sendSchema) {
