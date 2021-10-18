@@ -664,7 +664,7 @@ describe('liana > index', () => {
 
         const { app } = await initForestAppWithModels();
 
-        await expect(app._generateAndSendSchemaPromise).toReject();
+        await expect(app._generateAndSendSchemaPromise).toResolve(null);
       });
     });
 
