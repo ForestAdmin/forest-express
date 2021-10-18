@@ -38,8 +38,8 @@ class ApimapSender {
     return this._send(envSecret, apimap, 'forest/apimaps');
   }
 
-  checkHash(envSecret, apimapHash) {
-    return this._send(envSecret, { apimapHash }, 'forest/apimaps/hashcheck');
+  checkHash(envSecret, schemaFileHash) {
+    return this._send(envSecret, { schemaFileHash }, 'forest/apimaps/hashcheck');
   }
 }
 
