@@ -601,6 +601,8 @@ describe('liana > index', () => {
 
   describe('generateAndSendSchema', () => {
     const schemaDir = `/tmp/forest-express-test-${uuidv1()}`;
+    const schemaFile = `${schemaDir}/.forestadmin-schema.json`;
+
     const initForestAppWithModels = async () => {
       const forestExpress = resetRequireIndex();
       const implementation = createFakeImplementation({
@@ -632,13 +634,6 @@ describe('liana > index', () => {
     // eslint-disable-next-line jest/no-hooks
     beforeAll(async () => {
       fs.mkdirSync(schemaDir);
-
-      const dummySchema = {
-        collections: [],
-        meta: {},
-      };
-
-      fs.writeFileSync(`${schemaDir}/.forestadmin-schema.json`, JSON.stringify(dummySchema));
     });
 
     // eslint-disable-next-line jest/no-hooks
@@ -646,41 +641,95 @@ describe('liana > index', () => {
       fs.rmdirSync(schemaDir);
     });
 
-    it('should be exported for testing purpose', async () => {
-      expect.assertions(1);
+    describe('with a missing ".forestadmin-schema.json" file', () => {
+      it('should resolve with "null"', async () => {
+        expect.assertions(1);
 
-      const forestExpress = resetRequireIndex();
-      expect(forestExpress.generateAndSendSchema).toBeInstanceOf(Function);
+        fs.rmSync(schemaFile, { force: true });
+
+        const { app } = await initForestAppWithModels();
+
+        await expect(app._generateAndSendSchemaPromise).toResolve(null);
+      });
+
+      it.todo('should fail properly');
     });
 
-    it('should send apimap only if hash is different on server', async () => {
-      expect.assertions(1);
+    describe('with an empty ".forestadmin-schema.json" file', () => {
+      it('should fail', async () => {
+        expect.assertions(1);
 
-      const scope = nock('https://api.forestadmin.com')
-        .post('/forest/apimaps/hashcheck')
-        .reply(200, { sendSchema: true })
-        .post('/forest/apimaps')
-        .reply(202, { job_id: 42 });
+        const emptySchema = '';
+        fs.writeFileSync(schemaFile, JSON.stringify(emptySchema));
 
-      const { app } = await initForestAppWithModels();
+        const { app } = await initForestAppWithModels();
 
-      await app._generateAndSendSchemaPromise;
-
-      expect(scope.isDone()).toBeTrue();
+        await expect(app._generateAndSendSchemaPromise).toReject();
+      });
     });
 
-    it('should not send apimap if hash is identical on server', async () => {
-      expect.assertions(1);
+    describe('with an invalid ".forestadmin-schema.json" file', () => {
+      it('should resolve with "null"', async () => {
+        expect.assertions(1);
 
-      const scope = nock('https://api.forestadmin.com')
-        .post('/forest/apimaps/hashcheck')
-        .reply(200, { sendSchema: false });
+        const invalidSchema = '{ "thisIsWrong": ... }';
+        fs.writeFileSync(schemaFile, JSON.stringify(invalidSchema));
 
-      const { app } = await initForestAppWithModels();
+        const { app } = await initForestAppWithModels();
 
-      await app._generateAndSendSchemaPromise;
+        await expect(app._generateAndSendSchemaPromise).toResolve();
+      });
 
-      expect(scope.isDone()).toBeTrue();
+      it.todo('should fail properly');
+    });
+
+    describe('with a proper ".forestadmin-schema.json" file', () => {
+      // eslint-disable-next-line jest/no-hooks
+      beforeAll(() => {
+        const dummySchema = {
+          collections: [],
+          meta: {},
+        };
+
+        fs.writeFileSync(schemaFile, JSON.stringify(dummySchema));
+      });
+
+      it('should be exported for testing purpose', async () => {
+        expect.assertions(1);
+
+        const forestExpress = resetRequireIndex();
+        expect(forestExpress.generateAndSendSchema).toBeInstanceOf(Function);
+      });
+
+      it('should send apimap only if hash is different on server', async () => {
+        expect.assertions(1);
+
+        const scope = nock('https://api.forestadmin.com')
+          .post('/forest/apimaps/hashcheck')
+          .reply(200, { sendSchema: true })
+          .post('/forest/apimaps')
+          .reply(202, { job_id: 42 });
+
+        const { app } = await initForestAppWithModels();
+
+        await app._generateAndSendSchemaPromise;
+
+        expect(scope.isDone()).toBeTrue();
+      });
+
+      it('should not send apimap if hash is identical on server', async () => {
+        expect.assertions(1);
+
+        const scope = nock('https://api.forestadmin.com')
+          .post('/forest/apimaps/hashcheck')
+          .reply(200, { sendSchema: false });
+
+        const { app } = await initForestAppWithModels();
+
+        await app._generateAndSendSchemaPromise;
+
+        expect(scope.isDone()).toBeTrue();
+      });
     });
   });
 });
