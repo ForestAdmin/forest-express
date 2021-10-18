@@ -193,6 +193,10 @@ async function generateAndSendSchema(envSecret) {
     });
 }
 
+const reportSchemaComputeError = (error) => {
+  logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+};
+
 exports.init = async (Implementation) => {
   const { opts } = Implementation;
 
@@ -350,7 +354,7 @@ exports.init = async (Implementation) => {
 
     return app;
   } catch (error) {
-    logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+    reportSchemaComputeError(error);
     throw error;
   }
 };
