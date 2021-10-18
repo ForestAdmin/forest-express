@@ -179,10 +179,10 @@ async function generateAndSendSchema(envSecret) {
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
 
   const hash = crypto.createHash('sha1');
-  const schemaHash = hash.update(JSON.stringify(schemaSent)).digest('hex');
-  schemaSent.meta.schemaHash = schemaHash;
+  const schemaFileHash = hash.update(JSON.stringify(schemaSent)).digest('hex');
+  schemaSent.meta.schemaFileHash = schemaFileHash;
 
-  return apimapSender.checkHash(envSecret, schemaHash)
+  return apimapSender.checkHash(envSecret, schemaFileHash)
     .then(({ body }) => {
       if (body.sendSchema) {
         logger.info('Sending apimap update to Forest...');
