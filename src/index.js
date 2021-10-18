@@ -335,7 +335,10 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    const generateAndSendSchemaPromise = generateAndSendSchema(configStore.lianaOptions.envSecret);
+    const generateAndSendSchemaPromise = generateAndSendSchema(configStore.lianaOptions.envSecret)
+      .catch((error) => {
+        reportSchemaComputeError(error);
+      });
     // NOTICE: Hide promise for testing purpose. Waiting here in production
     //         will change app behaviour.
     if (process.env.NODE_ENV === 'test') {
