@@ -186,8 +186,12 @@ async function generateAndSendSchema(envSecret) {
   return apimapSender.checkHash(envSecret, schemaFileHash)
     .then(({ body }) => {
       if (body.sendSchema) {
-        logger.info('Sending apimap update to Forest...');
-        return apimapSender.send(envSecret, schemaSent);
+        logger.info('Sending schema file to Forest...');
+        return apimapSender.send(envSecret, schemaSent)
+          .then((result) => {
+            logger.info('Schema file sent.');
+            return result;
+          });
       }
       logger.info('No change in apimap, nothing sent to Forest.');
       return Promise.resolve(null);
