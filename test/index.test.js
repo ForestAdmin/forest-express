@@ -645,7 +645,11 @@ describe('liana > index', () => {
       it('should resolve with "null"', async () => {
         expect.assertions(1);
 
-        fs.rmSync(schemaFile, { force: true });
+        try {
+          fs.unlinkSync(schemaFile);
+        } catch {
+          // NOTICE: Ignore error if missing file, no clean up was needed.
+        }
 
         const { app } = await initForestAppWithModels();
 
