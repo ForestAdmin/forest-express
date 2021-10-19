@@ -1,3 +1,10 @@
+# [9.3.0](https://github.com/ForestAdmin/forest-express/compare/v9.2.9...v9.3.0) (2021-10-19)
+
+
+### Features
+
+* **perf:** do not send schema to Forest when unchanged ([#814](https://github.com/ForestAdmin/forest-express/issues/814)) ([91ce1e3](https://github.com/ForestAdmin/forest-express/commit/91ce1e3647b0de4e6507817a981351e3b9e6ad41))
+
 ## [9.2.9](https://github.com/ForestAdmin/forest-express/compare/v9.2.8...v9.2.9) (2021-09-29)
 
 
