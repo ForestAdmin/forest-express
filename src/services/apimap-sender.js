@@ -23,14 +23,23 @@ class ApimapSender {
     }
   }
 
-  send(envSecret, apimap) {
-    this.superagentRequest
-      .post(`${this.forestUrl}/forest/apimaps`)
-      .send(apimap)
+  _send(envSecret, data, path) {
+    return this.superagentRequest
+      .post(`${this.forestUrl}/${path}`)
       .set('forest-secret-key', envSecret)
-      .end((_error, result) => {
+      .send(data)
+      .then((result) => {
         this.handleResult(result);
+        return result;
       });
+  }
+
+  send(envSecret, apimap) {
+    return this._send(envSecret, apimap, 'forest/apimaps');
+  }
+
+  checkHash(envSecret, schemaFileHash) {
+    return this._send(envSecret, { schemaFileHash }, 'forest/apimaps/hashcheck');
   }
 }
 

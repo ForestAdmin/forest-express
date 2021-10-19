@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const crypto = require('crypto');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -107,7 +108,7 @@ exports.ensureAuthenticated = (request, response, next) => {
   auth.authenticate(request, response, next, jwtAuthenticator);
 };
 
-function generateAndSendSchema(envSecret) {
+async function generateAndSendSchema(envSecret) {
   const collections = _.values(Schemas.schemas);
   configStore.integrator.defineCollections(collections);
 
@@ -157,7 +158,7 @@ function generateAndSendSchema(envSecret) {
       if (!content) {
         logger.error('The .forestadmin-schema.json file is empty.');
         logger.error('The schema cannot be synchronized with Forest Admin servers.');
-        return;
+        return Promise.resolve(null);
       }
       const contentParsed = JSON.parse(content.toString());
       collectionsSent = contentParsed.collections;
@@ -169,15 +170,37 @@ function generateAndSendSchema(envSecret) {
         logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
       }
       logger.error('The schema cannot be synchronized with Forest Admin servers.');
-      return;
+      return Promise.resolve(null);
     }
   }
 
-  if (DISABLE_AUTO_SCHEMA_APPLY) { return; }
+  if (DISABLE_AUTO_SCHEMA_APPLY) { return Promise.resolve(); }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
-  apimapSender.send(envSecret, schemaSent);
+
+  const hash = crypto.createHash('sha1');
+  const schemaFileHash = hash.update(JSON.stringify(schemaSent)).digest('hex');
+  schemaSent.meta.schemaFileHash = schemaFileHash;
+
+  logger.info('Checking need for apimap update...');
+  return apimapSender.checkHash(envSecret, schemaFileHash)
+    .then(({ body }) => {
+      if (body.sendSchema) {
+        logger.info('Sending schema file to Forest...');
+        return apimapSender.send(envSecret, schemaSent)
+          .then((result) => {
+            logger.info('Schema file sent.');
+            return result;
+          });
+      }
+      logger.info('No change in apimap, nothing sent to Forest.');
+      return Promise.resolve(null);
+    });
 }
+
+const reportSchemaComputeError = (error) => {
+  logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+};
 
 exports.init = async (Implementation) => {
   const { opts } = Implementation;
@@ -317,7 +340,15 @@ exports.init = async (Implementation) => {
 
     app.use(pathMounted, errorHandler({ logger }));
 
-    generateAndSendSchema(configStore.lianaOptions.envSecret);
+    const generateAndSendSchemaPromise = generateAndSendSchema(configStore.lianaOptions.envSecret)
+      .catch((error) => {
+        reportSchemaComputeError(error);
+      });
+    // NOTICE: Hide promise for testing purpose. Waiting here in production
+    //         will change app behaviour.
+    if (process.env.NODE_ENV === 'test') {
+      app._generateAndSendSchemaPromise = generateAndSendSchemaPromise;
+    }
 
     try {
       await ipWhitelist.retrieve(configStore.lianaOptions.envSecret);
@@ -331,7 +362,7 @@ exports.init = async (Implementation) => {
 
     return app;
   } catch (error) {
-    logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+    reportSchemaComputeError(error);
     throw error;
   }
 };
@@ -426,3 +457,7 @@ exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
 exports.errorHandler = errorHandler;
 
 exports.PUBLIC_ROUTES = PUBLIC_ROUTES;
+
+if (process.env.NODE_ENV === 'test') {
+  exports.generateAndSendSchema = generateAndSendSchema;
+}
