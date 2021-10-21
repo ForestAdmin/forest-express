@@ -107,16 +107,16 @@ class PermissionMiddlewareCreator {
   _ensureRecordIdsInScope() {
     return async (request, response, next) => {
       try {
-        // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
-        const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
-        if (attributes.allRecords) {
-          return next();
-        }
-
         // Otherwise, check that all records are within scope.
         const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
 
+        // Smart collections does not have the scope feature
         if (isVirtual) {
+          return next();
+        }
+        // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
+        const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
+        if (attributes.allRecords) {
           return next();
         }
 
@@ -143,7 +143,7 @@ class PermissionMiddlewareCreator {
         }
 
         return response.status(400).send({ error: 'Smart Action: target records are out of scope' });
-      } catch {
+      } catch (err) {
         return response.status(500).send({ error: 'Smart Action: failed to evaluate permissions' });
       }
     };

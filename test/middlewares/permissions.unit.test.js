@@ -371,20 +371,19 @@ describe('middlewares > permissions', () => {
     });
 
     describe('with a smart collection', () => {
-      Schemas.schemas = {
-        users: {
-          name: 'users',
-          idField: 'id',
-          primaryKeys: ['id'],
-          isCompositePrimary: false,
-          isVirtual: true,
-        },
-      };
-
       it('should call next() since no scope can be configured', async () => {
         expect.assertions(2);
 
-        const request = buildRequest({ ...defaultAttributes });
+        Schemas.schemas = {
+          users: {
+            name: 'users',
+            idField: 'id',
+            primaryKeys: ['id'],
+            isVirtual: true,
+          },
+        };
+
+        const request = buildRequest({ ...defaultAttributes, ids: ['1'] });
         const next = jest.fn();
 
         const dependencies = getDependencies();
