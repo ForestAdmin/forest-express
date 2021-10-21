@@ -384,7 +384,7 @@ describe('middlewares > permissions', () => {
       it('should call next() since no scope can be configured', async () => {
         expect.assertions(2);
 
-        const request = buildRequest({ ...defaultAttributes, all_records: true });
+        const request = buildRequest({ ...defaultAttributes });
         const next = jest.fn();
 
         const dependencies = getDependencies();
