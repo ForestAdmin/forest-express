@@ -114,7 +114,12 @@ class PermissionMiddlewareCreator {
         }
 
         // Otherwise, check that all records are within scope.
-        const { primaryKeys } = Schemas.schemas[this.collectionName];
+        const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
+
+        if (isVirtual) {
+          return next();
+        }
+
         const filters = JSON.stringify(primaryKeys.length === 1
           ? { field: primaryKeys[0], operator: 'in', value: attributes.ids }
           : {
