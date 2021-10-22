@@ -43,6 +43,11 @@ class ConfigStore {
     return this.fs.existsSync(this.schemaDir);
   }
 
+  doesConnectionsHaveModels() {
+    return Object.values(this.lianaOptions.connections)
+      .some(({ models }) => Object.keys(models).length);
+  }
+
   validateOptions() {
     const options = this.lianaOptions;
 
@@ -68,6 +73,10 @@ class ConfigStore {
 
     if (!options.connections || !options.connections.constructor.toString().match('Object')) {
       throw new Error('The connections option seems incorrectly set. Please check it is an object of named connections.');
+    }
+
+    if (!this.doesConnectionsHaveModels()) {
+      this.logger.warn('Your connections do not seem to have any models. Please check if your connections import your models.');
     }
 
     if (options.includedModels && !Array.isArray(options.includedModels)) {
