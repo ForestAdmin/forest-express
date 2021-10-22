@@ -116,11 +116,11 @@ class PermissionMiddlewareCreator {
 
         // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
         const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
-        // Otherwise, check that all records are within scope.
         if (attributes.allRecords) {
           return next();
         }
 
+        // Otherwise, check that all records are within scope.
         const filters = JSON.stringify(primaryKeys.length === 1
           ? { field: primaryKeys[0], operator: 'in', value: attributes.ids }
           : {
