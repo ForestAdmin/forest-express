@@ -229,5 +229,21 @@ describe('services > config-store', () => {
       expect(() => configStore.validateOptions()).not.toThrow();
       expect(logger.warn).toHaveBeenCalledTimes(0);
     });
+
+    describe('when connections does not have any models', () => {
+      it('should log a warning message', () => {
+        expect.assertions(2);
+        jest.clearAllMocks();
+
+        configStore.lianaOptions = {
+          authSecret,
+          envSecret,
+          connections: { db1: { models: {} } },
+        };
+
+        expect(() => configStore.validateOptions()).not.toThrow();
+        expect(logger.warn).toHaveBeenCalledWith('Your connections do not seem to have any models. Please check if your connections import your models.');
+      });
+    });
   });
 });
