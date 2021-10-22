@@ -149,7 +149,7 @@ describe('services > config-store', () => {
   describe('when the given configuration is valid', () => {
     const validConnections = {
       db1: {
-        models: {},
+        models: { model1: {} },
       },
     };
 
