@@ -149,7 +149,7 @@ describe('services > config-store', () => {
   describe('when the given configuration is valid', () => {
     const validConnections = {
       db1: {
-        models: {},
+        models: { model1: {} },
       },
     };
 
@@ -228,6 +228,76 @@ describe('services > config-store', () => {
 
       expect(() => configStore.validateOptions()).not.toThrow();
       expect(logger.warn).toHaveBeenCalledTimes(0);
+    });
+
+    describe('no models warning', () => {
+      describe('with a single database project', () => {
+        describe('when connection does not have any models', () => {
+          it('should log a warning message', () => {
+            expect.assertions(2);
+            jest.clearAllMocks();
+
+            configStore.lianaOptions = {
+              authSecret,
+              envSecret,
+              connections: { db1: { models: {} } },
+            };
+
+            expect(() => configStore.validateOptions()).not.toThrow();
+            expect(logger.warn).toHaveBeenCalledWith('Your connections do not seem to have any models. Please check if your connections import your models.');
+          });
+        });
+      });
+
+      describe('with a multiple database project', () => {
+        describe('when only the first connections have models', () => {
+          it('should not log a warning message', () => {
+            expect.assertions(2);
+            jest.clearAllMocks();
+
+            configStore.lianaOptions = {
+              authSecret,
+              envSecret,
+              connections: { db1: { models: { model1: {} } }, db2: { models: {} } },
+            };
+
+            expect(() => configStore.validateOptions()).not.toThrow();
+            expect(logger.warn).not.toHaveBeenCalled();
+          });
+        });
+
+        describe('when only the second connections have models', () => {
+          it('should not log a warning message', () => {
+            expect.assertions(2);
+            jest.clearAllMocks();
+
+            configStore.lianaOptions = {
+              authSecret,
+              envSecret,
+              connections: { db1: { models: {} }, db2: { models: { model1: {} } } },
+            };
+
+            expect(() => configStore.validateOptions()).not.toThrow();
+            expect(logger.warn).not.toHaveBeenCalled();
+          });
+        });
+
+        describe('when connections does not have any models', () => {
+          it('should log a warning message', () => {
+            expect.assertions(2);
+            jest.clearAllMocks();
+
+            configStore.lianaOptions = {
+              authSecret,
+              envSecret,
+              connections: { db1: { models: {} }, db2: { models: {} } },
+            };
+
+            expect(() => configStore.validateOptions()).not.toThrow();
+            expect(logger.warn).toHaveBeenCalledWith('Your connections do not seem to have any models. Please check if your connections import your models.');
+          });
+        });
+      });
     });
   });
 });
