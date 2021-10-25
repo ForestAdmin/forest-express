@@ -1,3 +1,10 @@
+## [9.3.1](https://github.com/ForestAdmin/forest-express/compare/v9.3.0...v9.3.1) (2021-10-25)
+
+
+### Bug Fixes
+
+* **smart-actions:** skip scope validation for smart action on smart collection ([#819](https://github.com/ForestAdmin/forest-express/issues/819)) ([6b97e19](https://github.com/ForestAdmin/forest-express/commit/6b97e190152f8b2b4996af89b64a61759fc93323))
+
 # [9.3.0](https://github.com/ForestAdmin/forest-express/compare/v9.2.9...v9.3.0) (2021-10-19)
 
 
