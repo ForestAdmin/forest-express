@@ -1,3 +1,10 @@
+## [9.3.2](https://github.com/ForestAdmin/forest-express/compare/v9.3.1...v9.3.2) (2021-10-25)
+
+
+### Bug Fixes
+
+* add warning message when connections does not have any models ([#821](https://github.com/ForestAdmin/forest-express/issues/821)) ([b6600fa](https://github.com/ForestAdmin/forest-express/commit/b6600fa816d5e8e1c339958a918e43136fe1ed01))
+
 ## [9.3.1](https://github.com/ForestAdmin/forest-express/compare/v9.3.0...v9.3.1) (2021-10-25)
 
 
