@@ -107,6 +107,13 @@ class PermissionMiddlewareCreator {
   _ensureRecordIdsInScope() {
     return async (request, response, next) => {
       try {
+        const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
+
+        // Smart collections does not have the scope feature
+        if (isVirtual) {
+          return next();
+        }
+
         // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
         const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
         if (attributes.allRecords) {
@@ -114,7 +121,6 @@ class PermissionMiddlewareCreator {
         }
 
         // Otherwise, check that all records are within scope.
-        const { primaryKeys } = Schemas.schemas[this.collectionName];
         const filters = JSON.stringify(primaryKeys.length === 1
           ? { field: primaryKeys[0], operator: 'in', value: attributes.ids }
           : {

@@ -369,6 +369,32 @@ describe('middlewares > permissions', () => {
         expect(next).not.toHaveBeenCalled();
       });
     });
+
+    describe('with a smart collection', () => {
+      it('should call next() since no scope can be configured', async () => {
+        expect.assertions(2);
+
+        Schemas.schemas = {
+          users: {
+            name: 'users',
+            idField: 'id',
+            primaryKeys: ['id'],
+            isVirtual: true,
+          },
+        };
+
+        const request = buildRequest({ ...defaultAttributes, ids: ['1'] });
+        const next = jest.fn();
+
+        const dependencies = getDependencies();
+        const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', dependencies);
+        const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope();
+        await middleware(request, defaultResponse, next);
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith();
+      });
+    });
   });
 
   describe('smartAction', () => {
