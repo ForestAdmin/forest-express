@@ -1,8 +1,9 @@
 const P = require('bluebird');
 const moment = require('moment');
 const stringify = require('csv-stringify');
-const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
+const context = require('../context');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
+const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 // NOTICE: Prevent bad date formatting into timestamps.
 const CSV_OPTIONS = {
@@ -12,6 +13,8 @@ const CSV_OPTIONS = {
 };
 
 function CSVExporter(params, response, modelName, recordsExporter) {
+  const { configStore } = context.inject();
+
   this.perform = () => {
     const filename = `${params.filename}.csv`;
     response.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -35,6 +38,11 @@ function CSVExporter(params, response, modelName, recordsExporter) {
           new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform())
         .then((recordsWithSmartFieldsValues) =>
           new P((resolve) => {
+            if (configStore.Implementation.Flattener) {
+              recordsWithSmartFieldsValues = configStore.Implementation.Flattener
+                .flattenRecordsForExport(modelName, recordsWithSmartFieldsValues);
+            }
+
             const CSVLines = [];
             recordsWithSmartFieldsValues.forEach((record) => {
               const CSVLine = [];
