@@ -39,7 +39,7 @@ describe('services > csv-exporter', () => {
 
     describe('when implementation supports flatten fields feature', () => {
       it('should flatten records', async () => {
-        expect.assertions(2);
+        expect.assertions(1);
 
         initialiseContext();
 
@@ -48,10 +48,6 @@ describe('services > csv-exporter', () => {
             flattenRecordsForExport: jest.fn().mockReturnValue([{}]),
           },
         };
-
-        const spy = jest
-          .spyOn(configStore.Implementation.Flattener, 'flattenRecordsForExport')
-          .mockImplementation(() => [{}]);
 
         const csvExporter = new CSVExporter(
           exportParams,
@@ -62,8 +58,8 @@ describe('services > csv-exporter', () => {
 
         await csvExporter.perform();
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('cars', [{}]);
+        expect(configStore.Implementation.Flattener.flattenRecordsForExport)
+          .toHaveBeenNthCalledWith(1, 'cars', [{}]);
       });
     });
 
