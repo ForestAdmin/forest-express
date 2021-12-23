@@ -1,10 +1,9 @@
-import context from '../context';
-
 const P = require('bluebird');
 const moment = require('moment');
 const stringify = require('csv-stringify');
-const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
+const context = require('../context');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
+const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
 // NOTICE: Prevent bad date formatting into timestamps.
 const CSV_OPTIONS = {
