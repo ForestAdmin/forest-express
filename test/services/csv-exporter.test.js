@@ -9,9 +9,7 @@ const { configStore } = context.inject();
 describe('services > csv-exporter', () => {
   const initialiseContext = () => {
     configStore.Implementation = {
-      Flattener: {
-        flattenRecordsForExport: jest.fn().mockReturnValue([{}]),
-      },
+      Flattener: undefined,
     };
     Schemas.schemas.cars = {
       fields: [{
@@ -45,6 +43,12 @@ describe('services > csv-exporter', () => {
 
         initialiseContext();
 
+        configStore.Implementation = {
+          Flattener: {
+            flattenRecordsForExport: jest.fn().mockReturnValue([{}]),
+          },
+        };
+
         const spy = jest
           .spyOn(configStore.Implementation.Flattener, 'flattenRecordsForExport')
           .mockImplementation(() => [{}]);
@@ -60,6 +64,23 @@ describe('services > csv-exporter', () => {
 
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith('cars', [{}]);
+      });
+    });
+
+    describe('when implementation does not support flatten fields feature', () => {
+      it('should not flatten records', async () => {
+        expect.assertions(1);
+
+        initialiseContext();
+
+        const csvExporter = new CSVExporter(
+          exportParams,
+          fakeResponse,
+          'cars',
+          mockRecordsExporter,
+        );
+
+        await expect(csvExporter.perform()).toResolve();
       });
     });
   });
