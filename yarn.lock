@@ -9270,10 +9270,10 @@ semantic-release-npm-deprecate-old-versions@1.1.7:
     execa "^4.1.0"
     semver "^7.3.5"
 
-semantic-release-slack-bot@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/semantic-release-slack-bot/-/semantic-release-slack-bot-2.1.1.tgz#22fd5f10640c468c83af8f2deae7b89bb9d571f7"
-  integrity sha512-keNqVsZ+Ntm1F8O5yqoX3DmIsH1gK+CDmPhcjLAHTOtmJSul2kRFzEnAac1O8LltF9BQ2wW5OJ3BXcFWXt49aw==
+semantic-release-slack-bot@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/semantic-release-slack-bot/-/semantic-release-slack-bot-3.2.0.tgz#2a77931931661503fed10383dbe09b10b7ec1e49"
+  integrity sha512-3mRMrjtb0sOsZuKDGVP/6qTVvDGOpwJwleE6ZruPGtETlMC1q2tHIIrN8txJnQ1UcfQLjTJam2LWrojtcHw9IQ==
   dependencies:
     "@semantic-release/error" "^2.2.0"
     micromatch "4.0.2"
