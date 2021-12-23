@@ -1,3 +1,10 @@
+## [9.3.3](https://github.com/ForestAdmin/forest-express/compare/v9.3.2...v9.3.3) (2021-12-23)
+
+
+### Bug Fixes
+
+* **export:** flattened fields are now correctly exported ([#838](https://github.com/ForestAdmin/forest-express/issues/838)) ([91b0ddc](https://github.com/ForestAdmin/forest-express/commit/91b0ddc04b39a43cfcc92f1d7c3bc1b218b2f6e4))
+
 ## [9.3.2](https://github.com/ForestAdmin/forest-express/compare/v9.3.1...v9.3.2) (2021-10-25)
 
 
