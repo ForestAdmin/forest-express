@@ -453,6 +453,7 @@ exports.RecordsRemover = require('./services/exposed/records-remover');
 exports.RecordSerializer = require('./services/exposed/record-serializer');
 exports.ScopeManager = require('./services/scope-manager');
 exports.PermissionMiddlewareCreator = require('./middlewares/permissions');
+exports.OptionalMiddleware = require('./middlewares/optionals/index');
 
 exports.errorHandler = errorHandler;
 
