@@ -1,3 +1,10 @@
+# [9.4.0](https://github.com/ForestAdmin/forest-express/compare/v9.3.3...v9.4.0) (2022-02-02)
+
+
+### Features
+
+* **count:** add middleware to deactivate count ([#856](https://github.com/ForestAdmin/forest-express/issues/856)) ([ed97872](https://github.com/ForestAdmin/forest-express/commit/ed9787259d70a58d547c74fbb53ad1074f2a6034))
+
 ## [9.3.3](https://github.com/ForestAdmin/forest-express/compare/v9.3.2...v9.3.3) (2021-12-23)
 
 
