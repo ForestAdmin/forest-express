@@ -40,7 +40,7 @@ describe('middlewares > deactivateCount', () => {
 
       expect(statusResult).toHaveBeenCalledWith(400);
       expect(sendResult).toHaveBeenCalledWith({
-        erorr: 'This middleware can only be used in count routes.',
+        error: 'The deactiveCount middleware can only be used in count routes.',
       });
     });
   });

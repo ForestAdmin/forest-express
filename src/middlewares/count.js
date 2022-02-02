@@ -10,7 +10,7 @@ const deactivateCountMiddleware = (request, response, next) => {
     });
   } else {
     response.status(400).send({
-      erorr: 'This middleware can only be used in count routes.',
+      error: 'The deactiveCount middleware can only be used in count routes.',
     });
   }
   next();
