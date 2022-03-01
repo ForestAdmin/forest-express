@@ -1,11 +1,11 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const { pushIntoApimap } = require('../../utils/integrations');
-const context = require('../../context');
 
 const INTEGRATION_NAME = 'intercom';
 
 exports.createCollections = (Implementation, apimap, collectionName) => {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const collectionDisplayName = _.capitalize(collectionName);
   const model = modelsManager.getModels()[collectionName];
   // jshint camelcase: false

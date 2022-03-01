@@ -1,3 +1,4 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const auth = require('../services/auth');
 const logger = require('../services/logger');
@@ -6,7 +7,6 @@ const path = require('../services/path');
 const StatSerializer = require('../serializers/stat');
 const PermissionMiddlewareCreator = require('../middlewares/permissions');
 const Schemas = require('../generators/schemas');
-const context = require('../context');
 
 const CHART_TYPE_VALUE = 'Value';
 const CHART_TYPE_PIE = 'Pie';
@@ -15,7 +15,7 @@ const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
 module.exports = function Stats(app, model, Implementation, opts) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
 

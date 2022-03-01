@@ -1,10 +1,9 @@
-const ApplicationContext = require('../../src/context/application-context');
+const { init, inject } = require('@forestadmin/context');
 const ActionsRoutes = require('../../src/routes/actions');
 const SmartActionHookDeserializer = require('../../src/deserializers/smart-action-hook');
 
 function initContext(schemas, smartActionHookGetResponse) {
-  const context = new ApplicationContext();
-  context.init((ctx) => ctx
+  init((ctx) => ctx
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
     .addInstance('pathService', {
       generate: jest.fn((path) => path),
@@ -13,14 +12,14 @@ function initContext(schemas, smartActionHookGetResponse) {
     .addInstance('stringUtils', {
       parameterize: jest.fn((name) => name),
     })
-    .addInstance('schemasGenerator', { schemas })
-    .addInstance('smartActionHookService', { getResponse: smartActionHookGetResponse })
-    .addInstance('smartActionHookDeserializer', new SmartActionHookDeserializer())
-    .addClass(ActionsRoutes)
+    .addInstance('schemasGenerator', () => ({ schemas }))
+    .addInstance('smartActionHookService', () => ({ getResponse: smartActionHookGetResponse }))
+    .addInstance('smartActionHookDeserializer', () => new SmartActionHookDeserializer())
+    .addUsingClass('actions', () => ActionsRoutes)
     .addValue('model', { name: 'users' })
     .addValue('implementation', { getModelName: jest.fn((m) => m.name) })
     .addValue('app', { post: jest.fn() }));
-  return context;
+  return inject();
 }
 
 async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttributes) {
@@ -35,7 +34,7 @@ async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttrib
   };
   const {
     actions, model, app, logger,
-  } = initContext(schemas, smartActionHookGetResponse).inject();
+  } = initContext(schemas, smartActionHookGetResponse);
 
   const body = {
     data: {
@@ -71,7 +70,7 @@ describe('routes > actions', () => {
 
     const {
       actions, model, implementation, pathService, app, schemasGenerator,
-    } = initContext({ users: {} }).inject();
+    } = initContext({ users: {} });
 
     await actions.perform({}, schemasGenerator[model.name], model, implementation, {}, {});
 
@@ -86,7 +85,7 @@ describe('routes > actions', () => {
     const schema = { users: { actions: [{}, {}] } };
     const {
       actions, pathService, model, implementation, app, schemasGenerator,
-    } = initContext(schema).inject();
+    } = initContext(schema);
 
     await actions.perform({}, schemasGenerator[model.name], model, implementation, {}, {});
 
@@ -103,7 +102,7 @@ describe('routes > actions', () => {
         const schema = { users: { actions: [{ name: 'send invoice', hooks: { load: jest.fn() } }] } };
         const {
           actions, pathService, stringUtils, model, implementation, app,
-        } = initContext(schema).inject();
+        } = initContext(schema);
 
         await actions.perform(app, schema[model.name], model, implementation, {}, {});
 
@@ -164,7 +163,7 @@ describe('routes > actions', () => {
         const schema = { users: { actions: [{ name: 'send invoice', hooks: { change: { foo: jest.fn() } } }] } };
         const {
           actions, pathService, stringUtils, model, implementation, app,
-        } = initContext(schema).inject();
+        } = initContext(schema);
 
         await actions.perform(app, schema[model.name], model, implementation, {}, {});
 

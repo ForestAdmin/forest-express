@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const context = require('../context');
+const { inject } = require('@forestadmin/context');
 
 exports.getBelongsToAssociations = (schema) =>
   _.filter(
@@ -28,7 +28,7 @@ exports.getSmartField = (schema, fieldName) => {
   // then we want to retrieve nestedField to check if nestedField isVirtual
   if (!field.isVirtual && fieldName.includes(':') && field.reference) {
     const [referencedModel] = field.reference.split('.');
-    const { schemasGenerator } = context.inject();
+    const { schemasGenerator } = inject();
     const referenceSchema = schemasGenerator.schemas[referencedModel];
     return exports.getSmartField(referenceSchema, fieldName.substring(fieldName.indexOf(':') + 1));
   }

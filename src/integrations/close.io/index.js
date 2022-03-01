@@ -1,11 +1,11 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const logger = require('../../services/logger');
 const Routes = require('./routes');
 const Setup = require('./setup');
-const context = require('../../context');
 
 function Checker(opts, Implementation) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   let integrationValid = false;
 
   function hasIntegration() {

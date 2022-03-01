@@ -1,8 +1,8 @@
+const { inject } = require('@forestadmin/context');
 const ResourceSerializer = require('../../serializers/resource');
-const context = require('../../context');
 
 class RecordSerializer {
-  constructor(model, user, query, { configStore } = context.inject()) {
+  constructor(model, user, query, { configStore } = inject()) {
     // user and query parameters are kept for retro-compatibility for v8.
     // Should be dropped when releasing the next major.
     if (!model) {

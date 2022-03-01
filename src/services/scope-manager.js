@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import context from '../context';
+import { inject } from '@forestadmin/context';
 
 // 5 minutes exipration cache
 const SCOPE_CACHE_EXPIRATION_DELTA = 300;
@@ -7,7 +7,7 @@ const SCOPE_CACHE_EXPIRATION_DELTA = 300;
 class ScopeManager {
   constructor({
     configStore, forestServerRequester, moment, logger,
-  } = context.inject()) {
+  } = inject()) {
     this.configStore = configStore;
     this.forestServerRequester = forestServerRequester;
     this.moment = moment;

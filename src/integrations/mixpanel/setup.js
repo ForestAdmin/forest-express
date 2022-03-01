@@ -1,11 +1,11 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const { pushIntoApimap } = require('../../utils/integrations');
-const context = require('../../context');
 
 const INTEGRATION_NAME = 'mixpanel';
 
 exports.createCollections = (Implementation, apimap, collectionAndFieldName, options) => {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const model = modelsManager.getModels()[collectionAndFieldName.split('.')[0]];
   const modelName = Implementation.getModelName(model);
   const collectionDisplayName = _.capitalize(modelName);

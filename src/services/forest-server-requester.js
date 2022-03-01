@@ -1,11 +1,11 @@
+const { inject } = require('@forestadmin/context');
 const P = require('bluebird');
 const superagent = require('superagent');
 const VError = require('verror');
 const errorMessages = require('../utils/error-messages');
-const context = require('../context');
 
 function perform(route, environmentSecret, queryParameters, headers) {
-  const { forestUrl } = context.inject();
+  const { forestUrl } = inject();
 
   return new P((resolve, reject) => {
     const request = superagent

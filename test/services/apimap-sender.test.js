@@ -1,16 +1,15 @@
-const ApplicationContext = require('../../src/context/application-context');
+const { init, inject } = require('@forestadmin/context');
 const ApimapSender = require('../../src/services/apimap-sender');
 
 describe('services > apimap-sender', () => {
   const setupTest = () => {
-    const context = new ApplicationContext();
     const superagentRequestThenResult = Symbol('superagentRequestThenResult');
     const superagentRequestThenFunction = jest.fn(
       (callback) => callback(superagentRequestThenResult),
     );
-    context.init((ctx) => ctx
-      .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
-      .addInstance('superagentRequest', {
+    init((ctx) => ctx
+      .addInstance('logger', () => ({ warn: jest.fn(), error: jest.fn() }))
+      .addInstance('superagentRequest', () => ({
         post: () => ({
           set: () => ({
             send: () => ({
@@ -18,10 +17,10 @@ describe('services > apimap-sender', () => {
             }),
           }),
         }),
-      })
-      .addClass(ApimapSender));
+      }))
+      .addUsingClass('apimapSender', () => ApimapSender));
 
-    const { apimapSender, logger } = context.inject();
+    const { apimapSender, logger } = inject();
 
     return {
       apimapSender,

@@ -1,3 +1,4 @@
+const { inject } = require('@forestadmin/context');
 const auth = require('../services/auth');
 const path = require('../services/path');
 const ResourceSerializer = require('../serializers/resource');
@@ -5,10 +6,9 @@ const ResourceDeserializer = require('../deserializers/resource');
 const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const PermissionMiddlewareCreator = require('../middlewares/permissions');
-const context = require('../context');
 const RecordsGetter = require('../services/exposed/records-getter.js');
 
-module.exports = function Resources(app, model, { configStore } = context.inject()) {
+module.exports = function Resources(app, model, { configStore } = inject()) {
   const { Implementation, integrator, lianaOptions } = configStore;
   const modelName = Implementation.getModelName(model);
 
