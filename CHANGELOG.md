@@ -1,3 +1,10 @@
+## [9.4.1](https://github.com/ForestAdmin/forest-express/compare/v9.4.0...v9.4.1) (2022-03-07)
+
+
+### Bug Fixes
+
+* remove the next after send ([#869](https://github.com/ForestAdmin/forest-express/issues/869)) ([ad4a0c1](https://github.com/ForestAdmin/forest-express/commit/ad4a0c125d3ae3bb68f38e7ae0738dce315e3522))
+
 # [9.4.0](https://github.com/ForestAdmin/forest-express/compare/v9.3.3...v9.4.0) (2022-02-02)
 
 
