@@ -8,12 +8,11 @@ describe('middlewares > deactivateCount', () => {
       const reqMock = { path: 'collection1/count' };
       const statusMock = { send: () => { } };
       const respMock = { status: () => statusMock };
-      const nextMock = () => { };
 
       const sendResult = jest.spyOn(statusMock, 'send');
       const statusResult = jest.spyOn(respMock, 'status').mockImplementation(() => statusMock);
 
-      deactivateCount(reqMock, respMock, nextMock);
+      deactivateCount(reqMock, respMock);
 
       expect(statusResult).toHaveBeenCalledWith(200);
       expect(sendResult).toHaveBeenCalledWith({
@@ -31,12 +30,11 @@ describe('middlewares > deactivateCount', () => {
       const reqMock = { path: 'collection1/:recordId' };
       const statusMock = { send: () => { } };
       const respMock = { status: () => statusMock };
-      const nextMock = () => { };
 
       const sendResult = jest.spyOn(statusMock, 'send');
       const statusResult = jest.spyOn(respMock, 'status').mockImplementation(() => statusMock);
 
-      deactivateCount(reqMock, respMock, nextMock);
+      deactivateCount(reqMock, respMock);
 
       expect(statusResult).toHaveBeenCalledWith(400);
       expect(sendResult).toHaveBeenCalledWith({
