@@ -1,4 +1,4 @@
-const deactivateCountMiddleware = (request, response, next) => {
+const deactivateCountMiddleware = (request, response) => {
   const { path } = request;
   const splittedPath = path.split('/');
 
@@ -13,7 +13,6 @@ const deactivateCountMiddleware = (request, response, next) => {
       error: 'The deactiveCount middleware can only be used in count routes.',
     });
   }
-  next();
 };
 
 module.exports = deactivateCountMiddleware;
