@@ -6,7 +6,7 @@ describe('routes > stats', () => {
     it('should return a value for objective chart', async () => {
       expect.assertions(1);
 
-      init((ctx) => ctx);
+      init((context) => context);
 
       const app = {};
       const model = { name: 'book' };

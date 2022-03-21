@@ -7,7 +7,7 @@ describe('services > apimap-sender', () => {
     const superagentRequestThenFunction = jest.fn(
       (callback) => callback(superagentRequestThenResult),
     );
-    init((ctx) => ctx
+    init((context) => context
       .addInstance('logger', () => ({ warn: jest.fn(), error: jest.fn() }))
       .addInstance('superagentRequest', () => ({
         post: () => ({

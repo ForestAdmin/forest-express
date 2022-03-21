@@ -3,7 +3,7 @@ const SchemaFileUpdater = require('../../src/services/schema-file-updater');
 const SchemaSerializer = require('../../src/serializers/schema');
 
 describe('services > schema-file-updater', () => {
-  init((ctx) => ctx
+  init((context) => context
     .addInstance('fs', { writeFileSync: jest.fn() })
     .addInstance('logger', { warn: jest.fn() })
     .addUsingClass('schemaFileUpdater', () => SchemaFileUpdater));
@@ -14,7 +14,7 @@ describe('services > schema-file-updater', () => {
     stack: {
       database_type: 'some-db-type',
       engine: 'some-engine',
-      engine_version: 'some-engine-versio n',
+      engine_version: 'some-engine-version',
       orm_version: 'some-orm-version',
     },
   };

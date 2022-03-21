@@ -3,7 +3,7 @@ const SmartActionHookService = require('../../src/services/smart-action-hook-ser
 const SmartActionFieldValidator = require('../../src/services/smart-action-field-validator');
 
 const setup = () => {
-  init((ctx) => ctx
+  init((context) => context
     .addInstance('setFieldWidget', () => jest.fn())
     .addUsingClass('smartActionFieldValidator', () => SmartActionFieldValidator)
     .addUsingClass('smartActionHookService', () => SmartActionHookService));

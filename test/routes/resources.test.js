@@ -34,7 +34,7 @@ describe('routes > resources', () => {
           ResourceUpdater: jest.fn(() => ({ perform: resourceUpdaterPerform })),
         },
       };
-      init((ctx) => ctx.addInstance('configStore', configStore));
+      init((context) => context.addInstance('configStore', configStore));
 
       // Mock deserializer / serializer
       ResourceDeserializer.mockImplementation(function MyResourceDeserializer() {
@@ -85,7 +85,7 @@ describe('routes > resources', () => {
           ResourcesRemover: jest.fn(() => ({ perform: resourceRemoverPerform })),
         },
       };
-      init((ctx) => ctx.addInstance('configStore', configStore));
+      init((context) => context.addInstance('configStore', configStore));
 
       // Mock RecordsGetter
       const recordsGetterGetRecords = jest

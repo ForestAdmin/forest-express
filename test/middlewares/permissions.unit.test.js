@@ -17,8 +17,8 @@ describe('middlewares > permissions', () => {
 
   const createPermissionMiddlewareCreator = (collectionName, dependencies) => {
     const dependencyNames = Object.keys(dependencies);
-    init((ctx) => dependencyNames.reduce((contextAccumulator, name) =>
-      contextAccumulator.addInstance(name, () => dependencies[name]), ctx));
+    init((context) => dependencyNames.reduce((contextAccumulator, name) =>
+      contextAccumulator.addInstance(name, () => dependencies[name]), context));
     return new PermissionMiddlewareCreator(collectionName);
   };
 

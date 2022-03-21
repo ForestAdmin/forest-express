@@ -3,7 +3,7 @@ const ActionsRoutes = require('../../src/routes/actions');
 const SmartActionHookDeserializer = require('../../src/deserializers/smart-action-hook');
 
 function initContext(schemas, smartActionHookGetResponse) {
-  init((ctx) => ctx
+  init((context) => context
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() })
     .addInstance('pathService', {
       generate: jest.fn((path) => path),

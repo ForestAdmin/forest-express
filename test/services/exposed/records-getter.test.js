@@ -4,7 +4,7 @@ const Schemas = require('../../../src/generators/schemas');
 const addressesSchema = require('../../fixtures/addresses-schema');
 const usersSchema = require('../../fixtures/users-schema.js');
 
-init((ctxt) => ctxt);
+init((context) => context);
 
 const collection1 = [{ id: '1', name: 'foo' }, { id: '2', name: 'bar' }, { id: '3', name: 'baz' }];
 const collection2 = [{ id: '4', name: 'faa' }, { id: '5', name: 'bor' }, { id: '6', name: 'boz' }];

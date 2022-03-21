@@ -3,7 +3,7 @@ const { init, inject } = require('@forestadmin/context');
 const path = require('path');
 const ProjectDirectoryFinder = require('../../src/services/project-directory-finder');
 
-init((ctx) => ctx.addInstance('path', path));
+init((context) => context.addInstance('path', path));
 
 const projectDirectoryFinder = new ProjectDirectoryFinder(inject());
 

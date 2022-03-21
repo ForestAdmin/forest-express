@@ -2,7 +2,7 @@ const { init, inject } = require('@forestadmin/context');
 const CSVExporter = require('../../src/services/csv-exporter');
 const Schemas = require('../../src/generators/schemas');
 
-init((ctx) => ctx.addInstance('configStore', () => ({
+init((context) => context.addInstance('configStore', () => ({
   Implementation: {
     Flattener: undefined,
   },
