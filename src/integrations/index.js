@@ -1,16 +1,17 @@
-const fs = require('fs');
+const CloseIo = require('./close.io');
+const Intercom = require('./intercom');
+const Layer = require('./layer');
+const MixPanel = require('./mixpanel');
+const Stripe = require('./stripe');
 
 function IntegrationChecker(opts, Implementation) {
-  const modules = [];
-
-  fs
-    .readdirSync(__dirname)
-    .filter((file) => (file.indexOf('.') !== 0) && (file !== 'index.js'))
-    .forEach((directory) => {
-      // eslint-disable-next-line import/no-dynamic-require, global-require
-      const Mod = require(`./${directory}`);
-      modules.push(new Mod(opts, Implementation));
-    });
+  const modules = [
+    new CloseIo(opts, Implementation),
+    new Intercom(opts, Implementation),
+    new Layer(opts, Implementation),
+    new MixPanel(opts, Implementation),
+    new Stripe(opts, Implementation),
+  ];
 
   this.defineRoutes = (app, model) => {
     modules.forEach((module) => {
