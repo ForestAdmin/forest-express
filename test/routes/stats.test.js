@@ -1,9 +1,12 @@
+const { init } = require('@forestadmin/context');
 const Stats = require('../../src/routes/stats');
 
 describe('routes > stats', () => {
   describe('.get', () => {
     it('should return a value for objective chart', async () => {
       expect.assertions(1);
+
+      init((context) => context);
 
       const app = {};
       const model = { name: 'book' };

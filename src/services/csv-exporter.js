@@ -1,7 +1,7 @@
 const P = require('bluebird');
 const moment = require('moment');
 const stringify = require('csv-stringify');
-const context = require('../context');
+const { inject } = require('@forestadmin/context');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const SmartFieldsValuesInjector = require('../services/smart-fields-values-injector');
 
@@ -13,7 +13,7 @@ const CSV_OPTIONS = {
 };
 
 function CSVExporter(params, response, modelName, recordsExporter) {
-  const { configStore } = context.inject();
+  const { configStore } = inject();
 
   this.perform = () => {
     const filename = `${params.filename}.csv`;

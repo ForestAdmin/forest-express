@@ -1,8 +1,8 @@
+const { inject } = require('@forestadmin/context');
 const sinon = require('sinon');
 const jsonwebtoken = require('jsonwebtoken');
 const { request } = require('../helpers/request');
 const createServer = require('../helpers/create-server');
-const context = require('../../src/context');
 
 const envSecret = Array(65).join('0');
 const authSecret = Array(65).join('1');
@@ -11,7 +11,7 @@ async function setupApp() {
   const sandbox = sinon.createSandbox();
   const forestApp = await createServer(envSecret, authSecret);
 
-  const injections = context.inject();
+  const injections = inject();
 
   sandbox.stub(injections.forestServerRequester, 'perform');
 
@@ -38,7 +38,7 @@ function mockOpenIdClient(sandbox) {
 
   issuer.Client.register = sinon.stub().resolves(client);
 
-  const injections = context.inject();
+  const injections = inject();
   injections.oidcClientManagerService.clearCache();
 
   sandbox.stub(injections.openIdClient, 'Issuer').returns(issuer);

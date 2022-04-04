@@ -27,6 +27,7 @@
   "main": "dist/index.js",
   "dependencies": {
     "@babel/runtime": "7.10.1",
+    "@forestadmin/context": "1.31.0",
     "base32-encode": "1.1.1",
     "bitwise-xor": "0.0.0",
     "bluebird": "3.7.1",

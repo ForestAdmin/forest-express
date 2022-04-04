@@ -1,3 +1,4 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
@@ -9,10 +10,9 @@ const CloseioCustomerLeadGetter = require('./services/closeio-customer-lead-gett
 const CloseioLeadCreator = require('./services/closeio-lead-creator');
 const serializeCloseioLeads = require('./serializers/closeio-leads');
 const serializeCloseioLeadEmails = require('./serializers/closeio-lead-emails');
-const context = require('../../context');
 
 module.exports = function Routes(app, model, Implementation, opts) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

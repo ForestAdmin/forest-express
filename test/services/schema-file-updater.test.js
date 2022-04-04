@@ -1,13 +1,12 @@
+const { init, inject } = require('@forestadmin/context');
 const SchemaFileUpdater = require('../../src/services/schema-file-updater');
 const SchemaSerializer = require('../../src/serializers/schema');
-const ApplicationContext = require('../../src/context/application-context');
 
 describe('services > schema-file-updater', () => {
-  const context = new ApplicationContext();
-  context.init((ctx) => ctx
+  init((context) => context
     .addInstance('fs', { writeFileSync: jest.fn() })
     .addInstance('logger', { warn: jest.fn() })
-    .addClass(SchemaFileUpdater));
+    .addUsingClass('schemaFileUpdater', () => SchemaFileUpdater));
 
   const meta = {
     liana: 'some-liana',
@@ -21,14 +20,14 @@ describe('services > schema-file-updater', () => {
   };
   const schemaSerializer = new SchemaSerializer();
   const { options: serializerOptions } = schemaSerializer;
-  const { schemaFileUpdater } = context.inject();
+  const { schemaFileUpdater } = inject();
   const buildSchema = (collection, metas = meta) =>
     schemaFileUpdater.update('test.json', collection, metas, serializerOptions);
 
   // NOTICE: Expecting `fs.writeFileSync` second parameter to be valid JSON.
   it('should call fs.writeFileSync with a valid JSON as data', () => {
     expect.assertions(2);
-    const { fs } = context.inject();
+    const { fs } = inject();
     buildSchema([], {});
     expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
     const jsonStringSchema = fs.writeFileSync.mock.calls[0][1];
@@ -316,7 +315,7 @@ describe('services > schema-file-updater', () => {
 
   it('should set to null invalid action type', () => {
     expect.assertions(2);
-    const { logger } = context.inject();
+    const { logger } = inject();
     const schema = buildSchema([{
       name: 'collectionName',
       actions: [
@@ -331,7 +330,7 @@ describe('services > schema-file-updater', () => {
 
   it('should log if action.global=true is still used', () => {
     expect.assertions(1);
-    const { logger } = context.inject();
+    const { logger } = inject();
     buildSchema([{
       name: 'collectionName',
       actions: [

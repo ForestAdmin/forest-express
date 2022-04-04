@@ -1,10 +1,10 @@
 const _ = require('lodash');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
-const context = require('../context');
+const { inject } = require('@forestadmin/context');
 
 // NOTICE: If a modification is made here, don't forget to replicate it in the toolbelt.
 function SchemaSerializer() {
-  const { apimapSorter } = context.inject();
+  const { apimapSorter } = inject();
   // WARNING: Attributes declaration order is important for .forestadmin-schema.json format.
   //          It must be ordered by "importance" to ease the JSON reading for users.
   const options = {

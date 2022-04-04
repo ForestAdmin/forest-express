@@ -1,11 +1,11 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const { pushIntoApimap } = require('../../utils/integrations');
-const context = require('../../context');
 
 const INTEGRATION_NAME = 'layer';
 
 exports.createCollections = (Implementation, apimap, collectionAndFieldName) => {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   // jshint camelcase: false
   const collectionName = collectionAndFieldName.split('.')[0];
   const model = modelsManager.getModels()[collectionName];

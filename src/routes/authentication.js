@@ -1,3 +1,5 @@
+const { inject } = require('@forestadmin/context');
+
 const START_AUTHENTICATION_ROUTE = 'authentication';
 const CALLBACK_AUTHENTICATION_ROUTE = 'authentication/callback';
 const LOGOUT_ROUTE = 'authentication/logout';
@@ -149,15 +151,15 @@ function initAuthenticationRoutes(
 
   app.post(
     context.pathService.generate(START_AUTHENTICATION_ROUTE, options),
-    startAuthentication.bind(undefined, context),
+    startAuthentication.bind(undefined, inject()),
   );
   app.get(
     context.pathService.generate(CALLBACK_AUTHENTICATION_ROUTE, options),
-    authenticationCallback.bind(undefined, context, options),
+    authenticationCallback.bind(undefined, inject(), options),
   );
   app.post(
     context.pathService.generate(LOGOUT_ROUTE, options),
-    logout.bind(undefined, context),
+    logout.bind(undefined, inject()),
   );
 }
 

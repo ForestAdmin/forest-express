@@ -1,3 +1,4 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 const PaymentsGetter = require('./services/payments-getter');
@@ -16,10 +17,9 @@ const serializeSubscriptions = require('./serializers/subscriptions');
 const serializeBankAccounts = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
-const context = require('../../context');
 
 module.exports = function Routes(app, model, Implementation, opts) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

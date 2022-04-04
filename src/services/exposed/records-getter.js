@@ -1,5 +1,5 @@
 const { pick } = require('lodash');
-const context = require('../../context');
+const { inject } = require('@forestadmin/context');
 const ParamsFieldsDeserializer = require('../../deserializers/params-fields');
 const QueryDeserializer = require('../../deserializers/query');
 const Schemas = require('../../generators/schemas');
@@ -39,7 +39,7 @@ class RecordsGetter extends AbstractRecordService {
    *        forest-express-sequelize which are using pipes "|".
    */
   async getIdsFromRequest(request) {
-    const { env } = context.inject();
+    const { env } = inject();
     const attrs = new QueryDeserializer(request?.body?.data?.attributes ?? {}).perform();
     const idsExcludedAsString = attrs?.allRecordsIdsExcluded?.map?.(String) ?? [];
 

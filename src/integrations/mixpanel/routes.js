@@ -1,13 +1,13 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const IntegrationInformationsGetter = require('../../services/integration-informations-getter');
 const MixpanelEventsGetter = require('./services/mixpanel-events-getter');
 const serializeMixpanelEvents = require('./serializers/mixpanel-events');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
-const context = require('../../context');
 
 module.exports = function Routes(app, model, Implementation, options) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 

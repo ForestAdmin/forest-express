@@ -1,4 +1,5 @@
-const ApplicationContext = require('../../src/context/application-context');
+const { init, inject } = require('@forestadmin/context');
+
 const RecordsGetter = require('../../src/services/exposed/records-getter.js');
 const Resources = require('../../src/routes/resources');
 const ResourceSerializer = require('../../src/serializers/resource');
@@ -33,8 +34,7 @@ describe('routes > resources', () => {
           ResourceUpdater: jest.fn(() => ({ perform: resourceUpdaterPerform })),
         },
       };
-      const context = new ApplicationContext();
-      context.init((ctx) => ctx.addInstance('configStore', configStore));
+      init((context) => context.addInstance('configStore', configStore));
 
       // Mock deserializer / serializer
       ResourceDeserializer.mockImplementation(function MyResourceDeserializer() {
@@ -56,7 +56,7 @@ describe('routes > resources', () => {
       res.send = () => res;
 
       // Test
-      const subject = new Resources(app, model, context.inject());
+      const subject = new Resources(app, model, inject());
       await subject.update(req, res, next);
 
       expect(configStore.Implementation.getModelName)
@@ -85,8 +85,7 @@ describe('routes > resources', () => {
           ResourcesRemover: jest.fn(() => ({ perform: resourceRemoverPerform })),
         },
       };
-      const context = new ApplicationContext();
-      context.init((ctx) => ctx.addInstance('configStore', configStore));
+      init((context) => context.addInstance('configStore', configStore));
 
       // Mock RecordsGetter
       const recordsGetterGetRecords = jest
@@ -101,7 +100,7 @@ describe('routes > resources', () => {
       res.send = () => res;
 
       // Test
-      const subject = new Resources(app, model, context.inject());
+      const subject = new Resources(app, model, inject());
       await subject.removeMany(req, res, next);
 
       expect(RecordsGetter).toHaveBeenCalledWith(model, req.user, req.query);

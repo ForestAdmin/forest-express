@@ -1,8 +1,8 @@
 const _ = require('lodash');
-const context = require('../../../context');
+const { inject } = require('@forestadmin/context');
 
 function IntegrationInformationsGetter(modelName, Implementation, integration) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   this.perform = () => {
     const models = modelsManager.getModels();
     let value = null;

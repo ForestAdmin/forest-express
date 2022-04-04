@@ -1,5 +1,5 @@
+const { init } = require('@forestadmin/context');
 const PermissionMiddlewareCreator = require('../../src/middlewares/permissions');
-const context = require('../../src/context');
 const Schemas = require('../../src/generators/schemas');
 const usersSchema = require('../fixtures/users-schema.js');
 
@@ -16,7 +16,9 @@ describe('middlewares > permissions', () => {
   };
 
   const createPermissionMiddlewareCreator = (collectionName, dependencies) => {
-    jest.spyOn(context, 'inject').mockReturnValue(dependencies);
+    const dependencyNames = Object.keys(dependencies);
+    init((context) => dependencyNames.reduce((contextAccumulator, name) =>
+      contextAccumulator.addInstance(name, () => dependencies[name]), context));
     return new PermissionMiddlewareCreator(collectionName);
   };
 

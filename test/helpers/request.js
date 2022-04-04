@@ -1,9 +1,9 @@
+const { inject } = require('@forestadmin/context');
 const request = require('supertest');
 const nock = require('nock');
-const context = require('../../src/context');
 
 function init() {
-  const { forestUrl } = context.inject();
+  const { forestUrl } = inject();
 
   nock(forestUrl)
     .persist()

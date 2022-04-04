@@ -1,3 +1,4 @@
+const { inject } = require('@forestadmin/context');
 const _ = require('lodash');
 const nodePath = require('path');
 const SchemaUtil = require('../utils/schema');
@@ -8,11 +9,10 @@ const Schemas = require('../generators/schemas');
 const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
-const context = require('../context');
 const RecordsGetter = require('../services/exposed/records-getter');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
-  const { modelsManager } = context.inject();
+  const { modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   const schema = Schemas.schemas[modelName];
 

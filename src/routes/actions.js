@@ -1,4 +1,4 @@
-const context = require('../context');
+const { inject } = require('@forestadmin/context');
 
 /**
  * This class generates routes for handling smart actions' form hooks and legacy routes.
@@ -11,7 +11,7 @@ class Actions {
     schemasGenerator,
     smartActionHookService,
     smartActionHookDeserializer,
-  } = context.inject()) {
+  } = inject()) {
     this.path = pathService;
     this.logger = logger;
     this.stringUtils = stringUtils;

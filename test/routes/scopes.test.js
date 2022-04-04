@@ -1,5 +1,5 @@
+const { inject } = require('@forestadmin/context');
 const request = require('supertest');
-const context = require('../../src/context');
 const createServer = require('../helpers/create-server');
 const auth = require('../../src/services/auth');
 
@@ -17,7 +17,8 @@ describe('routes > scopes', () => {
         );
 
         const app = await createServer(envSecret, authSecret);
-        const spyOnInvalidateScopeCache = jest.spyOn(context.inject().scopeManager, 'invalidateScopeCache');
+        const { scopeManager } = inject();
+        const spyOnInvalidateScopeCache = jest.spyOn(scopeManager, 'invalidateScopeCache');
         await new Promise((done) => {
           request(app)
             .post('/forest/scope-cache-invalidation')
@@ -41,7 +42,8 @@ describe('routes > scopes', () => {
         );
 
         const app = await createServer(envSecret, authSecret);
-        const spyOnInvalidateScopeCache = jest.spyOn(context.inject().scopeManager, 'invalidateScopeCache');
+        const { scopeManager } = inject();
+        const spyOnInvalidateScopeCache = jest.spyOn(scopeManager, 'invalidateScopeCache');
         const renderingId = 34;
         await new Promise((done) => {
           request(app)

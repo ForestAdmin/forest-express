@@ -1,5 +1,5 @@
+const { inject } = require('@forestadmin/context');
 const logger = require('../../../services/logger');
-const context = require('../../../context');
 
 function getContactQueryParameter(targetFieldValue) {
   const targetField = targetFieldValue.includes('@') ? 'email' : 'external_id';
@@ -15,7 +15,7 @@ function getContactQueryParameter(targetFieldValue) {
 
 class ContactGetter {
   static async getContact(intercomClient, Implementation, mappingValue, recordId) {
-    const { modelsManager } = context.inject();
+    const { modelsManager } = inject();
     // NOTICE: `modelFieldName` is expected to be a sequelize/mongoose field
     //         (ie. camelCase formatted)
     const [modelName, modelFieldName] = mappingValue.split('.');

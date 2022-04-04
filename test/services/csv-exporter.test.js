@@ -1,16 +1,15 @@
-const context = require('../../src/context/');
+const { init, inject } = require('@forestadmin/context');
 const CSVExporter = require('../../src/services/csv-exporter');
-const initContext = require('../../src/context/init');
 const Schemas = require('../../src/generators/schemas');
 
-context.init(initContext);
-const { configStore } = context.inject();
+init((context) => context.addInstance('configStore', () => ({
+  Implementation: {
+    Flattener: undefined,
+  },
+})));
 
 describe('services > csv-exporter', () => {
   const initialiseContext = () => {
-    configStore.Implementation = {
-      Flattener: undefined,
-    };
     Schemas.schemas.cars = {
       fields: [{
         field: '_id',
@@ -42,7 +41,7 @@ describe('services > csv-exporter', () => {
         expect.assertions(1);
 
         initialiseContext();
-
+        const { configStore } = inject();
         configStore.Implementation = {
           Flattener: {
             flattenRecordsForExport: jest.fn().mockReturnValue([{}]),

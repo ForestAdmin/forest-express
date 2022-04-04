@@ -1,9 +1,11 @@
 const sinon = require('sinon');
-const context = require('../../src/context/');
-const initContext = require('../../src/context/init');
+const { init, inject } = require('@forestadmin/context');
+const path = require('path');
+const ProjectDirectoryFinder = require('../../src/services/project-directory-finder');
 
-context.init(initContext);
-const { projectDirectoryFinder } = context.inject();
+init((context) => context.addInstance('path', path));
+
+const projectDirectoryFinder = new ProjectDirectoryFinder(inject());
 
 describe('services > project-directory-finder', () => {
   describe('using POSIX based OS', () => {

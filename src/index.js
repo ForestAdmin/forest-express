@@ -6,10 +6,10 @@ const bodyParser = require('body-parser');
 const jwt = require('express-jwt');
 const url = require('url');
 const requireAll = require('require-all');
-const context = require('./context');
-const initContext = require('./context/init');
+const { init, inject } = require('@forestadmin/context');
+const serviceBuilder = require('./context/service-builder');
 
-context.init(initContext);
+init(serviceBuilder);
 
 const auth = require('./services/auth');
 
@@ -41,7 +41,7 @@ const {
   tokenService,
   scopeManager,
   smartActionFieldValidator,
-} = context.inject();
+} = inject();
 
 const PUBLIC_ROUTES = [
   '/',
@@ -283,8 +283,8 @@ exports.init = async (Implementation) => {
   }
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
-  initScopeRoutes(app, context.inject());
-  initAuthenticationRoutes(app, configStore.lianaOptions, context.inject());
+  initScopeRoutes(app, inject());
+  initAuthenticationRoutes(app, configStore.lianaOptions, inject());
 
   // Init
   try {

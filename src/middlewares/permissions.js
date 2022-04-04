@@ -1,6 +1,6 @@
+const { inject } = require('@forestadmin/context');
 const httpError = require('http-errors');
 const { parameterize } = require('../utils/string');
-const context = require('../context');
 const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
 const RecordsCounter = require('../services/exposed/records-counter');
@@ -12,7 +12,7 @@ class PermissionMiddlewareCreator {
     this.collectionName = collectionName;
     const {
       configStore, logger, permissionsChecker, modelsManager,
-    } = context.inject();
+    } = inject();
     this.logger = logger;
     this.permissionsChecker = permissionsChecker;
     this.configStore = configStore;
