@@ -1,3 +1,10 @@
+## [9.4.2](https://github.com/ForestAdmin/forest-express/compare/v9.4.1...v9.4.2) (2022-04-15)
+
+
+### Bug Fixes
+
+* **vulnerabilites:** remove async dependency vulnerability ([#879](https://github.com/ForestAdmin/forest-express/issues/879)) ([47862c0](https://github.com/ForestAdmin/forest-express/commit/47862c0f05399ed84fb3b4680692058e7b9f0e44))
+
 ## [9.4.1](https://github.com/ForestAdmin/forest-express/compare/v9.4.0...v9.4.1) (2022-03-07)
 
 
