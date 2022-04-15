@@ -36,7 +36,7 @@
     "cors": "2.8.5",
     "csv-stringify": "1.0.4",
     "express": "4.17.1",
-    "express-jwt": "6.0.0",
+    "express-jwt": "https://github.com/auth0/express-jwt.git#c7881ad378063236d85b1e1b0f4a252b63b8e75b",
     "forest-ip-utils": "1.0.1",
     "http-errors": "1.7.3",
     "inflected": "2.0.4",
@@ -54,7 +54,7 @@
     "superagent": "5.2.2",
     "uuid": "3.3.3",
     "verror": "1.10.0",
-    "winston": "3.2.1"
+    "winston": "3.3.4"
   },
   "devDependencies": {
     "@babel/cli": "7.10.1",
