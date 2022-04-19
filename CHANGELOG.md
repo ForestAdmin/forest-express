@@ -1,3 +1,11 @@
+## [9.4.4](https://github.com/ForestAdmin/forest-express/compare/v9.4.3...v9.4.4) (2022-04-19)
+
+
+### Bug Fixes
+
+* **security:** patch ajv dependency vulnerabilities ([546757e](https://github.com/ForestAdmin/forest-express/commit/546757e2b19518f84994a05a22bad6fe799b1dc3))
+* **security:** patch ansi-regex dependency vulnerabilities ([81969b5](https://github.com/ForestAdmin/forest-express/commit/81969b5ecd7bf9153915ae89fe63379412586981))
+
 ## [9.4.3](https://github.com/ForestAdmin/forest-express/compare/v9.4.2...v9.4.3) (2022-04-19)
 
 
