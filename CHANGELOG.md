@@ -1,3 +1,10 @@
+## [9.4.3](https://github.com/ForestAdmin/forest-express/compare/v9.4.2...v9.4.3) (2022-04-19)
+
+
+### Bug Fixes
+
+* **security:** patch node-fetch dependency vulnerabilities ([#859](https://github.com/ForestAdmin/forest-express/issues/859)) ([f24d7c1](https://github.com/ForestAdmin/forest-express/commit/f24d7c194e650d986588df21645b4e7012668c81))
+
 ## [9.4.2](https://github.com/ForestAdmin/forest-express/compare/v9.4.1...v9.4.2) (2022-04-15)
 
 
