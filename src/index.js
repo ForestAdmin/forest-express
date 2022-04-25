@@ -426,6 +426,8 @@ exports.collection = (name, opts) => {
       const Flattener = new configStore.Implementation.Flattener(
         Schemas.schemas[name],
         opts.fieldsToFlatten,
+        modelsManager.getModelByName(name),
+        configStore.lianaOptions,
       );
       Flattener.flattenFields();
     }
