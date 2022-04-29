@@ -1,6 +1,9 @@
 const ResourceSerializer = require('../../src/serializers/resource');
 const Schemas = require('../../src/generators/schemas');
 const carsSchema = require('../fixtures/cars-schema.js');
+const jedisSchema = require('../fixtures/jedis-schema.js');
+const sithsSchema = require('../fixtures/siths-schema.js');
+const padawansSchema = require('../fixtures/padawans-schema.js');
 
 const FLATTEN_SEPARATOR = '@@@';
 
@@ -15,12 +18,14 @@ const Implementation = {
 };
 
 describe('serializers > resource', () => {
-  Schemas.schemas = { cars: carsSchema };
+  Schemas.schemas = {
+    cars: carsSchema, jedis: jedisSchema, siths: sithsSchema, padawans: padawansSchema,
+  };
 
-  function getSerializer(records) {
+  function getSerializer(modelName, records) {
     return new ResourceSerializer(
       Implementation,
-      { name: 'cars' },
+      { name: modelName },
       records,
     );
   }
@@ -40,7 +45,7 @@ describe('serializers > resource', () => {
         name: 'Ibiza',
       }];
 
-    const serialized = await getSerializer(records).perform();
+    const serialized = await getSerializer('cars', records).perform();
 
     expect(serialized).toStrictEqual({
       data: [{
@@ -60,6 +65,77 @@ describe('serializers > resource', () => {
         },
         type: 'cars',
       }],
+    });
+  });
+
+  describe('with relationships', () => {
+    it('should return all the links to those relationships', async () => {
+      expect.assertions(1);
+
+      const records = [{
+        id: 'luke-id',
+        name: 'Luke Skywalker',
+        padawans: [{
+          id: 'baby-yoda-id',
+          name: 'Baby Yoda',
+        }],
+      }, {
+        id: 'obiwan-id',
+        name: 'Obiwan Kenobi',
+        worstEnemy: {
+          id: 'anakin-id',
+          name: 'Anakin Skywalker',
+        },
+      }];
+
+      const serialized = await getSerializer('jedis', records).perform();
+
+      expect(serialized).toStrictEqual({
+        data: [{
+          id: 'luke-id',
+          type: 'jedis',
+          attributes: {
+            id: 'luke-id',
+            name: 'Luke Skywalker',
+          },
+          relationships: {
+            padawans: {
+              links: { related: '/forest/jedis/luke-id/relationships/padawans' },
+            },
+            worstEnemy: {
+              data: null,
+              links: { related: '/forest/jedis/luke-id/relationships/worstEnemy' },
+            },
+          },
+        }, {
+          id: 'obiwan-id',
+          type: 'jedis',
+          attributes: {
+            id: 'obiwan-id',
+            name: 'Obiwan Kenobi',
+          },
+          relationships: {
+            padawans: {
+              links: { related: '/forest/jedis/obiwan-id/relationships/padawans' },
+            },
+            worstEnemy: {
+              data: {
+                id: 'anakin-id',
+                type: 'siths',
+              },
+              links: { related: '/forest/jedis/obiwan-id/relationships/worstEnemy' },
+            },
+          },
+        }],
+        included: [{
+          id: 'anakin-id',
+          type: 'siths',
+          attributes: {
+            id: 'anakin-id',
+            name: 'Anakin Skywalker',
+          },
+        }],
+      });
     });
   });
 });
