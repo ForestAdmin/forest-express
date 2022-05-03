@@ -241,6 +241,16 @@ exports.init = async (Implementation) => {
     preflightContinue: true,
   };
 
+  // Support for request-private-network as the `cors` package
+  // doesn't support it by default
+  // See: https://github.com/expressjs/cors/issues/236
+  app.use(pathMounted, (req, res, next) => {
+    if (req.headers['access-control-request-private-network']) {
+      res.setHeader('access-control-allow-private-network', 'true');
+    }
+    next(null);
+  });
+
   app.use(pathService.generate(initAuthenticationRoutes.CALLBACK_ROUTE, opts), cors({
     ...corsOptions,
     // this route needs to be called after a redirection
