@@ -38,7 +38,10 @@ class SmartActionFieldValidator {
 
     if (description && typeof description !== 'string') throw new Error(`description of "${fieldName}" on the smart action "${actionName}" must be a string.`);
 
-    if (enums && !Array.isArray(enums)) throw new Error(`enums of "${fieldName}" on the smart action "${actionName}" must be an array.`);
+    if (enums) {
+      if (!Array.isArray(enums)) throw new Error(`enums of "${fieldName}" on the smart action "${actionName}" must be an array.`);
+      if (enums.some((option) => [null, undefined].includes(option))) throw new Error(`Invalid null or undefined option inside "${fieldName}" on the smart action "${actionName}".`);
+    }
 
     if (isRequired && typeof isRequired !== 'boolean') throw new Error(`isRequired of "${fieldName}" on the smart action "${actionName}" must be a boolean.`);
 

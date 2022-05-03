@@ -82,14 +82,36 @@ describe('services > smart-action-field-validator', () => {
         expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`description of "${field.field}" on the smart action "${actionName}" must be a string.`);
       });
 
-      it('should throw if field.enums is not an array', () => {
-        expect.assertions(1);
+      describe('when field have enums property', () => {
+        it('should throw if it is not an array', () => {
+          expect.assertions(1);
 
-        const actionName = 'actionTest';
-        const field = generateField();
-        field.enums = () => {};
+          const actionName = 'actionTest';
+          const field = generateField();
+          field.enums = () => {};
 
-        expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`enums of "${field.field}" on the smart action "${actionName}" must be an array.`);
+          expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`enums of "${field.field}" on the smart action "${actionName}" must be an array.`);
+        });
+
+        it('should throw if contains null option', () => {
+          expect.assertions(1);
+
+          const actionName = 'actionTest';
+          const field = generateField();
+          field.enums = ['valid', null, 'another valid'];
+
+          expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Invalid null or undefined option inside "${field.field}" on the smart action "${actionName}".`);
+        });
+
+        it('should throw if contains undefined option', () => {
+          expect.assertions(1);
+
+          const actionName = 'actionTest';
+          const field = generateField();
+          field.enums = ['valid', undefined, 'another valid'];
+
+          expect(() => smartActionFieldValidator.validateField(field, actionName)).toThrow(`Invalid null or undefined option inside "${field.field}" on the smart action "${actionName}".`);
+        });
       });
 
       it('should throw if field.isRequired is not a boolean', () => {
