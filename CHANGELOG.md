@@ -1,3 +1,10 @@
+## [9.4.6](https://github.com/ForestAdmin/forest-express/compare/v9.4.5...v9.4.6) (2022-05-03)
+
+
+### Bug Fixes
+
+* **cors:** add access controll allow private network handling ([#881](https://github.com/ForestAdmin/forest-express/issues/881)) ([d2a8c85](https://github.com/ForestAdmin/forest-express/commit/d2a8c8541158687ff9a29ba5c2f3f84b367869b5))
+
 ## [9.4.5](https://github.com/ForestAdmin/forest-express/compare/v9.4.4...v9.4.5) (2022-05-03)
 
 
