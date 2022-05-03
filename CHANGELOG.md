@@ -1,3 +1,10 @@
+## [9.4.5](https://github.com/ForestAdmin/forest-express/compare/v9.4.4...v9.4.5) (2022-05-03)
+
+
+### Bug Fixes
+
+* log an error when smart action enums field contain null or undefined option ([#885](https://github.com/ForestAdmin/forest-express/issues/885)) ([6ca737f](https://github.com/ForestAdmin/forest-express/commit/6ca737f601cb5f8a751b3971b1515d049861dbcc))
+
 ## [9.4.4](https://github.com/ForestAdmin/forest-express/compare/v9.4.3...v9.4.4) (2022-04-19)
 
 
