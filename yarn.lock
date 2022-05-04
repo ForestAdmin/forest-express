@@ -7093,7 +7093,7 @@ micromark@^2.11.3, micromark@~2.11.0, micromark@~2.11.3:
     debug "^4.0.0"
     parse-entities "^2.0.0"
 
-micromatch@4.0.2, micromatch@^4.0.0, micromatch@^4.0.2:
+micromatch@4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-4.0.2.tgz#4fcb0999bf9fbc2fcbdd212f6d629b9a56c39259"
   integrity sha512-y7FpHSbMUMoyPbYUSzO6PaZ6FyRnQOpHuKwbo1G+Knck95XVU4QAiKdGEnj5wwoS7PlOgthX/09u5iFJ+aYf5Q==
@@ -7120,7 +7120,7 @@ micromatch@^3.1.10, micromatch@^3.1.4:
     snapdragon "^0.8.1"
     to-regex "^3.0.2"
 
-micromatch@^4.0.4:
+micromatch@^4.0.0, micromatch@^4.0.2, micromatch@^4.0.4:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-4.0.5.tgz#bc8999a7cbbf77cdc89f132f6e467051b49090c6"
   integrity sha512-DMy+ERcEW2q8Z2Po+WNXuw3c5YaUSFjAO5GsJqfEl7UjvtIuFKO6ZrKvcItdy98dwFI2N1tg3zNIdKaQT+aNdA==
@@ -8899,10 +8899,10 @@ semantic-release-npm-deprecate-old-versions@1.3.2:
     node-fetch "^2.6.6"
     semver "^7.3.5"
 
-semantic-release-slack-bot@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/semantic-release-slack-bot/-/semantic-release-slack-bot-2.1.1.tgz#22fd5f10640c468c83af8f2deae7b89bb9d571f7"
-  integrity sha512-keNqVsZ+Ntm1F8O5yqoX3DmIsH1gK+CDmPhcjLAHTOtmJSul2kRFzEnAac1O8LltF9BQ2wW5OJ3BXcFWXt49aw==
+semantic-release-slack-bot@3.5.2:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/semantic-release-slack-bot/-/semantic-release-slack-bot-3.5.2.tgz#941be844e570abe43dd4521d17dae1e6e7d1ec88"
+  integrity sha512-xCig9RxUW9EJ6w5Hvoo4U0u9OAClBxkJCWBPwQSROlzMx1SzhjU8wfQkYBOIJACRqOGQS2qfETZTRdK/7CpGeA==
   dependencies:
     "@semantic-release/error" "^2.2.0"
     micromatch "4.0.2"
