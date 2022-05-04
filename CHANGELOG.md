@@ -1,3 +1,10 @@
+## [9.4.7](https://github.com/ForestAdmin/forest-express/compare/v9.4.6...v9.4.7) (2022-05-04)
+
+
+### Bug Fixes
+
+* **security:** patch express-jwt to latest stable candidate ([#890](https://github.com/ForestAdmin/forest-express/issues/890)) ([9a62af0](https://github.com/ForestAdmin/forest-express/commit/9a62af0620997a2f1dc3acca1208ab34a495cbcb))
+
 ## [9.4.6](https://github.com/ForestAdmin/forest-express/compare/v9.4.5...v9.4.6) (2022-05-03)
 
 
