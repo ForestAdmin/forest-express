@@ -8,7 +8,7 @@ function Checker(opts, Implementation) {
   const { modelsManager } = inject();
   let integrationValid = false;
 
-  function updateIntegration(stripe) {
+  function upgradeIntegrationInPlace(stripe) {
     // Transform userCollection + userField => mapping
     if (stripe.userCollection || stripe.userField) {
       logger.warn('Stripe integration attributes "userCollection" and "userField" are now deprecated, please use "mapping" attribute.');
@@ -95,7 +95,7 @@ function Checker(opts, Implementation) {
   }
 
   if (opts.integrations && opts.integrations.stripe) {
-    updateIntegration(opts.integrations.stripe);
+    upgradeIntegrationInPlace(opts.integrations.stripe);
     integrationValid = isProperlyIntegrated(opts.integrations.stripe);
   }
 
