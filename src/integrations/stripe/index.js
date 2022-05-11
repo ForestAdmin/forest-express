@@ -8,51 +8,72 @@ function Checker(opts, Implementation) {
   const { modelsManager } = inject();
   let integrationValid = false;
 
-  function hasIntegration() {
-    return opts.integrations && opts.integrations.stripe && opts.integrations.stripe.apiKey;
-  }
-
-  function isProperlyIntegrated() {
-    return opts.integrations.stripe.apiKey
-      && opts.integrations.stripe.stripe
-      && opts.integrations.stripe.mapping;
-  }
-
-  function isIntegrationDeprecated() {
-    const isIntegrationValid = opts.integrations.stripe.apiKey
-      && opts.integrations.stripe.stripe
-      && (opts.integrations.stripe.userCollection || opts.integrations.stripe.userCollection);
-
-    if (isIntegrationValid) {
+  function updateIntegration(stripe) {
+    // Transform userCollection + userField => mapping
+    if (stripe.userCollection || stripe.userField) {
       logger.warn('Stripe integration attributes "userCollection" and "userField" are now deprecated, please use "mapping" attribute.');
-      opts.integrations.stripe.mapping = `${opts.integrations.stripe.userCollection}.${opts.integrations.stripe.userField}`;
+      stripe.mapping = `${stripe.userCollection}.${stripe.userField}`;
+
+      delete stripe.userCollection;
+      delete stripe.userField;
     }
 
-    return isIntegrationValid;
+    // Transform mapping to array
+    if (_.isString(stripe.mapping)) {
+      stripe.mapping = [stripe.mapping];
+    }
   }
 
-  function isMappingValid() {
+  function isMappingValid(stripe) {
     const models = modelsManager.getModels();
-    let mappingValid = true;
-    _.map(opts.integrations.stripe.mapping, (mappingValue) => {
+    const mappingValid = _.every(stripe.mapping, (mappingValue) => {
       const collectionName = mappingValue.split('.')[0];
+      const fieldName = mappingValue.split('.')[1];
+
       if (!models[collectionName]) {
-        mappingValid = false;
+        return false;
       }
+
+      if (models[collectionName].rawAttributes // if sequelize
+        && !models[collectionName].rawAttributes[fieldName]) {
+        return false;
+      }
+
+      return true;
     });
 
     if (!mappingValid) {
       logger.error(`Cannot find some Stripe integration mapping values (${
-        opts.integrations.stripe.mapping}) among the project models:\n${
+        stripe.mapping}) among the project models:\n${
         _.keys(models).join(', ')}`);
     }
 
     return mappingValid;
   }
 
-  function castToArray(value) {
-    return _.isString(value) ? [value] : value;
+  function isProperlyIntegrated(stripe) {
+    let isValid = true;
+
+    // Check apikey and stripe
+    if (!stripe.apiKey) {
+      logger.error('Stripe integration attribute "apiKey" is missing');
+      isValid = false;
+    }
+
+    if (!stripe.stripe) {
+      logger.error('Stripe integration attribute "stripe" is missing');
+      isValid = false;
+    }
+
+    // Check that mapping is valid
+    if (!Array.isArray(stripe.mapping)) {
+      logger.error('Stripe integration attribute "mapping" is invalid');
+      isValid = false;
+    }
+
+    return isValid && isMappingValid(stripe);
   }
+
 
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return false; }
@@ -73,13 +94,9 @@ function Checker(opts, Implementation) {
     return collectionModelNames.indexOf(Implementation.getModelName(model)) > -1;
   }
 
-  if (hasIntegration()) {
-    if (isProperlyIntegrated() || isIntegrationDeprecated()) {
-      opts.integrations.stripe.mapping = castToArray(opts.integrations.stripe.mapping);
-      integrationValid = isMappingValid();
-    } else {
-      logger.error('Cannot setup properly your Stripe integration.');
-    }
+  if (opts.integrations && opts.integrations.stripe) {
+    updateIntegration(opts.integrations.stripe);
+    integrationValid = isProperlyIntegrated(opts.integrations.stripe);
   }
 
   this.defineRoutes = (app, model) => {
