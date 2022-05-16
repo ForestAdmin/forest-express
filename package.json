@@ -92,7 +92,7 @@
   "scripts": {
     "build": "babel src -d dist",
     "build:watch": "babel --source-maps inline --watch --out-dir dist src",
-    "lint": "./node_modules/eslint/bin/eslint.js .eslint-bin src test",
+    "lint": "./node_modules/eslint/bin/eslint.js src test",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "test": "jest",
