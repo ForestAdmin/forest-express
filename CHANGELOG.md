@@ -1,3 +1,10 @@
+## [9.5.1](https://github.com/ForestAdmin/forest-express/compare/v9.5.0...v9.5.1) (2022-05-19)
+
+
+### Bug Fixes
+
+* **stripe:** crash early when stripe integration is misconfigured ([#893](https://github.com/ForestAdmin/forest-express/issues/893)) ([2dca144](https://github.com/ForestAdmin/forest-express/commit/2dca144d6b12371c7efda028dd0fb7ed3f34833f))
+
 # [9.5.0](https://github.com/ForestAdmin/forest-express/compare/v9.4.7...v9.5.0) (2022-05-12)
 
 
