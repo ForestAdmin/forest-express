@@ -1,3 +1,10 @@
+# [9.5.0](https://github.com/ForestAdmin/forest-express/compare/v9.4.7...v9.5.0) (2022-05-12)
+
+
+### Features
+
+* **flattener:** native flattened fields are now entirely introspected ([#882](https://github.com/ForestAdmin/forest-express/issues/882)) ([367390f](https://github.com/ForestAdmin/forest-express/commit/367390ff9a7ed904bf4a2dbb476f72bf390bf47a))
+
 ## [9.4.7](https://github.com/ForestAdmin/forest-express/compare/v9.4.6...v9.4.7) (2022-05-04)
 
 
