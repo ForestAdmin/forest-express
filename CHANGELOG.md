@@ -1,3 +1,10 @@
+## [9.5.3](https://github.com/ForestAdmin/forest-express/compare/v9.5.2...v9.5.3) (2022-07-04)
+
+
+### Bug Fixes
+
+* **security:** patch semantic-release dependency vulnerability ([#906](https://github.com/ForestAdmin/forest-express/issues/906)) ([72652f2](https://github.com/ForestAdmin/forest-express/commit/72652f23f3c0f9f2fecb2f23a8e1c31b4404730b))
+
 ## [9.5.2](https://github.com/ForestAdmin/forest-express/compare/v9.5.1...v9.5.2) (2022-07-04)
 
 
