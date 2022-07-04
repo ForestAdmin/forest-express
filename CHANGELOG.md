@@ -1,3 +1,10 @@
+## [9.5.2](https://github.com/ForestAdmin/forest-express/compare/v9.5.1...v9.5.2) (2022-07-04)
+
+
+### Bug Fixes
+
+* **security:** patch semver-regex dependency vulnerability ([#904](https://github.com/ForestAdmin/forest-express/issues/904)) ([d30a72b](https://github.com/ForestAdmin/forest-express/commit/d30a72b44309ec6b6ffe02b2cb892c58dceb5709))
+
 ## [9.5.1](https://github.com/ForestAdmin/forest-express/compare/v9.5.0...v9.5.1) (2022-05-19)
 
 
