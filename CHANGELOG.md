@@ -1,3 +1,10 @@
+## [9.5.4](https://github.com/ForestAdmin/forest-express/compare/v9.5.3...v9.5.4) (2022-07-21)
+
+
+### Bug Fixes
+
+* **security:** update moment to 2.29.4 to fix a vulnerability ([#920](https://github.com/ForestAdmin/forest-express/issues/920)) ([8a20da4](https://github.com/ForestAdmin/forest-express/commit/8a20da4ecb45f4d13db8c738be1a6da6166e6509))
+
 ## [9.5.3](https://github.com/ForestAdmin/forest-express/compare/v9.5.2...v9.5.3) (2022-07-04)
 
 
