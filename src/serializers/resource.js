@@ -162,7 +162,11 @@ function ResourceSerializer(
         serializationOptions.transform = (record) => {
           flattenedFieldsAccessors.forEach((accessors) => {
             Object.entries(accessors).forEach(([fieldName, accessor]) => {
-              record[fieldName] = accessor.reduce((a, prop) => (a ? a[prop] : null), record);
+              const value = accessor.reduce((a, prop) => (a ? a[prop] : undefined), record);
+
+              if (value !== undefined) {
+                record[fieldName] = value;
+              }
             });
           });
           return record;

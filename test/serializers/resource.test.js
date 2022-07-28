@@ -25,41 +25,61 @@ describe('serializers > resource', () => {
     );
   }
 
-  it('should serialize the flattened fields', async () => {
-    expect.assertions(1);
-    const records = [
-      {
-        _id: '5fbfb0ee67e7953f9b8414bf',
-        name: 'Zoey',
-        engine: {
-          identification: { manufacturer: 'Renault' },
-          horsePower: '125cv',
-        },
-      }, {
-        _id: '5f928f4f1eedcfbce937bbd0',
-        name: 'Ibiza',
-      }];
-
-    const serialized = await getSerializer(records).perform();
-
-    expect(serialized).toStrictEqual({
-      data: [{
-        attributes: {
+  describe('serializing flattened fields', () => {
+    it('should serialize the flattened fields', async () => {
+      expect.assertions(1);
+      const records = [
+        {
           _id: '5fbfb0ee67e7953f9b8414bf',
-          [`engine${FLATTEN_SEPARATOR}horsePower`]: '125cv',
-          [`engine${FLATTEN_SEPARATOR}identification${FLATTEN_SEPARATOR}manufacturer`]: 'Renault',
           name: 'Zoey',
-        },
-        type: 'cars',
-      }, {
-        attributes: {
+          engine: {
+            identification: { manufacturer: 'Renault' },
+            horsePower: '125cv',
+          },
+        }, {
           _id: '5f928f4f1eedcfbce937bbd0',
-          [`engine${FLATTEN_SEPARATOR}horsePower`]: null,
-          [`engine${FLATTEN_SEPARATOR}identification${FLATTEN_SEPARATOR}manufacturer`]: null,
           name: 'Ibiza',
+        }];
+
+      const serialized = await getSerializer(records).perform();
+
+      expect(serialized).toStrictEqual({
+        data: [{
+          attributes: {
+            _id: '5fbfb0ee67e7953f9b8414bf',
+            [`engine${FLATTEN_SEPARATOR}horsePower`]: '125cv',
+            [`engine${FLATTEN_SEPARATOR}identification${FLATTEN_SEPARATOR}manufacturer`]: 'Renault',
+            name: 'Zoey',
+          },
+          type: 'cars',
+        }, {
+          attributes: {
+            _id: '5f928f4f1eedcfbce937bbd0',
+            name: 'Ibiza',
+          },
+          type: 'cars',
+        }],
+      });
+    });
+
+    it('should not add attribute when their are undefined', async () => {
+      expect.assertions(3);
+      const records = [
+        {
+          _id: '5fbfb0ee67e7953f9b8414bf',
+          name: 'Zoey',
+          engine: {
+            identification: { manufacturer: null },
+          },
         },
-        type: 'cars',
-      }],
+      ];
+
+      const serialized = await getSerializer(records).perform();
+      const carAttributes = serialized.data[0].attributes;
+
+      expect(carAttributes).toContainKey(`engine${FLATTEN_SEPARATOR}identification${FLATTEN_SEPARATOR}manufacturer`);
+      expect(carAttributes[`engine${FLATTEN_SEPARATOR}identification${FLATTEN_SEPARATOR}manufacturer`]).toBeNull();
+      expect(carAttributes).not.toContainKey(`engine${FLATTEN_SEPARATOR}horsePower`);
     });
   });
 });
