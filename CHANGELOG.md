@@ -1,3 +1,10 @@
+## [9.5.5](https://github.com/ForestAdmin/forest-express/compare/v9.5.4...v9.5.5) (2022-07-29)
+
+
+### Bug Fixes
+
+* **flattener:** smart action availability now works properly on segments ([#922](https://github.com/ForestAdmin/forest-express/issues/922)) ([0f9a763](https://github.com/ForestAdmin/forest-express/commit/0f9a76395a8afa2b8c5160dcdf041fb692bda75e))
+
 ## [9.5.4](https://github.com/ForestAdmin/forest-express/compare/v9.5.3...v9.5.4) (2022-07-21)
 
 
