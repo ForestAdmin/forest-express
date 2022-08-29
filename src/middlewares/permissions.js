@@ -5,8 +5,6 @@ const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
 const RecordsCounter = require('../services/exposed/records-counter');
 
-const getRenderingIdFromUser = (user) => user.renderingId;
-
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
@@ -78,7 +76,6 @@ class PermissionMiddlewareCreator {
 
   _checkPermission(permissionName) {
     return async (request, response, next) => {
-      const renderingId = getRenderingIdFromUser(request.user);
       const permissionInfos = this._getPermissionsInfo(permissionName, request);
 
       const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
@@ -86,7 +83,7 @@ class PermissionMiddlewareCreator {
         : null;
       try {
         await this.permissionsChecker.checkPermissions(
-          renderingId, this.collectionName, permissionName, permissionInfos, environmentId,
+          request.user, this.collectionName, permissionName, permissionInfos, environmentId,
         );
         next();
       } catch (error) {

@@ -57,9 +57,8 @@ describe('services > ScopeManager', () => {
       expect.assertions(1);
 
       const scopeManager = new ScopeManager({});
-      const spy = jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
+      jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
-      spy.mockRestore();
 
       expect(newFilter).toBeUndefined();
     });
@@ -68,10 +67,9 @@ describe('services > ScopeManager', () => {
       expect.assertions(1);
 
       const scopeManager = new ScopeManager({});
-      const spy = jest.spyOn(scopeManager, 'getScopeForUser')
+      jest.spyOn(scopeManager, 'getScopeForUser')
         .mockImplementation(() => Promise.resolve('{"field":"id","operator":"equal","value":1}'));
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
-      spy.mockRestore();
 
       expect(newFilter).toStrictEqual('{"field":"id","operator":"equal","value":1}');
     });
@@ -80,10 +78,9 @@ describe('services > ScopeManager', () => {
       expect.assertions(1);
 
       const scopeManager = new ScopeManager({});
-      const spy = jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
+      jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
       const newFilter = await scopeManager
         .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
-      spy.mockRestore();
 
       expect(newFilter).toStrictEqual('{"field":"id","operator":"equal","value":1}');
     });
@@ -92,11 +89,10 @@ describe('services > ScopeManager', () => {
       expect.assertions(1);
 
       const scopeManager = new ScopeManager({});
-      const spy = jest.spyOn(scopeManager, 'getScopeForUser')
+      jest.spyOn(scopeManager, 'getScopeForUser')
         .mockImplementation(() => Promise.resolve('{"field":"book.id","operator":"equal","value":1}'));
       const newFilter = await scopeManager
         .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
-      spy.mockRestore();
 
       expect(newFilter).toStrictEqual(JSON.stringify({
         aggregator: 'and',

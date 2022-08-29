@@ -56,7 +56,9 @@ describe('middlewares > permissions', () => {
 
         expect(permissionsChecker.checkPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsChecker.checkPermissions)
-          .toHaveBeenCalledWith(renderingId, collectionName, permissionName, permissionInfos, null);
+          .toHaveBeenCalledWith(
+            request.user, collectionName, permissionName, permissionInfos, null,
+          );
 
         expect(next).toHaveBeenCalledTimes(1);
         expect(next).toHaveBeenCalledWith();
@@ -108,7 +110,7 @@ describe('middlewares > permissions', () => {
         expect(permissionsChecker.checkPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsChecker.checkPermissions)
           .toHaveBeenCalledWith(
-            renderingId, collectionName, permissionName, permissionInfos, environmentId,
+            request.user, collectionName, permissionName, permissionInfos, environmentId,
           );
 
         expect(next).toHaveBeenCalledTimes(1);
