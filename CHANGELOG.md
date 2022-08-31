@@ -1,3 +1,10 @@
+## [9.5.6](https://github.com/ForestAdmin/forest-express/compare/v9.5.5...v9.5.6) (2022-08-31)
+
+
+### Bug Fixes
+
+* **charts:** user with permissions level that allows charts creation or edition should always be allow to perform charts requests ([#926](https://github.com/ForestAdmin/forest-express/issues/926)) ([953887e](https://github.com/ForestAdmin/forest-express/commit/953887e341733f86845435c1c81b0f13bcd36ae3))
+
 ## [9.5.5](https://github.com/ForestAdmin/forest-express/compare/v9.5.4...v9.5.5) (2022-07-29)
 
 
