@@ -240,6 +240,40 @@ describe('services > PermissionsChecker', () => {
       });
     });
 
+
+    describe('with statWithParameters permissions', () => {
+      it('should reject simple chart when not in allow list', async () => {
+        expect.assertions(1);
+
+        const user = { renderingId: 1, permissionLevel: 'user' };
+        const permissions = {
+          stats: {
+            objectives: [],
+          },
+        };
+        const permissionsGetter = {
+          getPermissions: jest.fn().mockReturnValue(permissions),
+        };
+
+        const permissionsChecker = new PermissionsChecker({
+          ...defaultDependencies,
+          permissionsGetter,
+        });
+
+        const parametersChartRequestInfo = {
+          type: 'Objective',
+          collection: 'comments',
+          aggregate: 'Count',
+        };
+        const collectionName = null;
+        const permissionName = 'statWithParameters';
+
+        await expect(permissionsChecker.checkPermissions(
+          user, collectionName, permissionName, parametersChartRequestInfo,
+        )).toReject(new Error('Simple Chart access forbidden - You are not allow to display this chart'));
+      });
+    });
+
     describe('with special union segmentQuery permissions', () => {
       it('should check correctly the permissions', async () => {
         expect.assertions(6);

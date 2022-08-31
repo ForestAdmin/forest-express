@@ -1363,7 +1363,7 @@ describe('services > permissions', () => {
 
         const statsWithParameterParameters = { type: 'Value', someInfo: 'Count', otherInfo: 'SomeCollection' };
         await expect(new PermissionsChecker(inject()).checkPermissions({ renderingId: 1 }, null, 'statWithParameters', statsWithParameterParameters))
-          .rejects.toThrow("'statWithParameters' access forbidden on ");
+          .rejects.toThrow('Simple Chart access forbidden - You are not allow to display this chart');
         nockObj.persist(false);
       });
     });

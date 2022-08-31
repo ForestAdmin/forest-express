@@ -118,6 +118,9 @@ class PermissionsChecker {
     if (permissionName === 'liveQueries') {
       throw new Error('Chart with SQL access forbidden - You are not allow to run this query');
     }
+    if (permissionName === 'statWithParameters') {
+      throw new Error('Simple Chart access forbidden - You are not allow to display this chart');
+    }
 
     throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);
   }
