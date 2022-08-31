@@ -1,3 +1,5 @@
+const LIVE_QUERY_ALLOWED_PERMISSION_LEVELS = ['admin', 'editor', 'developer'];
+
 class PermissionsChecker {
   constructor({ logger, permissionsGetter }) {
     this.logger = logger;
@@ -25,16 +27,18 @@ class PermissionsChecker {
     return PermissionsChecker._isPermissionAllowed(triggerEnabled, userId);
   }
 
-  static _isLiveQueryAllowed(liveQueriesPermissions, permissionInfos) {
-    return liveQueriesPermissions.includes(permissionInfos);
+  static _isLiveQueryAllowed(liveQueriesPermissions, permissionInfos, user) {
+    return LIVE_QUERY_ALLOWED_PERMISSION_LEVELS.includes(user.permissionLevel)
+    || liveQueriesPermissions.includes(permissionInfos);
   }
 
-  static _isStatWithParametersAllowed(statsPermissions, permissionInfos) {
+  static _isStatWithParametersAllowed(statsPermissions, permissionInfos, user) {
     const permissionsPool = statsPermissions[`${permissionInfos.type.toLowerCase()}s`];
 
     const arrayPermissionInfos = Object.values(permissionInfos);
 
-    return permissionsPool.some((statPermission) => {
+    return LIVE_QUERY_ALLOWED_PERMISSION_LEVELS.includes(user.permissionLevel)
+    || permissionsPool.some((statPermission) => {
       const arrayStatPermission = Object.values(statPermission);
       return arrayPermissionInfos.every((info) => arrayStatPermission.includes(info));
     });
@@ -68,17 +72,22 @@ class PermissionsChecker {
         ._isPermissionAllowed(collectionPermissions.browseEnabled, permissionInfos.userId);
   }
 
-  static async _isAllowed(permissions, permissionName, permissionInfos) {
+  static async _isAllowed(permissions, permissionName, permissionInfos, user) {
     switch (permissionName) {
       case 'actions':
         return PermissionsChecker._isSmartActionAllowed(permissions.actions, permissionInfos);
+
       case 'browseEnabled':
         return PermissionsChecker
           ._isCollectionBrowseAllowed(permissions, permissionInfos);
+
       case 'liveQueries':
-        return PermissionsChecker._isLiveQueryAllowed(permissions.stats.queries, permissionInfos);
+        return PermissionsChecker
+          ._isLiveQueryAllowed(permissions.stats.queries, permissionInfos, user);
+
       case 'statWithParameters':
-        return PermissionsChecker._isStatWithParametersAllowed(permissions.stats, permissionInfos);
+        return PermissionsChecker
+          ._isStatWithParametersAllowed(permissions.stats, permissionInfos, user);
 
       default:
         return permissions.collection
@@ -89,19 +98,28 @@ class PermissionsChecker {
   }
 
   async checkPermissions(
-    renderingId, collectionName, permissionName, permissionInfos, environmentId = undefined,
+    user, collectionName, permissionName, permissionInfos, environmentId = undefined,
   ) {
     const getPermissions = async (forceRetrieve) => this.permissionsGetter.getPermissions(
-      renderingId, collectionName, permissionName, { forceRetrieve, environmentId },
+      user.renderingId, collectionName, permissionName, { forceRetrieve, environmentId },
     );
+
     const isAllowed = async ({ forceRetrieve = false } = {}) => PermissionsChecker._isAllowed(
       await getPermissions(forceRetrieve),
       permissionName,
       permissionInfos,
+      user,
     );
 
     if (await isAllowed() || await isAllowed({ forceRetrieve: true })) {
       return null;
+    }
+
+    if (permissionName === 'liveQueries') {
+      throw new Error('Chart with SQL access forbidden - You are not allow to run this query');
+    }
+    if (permissionName === 'statWithParameters') {
+      throw new Error('Simple Chart access forbidden - You are not allow to display this chart');
     }
 
     throw new Error(`'${permissionName}' access forbidden on ${collectionName}`);

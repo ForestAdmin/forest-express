@@ -54,6 +54,7 @@ class TokenService {
       team: user.teams[0],
       role: user.role,
       tags: user.tags,
+      permissionLevel: user.permission_level,
       renderingId,
     }, authSecret, {
       expiresIn: `${this.expirationInHours} hours`,
