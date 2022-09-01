@@ -48,7 +48,7 @@ describe('services > permissions', () => {
                   },
                 });
 
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', type.permissionName, { userId: 1 }))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', type.permissionName, { userId: 1 }))
                 .toResolve();
             });
           });
@@ -71,7 +71,7 @@ describe('services > permissions', () => {
                   },
                 });
 
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', type.permissionName, { userId: 1 }))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', type.permissionName, { userId: 1 }))
                 .rejects.toThrow(`'${type.permissionName}' access forbidden on Users`);
               nockObj.persist(false);
             });
@@ -95,7 +95,7 @@ describe('services > permissions', () => {
                 },
               });
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 }))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 }))
               .toResolve();
           });
         });
@@ -120,7 +120,7 @@ describe('services > permissions', () => {
                 },
               });
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(2, 'Users', 'browseEnabled', { userId: 1 }))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 2, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 }))
               .toResolve();
           });
         });
@@ -141,7 +141,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 }))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 }))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -169,7 +169,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
               .rejects.toThrow("'actions' access forbidden on Users");
             nockObj.persist(false);
           });
@@ -205,7 +205,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 1,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .rejects.toThrow("'actions' access forbidden on Users");
               nockObj.persist(false);
             });
@@ -241,7 +241,7 @@ describe('services > permissions', () => {
                 userId: 1,
               };
 
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .toResolve();
             });
           });
@@ -275,7 +275,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 1,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .toResolve();
             });
 
@@ -307,7 +307,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 2,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .rejects.toThrow("'actions' access forbidden on Users");
               nockObj.persist(false);
             });
@@ -338,7 +338,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: '1',
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .toResolve();
             });
           });
@@ -420,7 +420,7 @@ describe('services > permissions', () => {
               }),
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
               .toResolve();
           });
 
@@ -438,7 +438,7 @@ describe('services > permissions', () => {
               ),
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Posts', 'browseEnabled', collectionListParameters))
               .toResolve();
           });
         });
@@ -468,7 +468,7 @@ describe('services > permissions', () => {
               }),
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
               .toResolve();
           });
         });
@@ -498,7 +498,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Posts', 'browseEnabled', collectionListParameters))
             .toResolve();
         });
       });
@@ -525,7 +525,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -555,7 +555,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -591,7 +591,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -638,7 +638,7 @@ describe('services > permissions', () => {
               },
             },
           })
-            .checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 })
+            .checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 })
             .then(() => {
               retrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
               lastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
@@ -700,7 +700,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
 
           const firstRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
           const firstLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
@@ -721,7 +721,7 @@ describe('services > permissions', () => {
               },
             },
           })
-            .checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 })
+            .checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 })
             .then(() => {
               const secondRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
               const secondLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
@@ -783,7 +783,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
 
           const firstRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
           const firstLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
@@ -802,7 +802,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
           const secondRetrievedPermissions = permissionsGetter._getPermissionsInRendering(1);
           const secondLastRetrieve = permissionsGetter._getLastRetrieveTimeInRendering(1);
 
@@ -838,7 +838,7 @@ describe('services > permissions', () => {
                     },
                   },
                 });
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', type, { userId: 1 }))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', type, { userId: 1 }))
                 .toResolve();
             });
           });
@@ -862,7 +862,7 @@ describe('services > permissions', () => {
                     },
                   },
                 });
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', type, { userId: 1 }))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', type, { userId: 1 }))
                 .rejects.toThrow(`'${type}' access forbidden on Users`);
               nockObj.persist(false);
             });
@@ -888,7 +888,7 @@ describe('services > permissions', () => {
                 },
               });
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'addEnabled', { userId: 1 }))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'addEnabled', { userId: 1 }))
               .toResolve();
           });
         });
@@ -915,7 +915,7 @@ describe('services > permissions', () => {
                 },
               });
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(2, 'Users', 'browseEnabled', { userId: 1 }))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 2, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 }))
               .toResolve();
           });
         });
@@ -971,7 +971,7 @@ describe('services > permissions', () => {
               nock.cleanAll();
 
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions1);
-              await new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'addEnabled', { userId: 1 });
+              await new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'addEnabled', { userId: 1 });
 
               const { permissionsGetter } = context.inject();
               const retrievedPermissions1 = permissionsGetter._getPermissionsInCollections(1);
@@ -985,7 +985,7 @@ describe('services > permissions', () => {
 
               nockObj.get('/liana/v3/permissions?renderingId=2').reply(200, permissions2);
 
-              await new PermissionsChecker(context.inject()).checkPermissions(2, 'Users', 'addEnabled', { userId: 1 });
+              await new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 2, permissionLevel: 'user' }, 'Users', 'addEnabled', { userId: 1 });
 
               const retrievedPermissions2 = permissionsGetter._getPermissionsInCollections(1);
               const lastRetrieveInCollections2 = permissionsGetter
@@ -1037,7 +1037,7 @@ describe('services > permissions', () => {
               nock.cleanAll();
 
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions);
-              await new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+              await new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
 
               const { permissionsGetter } = context.inject();
               const retrievedPermissions1 = permissionsGetter._getPermissionsInCollections(1);
@@ -1053,7 +1053,7 @@ describe('services > permissions', () => {
 
               nockObj.get('/liana/v3/permissions?renderingId=2&renderingSpecificOnly=true').reply(200, renderingOnlyPermissions);
 
-              await new PermissionsChecker(context.inject()).checkPermissions(2, 'Users', 'browseEnabled', { userId: 1 });
+              await new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 2, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
               const retrievedPermissions2 = permissionsGetter._getPermissionsInCollections(2);
               const lastRetrieveInCollections2 = permissionsGetter
                 ._getLastRetrieveTimeInCollections();
@@ -1094,7 +1094,7 @@ describe('services > permissions', () => {
               userId: 1,
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
               .rejects.toThrow("'actions' access forbidden on Users");
             nockObj.persist(false);
           });
@@ -1129,7 +1129,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 1,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .rejects.toThrow("'actions' access forbidden on Users");
               nockObj.persist(false);
             });
@@ -1163,7 +1163,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 1,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .toResolve();
             });
           });
@@ -1196,7 +1196,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 1,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .toResolve();
             });
 
@@ -1228,7 +1228,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: 2,
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .rejects.toThrow("'actions' access forbidden on Users");
               nockObj.persist(false);
             });
@@ -1259,7 +1259,7 @@ describe('services > permissions', () => {
                 actionName: 'save',
                 userId: '1',
               };
-              await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'actions', smartActionParameters))
+              await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'actions', smartActionParameters))
                 .toResolve();
             });
           });
@@ -1351,7 +1351,7 @@ describe('services > permissions', () => {
               }),
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
               .toResolve();
           });
 
@@ -1369,7 +1369,7 @@ describe('services > permissions', () => {
               ),
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Posts', 'browseEnabled', collectionListParameters))
               .toResolve();
           });
         });
@@ -1399,7 +1399,7 @@ describe('services > permissions', () => {
               }),
             };
 
-            await expect(new PermissionsChecker(context.inject()).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+            await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
               .toResolve();
           });
         });
@@ -1429,7 +1429,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Posts', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Posts', 'browseEnabled', collectionListParameters))
             .toResolve();
         });
       });
@@ -1456,7 +1456,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -1486,7 +1486,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -1522,7 +1522,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', collectionListParameters))
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', collectionListParameters))
             .rejects.toThrow("'browseEnabled' access forbidden on Users");
           nockObj.persist(false);
         });
@@ -1576,7 +1576,7 @@ describe('services > permissions', () => {
               },
             },
           })
-            .checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 })
+            .checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 })
             .then(() => {
               retrievedPermissions = permissionsGetter._getPermissionsInCollections(1);
               lastRetrieve = permissionsGetter._getLastRetrieveTimeInCollections();
@@ -1656,7 +1656,7 @@ describe('services > permissions', () => {
                 envSecret: 'envSecret',
               },
             },
-          }).checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+          }).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
 
           const firstRetrievedPermissions = permissionsGetter._getPermissionsInCollections(1);
           const firstLastRetrieve = permissionsGetter._getLastRetrieveTimeInCollections();
@@ -1675,7 +1675,7 @@ describe('services > permissions', () => {
               },
             },
           })
-            .checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 })
+            .checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 })
             .then(() => {
               const secondRetrievedPermissions = permissionsGetter._getPermissionsInCollections(1);
               const secondLastRetrieve = permissionsGetter._getLastRetrieveTimeInCollections();
@@ -1759,7 +1759,7 @@ describe('services > permissions', () => {
               },
             },
           });
-          await permissionsChecker.checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+          await permissionsChecker.checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
 
           const firstRetrievedPermissions = permissionsGetter._getPermissionsInCollections(1);
           const firstLastRetrieve = permissionsGetter._getLastRetrieveTimeInCollections();
@@ -1769,7 +1769,7 @@ describe('services > permissions', () => {
 
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, permissions2);
 
-          await permissionsChecker.checkPermissions(1, 'Users', 'browseEnabled', { userId: 1 });
+          await permissionsChecker.checkPermissions({ renderingId: 1, permissionLevel: 'user' }, 'Users', 'browseEnabled', { userId: 1 });
           const secondRetrievedPermissions = permissionsGetter._getPermissionsInCollections(1);
           const secondLastRetrieve = permissionsGetter._getLastRetrieveTimeInCollections();
 
@@ -1808,8 +1808,8 @@ describe('services > permissions', () => {
         });
 
         const liveQueryParameters = 'SELECT COUNT(*) AS value FROM products;';
-        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'liveQueries', liveQueryParameters))
-          .rejects.toThrow("'liveQueries' access forbidden on ");
+        await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, null, 'liveQueries', liveQueryParameters))
+          .rejects.toThrow('Chart with SQL access forbidden - You are not allow to run this query');
         nockObj.persist(false);
       });
     });
@@ -1841,7 +1841,7 @@ describe('services > permissions', () => {
         });
 
         const liveQueryParameters = 'SELECT COUNT(*) AS value FROM products;';
-        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'liveQueries', liveQueryParameters))
+        await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, null, 'liveQueries', liveQueryParameters))
           .toResolve();
       });
     });
@@ -1875,8 +1875,8 @@ describe('services > permissions', () => {
         });
 
         const statsWithParameterParameters = { type: 'Value', someInfo: 'Count', otherInfo: 'SomeCollection' };
-        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'statWithParameters', statsWithParameterParameters))
-          .rejects.toThrow("'statWithParameters' access forbidden on ");
+        await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, null, 'statWithParameters', statsWithParameterParameters))
+          .rejects.toThrow('Simple Chart access forbidden - You are not allow to display this chart');
         nockObj.persist(false);
       });
     });
@@ -1912,7 +1912,7 @@ describe('services > permissions', () => {
         });
 
         const statsWithParameterParameters = { type: 'Value', someInfo: 'Count', otherInfo: 'SomeCollection' };
-        await expect(new PermissionsChecker(context.inject()).checkPermissions(1, null, 'statWithParameters', statsWithParameterParameters)).toResolve();
+        await expect(new PermissionsChecker(context.inject()).checkPermissions({ renderingId: 1, permissionLevel: 'user' }, null, 'statWithParameters', statsWithParameterParameters)).toResolve();
       });
     });
   });

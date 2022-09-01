@@ -12,6 +12,8 @@ describe('services > PermissionsChecker', () => {
       it('should check correctly the permissions', async () => {
         expect.assertions(5);
 
+
+        const user = { renderingId: 1 };
         const permissions = { myPermissions: {} };
         const permissionsGetter = {
           getPermissions: jest.fn().mockReturnValue(permissions),
@@ -28,7 +30,7 @@ describe('services > PermissionsChecker', () => {
         const collectionName = 'Siths';
         const permissionName = 'browseEnabled';
         await expect(permissionsChecker.checkPermissions(
-          1, collectionName, permissionName, permissionsInfos,
+          user, collectionName, permissionName, permissionsInfos,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -41,13 +43,14 @@ describe('services > PermissionsChecker', () => {
 
         expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
         expect(permissionsChecker._isAllowed)
-          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos, user);
       });
 
       describe('when cache seems outdated', () => {
         it('should force retrieval of permissions', async () => {
           expect.assertions(7);
 
+          const user = { renderingId: 1 };
           const permissions = { myPermissions: {} };
           const permissionsAfterRefresh = { myPermissionsNew: {} };
           const permissionsGetter = {
@@ -69,7 +72,7 @@ describe('services > PermissionsChecker', () => {
           const collectionName = 'Siths';
           const permissionName = 'browseEnabled';
           await expect(permissionsChecker.checkPermissions(
-            1, collectionName, permissionName, permissionsInfos,
+            user, collectionName, permissionName, permissionsInfos,
           )).toResolve();
 
           expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(2);
@@ -88,9 +91,9 @@ describe('services > PermissionsChecker', () => {
 
           expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(2);
           expect(permissionsChecker._isAllowed)
-            .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+            .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos, user);
           expect(permissionsChecker._isAllowed)
-            .toHaveBeenCalledWith(permissionsAfterRefresh, permissionName, permissionsInfos);
+            .toHaveBeenCalledWith(permissionsAfterRefresh, permissionName, permissionsInfos, user);
         });
       });
     });
@@ -99,6 +102,7 @@ describe('services > PermissionsChecker', () => {
       it('should check correctly the permissions', async () => {
         expect.assertions(5);
 
+        const user = { renderingId: 1 };
         const permissions = { myPermissions: {} };
         const permissionsGetter = {
           getPermissions: jest.fn().mockReturnValue(permissions),
@@ -116,7 +120,7 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'browseEnabled';
         const environmentId = 10;
         await expect(permissionsChecker.checkPermissions(
-          1, collectionName, permissionName, permissionsInfos, environmentId,
+          user, collectionName, permissionName, permissionsInfos, environmentId,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -129,7 +133,7 @@ describe('services > PermissionsChecker', () => {
 
         expect(permissionsChecker._isAllowed).toHaveBeenCalledTimes(1);
         expect(permissionsChecker._isAllowed)
-          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos, user);
       });
     });
 
@@ -137,6 +141,7 @@ describe('services > PermissionsChecker', () => {
       it('should check correctly the permissions', async () => {
         expect.assertions(6);
 
+        const user = { renderingId: 1 };
         const permissions = { stats: { queries: ['SELECT COUNT(*) AS value FROM products;'] } };
         const permissionsGetter = {
           getPermissions: jest.fn().mockReturnValue(permissions),
@@ -154,7 +159,7 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'liveQueries';
 
         await expect(permissionsChecker.checkPermissions(
-          1, collectionName, permissionName, permissionsInfos,
+          user, collectionName, permissionName, permissionsInfos,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -167,7 +172,7 @@ describe('services > PermissionsChecker', () => {
 
         expect(isAllowed).toHaveBeenCalledTimes(1);
         expect(isAllowed)
-          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos);
+          .toHaveBeenCalledWith(permissions, permissionName, permissionsInfos, user);
         expect(isAllowed).toHaveReturned();
       });
     });
