@@ -83,7 +83,11 @@ class PermissionMiddlewareCreator {
         : null;
       try {
         await this.permissionsChecker.checkPermissions(
-          request.user, this.collectionName, permissionName, permissionInfos, environmentId,
+          request.user,
+          this.collectionName,
+          permissionName,
+          permissionInfos,
+          environmentId,
         );
         next();
       } catch (error) {

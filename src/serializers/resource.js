@@ -153,7 +153,8 @@ function ResourceSerializer(
 
     if (Implementation?.Flattener) {
       const flattenedFieldsNames = attributes?.filter(
-        (attribute) => Implementation.Flattener._isFieldFlattened(attribute));
+        (attribute) => Implementation.Flattener._isFieldFlattened(attribute),
+      );
 
       const flattenedFieldsAccessors = flattenedFieldsNames
         ?.map((elem) => ({ [elem]: Implementation.Flattener.splitOnSeparator(elem) }));

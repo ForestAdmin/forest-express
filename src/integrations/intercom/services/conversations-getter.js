@@ -26,7 +26,6 @@ function ConversationsGetter(Implementation, params, opts, mappingValue) {
     return `https://api.intercom.io/conversations/${conversation.id}`;
   }
 
-
   function fetchPages(pages, conversations) {
     return intercom
       .nextPage(pages)

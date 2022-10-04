@@ -288,8 +288,8 @@ describe('services > schema-file-updater', () => {
   it('should sort collections by name', () => {
     expect.assertions(2);
     const schema = buildSchema([{ name: 'collectionZ' }, { name: 'collectionA' }]);
-    expect(schema.collections[0].name).toStrictEqual('collectionA');
-    expect(schema.collections[1].name).toStrictEqual('collectionZ');
+    expect(schema.collections[0].name).toBe('collectionA');
+    expect(schema.collections[1].name).toBe('collectionZ');
   });
 
   it('should sort fields by field and type', () => {
@@ -309,8 +309,8 @@ describe('services > schema-file-updater', () => {
       name: 'collectionName',
       actions: [{ name: 'actionZ' }, { name: 'actionA' }],
     }]);
-    expect(schema.collections[0].actions[0].name).toStrictEqual('actionA');
-    expect(schema.collections[0].actions[1].name).toStrictEqual('actionZ');
+    expect(schema.collections[0].actions[0].name).toBe('actionA');
+    expect(schema.collections[0].actions[1].name).toBe('actionZ');
   });
 
   it('should set to null invalid action type', () => {

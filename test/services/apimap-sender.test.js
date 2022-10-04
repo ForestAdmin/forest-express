@@ -46,7 +46,6 @@ describe('services > apimap-sender', () => {
     });
   });
 
-
   describe('send', () => {
     it('should post content then get response from forestUrl', () => {
       expect.assertions(1);

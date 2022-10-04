@@ -478,7 +478,7 @@ describe('services > permissions', () => {
                 .transformPermissionsFromOldToNewFormat(permissions2.data);
 
               expect(secondRetrievedPermissions.data).toStrictEqual(permissions2InNewFormat);
-              expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
+              expect(secondLastRetrieve - firstLastRetrieve).toBeGreaterThan(0);
             });
         });
       });
@@ -810,8 +810,7 @@ describe('services > permissions', () => {
                 ._getLastRetrieveTimeInRendering(2);
 
               expect(retrievedPermissions2.data).toStrictEqual(permissions.data.collections);
-              expect(lastRetrieveInRendering2 - lastRetrieveInRendering1 > 0)
-                .toStrictEqual(true);
+              expect(lastRetrieveInRendering2 - lastRetrieveInRendering1).toBeGreaterThan(0);
               expect(lastRetrieveInCollections1.valueOf())
                 .toStrictEqual(lastRetrieveInCollections2.valueOf());
             });
@@ -1168,7 +1167,7 @@ describe('services > permissions', () => {
               const secondLastRetrieve = permissionsGetter._getLastRetrieveTimeInCollections();
 
               expect(secondRetrievedPermissions.data).toStrictEqual(permissions2.data.collections);
-              expect(secondLastRetrieve - firstLastRetrieve > 0).toStrictEqual(true);
+              expect(secondLastRetrieve - firstLastRetrieve).toBeGreaterThan(0);
             });
         });
       });

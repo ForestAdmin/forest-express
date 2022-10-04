@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const P = require('bluebird');
-const logger = require('../services/logger');
+const logger = require('./logger');
 const Schemas = require('../generators/schemas');
 
 const DEPTH_MAX_FOR_INJECTION = 0;

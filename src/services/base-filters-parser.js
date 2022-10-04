@@ -1,6 +1,6 @@
-import _ from 'lodash';
-import { InvalidFiltersFormat } from '../utils/error';
-import { getSmartField, isSmartField } from '../utils/schema';
+const _ = require('lodash');
+const { InvalidFiltersFormat } = require('../utils/error');
+const { getSmartField, isSmartField } = require('../utils/schema');
 
 // NOTICE: Parse the given filters into a valid JSON.
 const parseFiltersString = (filtersString) => {
@@ -47,7 +47,6 @@ const parseAggregation = async (node, formatAggregation, formatCondition, modelS
   if (_.isArray(node)) { throw new InvalidFiltersFormat('Filters cannot be a raw array'); }
 
   if (!node.aggregator) { return parseCondition(node, formatCondition, modelSchema); }
-
 
   if (!_.isArray(node.conditions)) {
     throw new InvalidFiltersFormat('Filters\' conditions must be an array');

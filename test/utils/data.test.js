@@ -5,7 +5,7 @@ describe('utils › data › find', () => {
     expect.assertions(2);
     const data = { foo: { bar: 'baz' } };
     expect(find(data, 'foo')).toStrictEqual({ bar: 'baz' });
-    expect(find(data, 'foo.bar')).toStrictEqual('baz');
+    expect(find(data, 'foo.bar')).toBe('baz');
   });
 
   it('should return null if path does not match data', () => {

@@ -55,7 +55,7 @@ describe('service > OidcClientManager', () => {
       const configuration = { issuer: 'forest admin' };
       const newClient = { client_id: 'the-id' };
       oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
-      issuer.Client.register.mockReturnValue(Promise.resolve(newClient));
+      issuer.Client.register.mockResolvedValue(newClient);
 
       const result = await oidcClientManager.getClientForCallbackUrl('https://here.local');
 
@@ -83,7 +83,7 @@ describe('service > OidcClientManager', () => {
       const configuration = { issuer: 'forest admin' };
       const newClient = { client_id: 'the-id' };
       oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
-      issuer.Client.register.mockReturnValue(Promise.resolve(newClient));
+      issuer.Client.register.mockResolvedValue(newClient);
 
       const result = await oidcClientManager.getClientForCallbackUrl('https://here.local');
 
@@ -106,7 +106,7 @@ describe('service > OidcClientManager', () => {
       const configuration = { issuer: 'forest admin' };
       const newClient = { client_id: 'the-id' };
       oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
-      issuer.Client.mockReturnValue(Promise.resolve(newClient));
+      issuer.Client.mockResolvedValue(newClient);
 
       const result = await oidcClientManager.getClientForCallbackUrl('https://here.local');
 
@@ -130,7 +130,7 @@ describe('service > OidcClientManager', () => {
       const configuration = { issuer: 'forest admin' };
       const newClient = { client_id: 'the-id' };
       oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
-      issuer.Client.register.mockReturnValue(Promise.resolve(newClient));
+      issuer.Client.register.mockResolvedValue(newClient);
 
       const result1 = await oidcClientManager.getClientForCallbackUrl('https://here.local');
       const result2 = await oidcClientManager.getClientForCallbackUrl('https://here.local');
@@ -151,8 +151,8 @@ describe('service > OidcClientManager', () => {
       oidcConfigurationRetrieverService.retrieve.mockReturnValue(configuration);
       const error = new Error();
       issuer.Client.register
-        .mockReturnValueOnce(Promise.reject(error))
-        .mockReturnValueOnce(Promise.resolve(newClient));
+        .mockRejectedValueOnce(error)
+        .mockResolvedValueOnce(newClient);
 
       await expect(oidcClientManager.getClientForCallbackUrl('https://here.local'))
         .rejects.toStrictEqual(error);

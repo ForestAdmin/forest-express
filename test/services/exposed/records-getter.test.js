@@ -1,8 +1,8 @@
 const { init } = require('@forestadmin/context');
-const RecordsGetter = require('../../../src/services/exposed/records-getter.js');
+const RecordsGetter = require('../../../src/services/exposed/records-getter');
 const Schemas = require('../../../src/generators/schemas');
 const addressesSchema = require('../../fixtures/addresses-schema');
-const usersSchema = require('../../fixtures/users-schema.js');
+const usersSchema = require('../../fixtures/users-schema');
 
 init((context) => context);
 
@@ -36,7 +36,10 @@ function getMockedRecordsGetter(modelName = null) {
   };
 
   return new RecordsGetter(
-    { name: modelName }, defaultUser, defaultParams, { configStore, modelsManager },
+    { name: modelName },
+    defaultUser,
+    defaultParams,
+    { configStore, modelsManager },
   );
 }
 

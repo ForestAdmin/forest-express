@@ -103,7 +103,6 @@ describe('integration > stripe > index', () => {
     expect(logger.error).not.toHaveBeenCalled();
   });
 
-
   it('should not warn if everything is defined properly (sequelize compatibility)', () => {
     expect.assertions(2);
     jest.resetAllMocks();

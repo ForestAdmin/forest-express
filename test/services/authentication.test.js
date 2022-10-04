@@ -80,9 +80,9 @@ describe('authenticationService', () => {
         oidcClientManagerService,
       } = setup();
 
-      client.callback.mockReturnValue(Promise.resolve({
+      client.callback.mockResolvedValue({
         access_token: 'THE-ACCESS-TOKEN',
-      }));
+      });
 
       const user = {
         id: 666,
@@ -91,7 +91,7 @@ describe('authenticationService', () => {
         email: 'alice@forestadmin.com',
       };
 
-      authorizationFinder.authenticate.mockReturnValue(Promise.resolve(user));
+      authorizationFinder.authenticate.mockResolvedValue(user);
       tokenService.createToken.mockReturnValue('THE-TOKEN');
 
       const options = {
@@ -107,7 +107,7 @@ describe('authenticationService', () => {
         options,
       );
 
-      expect(result).toStrictEqual('THE-TOKEN');
+      expect(result).toBe('THE-TOKEN');
       expect(oidcClientManagerService.getClientForCallbackUrl)
         .toHaveBeenCalledWith('https://agent-url.com/forest/authentication/callback');
       expect(client.callback).toHaveBeenCalledWith(

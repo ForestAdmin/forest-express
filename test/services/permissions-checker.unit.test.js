@@ -31,7 +31,10 @@ describe('services > PermissionsChecker', () => {
         const collectionName = 'Siths';
         const permissionName = 'browseEnabled';
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, permissionsInfos,
+          user,
+          collectionName,
+          permissionName,
+          permissionsInfos,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -50,7 +53,6 @@ describe('services > PermissionsChecker', () => {
       describe('when cache seems outdated', () => {
         it('should force retrieval of permissions', async () => {
           expect.assertions(7);
-
 
           const user = { renderingId: 1 };
           const permissions = { myPermissions: {} };
@@ -74,7 +76,10 @@ describe('services > PermissionsChecker', () => {
           const collectionName = 'Siths';
           const permissionName = 'browseEnabled';
           await expect(permissionsChecker.checkPermissions(
-            user, collectionName, permissionName, permissionsInfos,
+            user,
+            collectionName,
+            permissionName,
+            permissionsInfos,
           )).toResolve();
 
           expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(2);
@@ -122,7 +127,11 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'browseEnabled';
         const environmentId = 10;
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, permissionsInfos, environmentId,
+          user,
+          collectionName,
+          permissionName,
+          permissionsInfos,
+          environmentId,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -161,7 +170,10 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'liveQueries';
 
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, permissionsInfos,
+          user,
+          collectionName,
+          permissionName,
+          permissionsInfos,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -199,7 +211,10 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'liveQueries';
 
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, permissionsInfos,
+          user,
+          collectionName,
+          permissionName,
+          permissionsInfos,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -235,11 +250,13 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'liveQueries';
 
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, permissionsInfos,
+          user,
+          collectionName,
+          permissionName,
+          permissionsInfos,
         )).toReject(new Error('Chart with SQL access forbidden - You are not allow to run this query'));
       });
     });
-
 
     describe('with statWithParameters permissions', () => {
       it('should reject simple chart when not in allow list', async () => {
@@ -269,7 +286,10 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'statWithParameters';
 
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, parametersChartRequestInfo,
+          user,
+          collectionName,
+          permissionName,
+          parametersChartRequestInfo,
         )).toReject(new Error('Simple Chart access forbidden - You are not allow to display this chart'));
       });
     });
@@ -298,7 +318,10 @@ describe('services > PermissionsChecker', () => {
         const permissionName = 'browseEnabled';
 
         await expect(permissionsChecker.checkPermissions(
-          user, collectionName, permissionName, permissionsInfos,
+          user,
+          collectionName,
+          permissionName,
+          permissionsInfos,
         )).toResolve();
 
         expect(permissionsGetter.getPermissions).toHaveBeenCalledTimes(1);
@@ -328,10 +351,10 @@ describe('services > PermissionsChecker', () => {
         const isPermissionAllowed = jest.spyOn(PermissionsChecker, '_isPermissionAllowed');
         isPermissionAllowed.mockResolvedValue(true);
 
-
-        expect(await PermissionsChecker._isCollectionBrowseAllowed(
-          permissions, permissionsInfos,
-        )).toBeTrue();
+        await expect(PermissionsChecker._isCollectionBrowseAllowed(
+          permissions,
+          permissionsInfos,
+        )).resolves.toBeTrue();
 
         expect(isPermissionAllowed).toHaveBeenCalledTimes(1);
         expect(isPermissionAllowed)
@@ -348,9 +371,10 @@ describe('services > PermissionsChecker', () => {
         const isPermissionAllowed = jest.spyOn(PermissionsChecker, '_isPermissionAllowed');
         isPermissionAllowed.mockResolvedValue(true);
 
-        expect(await PermissionsChecker._isCollectionBrowseAllowed(
-          permissions, permissionsInfos,
-        )).toBeFalse();
+        await expect(PermissionsChecker._isCollectionBrowseAllowed(
+          permissions,
+          permissionsInfos,
+        )).resolves.toBeFalse();
 
         expect(isPermissionAllowed).toHaveBeenCalledTimes(0);
       });
@@ -367,9 +391,10 @@ describe('services > PermissionsChecker', () => {
           const isPermissionAllowed = jest.spyOn(PermissionsChecker, '_isPermissionAllowed');
           isPermissionAllowed.mockResolvedValue(true);
 
-          expect(await PermissionsChecker._isCollectionBrowseAllowed(
-            permissions, permissionsInfos,
-          )).toBeTrue();
+          await expect(PermissionsChecker._isCollectionBrowseAllowed(
+            permissions,
+            permissionsInfos,
+          )).resolves.toBeTrue();
 
           expect(isPermissionAllowed).toHaveBeenCalledTimes(1);
           expect(isPermissionAllowed)
@@ -388,9 +413,10 @@ describe('services > PermissionsChecker', () => {
           const isPermissionAllowed = jest.spyOn(PermissionsChecker, '_isPermissionAllowed');
           isPermissionAllowed.mockResolvedValue(true);
 
-          expect(await PermissionsChecker._isCollectionBrowseAllowed(
-            permissions, permissionsInfos,
-          )).toBeFalse();
+          await expect(PermissionsChecker._isCollectionBrowseAllowed(
+            permissions,
+            permissionsInfos,
+          )).resolves.toBeFalse();
 
           expect(isPermissionAllowed).toHaveBeenCalledTimes(0);
         });
@@ -408,9 +434,10 @@ describe('services > PermissionsChecker', () => {
         const isPermissionAllowed = jest.spyOn(PermissionsChecker, '_isPermissionAllowed');
         isPermissionAllowed.mockResolvedValue(true);
 
-        expect(await PermissionsChecker._isCollectionBrowseAllowed(
-          permissions, permissionsInfos,
-        )).toBeFalse();
+        await expect(PermissionsChecker._isCollectionBrowseAllowed(
+          permissions,
+          permissionsInfos,
+        )).resolves.toBeFalse();
 
         expect(isPermissionAllowed).toHaveBeenCalledTimes(0);
       });
@@ -425,9 +452,7 @@ describe('services > PermissionsChecker', () => {
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'user' };
 
-        expect(PermissionsChecker._isLiveQueryAllowed(
-          [sqlQuery], sqlQuery, user,
-        )).toBeTrue();
+        expect(PermissionsChecker._isLiveQueryAllowed([sqlQuery], sqlQuery, user)).toBeTrue();
       });
 
       it('should return false when the query is not allowed', async () => {
@@ -435,9 +460,7 @@ describe('services > PermissionsChecker', () => {
 
         const user = { permissionLevel: 'user' };
 
-        expect(PermissionsChecker._isLiveQueryAllowed(
-          ['some query'], 'SELECT COUNT(*) AS value FROM products;', user,
-        )).toBeFalse();
+        expect(PermissionsChecker._isLiveQueryAllowed(['some query'], 'SELECT COUNT(*) AS value FROM products;', user)).toBeFalse();
       });
     });
 
@@ -448,9 +471,7 @@ describe('services > PermissionsChecker', () => {
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'admin' };
 
-        expect(PermissionsChecker._isLiveQueryAllowed(
-          ['another sql'], sqlQuery, user,
-        )).toBeTrue();
+        expect(PermissionsChecker._isLiveQueryAllowed(['another sql'], sqlQuery, user)).toBeTrue();
       });
     });
 
@@ -461,12 +482,9 @@ describe('services > PermissionsChecker', () => {
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'editor' };
 
-        expect(PermissionsChecker._isLiveQueryAllowed(
-          ['another sql'], sqlQuery, user,
-        )).toBeTrue();
+        expect(PermissionsChecker._isLiveQueryAllowed(['another sql'], sqlQuery, user)).toBeTrue();
       });
     });
-
 
     describe('with user permission developer', () => {
       it('should return true even if the the query is not allowed yet', async () => {
@@ -475,9 +493,7 @@ describe('services > PermissionsChecker', () => {
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'developer' };
 
-        expect(PermissionsChecker._isLiveQueryAllowed(
-          ['another sql'], sqlQuery, user,
-        )).toBeTrue();
+        expect(PermissionsChecker._isLiveQueryAllowed(['another sql'], sqlQuery, user)).toBeTrue();
       });
     });
   });
@@ -495,15 +511,13 @@ describe('services > PermissionsChecker', () => {
 
         const user = { permissionLevel: 'user' };
 
-        expect(PermissionsChecker._isStatWithParametersAllowed(
-          {
-            values: [{
-              type: 'Value',
-              collection: 'comments',
-              aggregate: 'Count',
-            }],
-          }, parametersChartRequestInfo, user,
-        )).toBeTrue();
+        expect(PermissionsChecker._isStatWithParametersAllowed({
+          values: [{
+            type: 'Value',
+            collection: 'comments',
+            aggregate: 'Count',
+          }],
+        }, parametersChartRequestInfo, user)).toBeTrue();
       });
 
       it('should return false when the query is not allowed', async () => {
@@ -511,13 +525,11 @@ describe('services > PermissionsChecker', () => {
 
         const user = { permissionLevel: 'user' };
 
-        expect(PermissionsChecker._isStatWithParametersAllowed(
-          {
-            values: [{
-              type: 'other',
-            }],
-          }, parametersChartRequestInfo, user,
-        )).toBeFalse();
+        expect(PermissionsChecker._isStatWithParametersAllowed({
+          values: [{
+            type: 'other',
+          }],
+        }, parametersChartRequestInfo, user)).toBeFalse();
       });
     });
 
@@ -548,7 +560,6 @@ describe('services > PermissionsChecker', () => {
         }, parametersChartRequestInfo, user)).toBeTrue();
       });
     });
-
 
     describe('with user permission developer', () => {
       it('should return true even if the the query is not allowed yet', async () => {

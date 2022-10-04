@@ -29,7 +29,7 @@ describe('services > PermissionsGetter', () => {
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         permissionsGetter.permissions = { test: 'me' };
 
-        expect(permissionsGetter._getPermissions({ environmentId: 'test' })).toStrictEqual('me');
+        expect(permissionsGetter._getPermissions({ environmentId: 'test' })).toBe('me');
         expect(permissionsGetter._getPermissions({ environmentId: 'unknown' })).toBeUndefined();
         expect(permissionsGetter._getPermissions({ environmentId: 'unknown', initIfNotExisting: true })).toStrictEqual({});
       });
@@ -292,7 +292,6 @@ describe('services > PermissionsGetter', () => {
           const permissionsGetter = new PermissionsGetter(defaultDependencies);
           permissionsGetter.isRolesACLActivated = true;
 
-
           permissionsGetter._setPermissions(1, permissions1, { environmentId }, stats1);
           permissionsGetter._setPermissions(2, permissions2, { environmentId }, stats2);
 
@@ -433,7 +432,6 @@ describe('services > PermissionsGetter', () => {
           },
         });
         permissionsGetter.isRolesACLActivated = false;
-
 
         permissionsGetter._setPermissions(1, permissions1, { environmentId }, stats1);
         permissionsGetter._setPermissions(2, permissions2, { environmentId }, stats2);

@@ -1,4 +1,3 @@
-
 const _transformActionsPermissionsFromOldToNewFormat = (smartActionsPermissions) => {
   const newSmartActionsPermissions = {};
   Object.keys(smartActionsPermissions).forEach((actionName) => {

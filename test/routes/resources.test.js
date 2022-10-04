@@ -1,6 +1,6 @@
 const { init, inject } = require('@forestadmin/context');
 
-const RecordsGetter = require('../../src/services/exposed/records-getter.js');
+const RecordsGetter = require('../../src/services/exposed/records-getter');
 const Resources = require('../../src/routes/resources');
 const ResourceSerializer = require('../../src/serializers/resource');
 const ResourceDeserializer = require('../../src/deserializers/resource');

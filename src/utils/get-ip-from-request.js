@@ -18,5 +18,4 @@ function getIpFromRequest(request) {
   return request.connection.remoteAddress;
 }
 
-
 module.exports = getIpFromRequest;

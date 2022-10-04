@@ -88,8 +88,10 @@ module.exports = function Associations(app, model, Implementation, integrator, o
       request.user,
     );
     return new CSVExporter(
-      params, response,
-      Implementation.getModelName(associationModel), recordsExporter,
+      params,
+      response,
+      Implementation.getModelName(associationModel),
+      recordsExporter,
     )
       .perform()
       .catch(next);
@@ -106,8 +108,11 @@ module.exports = function Associations(app, model, Implementation, integrator, o
     );
 
     return new Implementation.HasManyAssociator(
-      model, associationModel, opts,
-      params, data,
+      model,
+      associationModel,
+      opts,
+      params,
+      data,
     )
       .perform()
       .then(() => { response.status(204).send(); })

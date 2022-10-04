@@ -52,9 +52,7 @@ class OidcClientManagerService {
 
       const registrationPromise = clientId
         ? new issuer.Client(registration)
-        : issuer.Client.register(
-          registration, { initialAccessToken: envSecret },
-        ).catch((error) => {
+        : issuer.Client.register(registration, { initialAccessToken: envSecret }).catch((error) => {
           this.logger.error('Unable to register the client', {
             configuration,
             registration,
