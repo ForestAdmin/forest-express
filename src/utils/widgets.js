@@ -1,4 +1,3 @@
-
 // This file is a copy/paste of `utils/widgets.js` and a function from
 // `services/environment-configurator.js` in forestadmin-server.
 // The purpose is to transform the legacy `widget` from smart actions

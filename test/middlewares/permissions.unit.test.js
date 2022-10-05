@@ -1,7 +1,7 @@
 const { init } = require('@forestadmin/context');
 const PermissionMiddlewareCreator = require('../../src/middlewares/permissions');
 const Schemas = require('../../src/generators/schemas');
-const usersSchema = require('../fixtures/users-schema.js');
+const usersSchema = require('../fixtures/users-schema');
 
 const buildRequest = (attributes) => ({
   query: { timezone: 'Europe/Paris' }, body: { data: { attributes } },
@@ -57,7 +57,11 @@ describe('middlewares > permissions', () => {
         expect(permissionsChecker.checkPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsChecker.checkPermissions)
           .toHaveBeenCalledWith(
-            request.user, collectionName, permissionName, permissionInfos, null,
+            request.user,
+            collectionName,
+            permissionName,
+            permissionInfos,
+            null,
           );
 
         expect(next).toHaveBeenCalledTimes(1);
@@ -110,7 +114,11 @@ describe('middlewares > permissions', () => {
         expect(permissionsChecker.checkPermissions).toHaveBeenCalledTimes(1);
         expect(permissionsChecker.checkPermissions)
           .toHaveBeenCalledWith(
-            request.user, collectionName, permissionName, permissionInfos, environmentId,
+            request.user,
+            collectionName,
+            permissionName,
+            permissionInfos,
+            environmentId,
           );
 
         expect(next).toHaveBeenCalledTimes(1);
@@ -241,7 +249,7 @@ describe('middlewares > permissions', () => {
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', defaultDependencies);
       const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope({});
-      expect(typeof middleware).toStrictEqual('function');
+      expect(typeof middleware).toBe('function');
     });
 
     describe('with a simple pk', () => {
@@ -413,8 +421,8 @@ describe('middlewares > permissions', () => {
         .smartAction({ name: 'users' });
 
       expect(smartActionPermissionMiddlewares).toHaveLength(2);
-      expect(typeof smartActionPermissionMiddlewares[0]).toStrictEqual('function');
-      expect(typeof smartActionPermissionMiddlewares[1]).toStrictEqual('function');
+      expect(typeof smartActionPermissionMiddlewares[0]).toBe('function');
+      expect(typeof smartActionPermissionMiddlewares[1]).toBe('function');
     });
   });
 });

@@ -6,32 +6,32 @@ describe('utils > join-url', () => {
 
     it('should correctly append the path if it does not start with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, 'forest/authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, 'forest/authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
 
     it('should correctly append the path if it starts with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '/forest/authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, '/forest/authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
 
     it('should correctly append each parts when not starting with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, 'forest', 'authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, 'forest', 'authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
 
     it('should correctly append each parts when starting with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '/forest', '/authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, '/forest', '/authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
 
     it('should correctly append each parts when ending with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '/forest/', '/authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, '/forest/', '/authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
 
     it('should ignore empty parts', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '', 'forest', 'authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, '', 'forest', 'authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
   });
 
@@ -40,12 +40,12 @@ describe('utils > join-url', () => {
 
     it('should correctly append the path if it does not start with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, 'forest/authentication')).toStrictEqual(`${baseUrl}forest/authentication`);
+      expect(joinUrl(baseUrl, 'forest/authentication')).toBe(`${baseUrl}forest/authentication`);
     });
 
     it('should correctly append the path if it starts with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '/forest/authentication')).toStrictEqual(`${baseUrl}forest/authentication`);
+      expect(joinUrl(baseUrl, '/forest/authentication')).toBe(`${baseUrl}forest/authentication`);
     });
   });
 
@@ -54,12 +54,12 @@ describe('utils > join-url', () => {
 
     it('should correctly append the path if it does not start with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, 'forest/authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, 'forest/authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
 
     it('should correctly append the path if it starts with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '/forest/authentication')).toStrictEqual(`${baseUrl}/forest/authentication`);
+      expect(joinUrl(baseUrl, '/forest/authentication')).toBe(`${baseUrl}/forest/authentication`);
     });
   });
 
@@ -68,12 +68,12 @@ describe('utils > join-url', () => {
 
     it('should correctly append the path if it does not start with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, 'forest/authentication')).toStrictEqual(`${baseUrl}forest/authentication`);
+      expect(joinUrl(baseUrl, 'forest/authentication')).toBe(`${baseUrl}forest/authentication`);
     });
 
     it('should correctly append the path if it starts with a /', () => {
       expect.assertions(1);
-      expect(joinUrl(baseUrl, '/forest/authentication')).toStrictEqual(`${baseUrl}forest/authentication`);
+      expect(joinUrl(baseUrl, '/forest/authentication')).toBe(`${baseUrl}forest/authentication`);
     });
   });
 });

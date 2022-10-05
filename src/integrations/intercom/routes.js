@@ -16,7 +16,8 @@ module.exports = function Routes(app, model, Implementation, options) {
   if (options.integrations && options.integrations.intercom) {
     integrationInfo = new IntegrationInformationsGetter(
       modelName,
-      Implementation, options.integrations.intercom,
+      Implementation,
+      options.integrations.intercom,
     ).perform();
   }
 
@@ -44,7 +45,8 @@ module.exports = function Routes(app, model, Implementation, options) {
     )
       .perform()
       .spread((count, conversations) => serializeConversations(
-        conversations, modelName,
+        conversations,
+        modelName,
         { count },
       ))
       .then((conversations) => {

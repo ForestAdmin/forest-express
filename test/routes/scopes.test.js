@@ -23,7 +23,7 @@ describe('routes > scopes', () => {
           request(app)
             .post('/forest/scope-cache-invalidation')
             .end((error, response) => {
-              expect(response.status).toStrictEqual(400);
+              expect(response.status).toBe(400);
               expect(spyOnInvalidateScopeCache).not.toHaveBeenCalled();
               done();
             });
@@ -50,7 +50,7 @@ describe('routes > scopes', () => {
             .post('/forest/scope-cache-invalidation')
             .send({ renderingId })
             .end((error, response) => {
-              expect(response.status).toStrictEqual(200);
+              expect(response.status).toBe(200);
               expect(spyOnInvalidateScopeCache).toHaveBeenCalledTimes(1);
               expect(spyOnInvalidateScopeCache).toHaveBeenCalledWith(renderingId);
               done();

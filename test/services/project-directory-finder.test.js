@@ -20,7 +20,7 @@ describe('services > project-directory-finder', () => {
 
           const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
-          expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+          expect(absoluteProjectPath).toBe('/Users/forestUser/projects/myLumberProject');
 
           cwdStub.restore();
           sinon.restore();
@@ -38,7 +38,7 @@ describe('services > project-directory-finder', () => {
 
             const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
-            expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+            expect(absoluteProjectPath).toBe('/Users/forestUser/projects/myLumberProject');
 
             cwdStub.restore();
             sinon.restore();
@@ -55,7 +55,7 @@ describe('services > project-directory-finder', () => {
 
             const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
-            expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+            expect(absoluteProjectPath).toBe('/Users/forestUser/projects/myLumberProject');
 
             cwdStub.restore();
             sinon.restore();
@@ -75,7 +75,7 @@ describe('services > project-directory-finder', () => {
 
           const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
-          expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+          expect(absoluteProjectPath).toBe('/Users/forestUser/projects/myLumberProject');
 
           cwdStub.restore();
           sinon.restore();
@@ -93,7 +93,7 @@ describe('services > project-directory-finder', () => {
 
             const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
-            expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+            expect(absoluteProjectPath).toBe('/Users/forestUser/projects/myLumberProject');
 
             cwdStub.restore();
             sinon.restore();
@@ -110,7 +110,7 @@ describe('services > project-directory-finder', () => {
 
             const absoluteProjectPath = projectDirectoryFinder.getAbsolutePath();
 
-            expect(absoluteProjectPath).toStrictEqual('/Users/forestUser/projects/myLumberProject');
+            expect(absoluteProjectPath).toBe('/Users/forestUser/projects/myLumberProject');
 
             cwdStub.restore();
             sinon.restore();

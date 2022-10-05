@@ -14,8 +14,8 @@ describe('routes > healthcheck', () => {
         request(app)
           .get('/forest/healthcheck')
           .end((error, response) => {
-            expect(response.status).toStrictEqual(200);
-            expect(response.res.headers[ACCESS_CONTROL_ALLOW_ORIGIN]).toStrictEqual('*');
+            expect(response.status).toBe(200);
+            expect(response.res.headers[ACCESS_CONTROL_ALLOW_ORIGIN]).toBe('*');
             done();
           });
       });

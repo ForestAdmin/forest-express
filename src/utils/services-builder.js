@@ -4,7 +4,6 @@ const logger = require('../services/logger');
 const pathService = require('../services/path');
 const errorMessages = require('./error-messages');
 
-
 /**
  * @typedef {{
  *  errorMessages: import('./error-messages');
@@ -86,6 +85,5 @@ function init() {
     buildServices,
   ].reduce((injections, builder) => builder(injections), {});
 }
-
 
 module.exports = init;

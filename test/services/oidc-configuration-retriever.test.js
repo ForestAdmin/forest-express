@@ -20,7 +20,7 @@ describe('oidcConfigurationRetrieverService', () => {
     const { oidcConfigurationRetrieverService, forestServerRequester } = setup();
 
     const configuration = { issuer: 'forest-admin' };
-    forestServerRequester.perform.mockReturnValue(Promise.resolve(configuration));
+    forestServerRequester.perform.mockResolvedValue(configuration);
 
     const result = await oidcConfigurationRetrieverService.retrieve();
 
@@ -38,7 +38,7 @@ describe('oidcConfigurationRetrieverService', () => {
       } = setup({ expiration: 1000 });
 
       const configuration = { issuer: 'forest-admin' };
-      forestServerRequester.perform.mockReturnValue(Promise.resolve(configuration));
+      forestServerRequester.perform.mockResolvedValue(configuration);
 
       await oidcConfigurationRetrieverService.retrieve();
       const result = await oidcConfigurationRetrieverService.retrieve();
@@ -56,10 +56,10 @@ describe('oidcConfigurationRetrieverService', () => {
       } = setup({ expiration: 1 });
 
       const configuration = { issuer: 'forest-admin' };
-      forestServerRequester.perform.mockReturnValue(Promise.resolve(configuration));
+      forestServerRequester.perform.mockResolvedValue(configuration);
 
       await oidcConfigurationRetrieverService.retrieve();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => { setTimeout(resolve, 10); });
       const result = await oidcConfigurationRetrieverService.retrieve();
 
       expect(result).toBe(configuration);

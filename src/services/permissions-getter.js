@@ -64,7 +64,8 @@ class PermissionsGetter {
 
   _getSegmentsPermissions(renderingId, collectionName, { environmentId } = {}) {
     const getPermissionsInRendering = this._getPermissionsInRendering(
-      renderingId, { environmentId },
+      renderingId,
+      { environmentId },
     );
     return getPermissionsInRendering
       && getPermissionsInRendering.data
@@ -75,7 +76,8 @@ class PermissionsGetter {
 
   _getStatsPermissions(renderingId, { environmentId } = {}) {
     const getPermissionsInRendering = this._getPermissionsInRendering(
-      renderingId, { environmentId },
+      renderingId,
+      { environmentId },
     );
 
     return getPermissionsInRendering
@@ -115,7 +117,9 @@ class PermissionsGetter {
     this._setCollectionsPermissions(permissions.collections, { environmentId });
     if (permissions.renderings && permissions.renderings[renderingId]) {
       this._setRenderingPermissions(
-        renderingId, permissions.renderings[renderingId], { environmentId },
+        renderingId,
+        permissions.renderings[renderingId],
+        { environmentId },
       );
     }
   }
@@ -123,7 +127,7 @@ class PermissionsGetter {
   // In the teamACL format, all the permissions are stored by renderingId into "renderings".
   // For the rolesACL format, the collections permissions are stored directly into "collections",
   // and only their scopes and stats are stored by renderingId into "renderings".
-  _setPermissions(renderingId, permissions, { environmentId } = {}, stats) {
+  _setPermissions(renderingId, permissions, { environmentId } = {}, stats = undefined) {
     if (this.isRolesACLActivated) {
       this._setRolesACLPermissions(renderingId, permissions, { environmentId });
     } else {
@@ -177,15 +181,14 @@ class PermissionsGetter {
       return this._isPermissionExpired(lastRetrieveInCollections);
     }
     const lastRetrieveInRendering = this._getLastRetrieveTimeInRendering(
-      renderingId, { environmentId },
+      renderingId,
+      { environmentId },
     );
     return this._isPermissionExpired(lastRetrieveInRendering);
   }
 
   _isRenderingOnlyRetrievalRequired(renderingId, permissionName, { environmentId } = {}) {
-    const lastRetrieve = this._getLastRetrieveTimeInRendering(
-      renderingId, { environmentId },
-    );
+    const lastRetrieve = this._getLastRetrieveTimeInRendering(renderingId, { environmentId });
     return this.isRolesACLActivated
       && permissionName === 'browseEnabled'
       && this._isPermissionExpired(lastRetrieve);
@@ -240,13 +243,17 @@ class PermissionsGetter {
     if (forceRetrieve || this._isRegularRetrievalRequired(renderingId, { environmentId })) {
       await this._retrievePermissions(renderingId, { environmentId });
     } else if (this._isRenderingOnlyRetrievalRequired(
-      renderingId, permissionName, { environmentId },
+      renderingId,
+      permissionName,
+      { environmentId },
     )) {
       await this._retrievePermissions(renderingId, { renderingOnly: true, environmentId });
     }
 
     const collectionPermissions = this._getCollectionPermissions(
-      renderingId, collectionName, { environmentId },
+      renderingId,
+      collectionName,
+      { environmentId },
     );
     const segments = this._getSegmentsPermissions(renderingId, collectionName, { environmentId });
     const stats = this._getStatsPermissions(renderingId, { environmentId });

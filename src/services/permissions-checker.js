@@ -98,10 +98,17 @@ class PermissionsChecker {
   }
 
   async checkPermissions(
-    user, collectionName, permissionName, permissionInfos, environmentId = undefined,
+    user,
+    collectionName,
+    permissionName,
+    permissionInfos,
+    environmentId = undefined,
   ) {
     const getPermissions = async (forceRetrieve) => this.permissionsGetter.getPermissions(
-      user.renderingId, collectionName, permissionName, { forceRetrieve, environmentId },
+      user.renderingId,
+      collectionName,
+      permissionName,
+      { forceRetrieve, environmentId },
     );
 
     const isAllowed = async ({ forceRetrieve = false } = {}) => PermissionsChecker._isAllowed(

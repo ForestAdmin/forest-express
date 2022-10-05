@@ -19,7 +19,8 @@ module.exports = function Routes(app, model, Implementation, opts) {
   if (opts.integrations && opts.integrations.closeio) {
     integrationInfo = new IntegrationInformationsGetter(
       modelName,
-      Implementation, opts.integrations.closeio,
+      Implementation,
+      opts.integrations.closeio,
     ).perform();
   }
 
@@ -43,7 +44,8 @@ module.exports = function Routes(app, model, Implementation, opts) {
   function closeioLeadEmails(req, res, next) {
     new CloseioLeadEmailsGetter(
       Implementation,
-      _.extend(req.query, req.params), opts,
+      _.extend(req.query, req.params),
+      opts,
     )
       .perform()
       .then((results) => {
@@ -103,27 +105,32 @@ module.exports = function Routes(app, model, Implementation, opts) {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}_closeio_leads/:leadId`, opts),
-        auth.ensureAuthenticated, closeioLead,
+        auth.ensureAuthenticated,
+        closeioLead,
       );
 
       app.get(
         path.generate(`${modelName}_closeio_leads/:leadId/emails`, opts),
-        auth.ensureAuthenticated, closeioLeadEmails,
+        auth.ensureAuthenticated,
+        closeioLeadEmails,
       );
 
       app.get(
         path.generate(`${modelName}_closeio_emails/:emailId`, opts),
-        auth.ensureAuthenticated, closeioLeadEmail,
+        auth.ensureAuthenticated,
+        closeioLeadEmail,
       );
 
       app.get(
         path.generate(`${modelName}/:recordId/lead`, opts),
-        auth.ensureAuthenticated, customerLead,
+        auth.ensureAuthenticated,
+        customerLead,
       );
 
       app.post(
         path.generate(`${modelName}_closeio_leads`, opts),
-        auth.ensureAuthenticated, createCloseioLead,
+        auth.ensureAuthenticated,
+        createCloseioLead,
       );
     }
   };

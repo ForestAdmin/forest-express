@@ -10,9 +10,10 @@ function CloseioCustomerLeadGetter(Implementation, params, opts, integrationInfo
       .then((customer) => {
         if (!customer) { return { data: [] }; }
 
-        return closeio._get(`/lead?query=${
-          encodeURIComponent(`name:"${customer[integrationInfo.field]
-          }" or email:"${customer[integrationInfo.field]}"`)}`);
+        const query = `name:"${customer[integrationInfo.field]
+        }" or email:"${customer[integrationInfo.field]}"`;
+
+        return closeio._get(`/lead?query=${encodeURIComponent(query)}`);
       })
       .then((response) => response.data[0]);
 }

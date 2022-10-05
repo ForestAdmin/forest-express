@@ -94,7 +94,7 @@ describe('routes > authentication', () => {
         });
 
         expect(receivedResponse.status).toBe(200);
-        expect(receivedResponse.body.authorizationUrl).toStrictEqual('https://authorization');
+        expect(receivedResponse.body.authorizationUrl).toBe('https://authorization');
       } finally {
         sandbox.restore();
       }
@@ -267,7 +267,7 @@ describe('routes > authentication', () => {
       try {
         const response = await request(app).post('/forest/authentication/logout').send();
 
-        expect(response.status).toStrictEqual(204);
+        expect(response.status).toBe(204);
       } finally {
         sandbox.restore();
       }

@@ -1,7 +1,6 @@
 const uuidV1 = require('uuid/v1');
 const schemasGenerator = require('../../src/generators/schemas');
 
-
 describe('generators > schemas', () => {
   it('should build schemas', async () => {
     expect.assertions(3);

@@ -12,7 +12,7 @@ describe('routes > stats', () => {
       const model = { name: 'book' };
 
       class FakeValueStatGetter {
-        perform = jest.fn(async () => ({ value: { countCurrent: 5 } }))
+        perform = jest.fn(async () => ({ value: { countCurrent: 5 } }));
       }
 
       const Implementation = {
@@ -36,7 +36,7 @@ describe('routes > stats', () => {
 
       const resMockParameters = res.send.mock.calls[0][0];
 
-      expect(resMockParameters.data.attributes.value.value).toStrictEqual(5);
+      expect(resMockParameters.data.attributes.value.value).toBe(5);
     });
   });
 });

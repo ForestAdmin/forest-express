@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { inject } from '@forestadmin/context';
+const _ = require('lodash');
+const { inject } = require('@forestadmin/context');
 
 // 5 minutes exipration cache
 const SCOPE_CACHE_EXPIRATION_DELTA = 300;

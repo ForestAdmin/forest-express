@@ -60,19 +60,21 @@ describe('token service', () => {
       { authSecret: 'THIS IS SECRET' },
     );
 
-    expect(result).toStrictEqual('THE TOKEN');
-    expect(jsonwebtoken.sign).toHaveBeenCalledWith({
-      id: 666,
-      email: 'alice@forestadmin.com',
-      firstName: 'Alice',
-      lastName: 'Doe',
-      team: 1,
-      role: 'Test',
-      renderingId: 42,
-      tags: [{ key: 'city', value: 'Paris' }],
-    },
-    'THIS IS SECRET',
-    { expiresIn: '1 hours' });
+    expect(result).toBe('THE TOKEN');
+    expect(jsonwebtoken.sign).toHaveBeenCalledWith(
+      {
+        id: 666,
+        email: 'alice@forestadmin.com',
+        firstName: 'Alice',
+        lastName: 'Doe',
+        team: 1,
+        role: 'Test',
+        renderingId: 42,
+        tags: [{ key: 'city', value: 'Paris' }],
+      },
+      'THIS IS SECRET',
+      { expiresIn: '1 hours' },
+    );
   });
 
   it('should update the expiration date of a token in the past', () => {
@@ -104,6 +106,6 @@ describe('token service', () => {
     const { tokenService, cookiesWithForestSessionToken } = setup();
     const result = tokenService.extractForestSessionToken(cookiesWithForestSessionToken);
 
-    expect(result).toStrictEqual('myForestToken');
+    expect(result).toBe('myForestToken');
   });
 });

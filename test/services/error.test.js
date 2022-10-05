@@ -10,8 +10,8 @@ describe('services > error', () => {
     it('should create an error object with name "Unauthorized" and status 401', () => {
       expect.assertions(2);
       const error = new Unauthorized('Invalid token');
-      expect(error.name).toStrictEqual('Unauthorized');
-      expect(error.status).toStrictEqual(401);
+      expect(error.name).toBe('Unauthorized');
+      expect(error.status).toBe(401);
     });
 
     it('should create display a custom error message', () => {
@@ -25,8 +25,8 @@ describe('services > error', () => {
     it('should create an error object with name "UnprocessableEntity" and status 422', () => {
       expect.assertions(2);
       const error = new UnprocessableEntity('Invalid user email');
-      expect(error.name).toStrictEqual('UnprocessableEntity');
-      expect(error.status).toStrictEqual(422);
+      expect(error.name).toBe('UnprocessableEntity');
+      expect(error.status).toBe(422);
     });
 
     it('should create display a custom error message', () => {
@@ -40,8 +40,8 @@ describe('services > error', () => {
     it('should create an error object with name "InvalidFiltersFormat" and status 422', () => {
       expect.assertions(2);
       const error = new InvalidFiltersFormat();
-      expect(error.name).toStrictEqual('InvalidFiltersFormat');
-      expect(error.status).toStrictEqual(422);
+      expect(error.name).toBe('InvalidFiltersFormat');
+      expect(error.status).toBe(422);
     });
 
     it('should create display a default message', () => {
@@ -55,8 +55,8 @@ describe('services > error', () => {
     it('should create an error object with name "NoMatchingOperatorError" and status 422', () => {
       expect.assertions(2);
       const error = new NoMatchingOperatorError();
-      expect(error.name).toStrictEqual('NoMatchingOperatorError');
-      expect(error.status).toStrictEqual(422);
+      expect(error.name).toBe('NoMatchingOperatorError');
+      expect(error.status).toBe(422);
     });
 
     it('should create display a default message', () => {

@@ -77,7 +77,6 @@ describe('services › exposed › error-handler', () => {
     }]);
   });
 
-
   it('logs the unexpected error if the error does not have a status', () => {
     expect.assertions(2);
 

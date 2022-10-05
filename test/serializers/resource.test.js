@@ -1,6 +1,6 @@
 const ResourceSerializer = require('../../src/serializers/resource');
 const Schemas = require('../../src/generators/schemas');
-const carsSchema = require('../fixtures/cars-schema.js');
+const carsSchema = require('../fixtures/cars-schema');
 
 const FLATTEN_SEPARATOR = '@@@';
 

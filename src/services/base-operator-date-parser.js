@@ -1,5 +1,5 @@
-import moment from 'moment-timezone';
-import { NoMatchingOperatorError } from '../utils/error';
+const moment = require('moment-timezone');
+const { NoMatchingOperatorError } = require('../utils/error');
 
 const PERIODS = {
   yesterday: 'days',

@@ -148,8 +148,8 @@ describe('utils › data', () => {
         }],
       };
 
-      expect(getFieldType(schemas, 'childs')).toStrictEqual('String');
-      expect(getFieldType(schemas, 'count')).toStrictEqual('Number');
+      expect(getFieldType(schemas, 'childs')).toBe('String');
+      expect(getFieldType(schemas, 'count')).toBe('Number');
     });
   });
 });

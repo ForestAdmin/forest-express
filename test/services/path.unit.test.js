@@ -9,7 +9,7 @@ describe('services > path', () => {
       const options = {};
       const generatedPath = path.generate(arg, options);
 
-      expect(generatedPath).toStrictEqual(`/forest/${arg}`);
+      expect(generatedPath).toBe(`/forest/${arg}`);
     });
 
     it('should not prepend /forest with expressParentApp option', async () => {
@@ -19,7 +19,7 @@ describe('services > path', () => {
       const options = { expressParentApp: true };
       const generatedPath = path.generate(arg, options);
 
-      expect(generatedPath).toStrictEqual(`/${arg}`);
+      expect(generatedPath).toBe(`/${arg}`);
     });
   });
 
@@ -41,7 +41,7 @@ describe('services > path', () => {
       const options = { expressParentApp: true };
       const generatedPath = path.generateForInit(arg, options);
 
-      expect(generatedPath).toStrictEqual(`/${arg}`);
+      expect(generatedPath).toBe(`/${arg}`);
     });
   });
 });

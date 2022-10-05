@@ -19,7 +19,8 @@ module.exports = function Routes(app, model, Implementation, opts) {
   if (opts.integrations && opts.integrations.layer) {
     integrationInfo = new IntegrationInformationsGetter(
       modelName,
-      Implementation, opts.integrations.layer,
+      Implementation,
+      opts.integrations.layer,
     ).perform();
   }
 
@@ -33,8 +34,10 @@ module.exports = function Routes(app, model, Implementation, opts) {
 
   this.conversations = (req, res, next) => {
     new ConversationsGetter(
-      Implementation, _.extend(req.query, req.params),
-      opts, integrationInfo,
+      Implementation,
+      _.extend(req.query, req.params),
+      opts,
+      integrationInfo,
     )
       .perform()
       .then((results) => {
@@ -53,8 +56,10 @@ module.exports = function Routes(app, model, Implementation, opts) {
 
   this.conversation = (req, res, next) => {
     new ConversationGetter(
-      Implementation, _.extend(req.query, req.params),
-      opts, integrationInfo,
+      Implementation,
+      _.extend(req.query, req.params),
+      opts,
+      integrationInfo,
     )
       .perform()
       .then((conversation) => serializeConversations(conversation, modelName))
@@ -66,8 +71,10 @@ module.exports = function Routes(app, model, Implementation, opts) {
 
   this.messages = (req, res, next) => {
     new MessagesGetter(
-      Implementation, _.extend(req.query, req.params),
-      opts, integrationInfo,
+      Implementation,
+      _.extend(req.query, req.params),
+      opts,
+      integrationInfo,
     )
       .perform()
       .then((results) => {
@@ -88,12 +95,14 @@ module.exports = function Routes(app, model, Implementation, opts) {
     if (integrationInfo) {
       app.get(
         path.generate(`${modelName}/:recordId/layer_conversations`, opts),
-        auth.ensureAuthenticated, this.conversations,
+        auth.ensureAuthenticated,
+        this.conversations,
       );
 
       app.get(
         path.generate(`${modelName}_layer_conversations/:conversationId`, opts),
-        auth.ensureAuthenticated, this.conversation,
+        auth.ensureAuthenticated,
+        this.conversation,
       );
 
       app.get(

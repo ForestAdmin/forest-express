@@ -3,33 +3,33 @@ const { prettyPrint } = require('../../src/utils/json');
 describe('utils > json', () => {
   it('should prettyPrint simple primitive types', () => {
     expect.assertions(5);
-    expect(prettyPrint(1)).toStrictEqual('1');
-    expect(prettyPrint('a simple string')).toStrictEqual('"a simple string"');
-    expect(prettyPrint(true)).toStrictEqual('true');
+    expect(prettyPrint(1)).toBe('1');
+    expect(prettyPrint('a simple string')).toBe('"a simple string"');
+    expect(prettyPrint(true)).toBe('true');
 
-    expect(prettyPrint(null)).toStrictEqual('null');
-    expect(prettyPrint(undefined)).toStrictEqual('null');
+    expect(prettyPrint(null)).toBe('null');
+    expect(prettyPrint(undefined)).toBe('null');
   });
 
   it('should prettyPrint more complex string', () => {
     expect.assertions(4);
-    expect(prettyPrint('.*foo$')).toStrictEqual('".*foo$"');
+    expect(prettyPrint('.*foo$')).toBe('".*foo$"');
     expect(prettyPrint('http://somekindofurl.mydomain.com'))
-      .toStrictEqual('"http://somekindofurl.mydomain.com"');
+      .toBe('"http://somekindofurl.mydomain.com"');
     expect(prettyPrint('This text \r\n contains \r\n escaped char'))
-      .toStrictEqual('"This text \\r\\n contains \\r\\n escaped char"');
+      .toBe('"This text \\r\\n contains \\r\\n escaped char"');
     expect(prettyPrint('\t \r \n \f \b " /'))
-      .toStrictEqual('"\\t \\r \\n \\f \\b \\" /"');
+      .toBe('"\\t \\r \\n \\f \\b \\" /"');
   });
 
   it('should prettyPrint a simple array', () => {
     expect.assertions(1);
-    expect(prettyPrint(['a', 'b', 'c'])).toStrictEqual('[\n  "a",\n  "b",\n  "c"\n]');
+    expect(prettyPrint(['a', 'b', 'c'])).toBe('[\n  "a",\n  "b",\n  "c"\n]');
   });
 
   it('should prettyPrint a simple object', () => {
     expect.assertions(1);
-    expect(prettyPrint({ name: 'John' })).toStrictEqual('{\n  "name": "John"\n}');
+    expect(prettyPrint({ name: 'John' })).toBe('{\n  "name": "John"\n}');
   });
 
   it('should prettyPrint a regexp string', () => {
@@ -47,7 +47,7 @@ describe('utils > json', () => {
     const prettyPrintedObjectArray = prettyPrint([{ name: 'John' }, { name: 'Sylvia' }]);
 
     expect(prettyPrintedObjectArray)
-      .toStrictEqual('[{\n  "name": "John"\n}, {\n  "name": "Sylvia"\n}]');
+      .toBe('[{\n  "name": "John"\n}, {\n  "name": "Sylvia"\n}]');
   });
 
   it('should prettyPrint a complex object', () => {

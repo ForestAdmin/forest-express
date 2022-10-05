@@ -87,9 +87,8 @@ describe('base-filters-parser', () => {
             const formattedCondition = { test: 'me' };
             const formatCondition = jest.fn().mockReturnValue(formattedCondition);
 
-
-            expect(await BaseFiltersParser.parseCondition(condition, formatCondition, schema))
-              .toStrictEqual(where);
+            await expect(BaseFiltersParser.parseCondition(condition, formatCondition, schema))
+              .resolves.toStrictEqual(where);
 
             expect(formatCondition).toHaveBeenCalledTimes(1);
             expect(formatCondition).toHaveBeenCalledWith(condition, true);

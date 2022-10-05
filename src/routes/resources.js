@@ -6,7 +6,7 @@ const ResourceDeserializer = require('../deserializers/resource');
 const CSVExporter = require('../services/csv-exporter');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const PermissionMiddlewareCreator = require('../middlewares/permissions');
-const RecordsGetter = require('../services/exposed/records-getter.js');
+const RecordsGetter = require('../services/exposed/records-getter');
 
 module.exports = function Resources(app, model, { configStore } = inject()) {
   const { Implementation, integrator, lianaOptions } = configStore;
@@ -83,7 +83,10 @@ module.exports = function Resources(app, model, { configStore } = inject()) {
       omitNullAttributes: true,
     }).perform()
       .then((body) => new Implementation.ResourceCreator(
-        model, request.query, body, request.user,
+        model,
+        request.query,
+        body,
+        request.user,
       ).perform())
       .then((record) => new ResourceSerializer(
         Implementation,
@@ -120,7 +123,9 @@ module.exports = function Resources(app, model, { configStore } = inject()) {
 
   this.remove = async (request, response, next) => {
     const remover = new Implementation.ResourceRemover(
-      model, { ...request.query, recordId: request.params.recordId }, request.user,
+      model,
+      { ...request.query, recordId: request.params.recordId },
+      request.user,
     );
 
     try {

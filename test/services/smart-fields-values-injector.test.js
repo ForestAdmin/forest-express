@@ -2,8 +2,8 @@
 const _ = require('lodash');
 const SmartFieldsValuesInjector = require('../../src/services/smart-fields-values-injector');
 const Schemas = require('../../src/generators/schemas');
-const usersSchema = require('../fixtures/users-schema.js');
-const addressesSchema = require('../fixtures/addresses-schema.js');
+const usersSchema = require('../fixtures/users-schema');
+const addressesSchema = require('../fixtures/addresses-schema');
 
 describe('services > smart-fields-values-injector', () => {
   // Mock user sequelize object
@@ -14,7 +14,6 @@ describe('services > smart-fields-values-injector', () => {
   }
   // mock magic accessor on higher level of prototype
   UserWithMagicAccessor.prototype.hasAddress = () => false;
-
 
   // Mock address sequelize object
   class AddressWithMagicAccessor {
@@ -75,7 +74,7 @@ describe('services > smart-fields-values-injector', () => {
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
       const injector = new SmartFieldsValuesInjector(addressRecord, 'addresses', fieldsPerModel);
       await injector.perform();
-      expect(addressRecord.smartUser).not.toBeUndefined();
+      expect(addressRecord.smartUser).toBeDefined();
       expect(addressRecord.smartUser.smart).toStrictEqual({ foo: 'bar' });
       expect(addressRecord.user.smart).toStrictEqual({ foo: 'bar' });
     });

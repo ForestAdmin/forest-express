@@ -107,7 +107,7 @@ describe('liana > index', () => {
         const response = await request(app)
           .get('/forest/healthcheck');
 
-        expect(response.status).not.toStrictEqual(404);
+        expect(response.status).not.toBe(404);
       });
 
       describe('when `Liana.init` is called twice', () => {
@@ -173,7 +173,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach a csv export route', async () => {
@@ -182,7 +182,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo.csv');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach a records count route', async () => {
@@ -191,7 +191,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo/count');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach a get single record route', async () => {
@@ -200,7 +200,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo/1');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach a create record route', async () => {
@@ -209,7 +209,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).post('/forest/modelFoo');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach an update record route', async () => {
@@ -218,7 +218,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).put('/forest/modelFoo/1');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach a remove record route', async () => {
@@ -227,7 +227,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).delete('/forest/modelFoo/1');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
 
         it('should attach a remove multiple records route', async () => {
@@ -236,7 +236,7 @@ describe('liana > index', () => {
           const app = await initForestAppWithModels();
           const response = await request(app).delete('/forest/modelFoo');
 
-          expect(response.status).not.toStrictEqual(404);
+          expect(response.status).not.toBe(404);
         });
       });
 

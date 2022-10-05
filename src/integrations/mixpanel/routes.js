@@ -14,7 +14,8 @@ module.exports = function Routes(app, model, Implementation, options) {
   if (options.integrations && options.integrations.mixpanel) {
     integrationInfo = new IntegrationInformationsGetter(
       modelName,
-      Implementation, options.integrations.mixpanel,
+      Implementation,
+      options.integrations.mixpanel,
     ).perform();
   }
 
@@ -42,7 +43,8 @@ module.exports = function Routes(app, model, Implementation, options) {
   this.perform = () => {
     app.get(
       path.generate(`${modelName}/:recordId/relationships/mixpanel_last_events`, options),
-      auth.ensureAuthenticated, this.mixpanelEvents,
+      auth.ensureAuthenticated,
+      this.mixpanelEvents,
     );
   };
 };

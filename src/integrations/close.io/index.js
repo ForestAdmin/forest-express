@@ -83,7 +83,8 @@ function Checker(opts, Implementation) {
       opts.integrations.closeio.mapping,
       (collectionAndFieldName) => {
         Setup.createCollections(
-          Implementation, collections,
+          Implementation,
+          collections,
           collectionAndFieldName,
         );
       },

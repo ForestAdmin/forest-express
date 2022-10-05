@@ -34,12 +34,9 @@ function Checker(opts, Implementation) {
         return false;
       }
 
-      if (models[collectionName].rawAttributes // if sequelize
-        && !models[collectionName].rawAttributes[fieldName]) {
-        return false;
-      }
-
-      return true;
+      // if sequelize -> false
+      return !(models[collectionName].rawAttributes
+        && !models[collectionName].rawAttributes[fieldName]);
     });
 
     if (!mappingValid) {
@@ -73,7 +70,6 @@ function Checker(opts, Implementation) {
 
     return isValid && isMappingValid(stripe);
   }
-
 
   function integrationCollectionMatch(integration, model) {
     if (!integrationValid) { return false; }

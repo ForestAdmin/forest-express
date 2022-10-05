@@ -28,7 +28,8 @@ function ConversationsGetter(Implementation, params, opts, integrationInfo) {
 
     return Implementation.Layer.getUser(
       collectionModel,
-      collectionFieldName, params.recordId,
+      collectionFieldName,
+      params.recordId,
     )
       .then((user) => getConversations(user[collectionFieldName])
         .spread((count, conversations) => [count, conversations])

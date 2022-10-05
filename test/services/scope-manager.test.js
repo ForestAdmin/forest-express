@@ -57,7 +57,7 @@ describe('services > ScopeManager', () => {
       expect.assertions(1);
 
       const scopeManager = new ScopeManager({});
-      jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
+      jest.spyOn(scopeManager, 'getScopeForUser').mockResolvedValue(undefined);
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
 
       expect(newFilter).toBeUndefined();
@@ -68,21 +68,21 @@ describe('services > ScopeManager', () => {
 
       const scopeManager = new ScopeManager({});
       jest.spyOn(scopeManager, 'getScopeForUser')
-        .mockImplementation(() => Promise.resolve('{"field":"id","operator":"equal","value":1}'));
+        .mockResolvedValue('{"field":"id","operator":"equal","value":1}');
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
 
-      expect(newFilter).toStrictEqual('{"field":"id","operator":"equal","value":1}');
+      expect(newFilter).toBe('{"field":"id","operator":"equal","value":1}');
     });
 
     it('should work with customer filter, but no scopes', async () => {
       expect.assertions(1);
 
       const scopeManager = new ScopeManager({});
-      jest.spyOn(scopeManager, 'getScopeForUser').mockImplementation(() => Promise.resolve(undefined));
+      jest.spyOn(scopeManager, 'getScopeForUser').mockResolvedValue(undefined);
       const newFilter = await scopeManager
         .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
 
-      expect(newFilter).toStrictEqual('{"field":"id","operator":"equal","value":1}');
+      expect(newFilter).toBe('{"field":"id","operator":"equal","value":1}');
     });
 
     it('should work with both customer filter and scopes', async () => {
@@ -90,7 +90,7 @@ describe('services > ScopeManager', () => {
 
       const scopeManager = new ScopeManager({});
       jest.spyOn(scopeManager, 'getScopeForUser')
-        .mockImplementation(() => Promise.resolve('{"field":"book.id","operator":"equal","value":1}'));
+        .mockResolvedValue('{"field":"book.id","operator":"equal","value":1}');
       const newFilter = await scopeManager
         .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
 
@@ -146,9 +146,7 @@ describe('services > ScopeManager', () => {
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
         expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
-        expect(forestServerRequester.perform).toHaveBeenCalledWith(
-          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-        );
+        expect(forestServerRequester.perform).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
         expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
       });
     });
@@ -175,9 +173,7 @@ describe('services > ScopeManager', () => {
           const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
           expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith(
-            '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-          );
+          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
           expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
         });
 
@@ -215,9 +211,7 @@ describe('services > ScopeManager', () => {
           const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
           expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith(
-            '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-          );
+          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
           expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
         });
 
@@ -230,9 +224,7 @@ describe('services > ScopeManager', () => {
           const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
           expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith(
-            '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-          );
+          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
           expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
         });
       });
@@ -261,9 +253,7 @@ describe('services > ScopeManager', () => {
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
         expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-        expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith(
-          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-        );
+        expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
         expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
       });
 
@@ -278,12 +268,9 @@ describe('services > ScopeManager', () => {
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
         expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-        expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith(
-          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-        );
+        expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
         expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
       });
-
 
       it('should not refetch the scopes on third call and return the cached value (which was changed during second call)', async () => {
         expect.assertions(2);
@@ -318,9 +305,7 @@ describe('services > ScopeManager', () => {
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myOtherCollection');
 
         expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
-        expect(forestServerRequester.perform).toHaveBeenCalledWith(
-          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-        );
+        expect(forestServerRequester.perform).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
         expect(scopes).toBeNull();
       });
     });
@@ -365,9 +350,7 @@ describe('services > ScopeManager', () => {
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
         expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
-        expect(forestServerRequester.perform).toHaveBeenCalledWith(
-          '/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId },
-        );
+        expect(forestServerRequester.perform).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
         expect(scopes).toStrictEqual({
           aggregator: 'and',
           conditions: [
