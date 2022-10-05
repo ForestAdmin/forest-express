@@ -144,7 +144,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
       .catch(next);
 
   this.perform = () => {
-    app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.statWithParameters(), this.get);
-    app.post(path.generate('stats', opts), auth.ensureAuthenticated, permissionMiddlewareCreator.liveQueries(), this.getWithLiveQuery);
+    app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.stats(), this.get);
+    app.post(path.generate('stats', opts), auth.ensureAuthenticated, permissionMiddlewareCreator.stats(), this.getWithLiveQuery);
   };
 };

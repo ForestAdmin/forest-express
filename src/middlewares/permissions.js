@@ -9,12 +9,15 @@ class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      configStore, logger, permissionsChecker, modelsManager,
+      configStore, logger, forestAdminClient, modelsManager,
     } = inject();
+
     this.logger = logger;
-    this.permissionsChecker = permissionsChecker;
     this.configStore = configStore;
     this.modelsManager = modelsManager;
+
+    /** @private @readonly @type {import('../types/types').IForestAdminClient} */
+    this.forestAdminClient = forestAdminClient;
   }
 
   _getSmartActionInfoFromRequest(request) {
@@ -36,73 +39,6 @@ class PermissionMiddlewareCreator {
     };
   }
 
-  static _getCollectionListInfoFromRequest(request) {
-    return { userId: request.user.id, ...request.query };
-  }
-
-  static _getLiveQueriesInfoFromRequest(request) {
-    const { query } = request.body;
-    return query;
-  }
-
-  static _getStatWithParametersInfoFromRequest(request) {
-    const parameters = { ...request.body };
-    // NOTICE: Remove useless information
-    delete parameters.timezone;
-
-    // NOTICE: Remove the field information from group_by_field => collection:id
-    if (parameters.group_by_field) {
-      [parameters.group_by_field] = parameters.group_by_field.split(':');
-    }
-
-    return parameters;
-  }
-
-  _getPermissionsInfo(permissionName, request) {
-    switch (permissionName) {
-      case 'actions':
-        return this._getSmartActionInfoFromRequest(request);
-      case 'browseEnabled':
-        return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
-      case 'liveQueries':
-        return PermissionMiddlewareCreator._getLiveQueriesInfoFromRequest(request);
-      case 'statWithParameters':
-        return PermissionMiddlewareCreator._getStatWithParametersInfoFromRequest(request);
-
-      default:
-        return { userId: request.user.id };
-    }
-  }
-
-  _checkPermission(permissionName) {
-    return async (request, response, next) => {
-      const permissionInfos = this._getPermissionsInfo(permissionName, request);
-
-      const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
-        ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentId(request)
-        : null;
-      try {
-        await this.permissionsChecker.checkPermissions(
-          request.user,
-          this.collectionName,
-          permissionName,
-          permissionInfos,
-          environmentId,
-        );
-        next();
-      } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
-      }
-    };
-  }
-
-  static _getRequestAttributes(request) {
-    const hasBodyAttributes = request.body && request.body.data && request.body.data.attributes;
-    return hasBodyAttributes
-      && new QueryDeserializer(request.body.data.attributes).perform();
-  }
-
   // generate a middleware that will check that ids provided by the request exist
   // whithin the registered scope
   _ensureRecordIdsInScope() {
@@ -116,7 +52,9 @@ class PermissionMiddlewareCreator {
         }
 
         // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
-        const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
+        const hasBodyAttributes = request.body && request.body.data && request.body.data.attributes;
+        const attributes = hasBodyAttributes
+      && new QueryDeserializer(request.body.data.attributes).perform();
         if (attributes.allRecords) {
           return next();
         }
@@ -151,40 +89,138 @@ class PermissionMiddlewareCreator {
     };
   }
 
+  static _ensureSegment(segments, segmentQuery) {
+    // NOTICE: Security - Segment Query check additional permission
+    if (segmentQuery) {
+      // NOTICE: The segmentQuery should be in the segments
+      if (!segments) {
+        return false;
+      }
+
+      // NOTICE: Handle UNION queries made by the FRONT to display available actions on details view
+      const unionQueries = segmentQuery.split('/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION ');
+      if (unionQueries.length > 1) {
+        const includesAllowedQueriesOnly = unionQueries
+          .every((unionQuery) => segments.filter((query) => query.replace(/;\s*/i, '') === unionQuery).length > 0);
+        if (!includesAllowedQueriesOnly) {
+          return false;
+        }
+      } else if (!segments.includes(segmentQuery)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   list() {
-    return this._checkPermission('browseEnabled');
+    return async (request, response, next) => {
+      // Do we have this information today ?
+      const segments = null;
+      try {
+        const { segmentQuery } = request.query;
+
+        if (
+          PermissionMiddlewareCreator._ensureSegment(segments, segmentQuery)
+          && (await this.forestAdminClient.canBrowse(request.user.id, this.collectionName))
+        ) {
+          throw new Error();
+        }
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 
   export() {
-    return this._checkPermission('exportEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.forestAdminClient.canExport(request.user.id, this.collectionName);
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 
   details() {
-    return this._checkPermission('readEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.forestAdminClient.canRead(request.user.id, this.collectionName);
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 
   create() {
-    return this._checkPermission('addEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.forestAdminClient.canAdd(request.user.id, this.collectionName);
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 
   update() {
-    return this._checkPermission('editEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.forestAdminClient.canEdit(request.user.id, this.collectionName);
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 
   delete() {
-    return this._checkPermission('deleteEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.forestAdminClient.canDelete(request.user.id, this.collectionName);
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 
   smartAction() {
-    return [this._checkPermission('actions'), this._ensureRecordIdsInScope()];
+    return [async (request, response, next) => {
+      const { userId, actionName } = this._getSmartActionInfoFromRequest(request);
+      try {
+        await this.forestAdminClient
+          .canExecuteCustomAction(userId, actionName, this.collectionName);
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    }, this._ensureRecordIdsInScope()];
   }
 
-  liveQueries() {
-    return this._checkPermission('liveQueries');
-  }
+  stats() {
+    return async (request, response, next) => {
+      const { body: chartRequest } = request;
+      const { renderingId } = chartRequest;
 
-  statWithParameters() {
-    return this._checkPermission('statWithParameters');
+      try {
+        await this.forestAdminClient
+          .canRetrieveChart({ renderingId, userId: request.user.id, chartRequest });
+        next();
+      } catch (error) {
+        this.logger.error(error.message);
+        next(httpError(403));
+      }
+    };
   }
 }
 
