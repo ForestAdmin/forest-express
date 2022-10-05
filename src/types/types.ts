@@ -4,6 +4,15 @@ export type User = Record<string, any> & {
   tags: Record<string, string>;
 };
 
+export enum CollectionActionEvent {
+  Browse = 'browse',
+  Export = 'export',
+  Read = 'read',
+  Edit = 'edit',
+  Delete = 'delete',
+  Add = 'add',
+}
+
 export const uniqueOperators = [
   // All types besides arrays
   'Equal',
@@ -75,15 +84,13 @@ export type GenericTreeLeaf = { field: string; operator: Operator; value?: unkno
 export type GenericTree = GenericTreeBranch | GenericTreeLeaf;
 
 export interface IForestAdminClient {
-  canBrowse(userId: number, collectionName: string): Promise<boolean>;
+  renderingPermissionService: any;
 
-  canRead(userId: number, collectionName: string): Promise<boolean>;
-  canAdd(userId: number, collectionName: string): Promise<boolean>;
-
-  canEdit(userId: number, collectionName: string): Promise<boolean>;
-  canDelete(userId: number, collectionName: string): Promise<boolean>;
-
-  canExport(userId: number, collectionName: string): Promise<boolean>;
+  canOnCollection(
+    userId: number,
+    event: CollectionActionEvent,
+    collectionName: string,
+  ): Promise<boolean>;
 
   canExecuteCustomAction(
     userId: number,
@@ -91,7 +98,7 @@ export interface IForestAdminClient {
     collectionName: string,
   ): Promise<boolean>;
 
-  getScope(user: User, collectionName: string) : Promise<GenericTree>;
+  getScope(renderingId: number, user: User, collectionName: string) : Promise<GenericTree>;
 
   canRetrieveChart({
     renderingId,

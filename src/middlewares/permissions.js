@@ -9,18 +9,17 @@ class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      configStore, logger, forestAdminClient, modelsManager,
+      logger, authorizationService, modelsManager,
     } = inject();
 
     this.logger = logger;
-    this.configStore = configStore;
     this.modelsManager = modelsManager;
 
-    /** @private @readonly @type {import('../types/types').IForestAdminClient} */
-    this.forestAdminClient = forestAdminClient;
+    /** @private @readonly @type {import('../services/authorization').default} */
+    this.authorizationService = authorizationService;
   }
 
-  _getSmartActionInfoFromRequest(request) {
+  _getSmartActionName(request) {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
@@ -33,10 +32,7 @@ class PermissionMiddlewareCreator {
       throw new Error(`Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`);
     }
 
-    return {
-      userId: request.user.id,
-      actionName: smartAction.name,
-    };
+    return smartAction.name;
   }
 
   // generate a middleware that will check that ids provided by the request exist
@@ -72,6 +68,7 @@ class PermissionMiddlewareCreator {
             })),
           });
 
+        // The implementation of ResourcesGetter uses the scopes !
         const counter = new RecordsCounter(
           this.modelsManager.getModelByName(this.collectionName),
           request.user,
@@ -89,42 +86,13 @@ class PermissionMiddlewareCreator {
     };
   }
 
-  static _ensureSegment(segments, segmentQuery) {
-    // NOTICE: Security - Segment Query check additional permission
-    if (segmentQuery) {
-      // NOTICE: The segmentQuery should be in the segments
-      if (!segments) {
-        return false;
-      }
-
-      // NOTICE: Handle UNION queries made by the FRONT to display available actions on details view
-      const unionQueries = segmentQuery.split('/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION ');
-      if (unionQueries.length > 1) {
-        const includesAllowedQueriesOnly = unionQueries
-          .every((unionQuery) => segments.filter((query) => query.replace(/;\s*/i, '') === unionQuery).length > 0);
-        if (!includesAllowedQueriesOnly) {
-          return false;
-        }
-      } else if (!segments.includes(segmentQuery)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   list() {
     return async (request, response, next) => {
-      // Do we have this information today ?
-      const segments = null;
       try {
         const { segmentQuery } = request.query;
+        await this.authorizationService
+          .canBrowse(request.user, this.collectionName, segmentQuery);
 
-        if (
-          PermissionMiddlewareCreator._ensureSegment(segments, segmentQuery)
-          && (await this.forestAdminClient.canBrowse(request.user.id, this.collectionName))
-        ) {
-          throw new Error();
-        }
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -136,7 +104,7 @@ class PermissionMiddlewareCreator {
   export() {
     return async (request, response, next) => {
       try {
-        await this.forestAdminClient.canExport(request.user.id, this.collectionName);
+        await this.authorizationService.canExport(request.user, this.collectionName);
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -148,7 +116,7 @@ class PermissionMiddlewareCreator {
   details() {
     return async (request, response, next) => {
       try {
-        await this.forestAdminClient.canRead(request.user.id, this.collectionName);
+        await this.authorizationService.canRead(request.user, this.collectionName);
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -160,7 +128,7 @@ class PermissionMiddlewareCreator {
   create() {
     return async (request, response, next) => {
       try {
-        await this.forestAdminClient.canAdd(request.user.id, this.collectionName);
+        await this.authorizationService.canAdd(request.user, this.collectionName);
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -172,7 +140,7 @@ class PermissionMiddlewareCreator {
   update() {
     return async (request, response, next) => {
       try {
-        await this.forestAdminClient.canEdit(request.user.id, this.collectionName);
+        await this.authorizationService.canEdit(request.user, this.collectionName);
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -184,7 +152,7 @@ class PermissionMiddlewareCreator {
   delete() {
     return async (request, response, next) => {
       try {
-        await this.forestAdminClient.canDelete(request.user.id, this.collectionName);
+        await this.authorizationService.canDelete(request.user, this.collectionName);
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -195,10 +163,10 @@ class PermissionMiddlewareCreator {
 
   smartAction() {
     return [async (request, response, next) => {
-      const { userId, actionName } = this._getSmartActionInfoFromRequest(request);
+      const actionName = this._getSmartActionName(request);
       try {
-        await this.forestAdminClient
-          .canExecuteCustomAction(userId, actionName, this.collectionName);
+        await this.authorizationService
+          .canExecuteCustomAction(request.user, actionName, this.collectionName);
         next();
       } catch (error) {
         this.logger.error(error.message);
@@ -209,12 +177,9 @@ class PermissionMiddlewareCreator {
 
   stats() {
     return async (request, response, next) => {
-      const { body: chartRequest } = request;
-      const { renderingId } = chartRequest;
-
       try {
-        await this.forestAdminClient
-          .canRetrieveChart({ renderingId, userId: request.user.id, chartRequest });
+        await this.authorizationService
+          .canRetrieveChart(request);
         next();
       } catch (error) {
         this.logger.error(error.message);
