@@ -98,7 +98,7 @@
   },
   "scripts": {
     "build": "tsc && babel src -d dist --extensions '.ts,.js'",
-    "build:watch": "babel --source-maps inline --watch --out-dir dist src",
+    "build:watch": "babel --source-maps inline --watch --extensions '.ts,.js' --out-dir dist src",
     "lint": "./node_modules/eslint/bin/eslint.js src test",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
