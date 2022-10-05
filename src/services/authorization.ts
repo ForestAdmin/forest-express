@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { IForestAdminClient, User, CollectionActionEvent } from '../types/types';
+import { IForestAdminClient, User, CollectionActionEvent, SmartActionRequestBody } from '../types/types';
 
 // TODO NEEDS INJECTION with addUsingClass
 export default class AuthorizationService {
@@ -79,18 +79,25 @@ export default class AuthorizationService {
     }
   }
 
-  public async canExecuteCustomAction(
-    user: User,
+  public async canExecuteCustomActionAndReturnRequestBody(
+    request: Request,
     customActionName: string,
     collectionName: string,
   ) {
-    const { id: userId } = user;
+    const { id: userId } = request.user as User;
 
-    if (
-      !(await this.forestAdminClient.canExecuteCustomAction(userId, customActionName, collectionName))
-    ) {
+    const bodyOrFalse =await this.forestAdminClient.canExecuteCustomAction({
+      userId,
+      customActionName,
+      collectionName,
+      body: request.body,
+    });
+
+    if (!bodyOrFalse) {
       throw new Error('Forbidden - User is not authorize Smart Action');
     }
+
+    return bodyOrFalse as SmartActionRequestBody;
   }
 
   async canRetrieveChart(request: Request): Promise<void> {

@@ -162,16 +162,23 @@ class PermissionMiddlewareCreator {
   }
 
   smartAction() {
-    return [async (request, response, next) => {
-      const actionName = this._getSmartActionName(request);
-      try {
-        await this.authorizationService
-          .canExecuteCustomAction(request.user, actionName, this.collectionName);
-        next();
-      } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
-      }
+    return [
+      async (request, response, next) => {
+        const actionName = this._getSmartActionName(request);
+
+        const approvalRequestDataWithAttributes =
+          this.authorizationService
+            .canExecuteCustomActionAndReturnRequestBody(
+              request,
+              actionName,
+              this.collectionName,
+            );
+
+        if (approvalRequestDataWithAttributes) {
+          request.body = approvalRequestDataWithAttributes;
+        }
+
+        return next();
     }, this._ensureRecordIdsInScope()];
   }
 

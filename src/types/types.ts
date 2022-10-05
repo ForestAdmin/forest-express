@@ -83,6 +83,33 @@ export type GenericTreeBranch = { aggregator: Aggregator; conditions: Array<Gene
 export type GenericTreeLeaf = { field: string; operator: Operator; value?: unknown };
 export type GenericTree = GenericTreeBranch | GenericTreeLeaf;
 
+export interface SmartActionRequestBody {
+  data: {
+    id: string;
+    type: string;
+    attributes: Record<string, any> & {
+      requester_id: number;
+      ids: Array<string>;
+      collection_name: string;
+      smart_action_id: string;
+      values: any | null;
+      parent_collection_name: string | null;
+      parent_collection_id: string | null;
+      parent_association_name: string | null;
+      all_records: boolean;
+      all_records_subset_query: null;
+    };
+  };
+}
+
+export interface SmartActionApprovalRequestBody extends SmartActionRequestBody {
+  data: SmartActionRequestBody['data'] & {
+    attributes: SmartActionRequestBody['data']['attributes'] & {
+      signed_approval_request: string;
+    };
+  };
+}
+
 export interface IForestAdminClient {
   renderingPermissionService: any;
 
@@ -91,14 +118,20 @@ export interface IForestAdminClient {
     event: CollectionActionEvent,
     collectionName: string,
   ): Promise<boolean>;
+  canExecuteCustomAction(params: {
+    userId: number;
+    customActionName: string;
+    collectionName: string;
+    body: SmartActionRequestBody | SmartActionApprovalRequestBody;
+  }): Promise<false | SmartActionRequestBody>;
 
-  canExecuteCustomAction(
-    userId: number,
-    customActionName: string,
-    collectionName: string,
-  ): Promise<boolean>;
+  canExecuteCustomActionHook(params: {
+    userId: number;
+    customActionName: string;
+    collectionName: string;
+  }): Promise<boolean>;
 
-  getScope(renderingId: number, user: User, collectionName: string) : Promise<GenericTree>;
+  getScope(renderingId: number, user: User, collectionName: string): Promise<GenericTree>;
 
   canRetrieveChart({
     renderingId,
@@ -108,7 +141,7 @@ export interface IForestAdminClient {
     renderingId: number;
     userId: number;
     chartRequest: any;
-  }): Promise<boolean>
+  }): Promise<boolean>;
 
   markScopesAsUpdated(renderingId: number): void;
 }
