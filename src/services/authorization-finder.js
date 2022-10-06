@@ -25,7 +25,7 @@ class AuthorizationFinder {
   /**
    * @private
    * @param {Error} error
-   * @returns {string}
+   * @returns {Error}
    */
   _generateAuthenticationError(error) {
     switch (error.message) {
