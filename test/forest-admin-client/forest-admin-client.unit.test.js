@@ -211,5 +211,66 @@ describe('unit > extended services > ForestAdminClientForForestExpress', () => {
         expect(result).toBeTrue();
       });
     });
+
+    describe('normal access to segment SQL query', () => {
+      it('should return true when the segment query is in the allowed segments', async () => {
+        const context = makeContext();
+        const { actionPermissionService, renderingPermissionService } = context;
+
+        const options = {
+          forestServerUrl: 'forestServerUrl',
+          envSecret: 'envSecret',
+        };
+
+        const forestAdminClientForForestExpress = new ForestAdminClientForForestExpress(
+          options,
+          actionPermissionService,
+          renderingPermissionService,
+        );
+
+        renderingPermissionService.getSegments.mockResolvedValue([
+          { query: 'segmentQuery1' },
+          { query: 'segmentQuery3' },
+        ]);
+
+        const result = await forestAdminClientForForestExpress.canBrowseSegment({
+          renderingId: 42,
+          collectionName: 'collectionName',
+          segmentQuery: 'segmentQuery1',
+        });
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false when the segment is not allowed', async () => {
+        const context = makeContext();
+        const { actionPermissionService, renderingPermissionService } = context;
+
+        const options = {
+          forestServerUrl: 'forestServerUrl',
+          envSecret: 'envSecret',
+        };
+
+        const forestAdminClientForForestExpress = new ForestAdminClientForForestExpress(
+          options,
+          actionPermissionService,
+          renderingPermissionService,
+        );
+
+        renderingPermissionService.getSegments.mockResolvedValue([
+          { query: 'segmentQuery1;' },
+          { query: 'segmentQuery2;' },
+          { query: 'segmentQuery3;' },
+        ]);
+
+        const result = await forestAdminClientForForestExpress.canBrowseSegment({
+          renderingId: 42,
+          collectionName: 'collectionName',
+          segmentQuery: 'another',
+        });
+
+        expect(result).toBeFalse();
+      });
+    });
   });
 });
