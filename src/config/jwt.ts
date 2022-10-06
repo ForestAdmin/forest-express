@@ -11,7 +11,7 @@ const CONFIGURATION_DEFAULT = {
 export type JWTConfiguration = {
   secret: string,
   getToken: (request: Request)=> string | null,
-}
+};
 
 export function getJWTConfiguration(configuration: JWTConfiguration): Options {
   return {

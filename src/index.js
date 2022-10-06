@@ -158,7 +158,7 @@ async function generateAndSendSchema(envSecret) {
       if (!content) {
         logger.error('The .forestadmin-schema.json file is empty.');
         logger.error('The schema cannot be synchronized with Forest Admin servers.');
-        return Promise.resolve(null);
+        return null;
       }
       const contentParsed = JSON.parse(content.toString());
       collectionsSent = contentParsed.collections;
@@ -170,7 +170,7 @@ async function generateAndSendSchema(envSecret) {
         logger.error('The content of .forestadmin-schema.json file is not a correct JSON.');
       }
       logger.error('The schema cannot be synchronized with Forest Admin servers.');
-      return Promise.resolve(null);
+      return null;
     }
   }
 
