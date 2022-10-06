@@ -21,6 +21,7 @@ export default class RenderingPermissionServiceForForestExpress extends Renderin
     collectionName: string;
     allowRetry: boolean;
   }): Promise<CollectionSegment[] | null> {
+    // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     const permissions: RenderingPermission = (await this.permissionsByRendering.fetch(`${renderingId}`)) as RenderingPermission;
 

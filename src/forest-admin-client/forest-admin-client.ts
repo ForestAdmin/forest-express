@@ -32,7 +32,7 @@ export default class ForestAdminClientForForestExpress extends ForestAdminClient
     }
 
     const segments = await (
-        this.renderingPermissionService as RenderingPermissionServiceForForestExpress
+      this.renderingPermissionService as RenderingPermissionServiceForForestExpress
     )
       .getSegments({
         renderingId,

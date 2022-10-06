@@ -15,8 +15,8 @@ export default class AuthorizationService {
   constructor({
     forestAdminClient,
   }: {
-      forestAdminClient: ForestAdminClient;
-    }) {
+    forestAdminClient: ForestAdminClient;
+  }) {
     this.forestAdminClient = forestAdminClient;
   }
 
