@@ -166,20 +166,19 @@ class PermissionMiddlewareCreator {
       async (request, response, next) => {
         const actionName = this._getSmartActionName(request);
 
-        const approvalRequestDataWithAttributes =
-          this.authorizationService
-            .canExecuteCustomActionAndReturnRequestBody(
-              request,
-              actionName,
-              this.collectionName,
-            );
+        const approvalRequestDataWithAttributes = this.authorizationService
+          .canExecuteCustomActionAndReturnRequestBody(
+            request,
+            actionName,
+            this.collectionName,
+          );
 
         if (approvalRequestDataWithAttributes) {
           request.body = approvalRequestDataWithAttributes;
         }
 
         return next();
-    }, this._ensureRecordIdsInScope()];
+      }, this._ensureRecordIdsInScope()];
   }
 
   stats() {

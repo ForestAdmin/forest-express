@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { CollectionActionEvent, SmartActionRequestBody } from '@forestadmin/forestadmin-client';
+import { CollectionActionEvent } from '@forestadmin/forestadmin-client';
 import ForestAdminClient from '../forest-admin-client/forest-admin-client';
 
 export type User = {
@@ -9,28 +9,26 @@ export type User = {
   tags: Record<string, string>;
 };
 
-
 export default class AuthorizationService {
-
   private readonly forestAdminClient: ForestAdminClient;
 
   constructor({
-      forestAdminClient
-    }: {
+    forestAdminClient,
+  }: {
       forestAdminClient: ForestAdminClient;
     }) {
-      this.forestAdminClient = forestAdminClient;
+    this.forestAdminClient = forestAdminClient;
   }
 
   public async canBrowse(user: User, collectionName: string, segmentQuery?: string) {
     if (
       !(await this.forestAdminClient.canBrowse({
-      userId: user.id,
-      collectionName,
-      renderingId: user.renderingId,
-      segmentQuery
-    }))
-    ){
+        userId: user.id,
+        collectionName,
+        renderingId: user.renderingId,
+        segmentQuery,
+      }))
+    ) {
       throw new Error(`Forbidden - User ${user.email} is not authorize to browse on collection ${collectionName}`);
     }
   }
@@ -66,7 +64,7 @@ export default class AuthorizationService {
       !(await this.forestAdminClient.canOnCollection({
         userId,
         event,
-        collectionName
+        collectionName,
       }))
     ) {
       throw new Error(`Forbidden - User ${email} is not authorize to ${event} on collection ${collectionName}`);
@@ -84,6 +82,7 @@ export default class AuthorizationService {
       userId,
       customActionName,
       collectionName,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       body: request.body,
     });
 
@@ -91,17 +90,19 @@ export default class AuthorizationService {
       throw new Error('Forbidden - User is not authorize Smart Action');
     }
 
-    return bodyOrFalse as SmartActionRequestBody;
+    return bodyOrFalse;
   }
 
   async canRetrieveChart(request: Request): Promise<void> {
     const { renderingId, id: userId } = request.user as User;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { body: chartRequest } = request;
 
     if (
       !(await this.forestAdminClient.canRetrieveChart({
         renderingId,
         userId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         chartRequest,
       }))
     ) {

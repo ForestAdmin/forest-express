@@ -4,7 +4,6 @@ class ScopeManager {
   constructor({
     forestAdminClient,
   } = inject()) {
-
     /** @private @readonly @type {import('../forest-admin-client/forest-admin-client').default} */
     this.forestAdminClient = forestAdminClient;
   }
@@ -31,14 +30,14 @@ class ScopeManager {
     const scopeFilters = await this.forestAdminClient.getScope({
       renderingId: user.renderingId,
       user,
-      collectionName
+      collectionName,
     });
 
     return asString && !!scopeFilters ? JSON.stringify(scopeFilters) : scopeFilters;
   }
 
   invalidateScopeCache(renderingId) {
-    this.forestAdminClient.markScopesAsUpdated(renderingId)
+    this.forestAdminClient.markScopesAsUpdated(renderingId);
   }
 }
 

@@ -85,6 +85,12 @@ module.exports = {
         'sonarjs',
         '@typescript-eslint',
       ],
+      rules: {
+        'import/extensions': ['error', 'ignorePackages', {
+          js: 'never',
+          ts: 'never',
+        }],
+      },
     },
 
   ],

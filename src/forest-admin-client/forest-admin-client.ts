@@ -1,12 +1,9 @@
-
 import ForestAdminClient from '@forestadmin/forestadmin-client/dist/forest-admin-client';
-
 
 import { CollectionActionEvent, ManualCollectionSegment } from '@forestadmin/forestadmin-client/dist/permissions/types';
 import RenderingPermissionServiceForForestExpress from './rendering-permissions';
 
 export default class ForestAdminClientForForestExpress extends ForestAdminClient {
-
   public async canBrowse({
     userId,
     collectionName,
@@ -21,19 +18,25 @@ export default class ForestAdminClientForForestExpress extends ForestAdminClient
     return (await this.canOnCollection({
       userId,
       event: CollectionActionEvent.Browse,
-      collectionName
-    })) && await (this.canBrowseSegment(renderingId, collectionName, segmentQuery));
+      collectionName,
+    })) && this.canBrowseSegment(renderingId, collectionName, segmentQuery);
   }
 
-  private async canBrowseSegment(renderingId: number, collectionName: string, segmentQuery?: string) {
+  private async canBrowseSegment(
+    renderingId: number,
+    collectionName: string,
+    segmentQuery?: string,
+  ) {
     if (!segmentQuery) {
       return true;
     }
 
-    const segments = await (this.renderingPermissionService as RenderingPermissionServiceForForestExpress)
+    const segments = await (
+        this.renderingPermissionService as RenderingPermissionServiceForForestExpress
+    )
       .getSegments({
         renderingId,
-        collectionName
+        collectionName,
       }) as ManualCollectionSegment[];
 
     // NOTICE: The segmentQuery should be in the segments
@@ -44,14 +47,14 @@ export default class ForestAdminClientForForestExpress extends ForestAdminClient
     // NOTICE: Handle UNION queries made by the FRONT to display available actions on details view
     const unionQueries = segmentQuery.split('/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION ');
     if (unionQueries.length > 1) {
-      const includesAllowedQueriesOnly = unionQueries
-        .every((unionQuery: string) => segments.filter((segment) => (segment as ManualCollectionSegment)?.query?.replace(/;\s*/i, '') === unionQuery).length > 0);
-
-      return includesAllowedQueriesOnly;
+      return unionQueries.every(
+        (unionQuery: string) => segments.filter(
+          (segment) => (segment)?.query?.replace(/;\s*/i, '') === unionQuery,
+        ).length > 0,
+      );
     }
 
     // NOTICE: Queries made by the FRONT to browse to an SQL segment
-    return segments.some((segment) => (segment as ManualCollectionSegment)?.query === segmentQuery);
+    return segments.some((segment) => (segment)?.query === segmentQuery);
   }
-
 }

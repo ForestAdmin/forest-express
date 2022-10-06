@@ -1,11 +1,7 @@
-
-
-import RenderingPermissionService from '@forestadmin/forestadmin-client/dist/permissions/rendering-permission';
-
+import RenderingPermissionService, { RenderingPermission } from '@forestadmin/forestadmin-client/dist/permissions/rendering-permission';
 import { CollectionSegment } from '@forestadmin/forestadmin-client/dist/permissions/types';
 
 export default class RenderingPermissionServiceForForestExpress extends RenderingPermissionService {
-
   public async getSegments({
     renderingId,
     collectionName,
@@ -25,8 +21,8 @@ export default class RenderingPermissionServiceForForestExpress extends Renderin
     collectionName: string;
     allowRetry: boolean;
   }): Promise<CollectionSegment[] | null> {
-    const permissions = await
-      this.permissionsByRendering.fetch(`${renderingId}`);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    const permissions: RenderingPermission = (await this.permissionsByRendering.fetch(`${renderingId}`)) as RenderingPermission;
 
     const collectionPermissions = permissions?.collections?.[collectionName];
 
