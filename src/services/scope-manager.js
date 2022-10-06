@@ -5,7 +5,7 @@ class ScopeManager {
     forestAdminClient,
   } = inject()) {
 
-    /** @private @readonly @type {import('../types/types').IForestAdminClient} */
+    /** @private @readonly @type {import('../forest-admin-client/forest-admin-client').default} */
     this.forestAdminClient = forestAdminClient;
   }
 
@@ -28,7 +28,12 @@ class ScopeManager {
     if (!user.renderingId) throw new Error('Missing required renderingId');
     if (!collectionName) throw new Error('Missing required collectionName');
 
-    const scopeFilters = this.forestAdminClient.getScope(user.renderingId, user, collectionName);
+    const scopeFilters = await this.forestAdminClient.getScope({
+      renderingId: user.renderingId,
+      user,
+      collectionName
+    });
+
     return asString && !!scopeFilters ? JSON.stringify(scopeFilters) : scopeFilters;
   }
 

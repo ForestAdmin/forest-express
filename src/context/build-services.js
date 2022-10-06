@@ -1,7 +1,14 @@
 /* eslint-disable global-require */
+const createForestAdminClient = require('../forest-admin-client').default;
+
 module.exports = (context) =>
   context
     .addInstance('logger', () => require('../services/logger'))
+    .addUsingFunction('forestAdminClient', ({ env }) => createForestAdminClient({
+      forestServerUrl: env.FOREST_URL,
+      envSecret: env.FOREST_ENV_SECRET,
+    }))
+    .addUsingClass('authorizationService', () => require('../services/authorization').default)
     .addInstance('pathService', () => require('../services/path'))
     .addInstance('errorHandler', () => require('../services/exposed/error-handler'))
     .addInstance('ipWhitelist', () => require('../services/ip-whitelist')) // Could be handle by ForestAdminClient

@@ -1,43 +1,37 @@
 import { Request } from 'express';
-import { IForestAdminClient, User, CollectionActionEvent, SmartActionRequestBody } from '../types/types';
+import { CollectionActionEvent, SmartActionRequestBody } from '@forestadmin/forestadmin-client';
+import ForestAdminClient from '../forest-admin-client/forest-admin-client';
 
-// TODO NEEDS INJECTION with addUsingClass
+export type User = {
+  id: number;
+  renderingId: number;
+  email: string;
+  tags: Record<string, string>;
+};
+
+
 export default class AuthorizationService {
 
-  private readonly forestAdminClient: IForestAdminClient;
+  private readonly forestAdminClient: ForestAdminClient;
 
   constructor({
       forestAdminClient
     }: {
-      forestAdminClient: IForestAdminClient;
+      forestAdminClient: ForestAdminClient;
     }) {
       this.forestAdminClient = forestAdminClient;
   }
 
   public async canBrowse(user: User, collectionName: string, segmentQuery?: string) {
-    await this.canOnCollection(user, CollectionActionEvent.Browse, collectionName);
-
-    const { segments } = this.forestAdminClient.renderingPermissionService.permissionsByRendering.fetch(`${user.renderingId}`)?.collections?.[collectionName];
-
-    if (segmentQuery) {
-      // NOTICE: The segmentQuery should be in the segments
-      if (!segments) {
-        throw new Error(`Forbidden - Unable to find segment query for collection ${collectionName}`);
-      }
-
-      // NOTICE: Handle UNION queries made by the FRONT to display available actions on details view
-      const unionQueries = segmentQuery.split('/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION ');
-      if (unionQueries.length > 1) {
-        const includesAllowedQueriesOnly = unionQueries
-          .every((unionQuery) => segments.filter(({ query }: { query: string}) => query?.replace(/;\s*/i, '') === unionQuery).length > 0);
-
-        if (!includesAllowedQueriesOnly) {
-        throw new Error(`Forbidden - ${user} try a suspicious segment query`);
-        }
-
-      } else if (!segments.includes(segmentQuery)) {
-        throw new Error(`Forbidden - ${user} try a suspicious segment query`);
-      }
+    if (
+      !(await this.forestAdminClient.canBrowse({
+      userId: user.id,
+      collectionName,
+      renderingId: user.renderingId,
+      segmentQuery
+    }))
+    ){
+      throw new Error(`Forbidden - User ${user.email} is not authorize to browse on collection ${collectionName}`);
     }
   }
 
@@ -69,11 +63,11 @@ export default class AuthorizationService {
     const { id: userId, email } = user;
 
     if (
-      !(await this.forestAdminClient.canOnCollection(
+      !(await this.forestAdminClient.canOnCollection({
         userId,
         event,
         collectionName
-      ))
+      }))
     ) {
       throw new Error(`Forbidden - User ${email} is not authorize to ${event} on collection ${collectionName}`);
     }
@@ -86,7 +80,7 @@ export default class AuthorizationService {
   ) {
     const { id: userId } = request.user as User;
 
-    const bodyOrFalse =await this.forestAdminClient.canExecuteCustomAction({
+    const bodyOrFalse = await this.forestAdminClient.canExecuteCustomAction({
       userId,
       customActionName,
       collectionName,
