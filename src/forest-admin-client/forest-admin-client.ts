@@ -19,14 +19,18 @@ export default class ForestAdminClientForForestExpress extends ForestAdminClient
       userId,
       event: CollectionActionEvent.Browse,
       collectionName,
-    })) && this.canBrowseSegment(renderingId, collectionName, segmentQuery);
+    })) && this.canBrowseSegment({ renderingId, collectionName, segmentQuery });
   }
 
-  private async canBrowseSegment(
+  private async canBrowseSegment({
+    renderingId,
+    collectionName,
+    segmentQuery,
+  }: {
     renderingId: number,
     collectionName: string,
     segmentQuery?: string,
-  ) {
+  }) {
     if (!segmentQuery) {
       return true;
     }
