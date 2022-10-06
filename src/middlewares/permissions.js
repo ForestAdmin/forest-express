@@ -9,10 +9,9 @@ class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      logger, authorizationService, modelsManager,
+      authorizationService, modelsManager,
     } = inject();
 
-    this.logger = logger;
     this.modelsManager = modelsManager;
 
     /** @private @readonly @type {import('../services/authorization').default} */
@@ -89,14 +88,13 @@ class PermissionMiddlewareCreator {
   list() {
     return async (request, response, next) => {
       try {
-        const { segmentQuery } = request.query;
+        const { query: { segmentQuery = null } = {} } = request;
         await this.authorizationService
           .canBrowse(request.user, this.collectionName, segmentQuery);
 
-        next();
+        return next();
       } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
+        return next(httpError(403));
       }
     };
   }
@@ -105,10 +103,9 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.canExport(request.user, this.collectionName);
-        next();
+        return next();
       } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
+        return next(httpError(403));
       }
     };
   }
@@ -117,10 +114,9 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.canRead(request.user, this.collectionName);
-        next();
+        return next();
       } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
+        return next(httpError(403));
       }
     };
   }
@@ -129,10 +125,9 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.canAdd(request.user, this.collectionName);
-        next();
+        return next();
       } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
+        return next(httpError(403));
       }
     };
   }
@@ -141,10 +136,9 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.canEdit(request.user, this.collectionName);
-        next();
+        return next();
       } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
+        return next(httpError(403));
       }
     };
   }
@@ -155,7 +149,6 @@ class PermissionMiddlewareCreator {
         await this.authorizationService.canDelete(request.user, this.collectionName);
         next();
       } catch (error) {
-        this.logger.error(error.message);
         next(httpError(403));
       }
     };
@@ -164,20 +157,24 @@ class PermissionMiddlewareCreator {
   smartAction() {
     return [
       async (request, response, next) => {
-        const actionName = this._getSmartActionName(request);
+        try {
+          const actionName = this._getSmartActionName(request);
 
-        const approvalRequestDataWithAttributes = this.authorizationService
-          .canExecuteCustomActionAndReturnRequestBody(
-            request,
-            actionName,
-            this.collectionName,
-          );
+          const approvalRequestDataWithAttributes = await this.authorizationService
+            .canExecuteCustomActionAndReturnRequestBody(
+              request,
+              actionName,
+              this.collectionName,
+            );
 
-        if (approvalRequestDataWithAttributes) {
-          request.body = approvalRequestDataWithAttributes;
+          if (approvalRequestDataWithAttributes) {
+            request.body = approvalRequestDataWithAttributes;
+          }
+
+          return next();
+        } catch (error) {
+          return next(httpError(403));
         }
-
-        return next();
       }, this._ensureRecordIdsInScope()];
   }
 
@@ -186,10 +183,9 @@ class PermissionMiddlewareCreator {
       try {
         await this.authorizationService
           .canRetrieveChart(request);
-        next();
+        return next();
       } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
+        return next(httpError(403));
       }
     };
   }
