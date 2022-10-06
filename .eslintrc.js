@@ -1,5 +1,6 @@
 const BASE_EXTENDS = [
   'airbnb-base',
+  'airbnb-typescript/base',
   'plugin:jest/all',
   'plugin:sonarjs/recommended',
 ];
@@ -15,8 +16,10 @@ module.exports = {
   },
   ignorePatterns: [
     'dist/**',
+    '.eslintrc.js'
   ],
   rules: {
+    '@typescript-eslint/naming-convention': 'off',
     'implicit-arrow-linebreak': 0,
     'import/no-extraneous-dependencies': [
       'error',
@@ -61,19 +64,6 @@ module.exports = {
     ],
   },
   overrides: [
-    {
-      files: ['.eslintrc.js'],
-      extends: BASE_EXTENDS,
-      plugins: [
-        'sonarjs',
-      ],
-      parserOptions: {
-        project: null,
-      },
-      rules: {
-        'jest/unbound-method': 'off',
-      },
-    },
     {
       files: ['*.ts'],
       extends: [
