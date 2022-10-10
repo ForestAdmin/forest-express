@@ -115,7 +115,7 @@ describe('unit > extended services > ForestAdminClientForForestExpress', () => {
         expect(canBrowseSegmentStub).toHaveBeenCalledTimes(1);
       });
 
-      it('should return false when there is no segment', async () => {
+      it('should return false when segmentQuery is present but there is no segments', async () => {
         const context = makeContext();
         const { actionPermissionService, renderingPermissionService } = context;
 
@@ -168,8 +168,8 @@ describe('unit > extended services > ForestAdminClientForForestExpress', () => {
 
         renderingPermissionService.getSegments.mockResolvedValue([
           { query: 'segmentQuery1;' },
-          { query: 'segmentQuery2;' },
-          { query: 'segmentQuery3;' },
+          { query: 'segmentQuery2' },
+          { query: 'segmentQuery3;  ' },
         ]);
 
         const result = await forestAdminClientForForestExpress.canBrowseSegment({
@@ -198,8 +198,8 @@ describe('unit > extended services > ForestAdminClientForForestExpress', () => {
 
         renderingPermissionService.getSegments.mockResolvedValue([
           { query: 'segmentQuery1;' },
-          { query: 'segmentQuery2;' },
-          { query: 'segmentQuery3;' },
+          { query: 'segmentQuery2' },
+          { query: 'segmentQuery3;  ' },
         ]);
 
         const result = await forestAdminClientForForestExpress.canBrowseSegment({

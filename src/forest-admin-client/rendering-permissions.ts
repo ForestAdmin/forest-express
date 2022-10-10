@@ -9,7 +9,11 @@ export default class RenderingPermissionServiceForForestExpress extends Renderin
     renderingId: number | string;
     collectionName: string;
   }): Promise<CollectionSegment[] | null> {
-    return this.getSegmentsOrRetry({ renderingId, collectionName, allowRetry: true });
+    return this.getSegmentsOrRetry({
+      renderingId,
+      collectionName,
+      allowRetry: true,
+    });
   }
 
   private async getSegmentsOrRetry({
@@ -21,9 +25,11 @@ export default class RenderingPermissionServiceForForestExpress extends Renderin
     collectionName: string;
     allowRetry: boolean;
   }): Promise<CollectionSegment[] | null> {
-    // eslint-disable-next-line max-len
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    const permissions: RenderingPermission = (await this.permissionsByRendering.fetch(`${renderingId}`)) as RenderingPermission;
+    const permissions: RenderingPermission = (
+      // eslint-disable-next-line max-len
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      await this.permissionsByRendering.fetch(`${renderingId}`)
+    ) as RenderingPermission;
 
     const collectionPermissions = permissions?.collections?.[collectionName];
 
@@ -31,7 +37,11 @@ export default class RenderingPermissionServiceForForestExpress extends Renderin
       if (allowRetry) {
         this.invalidateCache(renderingId);
 
-        return this.getSegmentsOrRetry({ renderingId, collectionName, allowRetry: false });
+        return this.getSegmentsOrRetry({
+          renderingId,
+          collectionName,
+          allowRetry: false,
+        });
       }
 
       return null;
