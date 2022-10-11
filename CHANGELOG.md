@@ -1,3 +1,10 @@
+## [8.7.7](https://github.com/ForestAdmin/forest-express/compare/v8.7.6...v8.7.7) (2022-10-11)
+
+
+### Bug Fixes
+
+* **has many:** fix link of has many ([#944](https://github.com/ForestAdmin/forest-express/issues/944)) ([c703c3f](https://github.com/ForestAdmin/forest-express/commit/c703c3f9fc4e4e78375190e8d00a620154093ee7))
+
 ## [8.7.6](https://github.com/ForestAdmin/forest-express/compare/v8.7.5...v8.7.6) (2022-09-01)
 
 
