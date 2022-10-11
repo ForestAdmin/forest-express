@@ -158,11 +158,20 @@ function ResourceSerializer(
       formatFields(records);
     }
 
+    const setHasManyToEmptyArray = (record) => {
+      schema.fields.forEach((field) => {
+        if (!record[field.field] && _.isArray(field.type) && field.reference) {
+          record[field.field] = [];
+        }
+      });
+    };
+
     return new P((resolve) => {
       if (_.isArray(records)) {
         let smartFieldsValuesInjector;
         resolve(P
           .map(records, (record) => {
+            setHasManyToEmptyArray(record);
             smartFieldsValuesInjector = new SmartFieldsValuesInjector(
               record,
               modelName,
@@ -178,6 +187,7 @@ function ResourceSerializer(
             return result;
           }));
       } else {
+        setHasManyToEmptyArray(records);
         resolve(new SmartFieldsValuesInjector(records, modelName, fieldsPerModel).perform());
       }
     })
