@@ -16,7 +16,8 @@ module.exports = {
   },
   ignorePatterns: [
     'dist/**',
-    '.eslintrc.js'
+    '.eslintrc.js',
+    'jest.config.js'
   ],
   rules: {
     '@typescript-eslint/naming-convention': 'off',
