@@ -1,5 +1,5 @@
+/* eslint-disable jest/prefer-expect-assertions */
 const { init } = require('@forestadmin/context');
-const httpError = require('http-errors');
 const PermissionMiddlewareCreator = require('../../src/middlewares/permissions');
 
 const Schemas = require('../../src/generators/schemas');
@@ -8,7 +8,13 @@ const buildRequest = (attributes) => ({
   query: { timezone: 'Europe/Paris' }, body: { data: { attributes } },
 });
 
-const http403 = httpError(403);
+function executeMiddleware(middleware, request, response) {
+  return new Promise((resolve, reject) => {
+    middleware(request, response, (error) => {
+      if (error) { reject(error); } else { resolve(); }
+    });
+  });
+}
 
 describe('middlewares > permissions', () => {
   const defaultDependencies = {
@@ -29,7 +35,7 @@ describe('middlewares > permissions', () => {
       const collectionName = 'Sith';
 
       const authorizationService = {
-        canBrowse: jest.fn().mockResolvedValue(),
+        assertCanBrowse: jest.fn().mockResolvedValue(),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -44,8 +50,8 @@ describe('middlewares > permissions', () => {
         .list()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canBrowse).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canBrowse).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanBrowse).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanBrowse).toHaveBeenCalledWith(
         request.user,
         collectionName,
         null,
@@ -60,8 +66,9 @@ describe('middlewares > permissions', () => {
 
       const collectionName = 'Sith';
 
+      const error = new Error('Forbidden');
       const authorizationService = {
-        canBrowse: jest.fn().mockRejectedValue(new Error()),
+        assertCanBrowse: jest.fn().mockRejectedValue(error),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -76,15 +83,15 @@ describe('middlewares > permissions', () => {
         .list()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canBrowse).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canBrowse).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanBrowse).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanBrowse).toHaveBeenCalledWith(
         request.user,
         collectionName,
         'segmentQuery',
       );
 
       expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -95,7 +102,7 @@ describe('middlewares > permissions', () => {
       const collectionName = 'Sith';
 
       const authorizationService = {
-        canExport: jest.fn().mockResolvedValue(),
+        assertCanExport: jest.fn().mockResolvedValue(),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -110,8 +117,8 @@ describe('middlewares > permissions', () => {
         .export()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canExport).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canExport).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanExport).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanExport).toHaveBeenCalledWith(
         request.user,
         collectionName,
       );
@@ -125,8 +132,9 @@ describe('middlewares > permissions', () => {
 
       const collectionName = 'Sith';
 
+      const error = new Error();
       const authorizationService = {
-        canExport: jest.fn().mockRejectedValue(new Error()),
+        assertCanExport: jest.fn().mockRejectedValue(error),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -142,7 +150,7 @@ describe('middlewares > permissions', () => {
         .toResolve();
 
       expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -153,7 +161,7 @@ describe('middlewares > permissions', () => {
       const collectionName = 'Sith';
 
       const authorizationService = {
-        canRead: jest.fn().mockResolvedValue(),
+        assertCanRead: jest.fn().mockResolvedValue(),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -168,8 +176,8 @@ describe('middlewares > permissions', () => {
         .details()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canRead).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canRead).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanRead).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanRead).toHaveBeenCalledWith(
         request.user,
         collectionName,
       );
@@ -183,8 +191,9 @@ describe('middlewares > permissions', () => {
 
       const collectionName = 'Sith';
 
+      const error = new Error();
       const authorizationService = {
-        canRead: jest.fn().mockRejectedValue(new Error()),
+        assertCanRead: jest.fn().mockRejectedValue(error),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -200,7 +209,7 @@ describe('middlewares > permissions', () => {
         .toResolve();
 
       expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -211,7 +220,7 @@ describe('middlewares > permissions', () => {
       const collectionName = 'Sith';
 
       const authorizationService = {
-        canAdd: jest.fn().mockResolvedValue(),
+        assertCanAdd: jest.fn().mockResolvedValue(),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -226,8 +235,8 @@ describe('middlewares > permissions', () => {
         .create()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canAdd).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canAdd).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanAdd).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanAdd).toHaveBeenCalledWith(
         request.user,
         collectionName,
       );
@@ -241,8 +250,9 @@ describe('middlewares > permissions', () => {
 
       const collectionName = 'Sith';
 
+      const error = new Error();
       const authorizationService = {
-        canAdd: jest.fn().mockRejectedValue(new Error()),
+        assertCanAdd: jest.fn().mockRejectedValue(error),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -258,7 +268,7 @@ describe('middlewares > permissions', () => {
         .toResolve();
 
       expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -269,7 +279,7 @@ describe('middlewares > permissions', () => {
       const collectionName = 'Sith';
 
       const authorizationService = {
-        canEdit: jest.fn().mockResolvedValue(),
+        assertCanEdit: jest.fn().mockResolvedValue(),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -284,8 +294,8 @@ describe('middlewares > permissions', () => {
         .update()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canEdit).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canEdit).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanEdit).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanEdit).toHaveBeenCalledWith(
         request.user,
         collectionName,
       );
@@ -299,8 +309,9 @@ describe('middlewares > permissions', () => {
 
       const collectionName = 'Sith';
 
+      const error = new Error();
       const authorizationService = {
-        canEdit: jest.fn().mockRejectedValue(new Error()),
+        assertCanEdit: jest.fn().mockRejectedValue(error),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -316,7 +327,7 @@ describe('middlewares > permissions', () => {
         .toResolve();
 
       expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -327,7 +338,7 @@ describe('middlewares > permissions', () => {
       const collectionName = 'Sith';
 
       const authorizationService = {
-        canDelete: jest.fn().mockResolvedValue(),
+        assertCanDelete: jest.fn().mockResolvedValue(),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -342,8 +353,8 @@ describe('middlewares > permissions', () => {
         .delete()(request, null, next))
         .toResolve();
 
-      expect(authorizationService.canDelete).toHaveBeenCalledTimes(1);
-      expect(authorizationService.canDelete).toHaveBeenCalledWith(
+      expect(authorizationService.assertCanDelete).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanDelete).toHaveBeenCalledWith(
         request.user,
         collectionName,
       );
@@ -357,8 +368,9 @@ describe('middlewares > permissions', () => {
 
       const collectionName = 'Sith';
 
+      const error = new Error();
       const authorizationService = {
-        canDelete: jest.fn().mockRejectedValue(new Error()),
+        assertCanDelete: jest.fn().mockRejectedValue(error),
       };
 
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
@@ -374,7 +386,7 @@ describe('middlewares > permissions', () => {
         .toResolve();
 
       expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -402,104 +414,138 @@ describe('middlewares > permissions', () => {
       };
     });
 
-    it('should call canExecuteCustomActionAndReturnRequestBody to ensure the user as the right permissions', async () => {
-      expect.assertions(6);
+    describe('smart action permissions', () => {
+      function setupSmartAction({ requestAttributes = defaultAttributes } = {}) {
+        const authorizationService = {
+          verifySignedActionParameters: jest.fn(),
+          assertCanApproveCustomAction: jest.fn(),
+          assertCanTriggerCustomAction: jest.fn(),
+        };
 
-      const collectionName = 'users';
+        const request = buildRequest(requestAttributes);
+        request.baseUrl = '/forest';
+        request.path = '/actions/known-action';
+        request.method = 'POST';
+        request.user = { id: 30 };
 
-      const authorizationService = {
-        canExecuteCustomActionAndReturnRequestBody: jest.fn().mockResolvedValue(),
-      };
+        const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
+          ...defaultDependencies,
+          authorizationService,
+        });
 
-      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
-        ...defaultDependencies,
-        authorizationService,
+        return {
+          smartActionPermission: permissionMiddlewareCreator.smartAction()[0],
+          smartActionRecordIds: permissionMiddlewareCreator.smartAction()[1],
+          request,
+          authorizationService,
+        };
+      }
+
+      describe('when the request is an approval', () => {
+        it('should check if the user has the right to execute the approval and replace the body', async () => {
+          const { smartActionPermission, request, authorizationService } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              requester_id: 666,
+              signed_approval_request: 'signed',
+            },
+          });
+
+          const legitParams = {
+            data: {
+              attributes: {
+                ...defaultAttributes,
+                requester_id: 42,
+              },
+            },
+          };
+
+          authorizationService.verifySignedActionParameters.mockReturnValue(legitParams);
+
+          await executeMiddleware(smartActionPermission, request, {});
+
+          expect(authorizationService.verifySignedActionParameters).toHaveBeenCalledWith(
+            'signed',
+          );
+          expect(authorizationService.assertCanApproveCustomAction).toHaveBeenCalledWith({
+            user: request.user,
+            customActionName: 'known-action',
+            collectionName: 'users',
+            requesterId: 42,
+          });
+          expect(request.body).toBe(legitParams);
+        });
+
+        it('should throw an error if the user is not authorized', async () => {
+          const { smartActionPermission, request, authorizationService } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              requester_id: 666,
+              signed_approval_request: 'signed',
+            },
+          });
+
+          const legitParams = {
+            data: {
+              attributes: {
+                ...defaultAttributes,
+                requester_id: 42,
+              },
+            },
+          };
+
+          authorizationService.verifySignedActionParameters.mockReturnValue(legitParams);
+
+          const error = new Error('Not authorized');
+          authorizationService.assertCanApproveCustomAction.mockRejectedValue(error);
+
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).rejects.toBe(error);
+
+          expect(authorizationService.verifySignedActionParameters).toHaveBeenCalledWith(
+            'signed',
+          );
+          expect(authorizationService.assertCanApproveCustomAction).toHaveBeenCalledWith({
+            user: request.user,
+            customActionName: 'known-action',
+            collectionName: 'users',
+            requesterId: 42,
+          });
+          expect(request.body).not.toBe(legitParams);
+        });
       });
 
-      const request = buildRequest(defaultAttributes);
-      request.baseUrl = '/forest';
-      request.path = '/actions/known-action';
-      request.method = 'POST';
+      describe('when the request is a trigger', () => {
+        it('should check that the user is authorized to trigger', async () => {
+          const { smartActionPermission, request, authorizationService } = setupSmartAction();
 
-      const next = jest.fn();
+          await executeMiddleware(smartActionPermission, request, {});
 
-      await expect(permissionMiddlewareCreator
-        .smartAction()[0](request, null, next))
-        .toResolve();
+          expect(authorizationService.assertCanTriggerCustomAction).toHaveBeenCalledWith({
+            user: request.user,
+            customActionName: 'known-action',
+            collectionName: 'users',
+          });
+        });
 
-      expect(authorizationService.canExecuteCustomActionAndReturnRequestBody)
-        .toHaveBeenCalledTimes(1);
-      expect(authorizationService.canExecuteCustomActionAndReturnRequestBody).toHaveBeenCalledWith(
-        request,
-        'known-action',
-        collectionName,
-      );
+        it('should handle the error if the user is not authorized', async () => {
+          const { smartActionPermission, request, authorizationService } = setupSmartAction();
 
-      expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith();
+          const error = new Error('Not authorized');
+          authorizationService.assertCanTriggerCustomAction.mockRejectedValue(error);
 
-      expect(request.body.data.attributes.attributesProp).toBe('attributesProp');
-    });
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).rejects.toBe(error);
 
-    it('should throw HTTP error 403 on rejected canExecuteCustomActionAndReturnRequestBody', async () => {
-      expect.assertions(4);
-
-      const collectionName = 'Sith';
-
-      const authorizationService = {
-        canExecuteCustomActionAndReturnRequestBody: jest.fn().mockRejectedValue(new Error()),
-      };
-
-      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
-        ...defaultDependencies,
-        authorizationService,
+          expect(authorizationService.assertCanTriggerCustomAction).toHaveBeenCalledWith({
+            user: request.user,
+            customActionName: 'known-action',
+            collectionName: 'users',
+          });
+        });
       });
-
-      const request = buildRequest(defaultAttributes);
-      request.baseUrl = '/forest';
-      request.path = '/actions/unknown-action';
-      request.method = 'POST';
-      const next = jest.fn();
-
-      await expect(permissionMiddlewareCreator
-        .smartAction()[0](request, null, next))
-        .toResolve();
-
-      expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
-
-      expect(request.body.data.attributes.attributesProp).toBe('attributesProp');
-    });
-
-    it('should throw HTTP error 403 on unknown action', async () => {
-      expect.assertions(4);
-
-      const collectionName = 'Sith';
-
-      const authorizationService = {
-        canExecuteCustomActionAndReturnRequestBody: jest.fn().mockResolvedValue(),
-      };
-
-      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
-        ...defaultDependencies,
-        authorizationService,
-      });
-
-      const request = buildRequest(defaultAttributes);
-      request.baseUrl = '/forest';
-      request.path = '/actions/unknown-action';
-      request.method = 'POST';
-      const next = jest.fn();
-
-      await expect(permissionMiddlewareCreator
-        .smartAction()[0](request, null, next))
-        .toResolve();
-
-      expect(authorizationService.canExecuteCustomActionAndReturnRequestBody)
-        .not.toHaveBeenCalled();
-
-      expect(next).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledWith(http403);
     });
 
     describe('_ensureRecordIdsInScope', () => {

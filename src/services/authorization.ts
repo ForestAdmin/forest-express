@@ -1,6 +1,6 @@
-import { Request } from 'express';
-import { CollectionActionEvent } from '@forestadmin/forestadmin-client';
-import ForestAdminClient from '../forest-admin-client/forest-admin-client';
+import { CollectionActionEvent, ForestAdminClient } from '@forestadmin/forestadmin-client';
+import ForbiddenError from '../utils/errors/forbidden-error';
+import BadRequestError from '../utils/errors/bad-request-error';
 
 export type User = {
   id: number;
@@ -20,36 +20,43 @@ export default class AuthorizationService {
     this.forestAdminClient = forestAdminClient;
   }
 
-  public async canBrowse(user: User, collectionName: string, segmentQuery?: string) {
-    if (
-      !(await this.forestAdminClient.canBrowse({
+  public async assertCanBrowse(user: User, collectionName: string, segmentQuery?: string) {
+    const canBrowse = await this.forestAdminClient.permissionService.canOnCollection({
+      userId: user.id,
+      collectionName,
+      event: CollectionActionEvent.Browse,
+    });
+
+    const canExecuteSegmentQuery: boolean = !segmentQuery
+      || await this.forestAdminClient.permissionService.canExecuteSegmentQuery({
         userId: user.id,
         collectionName,
         renderingId: user.renderingId,
         segmentQuery,
-      }))
-    ) {
-      throw new Error(`Forbidden - User ${user.email} is not authorize to browse on collection ${collectionName}`);
+      });
+
+    if (!canBrowse || !canExecuteSegmentQuery) {
+      throw new ForbiddenError(`User ${user.email} is not authorized to browse on collection ${collectionName}`);
     }
   }
 
-  public async canRead(user: User, collectionName: string) {
+  public async assertCanRead(user: User, collectionName: string) {
     await this.canOnCollection(user, CollectionActionEvent.Read, collectionName);
   }
 
-  public async canAdd(user: User, collectionName: string) {
+  public async assertCanAdd(user: User, collectionName: string) {
     await this.canOnCollection(user, CollectionActionEvent.Add, collectionName);
   }
 
-  public async canEdit(user: User, collectionName: string) {
+  public async assertCanEdit(user: User, collectionName: string) {
     await this.canOnCollection(user, CollectionActionEvent.Edit, collectionName);
   }
 
-  public async canDelete(user: User, collectionName: string) {
+  public async assertCanDelete(user: User, collectionName: string) {
     await this.canOnCollection(user, CollectionActionEvent.Delete, collectionName);
   }
 
-  public async canExport(user: User, collectionName: string) {
+  public async assertCanExport(user: User, collectionName: string) {
     await this.canOnCollection(user, CollectionActionEvent.Export, collectionName);
   }
 
@@ -60,53 +67,85 @@ export default class AuthorizationService {
   ) {
     const { id: userId, email } = user;
 
-    if (
-      !(await this.forestAdminClient.canOnCollection({
-        userId,
-        event,
-        collectionName,
-      }))
-    ) {
-      throw new Error(`Forbidden - User ${email} is not authorize to ${event} on collection ${collectionName}`);
-    }
-  }
-
-  public async canExecuteCustomActionAndReturnRequestBody(
-    request: Request,
-    customActionName: string,
-    collectionName: string,
-  ) {
-    const { id: userId } = request.user as User;
-
-    const bodyOrFalse = await this.forestAdminClient.canExecuteCustomAction({
+    const canOnCollection = await this.forestAdminClient.permissionService.canOnCollection({
       userId,
-      customActionName,
+      event,
       collectionName,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      body: request.body,
     });
 
-    if (!bodyOrFalse) {
-      throw new Error('Forbidden - User is not authorize Smart Action');
+    if (!canOnCollection) {
+      throw new ForbiddenError(`User ${email} is not authorize to ${event} on collection ${collectionName}`);
     }
-
-    return bodyOrFalse;
   }
 
-  async canRetrieveChart(request: Request): Promise<void> {
-    const { renderingId, id: userId } = request.user as User;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { body: chartRequest } = request;
+  public verifySignedActionParameters<TResult>(signedToken: string): TResult {
+    try {
+      return this.forestAdminClient.verifySignedActionParameters<TResult>(signedToken);
+    } catch (error) {
+      throw new BadRequestError('Invalid signed action parameters');
+    }
+  }
 
-    if (
-      !(await this.forestAdminClient.canRetrieveChart({
-        renderingId,
-        userId,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        chartRequest,
-      }))
-    ) {
-      throw new Error('Forbidden - User is not authorize view this chart');
+  public async assertCanApproveCustomAction({
+    user,
+    collectionName,
+    customActionName,
+    requesterId,
+  }: {
+    user: User,
+    collectionName: string,
+    customActionName: string,
+    requesterId: number,
+  }): Promise<void> {
+    const canApprove = await this.forestAdminClient.permissionService.canApproveCustomAction({
+      collectionName,
+      customActionName,
+      userId: user.id,
+      requesterId,
+    });
+
+    if (!canApprove) {
+      throw new ForbiddenError(`User ${user.email} is not authorized to approve custom action ${customActionName} on collection ${collectionName}`);
+    }
+  }
+
+  public async assertCanTriggerCustomAction({
+    user,
+    collectionName,
+    customActionName,
+  }: {
+    user: User,
+    collectionName: string,
+    customActionName: string,
+  }): Promise<void> {
+    const canTrigger = await this.forestAdminClient.permissionService.canTriggerCustomAction({
+      collectionName,
+      customActionName,
+      userId: user.id,
+    });
+
+    if (!canTrigger) {
+      throw new ForbiddenError(`User ${user.email} is not authorized to trigger custom action ${customActionName} on collection ${collectionName}`);
+    }
+  }
+
+  async assertCanRetrieveChart({
+    user,
+    chartRequest,
+  }: {
+    user: User,
+    chartRequest: unknown
+  }): Promise<void> {
+    const { renderingId, id: userId } = user;
+
+    const canRetrieveChart = await this.forestAdminClient.permissionService.canRetrieveChart({
+      renderingId,
+      userId,
+      chartRequest,
+    });
+
+    if (!canRetrieveChart) {
+      throw new ForbiddenError('User is not authorized to view this chart');
     }
   }
 }

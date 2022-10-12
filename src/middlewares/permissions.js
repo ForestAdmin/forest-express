@@ -1,5 +1,4 @@
 const { inject } = require('@forestadmin/context');
-const httpError = require('http-errors');
 const { parameterize } = require('../utils/string');
 const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
@@ -90,11 +89,11 @@ class PermissionMiddlewareCreator {
       try {
         const { query: { segmentQuery = null } = {} } = request;
         await this.authorizationService
-          .canBrowse(request.user, this.collectionName, segmentQuery);
+          .assertCanBrowse(request.user, this.collectionName, segmentQuery);
 
-        return next();
+        next();
       } catch (error) {
-        return next(httpError(403));
+        next(error);
       }
     };
   }
@@ -102,10 +101,10 @@ class PermissionMiddlewareCreator {
   export() {
     return async (request, response, next) => {
       try {
-        await this.authorizationService.canExport(request.user, this.collectionName);
-        return next();
+        await this.authorizationService.assertCanExport(request.user, this.collectionName);
+        next();
       } catch (error) {
-        return next(httpError(403));
+        next(error);
       }
     };
   }
@@ -113,10 +112,10 @@ class PermissionMiddlewareCreator {
   details() {
     return async (request, response, next) => {
       try {
-        await this.authorizationService.canRead(request.user, this.collectionName);
-        return next();
+        await this.authorizationService.assertCanRead(request.user, this.collectionName);
+        next();
       } catch (error) {
-        return next(httpError(403));
+        next(error);
       }
     };
   }
@@ -124,10 +123,10 @@ class PermissionMiddlewareCreator {
   create() {
     return async (request, response, next) => {
       try {
-        await this.authorizationService.canAdd(request.user, this.collectionName);
-        return next();
+        await this.authorizationService.assertCanAdd(request.user, this.collectionName);
+        next();
       } catch (error) {
-        return next(httpError(403));
+        next(error);
       }
     };
   }
@@ -135,10 +134,10 @@ class PermissionMiddlewareCreator {
   update() {
     return async (request, response, next) => {
       try {
-        await this.authorizationService.canEdit(request.user, this.collectionName);
-        return next();
+        await this.authorizationService.assertCanEdit(request.user, this.collectionName);
+        next();
       } catch (error) {
-        return next(httpError(403));
+        next(error);
       }
     };
   }
@@ -146,10 +145,10 @@ class PermissionMiddlewareCreator {
   delete() {
     return async (request, response, next) => {
       try {
-        await this.authorizationService.canDelete(request.user, this.collectionName);
+        await this.authorizationService.assertCanDelete(request.user, this.collectionName);
         next();
       } catch (error) {
-        next(httpError(403));
+        next(error);
       }
     };
   }
@@ -159,21 +158,30 @@ class PermissionMiddlewareCreator {
       async (request, response, next) => {
         try {
           const actionName = this._getSmartActionName(request);
+          const requestBody = request.body;
 
-          const approvalRequestDataWithAttributes = await this.authorizationService
-            .canExecuteCustomActionAndReturnRequestBody(
-              request,
-              actionName,
-              this.collectionName,
+          if (requestBody?.data?.attributes?.signed_approval_request) {
+            const signedParameters = this.authorizationService.verifySignedActionParameters(
+              requestBody?.data?.attributes?.signed_approval_request,
             );
-
-          if (approvalRequestDataWithAttributes) {
-            request.body = approvalRequestDataWithAttributes;
+            await this.authorizationService.assertCanApproveCustomAction({
+              user: request.user,
+              customActionName: actionName,
+              collectionName: this.collectionName,
+              requesterId: signedParameters?.data?.attributes?.requester_id,
+            });
+            request.body = signedParameters;
+          } else {
+            await this.authorizationService.assertCanTriggerCustomAction({
+              user: request.user,
+              customActionName: actionName,
+              collectionName: this.collectionName,
+            });
           }
 
-          return next();
+          next();
         } catch (error) {
-          return next(httpError(403));
+          next(error);
         }
       }, this._ensureRecordIdsInScope()];
   }
@@ -182,10 +190,13 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService
-          .canRetrieveChart(request);
-        return next();
+          .assertCanRetrieveChart({
+            user: request.user,
+            chartRequest: request.body,
+          });
+        next();
       } catch (error) {
-        return next(httpError(403));
+        next(error);
       }
     };
   }

@@ -1,5 +1,5 @@
 /* eslint-disable global-require */
-const createForestAdminClient = require('../forest-admin-client').default;
+const createForestAdminClient = require('@forestadmin/forestadmin-client').default;
 
 module.exports = (context) =>
   context
