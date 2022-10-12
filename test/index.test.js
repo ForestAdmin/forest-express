@@ -5,6 +5,8 @@ const fs = require('fs');
 const request = require('supertest');
 const express = require('express');
 
+jest.mock('require-all', () => jest.fn());
+
 function resetRequireIndex(mockExtraModules) {
   jest.resetModules();
 
@@ -62,14 +64,9 @@ describe('liana > index', () => {
         it('should return a rejected promise', async () => {
           expect.assertions(1);
 
-          const expectedErrorMessage = 'This is the expected error';
           const requireAllMockModule = () => {
-            jest.mock('require-all');
-            /* eslint-disable global-require */
-            const requireAll = require('require-all');
-            /* eslint-enable global-require */
+            jest.mock('require-all', () => jest.fn().mockImplementation(() => { throw new Error('This is the expected error'); }));
             jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-            requireAll.mockImplementation(() => { throw new Error(expectedErrorMessage); });
           };
 
           const forestExpress = resetRequireIndex(requireAllMockModule);
@@ -78,7 +75,7 @@ describe('liana > index', () => {
 
           await expect(() => forestExpress.init(implementation))
             .rejects
-            .toThrow(expectedErrorMessage);
+            .toThrow('This is the expected error');
         });
       });
     });
@@ -638,7 +635,7 @@ describe('liana > index', () => {
 
     // eslint-disable-next-line jest/no-hooks
     afterAll(async () => {
-      fs.rmdirSync(schemaDir);
+      fs.rmdirSync(schemaDir, { recursive: true });
     });
 
     describe('with a missing ".forestadmin-schema.json" file', () => {
