@@ -140,7 +140,7 @@ module.exports = {
   // A list of paths to modules that run some code to configure or set up the
   // testing framework before each test
   setupFilesAfterEnv: [
-    'jest-extended',
+    'jest-extended/all',
     // '<rootDir>/test/helpers/jest-extend',
     // '<rootDir>/test/helpers/jest-setup',
     // '<rootDir>/test/helpers/jest-conditional-runners',
@@ -187,7 +187,9 @@ module.exports = {
   // timers: "real",
 
   // A map from regular expressions to paths to transformers
-  // transform: undefined,
+  transform: {
+    "\\.[jt]s$": "babel-jest"
+  },
 
   // An array of regexp pattern strings that are matched against all source file paths,
   // matched files will skip transformation
