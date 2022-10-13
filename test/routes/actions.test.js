@@ -66,8 +66,6 @@ async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttrib
 
 describe('routes > actions', () => {
   it('should not create a route when no actions is present', async () => {
-    expect.assertions(3);
-
     const {
       actions, model, implementation, pathService, app, schemasGenerator,
     } = initContext({ users: {} });
@@ -80,8 +78,6 @@ describe('routes > actions', () => {
   });
 
   it('should not create a route actions.hooks.* are missing', async () => {
-    expect.assertions(3);
-
     const schema = { users: { actions: [{}, {}] } };
     const {
       actions, pathService, model, implementation, app, schemasGenerator,
@@ -97,8 +93,6 @@ describe('routes > actions', () => {
   describe('when action.hooks is present', () => {
     describe('when action.hooks.load is present', () => {
       it('should create a route', async () => {
-        expect.assertions(4);
-
         const schema = { users: { actions: [{ name: 'send invoice', hooks: { load: jest.fn() } }] } };
         const {
           actions, pathService, stringUtils, model, implementation, app,
@@ -116,8 +110,6 @@ describe('routes > actions', () => {
 
       describe('when calling the route controller', () => {
         it('should call the load hook service', async () => {
-          expect.assertions(1);
-
           const load = jest.fn();
           const smartActionHookGetResponse = jest.fn();
           const { schema, request } = await callHook({ load }, smartActionHookGetResponse);
@@ -132,8 +124,6 @@ describe('routes > actions', () => {
         });
 
         it('should fail with message when load hook service throws', async () => {
-          expect.assertions(2);
-
           const load = jest.fn();
           const smartActionHookGetResponse = jest.fn(() => { throw new Error('oops'); });
           const { send, response } = await callHook({ load }, smartActionHookGetResponse);
@@ -143,8 +133,6 @@ describe('routes > actions', () => {
         });
 
         it('should succeed with the updated fields when load hook service response', async () => {
-          expect.assertions(2);
-
           const newFields = [{ field: 'invoice number', type: 'String', value: 'hello from load' }];
 
           const load = jest.fn();
@@ -158,8 +146,6 @@ describe('routes > actions', () => {
     });
     describe('when action.hooks.change is present', () => {
       it('should create a route', async () => {
-        expect.assertions(4);
-
         const schema = { users: { actions: [{ name: 'send invoice', hooks: { change: { foo: jest.fn() } } }] } };
         const {
           actions, pathService, stringUtils, model, implementation, app,
@@ -177,8 +163,6 @@ describe('routes > actions', () => {
 
       describe('when calling the route controller', () => {
         it('should send undefined to hook service when change field is unreachable', async () => {
-          expect.assertions(1);
-
           const smartActionHookGetResponse = jest.fn();
           const { schema, request } = await callHook(
             { change: { foo: jest.fn() } },
@@ -197,8 +181,6 @@ describe('routes > actions', () => {
         });
 
         it('should call the change hook service', async () => {
-          expect.assertions(1);
-
           const smartActionHookGetResponse = jest.fn();
           const field = {
             field: 'foo',
@@ -223,8 +205,6 @@ describe('routes > actions', () => {
         });
 
         it('should fail with message when change hook service throws', async () => {
-          expect.assertions(2);
-
           const smartActionHookGetResponse = jest.fn(() => { throw new Error('oops'); });
           const field = {
             field: 'foo',
@@ -247,8 +227,6 @@ describe('routes > actions', () => {
         });
 
         it('should succeed with the updated fields when change hook service response', async () => {
-          expect.assertions(2);
-
           const newFields = [{
             field: 'invoice number',
             type: 'String',

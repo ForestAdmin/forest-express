@@ -3,8 +3,6 @@ const deactivateCount = require('../../src/middlewares/count');
 describe('middlewares > deactivateCount', () => {
   describe('when on a count route', () => {
     it('should return the right metadata', async () => {
-      expect.assertions(2);
-
       const reqMock = { path: 'collection1/count' };
       const statusMock = { send: () => { } };
       const respMock = { status: () => statusMock };
@@ -25,8 +23,6 @@ describe('middlewares > deactivateCount', () => {
 
   describe('when not on a count route', () => {
     it('should return an error', async () => {
-      expect.assertions(2);
-
       const reqMock = { path: 'collection1/:recordId' };
       const statusMock = { send: () => { } };
       const respMock = { status: () => statusMock };

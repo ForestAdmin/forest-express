@@ -14,16 +14,12 @@ const setup = () => {
 describe('services > smart-action-hook', () => {
   describe('getResponse', () => {
     it('should throw with message when hook is not a function', async () => {
-      expect.assertions(1);
-
       const { smartActionHookService } = setup();
 
       await expect(smartActionHookService.getResponse({}, null, [], {})).rejects.toThrow('hook must be a function');
     });
 
     it('should throw with message when hook does not return an array', async () => {
-      expect.assertions(1);
-
       const { smartActionHookService } = setup();
 
       await expect(smartActionHookService.getResponse({}, jest.fn(() => false), [], {}))
@@ -31,8 +27,6 @@ describe('services > smart-action-hook', () => {
     });
 
     it('should return an array of fields', async () => {
-      expect.assertions(2);
-
       const { smartActionHookService } = setup();
       const field = {
         field: 'myField',
@@ -66,8 +60,6 @@ describe('services > smart-action-hook', () => {
     describe('when user change fields array inside the hook', () => {
       describe('when user add a field', () => {
         it('should have one more field', async () => {
-          expect.assertions(2);
-
           const { smartActionHookService } = setup();
           const field = {
             field: 'myField',
@@ -99,8 +91,6 @@ describe('services > smart-action-hook', () => {
 
         describe('when the new field has no value defined', () => {
           it('should assign value to null', async () => {
-            expect.assertions(2);
-
             const { smartActionHookService } = setup();
             const field = {
               field: 'myField',
@@ -135,8 +125,6 @@ describe('services > smart-action-hook', () => {
 
         describe('when the new field is malformed', () => {
           it('should throw an error', async () => {
-            expect.assertions(1);
-
             const { smartActionHookService } = setup();
             const action = { name: 'actionTest' };
 
@@ -159,8 +147,6 @@ describe('services > smart-action-hook', () => {
         });
 
         it('should throw an error if the fiel have an undefined hook', async () => {
-          expect.assertions(1);
-
           const { smartActionHookService } = setup();
           const action = { name: 'actionTest', hooks: { change: {} } };
 
@@ -186,8 +172,6 @@ describe('services > smart-action-hook', () => {
 
       describe('when user remove a field', () => {
         it('should have one less field', async () => {
-          expect.assertions(2);
-
           const { smartActionHookService } = setup();
           const field = {
             field: 'myField',
@@ -222,8 +206,6 @@ describe('services > smart-action-hook', () => {
     describe('when field has enums', () => {
       describe('when field value is a single value', () => {
         it('should reset value when it has been dropped from enum', async () => {
-          expect.assertions(1);
-
           const { smartActionHookService } = setup();
           const field = {
             field: 'myField',
@@ -247,8 +229,6 @@ describe('services > smart-action-hook', () => {
         });
 
         it('should keep value when it is still present in enums', async () => {
-          expect.assertions(1);
-
           const { smartActionHookService } = setup();
           const field = {
             field: 'myField',
@@ -274,8 +254,6 @@ describe('services > smart-action-hook', () => {
 
       describe('when field value can be an array', () => {
         it('should reset value when it has been dropped from enum', async () => {
-          expect.assertions(1);
-
           const { smartActionHookService } = setup();
           const field = {
             field: 'myField',
@@ -299,8 +277,6 @@ describe('services > smart-action-hook', () => {
         });
 
         it('should keep value when it is still present in enums', async () => {
-          expect.assertions(1);
-
           const { smartActionHookService } = setup();
           const field = {
             field: 'myField',

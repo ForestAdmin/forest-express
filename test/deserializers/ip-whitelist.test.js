@@ -2,8 +2,6 @@ const IpWhitelistDeserializer = require('../../src/deserializers/ip-whitelist');
 
 describe('deserializers > ip-whitelist', () => {
   it('should transform IP properties and preserve everything else', async () => {
-    expect.assertions(1);
-
     const attributes = {
       use_ip_whitelist: true,
       rules: [

@@ -49,8 +49,6 @@ describe('liana > index', () => {
   describe('init', () => {
     describe('with an invalid configuration', () => {
       it('should not throw an error', async () => {
-        expect.assertions(1);
-
         const forestExpress = resetRequireIndex();
         const badConfigDir = new Date();
         const implementation = createFakeImplementation({ configDir: badConfigDir });
@@ -62,8 +60,6 @@ describe('liana > index', () => {
     describe('when requiring all files of the configDir', () => {
       describe('when requireAll() throws an error', () => {
         it('should return a rejected promise', async () => {
-          expect.assertions(1);
-
           const requireAllMockModule = () => {
             jest.mock('require-all', () => jest.fn().mockImplementation(() => { throw new Error('This is the expected error'); }));
             jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -82,8 +78,6 @@ describe('liana > index', () => {
 
     describe('with a valid configuration', () => {
       it('should return a promise', async () => {
-        expect.assertions(1);
-
         const forestExpress = resetRequireIndex();
         const implementation = createFakeImplementation();
 
@@ -95,8 +89,6 @@ describe('liana > index', () => {
       // NOTICE: this test only check for route existence, since a dedicated
       // test exists for healthcheck
       it('should expose a healthcheck route', async () => {
-        expect.assertions(1);
-
         const forestExpress = resetRequireIndex();
         const implementation = createFakeImplementation();
 
@@ -109,8 +101,6 @@ describe('liana > index', () => {
 
       describe('when `Liana.init` is called twice', () => {
         it('should return the same express app', async () => {
-          expect.assertions(1);
-
           const forestExpress = resetRequireIndex();
           const implementation = createFakeImplementation();
 
@@ -123,8 +113,6 @@ describe('liana > index', () => {
 
       describe('when providing an expressParentApp parameter', () => {
         it('should use the generated forest app middleware', async () => {
-          expect.assertions(2);
-
           const forestExpress = resetRequireIndex();
           const expressParentApp = express();
           const useSpy = jest.spyOn(expressParentApp, 'use');
@@ -165,8 +153,6 @@ describe('liana > index', () => {
         // NOTICE: The following request will throw a 401, but are
         // only here to check that a route exists (!404)
         it('should attach a list records route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo');
 
@@ -174,8 +160,6 @@ describe('liana > index', () => {
         });
 
         it('should attach a csv export route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo.csv');
 
@@ -183,8 +167,6 @@ describe('liana > index', () => {
         });
 
         it('should attach a records count route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo/count');
 
@@ -192,8 +174,6 @@ describe('liana > index', () => {
         });
 
         it('should attach a get single record route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).get('/forest/modelFoo/1');
 
@@ -201,8 +181,6 @@ describe('liana > index', () => {
         });
 
         it('should attach a create record route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).post('/forest/modelFoo');
 
@@ -210,8 +188,6 @@ describe('liana > index', () => {
         });
 
         it('should attach an update record route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).put('/forest/modelFoo/1');
 
@@ -219,8 +195,6 @@ describe('liana > index', () => {
         });
 
         it('should attach a remove record route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).delete('/forest/modelFoo/1');
 
@@ -228,8 +202,6 @@ describe('liana > index', () => {
         });
 
         it('should attach a remove multiple records route', async () => {
-          expect.assertions(1);
-
           const app = await initForestAppWithModels();
           const response = await request(app).delete('/forest/modelFoo');
 
@@ -239,8 +211,6 @@ describe('liana > index', () => {
 
       describe('when implementation exposes RequestUnflattener middleware', () => {
         it('should call the middleware on all the routes', async () => {
-          expect.assertions(1);
-
           const requestUnflattener = jest.fn((req, res, next) => next());
           const fakeImplementation = createFakeImplementation({}, {
             Flattener: {
@@ -261,7 +231,6 @@ describe('liana > index', () => {
   describe('collection', () => {
     describe('with an undefined configuration', () => {
       it('should throw an error', async () => {
-        expect.assertions(1);
         const forestExpress = resetRequireIndex();
 
         expect(() => forestExpress.collection()).toThrow(expect.anything());
@@ -270,7 +239,6 @@ describe('liana > index', () => {
 
     describe('with undefined option', () => {
       it('should throw an error', async () => {
-        expect.assertions(1);
         const forestExpress = resetRequireIndex();
 
         expect(() => forestExpress.collection('test')).toThrow(expect.anything());
@@ -286,7 +254,6 @@ describe('liana > index', () => {
       };
 
       it('should append collection inside the schema', async () => {
-        expect.assertions(1);
         const forestExpress = resetRequireIndex();
 
         forestExpress.collection('collectionTest', config);
@@ -296,7 +263,6 @@ describe('liana > index', () => {
       });
 
       it('should exist field inside collection', async () => {
-        expect.assertions(1);
         const forestExpress = resetRequireIndex();
 
         forestExpress.collection('collectionTest', config);
@@ -316,7 +282,6 @@ describe('liana > index', () => {
 
       it('should call field flattener if any', async () => {
         expect.assertions(1);
-
         const forestExpress = resetRequireIndex();
 
         class FakeFlattener {
@@ -364,7 +329,6 @@ describe('liana > index', () => {
       const config = {};
 
       it('should not append a new collection inside the schema', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -374,7 +338,6 @@ describe('liana > index', () => {
       });
 
       it('should initialize with empty actions array', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -385,7 +348,6 @@ describe('liana > index', () => {
       });
 
       it('should initialize with empty segments array', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -432,7 +394,6 @@ describe('liana > index', () => {
       };
 
       it('should not append a new collection inside the schema', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -442,7 +403,6 @@ describe('liana > index', () => {
       });
 
       it('should append collection field', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -468,7 +428,6 @@ describe('liana > index', () => {
       });
 
       it('should append collection action', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -482,7 +441,6 @@ describe('liana > index', () => {
       });
 
       it('should append collection segment', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -496,7 +454,6 @@ describe('liana > index', () => {
       });
 
       it('should add collection searchFields', async () => {
-        expect.assertions(1);
         const forestExpress = initSchema();
 
         forestExpress.collection('collectionTest', config);
@@ -528,7 +485,6 @@ describe('liana > index', () => {
       };
 
       it('should log an error with httpMethod = GET', () => {
-        expect.assertions(1);
         const { forestExpress, spyOnError } = initSchema();
 
         forestExpress.collection('collectionTest', {
@@ -542,7 +498,6 @@ describe('liana > index', () => {
       });
 
       it('should log an error with httpMethod = PUT', () => {
-        expect.assertions(1);
         const { forestExpress, spyOnWarning } = initSchema();
 
         forestExpress.collection('collectionTest', {
@@ -577,7 +532,6 @@ describe('liana > index', () => {
       const config = {};
 
       it('should log a warning', async () => {
-        expect.assertions(1);
         const { forestExpress, spy } = initSchema();
 
         forestExpress.collection('oldCollectionTest', config);
@@ -585,7 +539,6 @@ describe('liana > index', () => {
       });
 
       it('should not append a new collection inside the schema', async () => {
-        expect.assertions(1);
         const { forestExpress } = initSchema();
 
         forestExpress.collection('oldCollectionTest', config);
@@ -640,8 +593,6 @@ describe('liana > index', () => {
 
     describe('with a missing ".forestadmin-schema.json" file', () => {
       it('should resolve with "null"', async () => {
-        expect.assertions(1);
-
         try {
           fs.unlinkSync(schemaFile);
         } catch {
@@ -658,8 +609,6 @@ describe('liana > index', () => {
 
     describe('with an empty ".forestadmin-schema.json" file', () => {
       it('should fail', async () => {
-        expect.assertions(1);
-
         const emptySchema = '';
         fs.writeFileSync(schemaFile, JSON.stringify(emptySchema));
 
@@ -671,8 +620,6 @@ describe('liana > index', () => {
 
     describe('with an invalid ".forestadmin-schema.json" file', () => {
       it('should resolve with "null"', async () => {
-        expect.assertions(1);
-
         const invalidSchema = '{ "thisIsWrong": ... }';
         fs.writeFileSync(schemaFile, JSON.stringify(invalidSchema));
 
@@ -696,15 +643,11 @@ describe('liana > index', () => {
       });
 
       it('should be exported for testing purpose', async () => {
-        expect.assertions(1);
-
         const forestExpress = resetRequireIndex();
         expect(forestExpress.generateAndSendSchema).toBeInstanceOf(Function);
       });
 
       it('should send apimap only if hash is different on server', async () => {
-        expect.assertions(1);
-
         const scope = nock('https://api.forestadmin.com')
           .post('/forest/apimaps/hashcheck')
           .reply(200, { sendSchema: true })
@@ -719,8 +662,6 @@ describe('liana > index', () => {
       });
 
       it('should not send apimap if hash is identical on server', async () => {
-        expect.assertions(1);
-
         const scope = nock('https://api.forestadmin.com')
           .post('/forest/apimaps/hashcheck')
           .reply(200, { sendSchema: false });

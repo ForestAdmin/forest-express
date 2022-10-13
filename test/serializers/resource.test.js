@@ -27,7 +27,6 @@ describe('serializers > resource', () => {
 
   describe('serializing flattened fields', () => {
     it('should serialize the flattened fields', async () => {
-      expect.assertions(1);
       const records = [
         {
           _id: '5fbfb0ee67e7953f9b8414bf',
@@ -63,7 +62,6 @@ describe('serializers > resource', () => {
     });
 
     it('should not add attribute when their are undefined', async () => {
-      expect.assertions(3);
       const records = [
         {
           _id: '5fbfb0ee67e7953f9b8414bf',

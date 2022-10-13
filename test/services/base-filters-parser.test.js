@@ -5,8 +5,6 @@ describe('base-filters-parser', () => {
     describe('on a smart field', () => {
       describe('with filter method not defined', () => {
         it('should throw an error', async () => {
-          expect.assertions(2);
-
           const condition = {
             field: 'smart name',
             operator: 'present',
@@ -31,8 +29,6 @@ describe('base-filters-parser', () => {
       describe('with filter method defined', () => {
         describe('when filter method return null or undefined', () => {
           it('should throw an error', async () => {
-            expect.assertions(5);
-
             const condition = {
               field: 'smart name',
               operator: 'present',
@@ -65,8 +61,6 @@ describe('base-filters-parser', () => {
 
         describe('when filter method return a condition', () => {
           it('should return the condition', async () => {
-            expect.assertions(5);
-
             const where = { id: 1 };
             const filter = jest.fn(() => where);
             const schema = {

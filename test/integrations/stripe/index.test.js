@@ -20,7 +20,6 @@ jest.mock('../../../src/services/logger', () => ({
 
 describe('integration > stripe > index', () => {
   it('should do nothing when disabled', () => {
-    expect.assertions(2);
     jest.resetAllMocks();
 
     const Implementation = null;
@@ -32,7 +31,6 @@ describe('integration > stripe > index', () => {
   });
 
   it('should warn about missing fields', () => {
-    expect.assertions(3);
     jest.resetAllMocks();
 
     const Implementation = null;
@@ -46,7 +44,6 @@ describe('integration > stripe > index', () => {
   });
 
   it('should warn about old syntax', () => {
-    expect.assertions(2);
     jest.resetAllMocks();
 
     const Implementation = null;
@@ -65,7 +62,6 @@ describe('integration > stripe > index', () => {
   });
 
   it('should warn about invalid collection name', () => {
-    expect.assertions(2);
     jest.resetAllMocks();
 
     const Implementation = null;
@@ -78,7 +74,6 @@ describe('integration > stripe > index', () => {
   });
 
   it('should warn about invalid field name', () => {
-    expect.assertions(2);
     jest.resetAllMocks();
 
     const Implementation = null;
@@ -91,7 +86,6 @@ describe('integration > stripe > index', () => {
   });
 
   it('should not warn if the fields are not in the model (mongoose compatibility)', () => {
-    expect.assertions(2);
     jest.resetAllMocks();
 
     const Implementation = null;
@@ -104,7 +98,6 @@ describe('integration > stripe > index', () => {
   });
 
   it('should not warn if everything is defined properly (sequelize compatibility)', () => {
-    expect.assertions(2);
     jest.resetAllMocks();
 
     const Implementation = null;

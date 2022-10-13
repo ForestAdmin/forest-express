@@ -9,8 +9,6 @@ const apimapFieldsFormater = new ApimapFieldsFormater({
 describe('services > apimap-fields-formater', () => {
   describe('formatFieldsByCollectionName', () => {
     it('should filter fields without declared "field" attribute', () => {
-      expect.assertions(2);
-
       const fieldsFormated = apimapFieldsFormater.formatFieldsByCollectionName(
         [{
           field: 'email',
@@ -50,15 +48,11 @@ describe('services > apimap-fields-formater', () => {
       );
 
       it('should log a warning message', () => {
-        expect.assertions(2);
-
         expect(apimapFieldsFormater.logger.warn).toHaveBeenCalledTimes(1);
         expect(apimapFieldsFormater.logger.warn).toHaveBeenCalledWith('Bad Smart Field declaration in "Users" collection: missing "field" attribute.');
       });
 
       it('should not format the field', () => {
-        expect.assertions(2);
-
         expect(fieldsFormated).toHaveLength(0);
         expect(fieldsFormated).toStrictEqual([]);
       });

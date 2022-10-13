@@ -25,8 +25,6 @@ describe('middlewares > permissions', () => {
   describe('_checkPermissions', () => {
     describe('with no options multiplePermissionsCache', () => {
       it('should call ensure the user as the right permissions', async () => {
-        expect.assertions(7);
-
         const permissionName = 'browseEnabled';
         const collectionName = 'Sith';
         const permissionsChecker = {
@@ -71,8 +69,6 @@ describe('middlewares > permissions', () => {
 
     describe('with multiplePermissionsCache options', () => {
       it('should call ensure the user as the right permissions', async () => {
-        expect.assertions(9);
-
         const permissionName = 'browseEnabled';
         const collectionName = 'Sith';
         const environmentId = 66;
@@ -130,8 +126,6 @@ describe('middlewares > permissions', () => {
   describe('_getStatWithParametersInfoFromRequest', () => {
     describe('with group_by_field informations - collection:field', () => {
       it('should remove the field from group_by_field and return the right parameters', async () => {
-        expect.assertions(1);
-
         const request = {
           body: { aggregate: 'Count', collection: 'collection', group_by_field: 'otherCollection:id' },
           notTheBody: {},
@@ -146,8 +140,6 @@ describe('middlewares > permissions', () => {
 
     describe('with group_by_field informations - collection only', () => {
       it('should return the right parameters', async () => {
-        expect.assertions(1);
-
         const request = {
           body: { aggregate: 'Count', collection: 'collection', group_by_field: 'otherCollection' },
           notTheBody: {},
@@ -162,8 +154,6 @@ describe('middlewares > permissions', () => {
 
     describe('without group_by_field informations', () => {
       it('should return the right parameters', async () => {
-        expect.assertions(1);
-
         const request = {
           body: { aggregate: 'Count', collection: 'collection', type: 'Pie' },
           notTheBody: {},
@@ -180,8 +170,6 @@ describe('middlewares > permissions', () => {
   describe('_getSmartActionInfoFromRequest', () => {
     describe('when no smart action can be found', () => {
       it('should throw an error', () => {
-        expect.assertions(1);
-
         Schemas.schemas = { users: usersSchema };
 
         const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
@@ -202,8 +190,6 @@ describe('middlewares > permissions', () => {
 
     describe('when there is a matching smart action', () => {
       it('should return the userId and actionName', () => {
-        expect.assertions(1);
-
         Schemas.schemas = { users: usersSchema };
 
         const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
@@ -245,8 +231,6 @@ describe('middlewares > permissions', () => {
     });
 
     it('should return a middleware', () => {
-      expect.assertions(1);
-
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', defaultDependencies);
       const middleware = permissionMiddlewareCreator._ensureRecordIdsInScope({});
       expect(typeof middleware).toBe('function');
@@ -263,8 +247,6 @@ describe('middlewares > permissions', () => {
       };
 
       it('should call next() when selecting all records', async () => {
-        expect.assertions(2);
-
         const request = buildRequest({ ...defaultAttributes, all_records: true });
         const next = jest.fn();
 
@@ -278,8 +260,6 @@ describe('middlewares > permissions', () => {
       });
 
       it('should call next() when speficied records are allowed', async () => {
-        expect.assertions(3);
-
         const request = buildRequest({ ...defaultAttributes, ids: ['1', '2', '3'] });
         const next = jest.fn();
         const response = { status: jest.fn() };
@@ -295,8 +275,6 @@ describe('middlewares > permissions', () => {
       });
 
       it('should raise a 400 http response when one of the specified records are not allowed', async () => {
-        expect.assertions(5);
-
         const request = buildRequest({ ...defaultAttributes, ids: ['1', '2'] });
         const next = jest.fn();
         const statusReturnValue = { send: jest.fn() };
@@ -328,8 +306,6 @@ describe('middlewares > permissions', () => {
       };
 
       it('should call next() when selecting all records', async () => {
-        expect.assertions(2);
-
         const request = buildRequest({ ...defaultAttributes, all_records: true });
         const next = jest.fn();
 
@@ -343,8 +319,6 @@ describe('middlewares > permissions', () => {
       });
 
       it('should call next() when speficied records are allowed', async () => {
-        expect.assertions(3);
-
         const request = buildRequest({ ...defaultAttributes, ids: ['1|1', '2|1', '3|1'] });
         const next = jest.fn();
         const response = { status: jest.fn() };
@@ -360,8 +334,6 @@ describe('middlewares > permissions', () => {
       });
 
       it('should raise a 400 http response when one of the specified records are not allowed', async () => {
-        expect.assertions(5);
-
         const request = buildRequest({ ...defaultAttributes, ids: ['1|2', '2|1'] });
         const next = jest.fn();
         const statusReturnValue = { send: jest.fn() };
@@ -384,8 +356,6 @@ describe('middlewares > permissions', () => {
 
     describe('with a smart collection', () => {
       it('should call next() since no scope can be configured', async () => {
-        expect.assertions(2);
-
         Schemas.schemas = {
           users: {
             name: 'users',
@@ -411,8 +381,6 @@ describe('middlewares > permissions', () => {
 
   describe('smartAction', () => {
     it('should generate an array of middlewares', () => {
-      expect.assertions(3);
-
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
         ...defaultDependencies,
       });

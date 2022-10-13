@@ -19,8 +19,6 @@ jest.mock('../../src/deserializers/resource');
 describe('routes > resources', () => {
   describe('.update', () => {
     it('should work when all parameters are valid', async () => {
-      expect.assertions(3);
-
       // Mock app state
       const app = {};
       const model = { name: 'book' };
@@ -71,8 +69,6 @@ describe('routes > resources', () => {
 
   describe('.delete', () => {
     it('should work when all parameters are valid', async () => {
-      expect.assertions(5);
-
       // Mock app state
       const app = {};
       const model = { name: 'book' };

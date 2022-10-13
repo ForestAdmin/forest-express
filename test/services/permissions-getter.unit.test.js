@@ -14,8 +14,6 @@ describe('services > PermissionsGetter', () => {
 
   describe('_getPermissions', () => {
     it('should retrieve the permissions', () => {
-      expect.assertions(1);
-
       const permissionsGetter = new PermissionsGetter(defaultDependencies);
       permissionsGetter.permissions = { test: 'me' };
 
@@ -24,8 +22,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('with environmentId', () => {
       it('should retrieve the permissions', () => {
-        expect.assertions(3);
-
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         permissionsGetter.permissions = { test: 'me' };
 
@@ -38,8 +34,6 @@ describe('services > PermissionsGetter', () => {
 
   describe('_setRenderingPermissions', () => {
     it('should set the permissions', () => {
-      expect.assertions(5);
-
       const permissions = 'superPermissions';
       const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
@@ -57,8 +51,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('with environmentId', () => {
       it('should set correctly the permissions', () => {
-        expect.assertions(6);
-
         const environmentId = 100;
         const permissions = 'superPermissions';
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
@@ -81,8 +73,6 @@ describe('services > PermissionsGetter', () => {
 
   describe('_setCollectionsPermissions', () => {
     it('should set the permissions', () => {
-      expect.assertions(3);
-
       const permissions = 'superPermissions';
       const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
@@ -94,8 +84,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('with environmentId', () => {
       it('should set correctly the permissions', () => {
-        expect.assertions(4);
-
         const environmentId = 100;
         const permissions = 'superPermissions';
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
@@ -111,8 +99,6 @@ describe('services > PermissionsGetter', () => {
 
   describe('_setRolesACLPermissions', () => {
     it('should set the permissions', () => {
-      expect.assertions(4);
-
       const permissions = {
         collections: 'collectionsPermissions',
         renderings: {
@@ -134,8 +120,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('with environmentId', () => {
       it('should set correctly the permissions', () => {
-        expect.assertions(4);
-
         const environmentId = {};
         const permissions = {
           collections: 'collectionsPermissions',
@@ -161,8 +145,6 @@ describe('services > PermissionsGetter', () => {
   describe('_setPermissions', () => {
     describe('when isRolesACLActivated is true', () => {
       it('should set the permissions', () => {
-        expect.assertions(3);
-
         const permissions = {
           collections: 'collectionsPermissions',
           renderings: {
@@ -192,8 +174,6 @@ describe('services > PermissionsGetter', () => {
 
       describe('with environmentId', () => {
         it('should set correctly the permissions', () => {
-          expect.assertions(3);
-
           const environmentId = 100;
           const permissions = {
             collections: 'collectionsPermissions',
@@ -227,8 +207,6 @@ describe('services > PermissionsGetter', () => {
 
       describe('with stats permissions', () => {
         it('should set correctly the permissions', () => {
-          expect.assertions(4);
-
           const environmentId = 100;
           const permissions = {
             collections: 'collectionsPermissions',
@@ -267,8 +245,6 @@ describe('services > PermissionsGetter', () => {
         });
 
         it('should set correctly the permissions and keep all renderings informations', () => {
-          expect.assertions(2);
-
           const environmentId = 100;
           const permissions1 = {
             collections: 'collectionsPermissions',
@@ -310,8 +286,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('when isRolesACLActivated is false', () => {
       it('should set the permissions', () => {
-        expect.assertions(5);
-
         const permissions = {};
 
         const mockTransformPermissionsFromOldToNewFormat = jest.fn((p) => p);
@@ -343,8 +317,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('with environmentId', () => {
       it('should set the permissions', () => {
-        expect.assertions(5);
-
         const environmentId = 100;
         const permissions = {};
 
@@ -377,8 +349,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('with stats permissions', () => {
       it('should set correctly the permissions', () => {
-        expect.assertions(5);
-
         const environmentId = 100;
         const permissions = {};
         const stats = {
@@ -412,8 +382,6 @@ describe('services > PermissionsGetter', () => {
       });
 
       it('should set correctly the permissions and keep all renderings informations', () => {
-        expect.assertions(2);
-
         const environmentId = 100;
         const permissions1 = {};
         const stats1 = {
@@ -453,8 +421,6 @@ describe('services > PermissionsGetter', () => {
     describe('when isRolesACLActivated is true', () => {
       describe('when permissions are expired', () => {
         it('should return true', () => {
-          expect.assertions(1);
-
           const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
           permissionsGetter.isRolesACLActivated = true;
@@ -474,8 +440,6 @@ describe('services > PermissionsGetter', () => {
 
         describe('with environmentId', () => {
           it('should return true', () => {
-            expect.assertions(2);
-
             const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
             permissionsGetter.isRolesACLActivated = true;
@@ -500,8 +464,6 @@ describe('services > PermissionsGetter', () => {
 
       describe('when permissions are not expired', () => {
         it('should return false', () => {
-          expect.assertions(1);
-
           const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
           permissionsGetter.isRolesACLActivated = true;
@@ -521,8 +483,6 @@ describe('services > PermissionsGetter', () => {
 
         describe('with environmentId', () => {
           it('should return false', () => {
-            expect.assertions(1);
-
             const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
             const environmentId = 100;
@@ -555,8 +515,6 @@ describe('services > PermissionsGetter', () => {
       permissionNames.forEach((permissionName) => {
         describe(`when called with ${permissionName}`, () => {
           it('should return false', () => {
-            expect.assertions(1);
-
             const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
             permissionsGetter.isRolesACLActivated = true;
@@ -569,8 +527,6 @@ describe('services > PermissionsGetter', () => {
       describe('when called with browseEnabled', () => {
         describe('when permissions are expired', () => {
           it('should return true', () => {
-            expect.assertions(1);
-
             const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
             permissionsGetter.isRolesACLActivated = true;
@@ -581,8 +537,6 @@ describe('services > PermissionsGetter', () => {
 
         describe('when permissions are not expired', () => {
           it('should return true', () => {
-            expect.assertions(1);
-
             const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
             permissionsGetter.isRolesACLActivated = true;
@@ -603,8 +557,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('when isRolesACLActivated is false', () => {
       it('should return false', () => {
-        expect.assertions(1);
-
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
 
         permissionsGetter.isRolesACLActivated = false;
@@ -617,8 +569,6 @@ describe('services > PermissionsGetter', () => {
   describe('getPermissions', () => {
     describe('with forceRetrieve true', () => {
       it('should call _retrievePermissions', () => {
-        expect.assertions(2);
-
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
 
@@ -632,8 +582,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('when global permissions are expired', () => {
       it('should call _retrievePermissions', () => {
-        expect.assertions(2);
-
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
         jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(true);
@@ -647,8 +595,6 @@ describe('services > PermissionsGetter', () => {
 
       describe('with environmentId', () => {
         it('should call _retrievePermissions', () => {
-          expect.assertions(2);
-
           const permissionsGetter = new PermissionsGetter(defaultDependencies);
           jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
           jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(true);
@@ -665,8 +611,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('when rendering permissions are expired', () => {
       it('should call _retrievePermissions with renderingOnly true', () => {
-        expect.assertions(1);
-
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
         jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
@@ -680,8 +624,6 @@ describe('services > PermissionsGetter', () => {
 
       describe('with environmentId', () => {
         it('should call _retrievePermissions with renderingOnly true', () => {
-          expect.assertions(2);
-
           const permissionsGetter = new PermissionsGetter(defaultDependencies);
           jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
           jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
@@ -699,8 +641,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('when permissions are not expired', () => {
       it('should not call _retrievePermissions', () => {
-        expect.assertions(1);
-
         const permissionsGetter = new PermissionsGetter(defaultDependencies);
         jest.spyOn(permissionsGetter, '_retrievePermissions').mockImplementation();
         jest.spyOn(permissionsGetter, '_isRegularRetrievalRequired').mockImplementation().mockReturnValue(false);
@@ -716,8 +656,6 @@ describe('services > PermissionsGetter', () => {
   describe('_retrievePermissions', () => {
     describe('when renderingOnly is false', () => {
       it('should call forestServerRequester with the right parameters', async () => {
-        expect.assertions(2);
-
         const fakeResponse = {
           data: {},
           meta: {},
@@ -749,8 +687,6 @@ describe('services > PermissionsGetter', () => {
 
     describe('when renderingOnly is true', () => {
       it('should call forestServerRequester with renderingOnly true', async () => {
-        expect.assertions(2);
-
         const fakeResponse = {
           data: {},
           meta: {},

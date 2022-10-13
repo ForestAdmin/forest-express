@@ -54,8 +54,6 @@ describe('services > ScopeManager', () => {
 
   describe('appendScopeForUser', () => {
     it('should work with neither scopes nor customer filter', async () => {
-      expect.assertions(1);
-
       const scopeManager = new ScopeManager({});
       jest.spyOn(scopeManager, 'getScopeForUser').mockResolvedValue(undefined);
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
@@ -64,8 +62,6 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with scopes, but not customer filter', async () => {
-      expect.assertions(1);
-
       const scopeManager = new ScopeManager({});
       jest.spyOn(scopeManager, 'getScopeForUser')
         .mockResolvedValue('{"field":"id","operator":"equal","value":1}');
@@ -75,8 +71,6 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with customer filter, but no scopes', async () => {
-      expect.assertions(1);
-
       const scopeManager = new ScopeManager({});
       jest.spyOn(scopeManager, 'getScopeForUser').mockResolvedValue(undefined);
       const newFilter = await scopeManager
@@ -86,8 +80,6 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with both customer filter and scopes', async () => {
-      expect.assertions(1);
-
       const scopeManager = new ScopeManager({});
       jest.spyOn(scopeManager, 'getScopeForUser')
         .mockResolvedValue('{"field":"book.id","operator":"equal","value":1}');
@@ -110,8 +102,6 @@ describe('services > ScopeManager', () => {
 
       describe('with a user having no renderingId', () => {
         it('should throw an error', async () => {
-          expect.assertions(1);
-
           await expect(
             scopeManager.getScopeForUser({}, 'myCollection'),
           ).rejects.toStrictEqual(new Error('Missing required renderingId'));
@@ -120,8 +110,6 @@ describe('services > ScopeManager', () => {
 
       describe('without providing a collectionName', () => {
         it('should throw an error', async () => {
-          expect.assertions(1);
-
           await expect(
             scopeManager.getScopeForUser(defaultUser),
           ).rejects.toStrictEqual(new Error('Missing required collectionName'));
@@ -131,8 +119,6 @@ describe('services > ScopeManager', () => {
 
     describe('when accessing the rendering scopes for the first time', () => {
       it('should retrieve and return the collection scope filters', async () => {
-        expect.assertions(3);
-
         const configStore = { lianaOptions };
         const forestServerRequester = {
           perform: jest.fn().mockReturnValue(defaultRenderingScopes),
@@ -166,8 +152,6 @@ describe('services > ScopeManager', () => {
         });
 
         it('should retrieve and return the scopes on first call', async () => {
-          expect.assertions(3);
-
           forestServerRequesterPerformSpy.mockClear();
 
           const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
@@ -178,8 +162,6 @@ describe('services > ScopeManager', () => {
         });
 
         it('should not refetch the scopes and return the cached value on second call', async () => {
-          expect.assertions(2);
-
           forestServerRequesterPerformSpy.mockClear();
           forestServerRequesterPerformSpy.mockReturnValue(newRenderingScopes);
 
@@ -204,8 +186,6 @@ describe('services > ScopeManager', () => {
         });
 
         it('should retrieve and return the scopes on first call', async () => {
-          expect.assertions(3);
-
           forestServerRequesterPerformSpy.mockClear();
 
           const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
@@ -216,8 +196,6 @@ describe('services > ScopeManager', () => {
         });
 
         it('should refetch the scopes on second call but still return the cached value', async () => {
-          expect.assertions(3);
-
           forestServerRequesterPerformSpy.mockClear();
           forestServerRequesterPerformSpy.mockReturnValue(newRenderingScopes);
 
@@ -245,8 +223,6 @@ describe('services > ScopeManager', () => {
       });
 
       it('should retrieve and return the scopes on first call', async () => {
-        expect.assertions(3);
-
         momentInstanceSpy.mockClear();
         forestServerRequesterPerformSpy.mockClear();
 
@@ -258,8 +234,6 @@ describe('services > ScopeManager', () => {
       });
 
       it('should refetch the scopes on second call but still return the cached value', async () => {
-        expect.assertions(3);
-
         momentInstanceSpy.mockClear();
         momentInstanceSpy.mockReturnValue(600);
         forestServerRequesterPerformSpy.mockClear();
@@ -273,8 +247,6 @@ describe('services > ScopeManager', () => {
       });
 
       it('should not refetch the scopes on third call and return the cached value (which was changed during second call)', async () => {
-        expect.assertions(2);
-
         momentInstanceSpy.mockClear();
         // act as if the third call was close to the second one
         momentInstanceSpy.mockReturnValue(60);
@@ -290,8 +262,6 @@ describe('services > ScopeManager', () => {
 
     describe('when no scopes on collection', () => {
       it('should return null', async () => {
-        expect.assertions(3);
-
         const configStore = { lianaOptions };
         const forestServerRequester = {
           perform: jest.fn().mockReturnValue(defaultRenderingScopes),
@@ -312,8 +282,6 @@ describe('services > ScopeManager', () => {
 
     describe('with dynamic values on scopes', () => {
       it('should retrieve and return the collection scope filters with dynamic values replaced', async () => {
-        expect.assertions(3);
-
         const renderingScopesWithDynamicValues = {
           myCollection: {
             scope: {

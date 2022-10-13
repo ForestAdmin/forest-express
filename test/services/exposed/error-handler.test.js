@@ -10,7 +10,6 @@ describe('services › exposed › error-handler', () => {
   }
 
   it('calls next if there is no error', () => {
-    expect.assertions(1);
     const next = sinon.stub();
     const handleError = errorHandler();
 
@@ -20,7 +19,6 @@ describe('services › exposed › error-handler', () => {
   });
 
   it('uses the first error\'s message as the message if the error contains multiple errors', () => {
-    expect.assertions(5);
     const error = {
       errors: [{
         message: 'First message',
@@ -50,7 +48,6 @@ describe('services › exposed › error-handler', () => {
   });
 
   it('uses the first error\'s name as the name if the error contains multiple errors', () => {
-    expect.assertions(1);
     const error = {
       errors: [{
         message: 'First message',
@@ -78,8 +75,6 @@ describe('services › exposed › error-handler', () => {
   });
 
   it('logs the unexpected error if the error does not have a status', () => {
-    expect.assertions(2);
-
     const error = new Error('The error');
     const logger = { error: sinon.stub() };
     const handleError = errorHandler({ logger });
@@ -93,8 +88,6 @@ describe('services › exposed › error-handler', () => {
   });
 
   it("uses the error's message, name and status to construct the JSON response", () => {
-    expect.assertions(5);
-
     const response = mockResponse();
     const error = new Error('Something bad happened');
     error.status = 666;
