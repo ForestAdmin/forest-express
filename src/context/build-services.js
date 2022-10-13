@@ -4,9 +4,10 @@ const createForestAdminClient = require('@forestadmin/forestadmin-client').defau
 module.exports = (context) =>
   context
     .addInstance('logger', () => require('../services/logger'))
-    .addUsingFunction('forestAdminClient', ({ env }) => createForestAdminClient({
+    .addUsingFunction('forestAdminClient', ({ env, logger }) => createForestAdminClient({
       forestServerUrl: env.FOREST_URL,
       envSecret: env.FOREST_ENV_SECRET,
+      logger: (level, ...args) => logger[level.toLowerCase()](...args),
     }))
     .addUsingClass('authorizationService', () => require('../services/authorization').default)
     .addInstance('pathService', () => require('../services/path'))

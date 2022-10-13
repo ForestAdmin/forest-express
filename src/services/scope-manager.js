@@ -4,7 +4,7 @@ class ScopeManager {
   constructor({
     forestAdminClient,
   } = inject()) {
-    /** @private @readonly @type {import('../forest-admin-client/forest-admin-client').default} */
+    /** @private @readonly @type {import('@forestadmin/forestadmin-client').ForestAdminClient} */
     this.forestAdminClient = forestAdminClient;
   }
 
