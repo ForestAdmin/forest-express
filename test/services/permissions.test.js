@@ -33,8 +33,6 @@ describe('services > permissions', () => {
         permissionTypes.forEach((type) => {
           describe(`with the "${type.responseName}" permission`, () => {
             it('should return a resolved promise', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1')
@@ -56,8 +54,6 @@ describe('services > permissions', () => {
 
           describe(`without the "${type.responseName}" permission`, () => {
             it('should return a rejected promise', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.persist().get('/liana/v3/permissions?renderingId=1')
@@ -81,8 +77,6 @@ describe('services > permissions', () => {
 
         describe('check if it requests permissions after a denied access', () => {
           it('should return a resolved promise', async () => {
-            expect.assertions(1);
-
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1')
               .reply(200, {
@@ -105,8 +99,6 @@ describe('services > permissions', () => {
       describe('with some good permissions data on rendering 2', () => {
         describe('with the "list" permission', () => {
           it('should return a resolved promise', async () => {
-            expect.assertions(1);
-
             resetAndClearCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=2')
@@ -129,8 +121,6 @@ describe('services > permissions', () => {
 
       describe('with some bad permissions data', () => {
         it('should return a rejected promise', async () => {
-          expect.assertions(1);
-
           resetAndClearCache();
           nock.cleanAll();
           nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {});
@@ -151,8 +141,6 @@ describe('services > permissions', () => {
       describe('handling smart action permissions', () => {
         describe('if no smart action permissions are available', () => {
           it('should return a rejected promise', async () => {
-            expect.assertions(1);
-
             resetAndClearCache();
             nock.cleanAll();
             nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -179,8 +167,6 @@ describe('services > permissions', () => {
         describe('if smart action permissions are available', () => {
           describe('if the smart action is not allowed to be executed', () => {
             it('should return a rejected promise', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -214,8 +200,6 @@ describe('services > permissions', () => {
 
           describe('if the smart action is allowed to everyone', () => {
             it('should return a resolved promise', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -249,8 +233,6 @@ describe('services > permissions', () => {
 
           describe('if the smart action is restricted to some users', () => {
             it('should accept allowed users', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -281,8 +263,6 @@ describe('services > permissions', () => {
             });
 
             it('should refuse not allowed users', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -316,8 +296,6 @@ describe('services > permissions', () => {
 
           describe('handling the user triggering the action', () => {
             it('should handle the user id as string', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -485,7 +463,6 @@ describe('services > permissions', () => {
 
       describe('with permissions not expired', () => {
         it('should not re-retrieve the permissions', async () => {
-          expect.assertions(6);
           resetNock();
           const { permissionsGetter, permissionsFormatter } = inject();
           permissionsGetter.expirationInSeconds = 1000;
@@ -570,8 +547,6 @@ describe('services > permissions', () => {
         permissionTypes.forEach((type) => {
           describe(`with the "${type}" permission`, () => {
             it('should return a resolved promise', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1')
@@ -594,8 +569,6 @@ describe('services > permissions', () => {
 
           describe(`without the "${type}" permission`, () => {
             it('should return a rejected promise', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.persist().get('/liana/v3/permissions?renderingId=1')
@@ -620,8 +593,6 @@ describe('services > permissions', () => {
 
         describe('check if it requests permissions after a denied access', () => {
           it('should return a resolve promise', async () => {
-            expect.assertions(1);
-
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=1')
               .reply(200, {
@@ -646,8 +617,6 @@ describe('services > permissions', () => {
       describe('with some good permissions data on rendering 2', () => {
         describe('with the "browseEnabled" permission', () => {
           it('should return a resolved promise', async () => {
-            expect.assertions(1);
-
             resetAndClearCache();
             nock.cleanAll();
             nockObj.get('/liana/v3/permissions?renderingId=2')
@@ -672,8 +641,6 @@ describe('services > permissions', () => {
         describe('with the permissions from rendering 1 not expired', () => {
           describe('with a permission different from browseEnabled', () => {
             it('should not retrieve any permissions for rendering 2', async () => {
-              expect.assertions(6);
-
               const permissions1 = {
                 meta: { rolesACLActivated: true },
                 data: {
@@ -750,8 +717,6 @@ describe('services > permissions', () => {
 
           describe('with the browseEnabled permission', () => {
             it('should retrieve the rendering permissions only for rendering 2', async () => {
-              expect.assertions(6);
-
               const permissions = {
                 meta: { rolesACLActivated: true },
                 data: {
@@ -821,8 +786,6 @@ describe('services > permissions', () => {
       describe('handling smart action permissions', () => {
         describe('if no smart action permissions are available', () => {
           it('should return a rejected promise', async () => {
-            expect.assertions(1);
-
             resetAndClearCache();
             nock.cleanAll();
             nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -851,8 +814,6 @@ describe('services > permissions', () => {
         describe('if smart action permissions are available', () => {
           describe('if the smart action is not allowed to be executed', () => {
             it('should return a rejected promise', async () => {
-              expect.assertions(1);
-
               nock.cleanAll();
               nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -885,8 +846,6 @@ describe('services > permissions', () => {
 
           describe('if the smart action is allowed to everyone', () => {
             it('should return a resolved promise', async () => {
-              expect.assertions(1);
-
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -918,8 +877,6 @@ describe('services > permissions', () => {
 
           describe('if the smart action is restricted to some users', () => {
             it('should accept allowed users', async () => {
-              expect.assertions(1);
-
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -949,8 +906,6 @@ describe('services > permissions', () => {
             });
 
             it('should refuse not allowed users', async () => {
-              expect.assertions(1);
-
               resetAndClearCache();
               nock.cleanAll();
               nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -984,8 +939,6 @@ describe('services > permissions', () => {
 
           describe('handling the user triggering the action', () => {
             it('should handle the user id as string', async () => {
-              expect.assertions(1);
-
               nock.cleanAll();
               nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
                 meta: { rolesACLActivated: true },
@@ -1174,8 +1127,6 @@ describe('services > permissions', () => {
 
       describe('with permissions not expired', () => {
         it('should not re-retrieve the permissions', async () => {
-          expect.assertions(6);
-
           resetNock();
           const { permissionsGetter } = inject();
           permissionsGetter.expirationInSeconds = 1000;
@@ -1269,8 +1220,6 @@ describe('services > permissions', () => {
   describe('with live queries permissions', () => {
     describe('if the live query is not allowed to be executed', () => {
       it('should return a rejected promise', async () => {
-        expect.assertions(1);
-
         resetAndClearCache();
         nock.cleanAll();
         nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -1302,8 +1251,6 @@ describe('services > permissions', () => {
 
     describe('if the live query is allowed', () => {
       it('should return a resolved promise', async () => {
-        expect.assertions(1);
-
         resetAndClearCache();
         nock.cleanAll();
         nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -1336,8 +1283,6 @@ describe('services > permissions', () => {
   describe('with stats with parameters permissions', () => {
     describe('if is not allowed to be executed', () => {
       it('should return a rejected promise', async () => {
-        expect.assertions(1);
-
         resetAndClearCache();
         nock.cleanAll();
         nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -1369,8 +1314,6 @@ describe('services > permissions', () => {
 
     describe('if is allowed', () => {
       it('should return a resolved promise', async () => {
-        expect.assertions(1);
-
         resetAndClearCache();
         nock.cleanAll();
         nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -1406,8 +1349,6 @@ describe('services > permissions', () => {
   describe('with segments permissions', () => {
     describe('if the segment is not allowed to be executed', () => {
       it('should return a rejected promise', async () => {
-        expect.assertions(1);
-
         resetAndClearCache();
         nock.cleanAll();
         nockObj.persist().get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -1431,8 +1372,6 @@ describe('services > permissions', () => {
     describe('if the segment query is allowed', () => {
       describe('on not rolesACLActivated (OLD permissions)', () => {
         it('should return a resolved promise', async () => {
-          expect.assertions(1);
-
           resetAndClearCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {
@@ -1455,8 +1394,6 @@ describe('services > permissions', () => {
 
       describe('on rolesACLActivated', () => {
         it('should return a resolved promise', async () => {
-          expect.assertions(1);
-
           resetAndClearCache();
           nock.cleanAll();
           nockObj.get('/liana/v3/permissions?renderingId=1').reply(200, {

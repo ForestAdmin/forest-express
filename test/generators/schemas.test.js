@@ -3,8 +3,6 @@ const schemasGenerator = require('../../src/generators/schemas');
 
 describe('generators > schemas', () => {
   it('should build schemas', async () => {
-    expect.assertions(3);
-
     const implementation = {
       SchemaAdapter: async () => ({}),
       getModelName: jest.fn(() => 'myModel'),
@@ -27,8 +25,6 @@ describe('generators > schemas', () => {
   });
 
   it('should merge fields, actions, segments and searchFields when same model is called twice', async () => {
-    expect.assertions(5);
-
     const implementation = {
       SchemaAdapter: async () => ({
         fields: [uuidV1()],
@@ -56,8 +52,6 @@ describe('generators > schemas', () => {
   });
 
   it('should not mix models', async () => {
-    expect.assertions(9);
-
     const implementation = {
       SchemaAdapter: async () => ({
         fields: [uuidV1()],

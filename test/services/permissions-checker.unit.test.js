@@ -10,8 +10,6 @@ describe('services > PermissionsChecker', () => {
   describe('checkPermissions', () => {
     describe('with single permissions cache', () => {
       it('should check correctly the permissions', async () => {
-        expect.assertions(5);
-
         const user = { renderingId: 1 };
         const permissions = { myPermissions: {} };
         const permissionsGetter = {
@@ -52,8 +50,6 @@ describe('services > PermissionsChecker', () => {
 
       describe('when cache seems outdated', () => {
         it('should force retrieval of permissions', async () => {
-          expect.assertions(7);
-
           const user = { renderingId: 1 };
           const permissions = { myPermissions: {} };
           const permissionsAfterRefresh = { myPermissionsNew: {} };
@@ -107,8 +103,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with multiple permissions cache', () => {
       it('should check correctly the permissions', async () => {
-        expect.assertions(5);
-
         const user = { renderingId: 1 };
         const permissions = { myPermissions: {} };
         const permissionsGetter = {
@@ -150,8 +144,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with liveQueries permissions', () => {
       it('should check correctly the permissions', async () => {
-        expect.assertions(6);
-
         const user = { renderingId: 1, permissionLevel: 'user' };
         const permissions = { stats: { queries: ['SELECT COUNT(*) AS value FROM products;'] } };
         const permissionsGetter = {
@@ -191,8 +183,6 @@ describe('services > PermissionsChecker', () => {
       });
 
       it('should allow live query when permissionLevel admin', async () => {
-        expect.assertions(6);
-
         const user = { renderingId: 1, permissionLevel: 'admin' };
         const permissions = { stats: { queries: [] } };
         const permissionsGetter = {
@@ -232,8 +222,6 @@ describe('services > PermissionsChecker', () => {
       });
 
       it('should reject live query when not in allow list', async () => {
-        expect.assertions(1);
-
         const user = { renderingId: 1, permissionLevel: 'user' };
         const permissions = { stats: { queries: [] } };
         const permissionsGetter = {
@@ -260,8 +248,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with statWithParameters permissions', () => {
       it('should reject simple chart when not in allow list', async () => {
-        expect.assertions(1);
-
         const user = { renderingId: 1, permissionLevel: 'user' };
         const permissions = {
           stats: {
@@ -296,8 +282,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with special union segmentQuery permissions', () => {
       it('should check correctly the permissions', async () => {
-        expect.assertions(6);
-
         const user = { renderingId: 1, permissionLevel: 'user' };
         const permissions = { collection: {}, segments: ['SELECT COUNT(*) AS value FROM products;', 'SELECT column_name(s) FROM table1 UNION SELECT column_name(s) FROM table2;'] };
         const permissionsGetter = {
@@ -343,8 +327,6 @@ describe('services > PermissionsChecker', () => {
   describe('_isCollectionBrowseAllowed', () => {
     describe('without segmentQuery permissionInfos', () => {
       it('should only check permissions using _isPermissionAllowed', async () => {
-        expect.assertions(3);
-
         const permissions = { collection: { browseEnabled: 'browseEnabled' }, segments: ['SELECT COUNT(*) AS value FROM products;'] };
         const permissionsInfos = { userId: 13 };
 
@@ -364,7 +346,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with segmentQuery permissionInfos but no segments permissions', () => {
       it('should return false', async () => {
-        expect.assertions(2);
         const permissions = { collection: { browseEnabled: 'browseEnabled' } };
         const permissionsInfos = { userId: 13, segmentQuery: 'SELECT COUNT(*) AS value FROM products;' };
 
@@ -383,8 +364,6 @@ describe('services > PermissionsChecker', () => {
     describe('with segmentQuery permissionInfos and segments permissions', () => {
       describe('when the segmentQuery is included in the segments', () => {
         it('should return true', async () => {
-          expect.assertions(3);
-
           const permissions = { collection: { browseEnabled: 'browseEnabled' }, segments: ['SELECT COUNT(*) AS value FROM products;', 'SELECT column_name(s) FROM table1 UNION SELECT column_name(s) FROM table2;'] };
           const permissionsInfos = { userId: 13, segmentQuery: 'SELECT COUNT(*) AS value FROM products/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION SELECT column_name(s) FROM table1 UNION SELECT column_name(s) FROM table2' };
 
@@ -404,8 +383,6 @@ describe('services > PermissionsChecker', () => {
 
       describe('when the segmentQuery is not included in the segments', () => {
         it('should return false', async () => {
-          expect.assertions(2);
-
           const permissions = { collection: { browseEnabled: 'browseEnabled' }, segments: ['SELECT COUNT(*) AS value FROM products;', 'SELECT column_name(s) FROM table1 UNION SELECT column_name(s) FROM table2;'] };
           // MALICIOUS QUERY in the UNION
           const permissionsInfos = { userId: 13, segmentQuery: 'SELECT 1 AS id FROM user_tokens WHERE user_tokens.user_id = 1 AND get_bit(user_tokens.session_token, %d) = 1;' };
@@ -425,8 +402,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with special union segmentQuery permissions', () => {
       it('should check that the (union) queries are included in the list of segments query', async () => {
-        expect.assertions(2);
-
         const permissions = { collection: { browseEnabled: 'browseEnabled' }, segments: ['SELECT COUNT(*) AS value FROM products;', 'SELECT column_name(s) FROM table1 UNION SELECT column_name(s) FROM table2;'] };
         // MALICIOUS QUERY in the UNION
         const permissionsInfos = { userId: 13, segmentQuery: 'SELECT 1 AS id FROM user_tokens WHERE user_tokens.user_id = 1 AND get_bit(user_tokens.session_token, %d) = 1/*MULTI-SEGMENTS-QUERIES-UNION*/ UNION SELECT column_name(s) FROM table1 UNION SELECT column_name(s) FROM table2' };
@@ -447,8 +422,6 @@ describe('services > PermissionsChecker', () => {
   describe('_isLiveQueryAllowed', () => {
     describe('with user permission level', () => {
       it('should return true when the query is allowed', async () => {
-        expect.assertions(1);
-
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'user' };
 
@@ -456,8 +429,6 @@ describe('services > PermissionsChecker', () => {
       });
 
       it('should return false when the query is not allowed', async () => {
-        expect.assertions(1);
-
         const user = { permissionLevel: 'user' };
 
         expect(PermissionsChecker._isLiveQueryAllowed(['some query'], 'SELECT COUNT(*) AS value FROM products;', user)).toBeFalse();
@@ -466,8 +437,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission admin', () => {
       it('should return true even if the the query is not allowed yet', async () => {
-        expect.assertions(1);
-
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'admin' };
 
@@ -477,8 +446,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission editor', () => {
       it('should return true even if the the query is not allowed yet', async () => {
-        expect.assertions(1);
-
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'editor' };
 
@@ -488,8 +455,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission developer', () => {
       it('should return true even if the the query is not allowed yet', async () => {
-        expect.assertions(1);
-
         const sqlQuery = 'SELECT COUNT(*) AS value FROM products;';
         const user = { permissionLevel: 'developer' };
 
@@ -507,8 +472,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission level', () => {
       it('should return true when the query is allowed', async () => {
-        expect.assertions(1);
-
         const user = { permissionLevel: 'user' };
 
         expect(PermissionsChecker._isStatWithParametersAllowed({
@@ -521,8 +484,6 @@ describe('services > PermissionsChecker', () => {
       });
 
       it('should return false when the query is not allowed', async () => {
-        expect.assertions(1);
-
         const user = { permissionLevel: 'user' };
 
         expect(PermissionsChecker._isStatWithParametersAllowed({
@@ -535,8 +496,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission admin', () => {
       it('should return true even if the the query is not allowed yet', async () => {
-        expect.assertions(1);
-
         const user = { permissionLevel: 'admin' };
 
         expect(PermissionsChecker._isStatWithParametersAllowed({
@@ -549,8 +508,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission editor', () => {
       it('should return true even if the the query is not allowed yet', async () => {
-        expect.assertions(1);
-
         const user = { permissionLevel: 'editor' };
 
         expect(PermissionsChecker._isStatWithParametersAllowed({
@@ -563,8 +520,6 @@ describe('services > PermissionsChecker', () => {
 
     describe('with user permission developer', () => {
       it('should return true even if the the query is not allowed yet', async () => {
-        expect.assertions(1);
-
         const user = { permissionLevel: 'developer' };
 
         expect(PermissionsChecker._isStatWithParametersAllowed({

@@ -32,8 +32,6 @@ describe('services > apimap-sender', () => {
 
   describe('checkHash', () => {
     it('should post content then get response from forestUrl', async () => {
-      expect.assertions(2);
-
       const {
         apimapSender,
         superagentRequestThenFunction,
@@ -48,8 +46,6 @@ describe('services > apimap-sender', () => {
 
   describe('send', () => {
     it('should post content then get response from forestUrl', () => {
-      expect.assertions(1);
-
       const { apimapSender, superagentRequestThenFunction } = setupTest();
 
       apimapSender.send();
@@ -60,8 +56,6 @@ describe('services > apimap-sender', () => {
   describe('handleResult', () => {
     describe('with no result provided', () => {
       it('should return early', () => {
-        expect.assertions(1);
-
         const { apimapSender } = setupTest();
 
         expect(apimapSender.handleResult()).toBeUndefined();
@@ -92,8 +86,6 @@ describe('services > apimap-sender', () => {
     });
 
     it('should log a warning when having a 0 status', () => {
-      expect.assertions(1);
-
       const { apimapSender, logger } = setupTest();
 
       apimapSender.handleResult({ status: 0 });
@@ -101,8 +93,6 @@ describe('services > apimap-sender', () => {
     });
 
     it('should log an error when having a 404 status', () => {
-      expect.assertions(1);
-
       const { apimapSender, logger } = setupTest();
 
       apimapSender.handleResult({ status: 404 });
@@ -110,8 +100,6 @@ describe('services > apimap-sender', () => {
     });
 
     it('should log a warning when having a 503 status', () => {
-      expect.assertions(1);
-
       const { apimapSender, logger } = setupTest();
 
       apimapSender.handleResult({ status: 503 });
@@ -119,8 +107,6 @@ describe('services > apimap-sender', () => {
     });
 
     it('should log an error when having an unhandled status', () => {
-      expect.assertions(1);
-
       const { apimapSender, logger } = setupTest();
 
       apimapSender.handleResult({ status: 12345 });

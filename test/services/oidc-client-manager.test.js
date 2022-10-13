@@ -46,8 +46,6 @@ describe('service > OidcClientManager', () => {
   }
   describe('getClientForCallbackUrl', () => {
     it('should register a new client on the issuer', async () => {
-      expect.assertions(4);
-
       const {
         oidcClientManager, openIdClient, oidcConfigurationRetrieverService, issuer,
       } = setupTest();
@@ -71,8 +69,6 @@ describe('service > OidcClientManager', () => {
     });
 
     it('should use the envSecret from lianaOptions', async () => {
-      expect.assertions(2);
-
       const {
         oidcClientManager, oidcConfigurationRetrieverService, issuer, configStore, env,
       } = setupTest();
@@ -97,8 +93,6 @@ describe('service > OidcClientManager', () => {
     });
 
     it('should create a client from a predefined client_id', async () => {
-      expect.assertions(4);
-
       const {
         oidcClientManager, openIdClient, oidcConfigurationRetrieverService, issuer,
       } = setupTest(true);
@@ -121,8 +115,6 @@ describe('service > OidcClientManager', () => {
     });
 
     it('should reuse the same promise for the same callback url', async () => {
-      expect.assertions(2);
-
       const {
         oidcClientManager, oidcConfigurationRetrieverService, issuer,
       } = setupTest();
@@ -140,8 +132,6 @@ describe('service > OidcClientManager', () => {
     });
 
     it('should not cache an error, and allow to try a second registration', async () => {
-      expect.assertions(3);
-
       const {
         oidcClientManager, oidcConfigurationRetrieverService, issuer, logger,
       } = setupTest();

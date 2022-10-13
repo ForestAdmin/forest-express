@@ -15,8 +15,6 @@ describe('oidcConfigurationRetrieverService', () => {
     return { oidcConfigurationRetrieverService, forestServerRequester };
   }
   it('should retrieve the configuration from the server', async () => {
-    expect.assertions(2);
-
     const { oidcConfigurationRetrieverService, forestServerRequester } = setup();
 
     const configuration = { issuer: 'forest-admin' };
@@ -30,8 +28,6 @@ describe('oidcConfigurationRetrieverService', () => {
 
   describe('when called twice', () => {
     it('should not retrieve the configuration from the server if the cache is still valid', async () => {
-      expect.assertions(2);
-
       const {
         oidcConfigurationRetrieverService,
         forestServerRequester,
@@ -48,8 +44,6 @@ describe('oidcConfigurationRetrieverService', () => {
     });
 
     it('should retrieve the configuration from the server if the cache expired', async () => {
-      expect.assertions(2);
-
       const {
         oidcConfigurationRetrieverService,
         forestServerRequester,

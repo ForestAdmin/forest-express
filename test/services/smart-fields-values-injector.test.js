@@ -37,7 +37,6 @@ describe('services > smart-fields-values-injector', () => {
 
   describe('without Smart Fields', () => {
     it('should not modify the record', async () => {
-      expect.assertions(1);
       const { userRecord } = setup();
 
       // NOTICE: Clone users fixture and remove smart field.
@@ -53,7 +52,6 @@ describe('services > smart-fields-values-injector', () => {
 
   describe('with a simple Smart Field', () => {
     it('should inject the Smart Field value in the record', async () => {
-      expect.assertions(1);
       const { userRecord } = setup();
 
       Schemas.schemas = { users: usersSchema };
@@ -67,8 +65,6 @@ describe('services > smart-fields-values-injector', () => {
   describe('with a Smart Relationship that references a collection having a Smart Field', () => {
     const fieldsPerModel = { user: ['smart'], addresses: ['id', 'user', 'smartUser'], smartUser: ['smart'] };
     it('should inject the Smart Relationship reference', async () => {
-      expect.assertions(3);
-
       const { addressRecord } = setup();
 
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
@@ -85,8 +81,6 @@ describe('services > smart-fields-values-injector', () => {
     // mocking sequelize magic accessor
     const fieldsPerModel = { addresses: ['id', 'user', 'hasUser', 'smartUser', 'smartActors', 'islands'], user: ['smart', 'hasAddress'], smartUser: ['smart', 'hasAddress'] };
     it('should inject the Smart Relationship reference', async () => {
-      expect.assertions(5);
-
       const { addressRecord } = setup();
 
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
@@ -103,8 +97,6 @@ describe('services > smart-fields-values-injector', () => {
   describe('with no fieldsPerModel', () => {
     const fieldsPerModel = undefined;
     it('should inject the Smart Relationship reference', async () => {
-      expect.assertions(1);
-
       const { addressRecord } = setup();
 
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
