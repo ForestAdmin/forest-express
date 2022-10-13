@@ -29,7 +29,7 @@ class ScopeManager {
 
     const scopeFilters = await this.forestAdminClient.getScope({
       renderingId: user.renderingId,
-      user,
+      userId: user.id,
       collectionName,
     });
 
