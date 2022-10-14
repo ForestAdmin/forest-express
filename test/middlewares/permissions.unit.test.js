@@ -753,4 +753,69 @@ describe('middlewares > permissions', () => {
       expect(typeof smartActionPermissionMiddlewares[1]).toBe('function');
     });
   });
+
+  describe('stats', () => {
+    it('should call assertCanRetrieveChart to ensure the user as the right permissions', async () => {
+      const collectionName = 'Sith';
+
+      const chartRequest = {
+        type: 'Value',
+        filter: null,
+        aggregate: 'Count',
+        aggregate_field: 'price',
+        collection: 'books',
+      };
+
+      const authorizationService = {
+        assertCanRetrieveChart: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = { user: { renderingId: 20 }, body: chartRequest };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .stats()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanRetrieveChart).toHaveBeenCalledTimes(1);
+      expect(authorizationService.assertCanRetrieveChart).toHaveBeenCalledWith({
+        user: request.user,
+        chartRequest,
+      });
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should throw HTTP error 403 on rejected assertCanRetrieveChart', async () => {
+      expect.assertions(3);
+
+      const collectionName = 'Sith';
+
+      const error = new Error();
+      const authorizationService = {
+        assertCanRetrieveChart: jest.fn().mockRejectedValue(error),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = { user: { renderingId: 20 }, body: { not: 'OK' } };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .stats()(request, null, next))
+        .toResolve();
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
 });
