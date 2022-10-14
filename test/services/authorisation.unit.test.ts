@@ -1,5 +1,5 @@
 /* eslint-disable jest/prefer-expect-assertions */
-import { CollectionActionEvent } from '@forestadmin/forestadmin-client';
+import { ChartType, CollectionActionEvent } from '@forestadmin/forestadmin-client';
 import AuthorizationService from '../../src/services/authorization';
 import ForbiddenError from '../../src/utils/errors/forbidden-error';
 
@@ -323,14 +323,24 @@ describe('unit > services > AuthorizationService', () => {
       forestAdminClient.permissionService.canRetrieveChart.mockResolvedValue(true);
 
       await expect(authorizationService.assertCanRetrieveChart({
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
         user,
       })).toResolve();
 
       expect(forestAdminClient.permissionService.canRetrieveChart).toHaveBeenCalledWith({
         renderingId: user.renderingId,
         userId: user.id,
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
       });
     });
 
@@ -348,12 +358,22 @@ describe('unit > services > AuthorizationService', () => {
 
       await expect(authorizationService.assertCanRetrieveChart({
         user,
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
       }))
         .rejects.toThrow(ForbiddenError);
 
       expect(forestAdminClient.permissionService.canRetrieveChart).toHaveBeenCalledWith({
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
         userId: user.id,
         renderingId: user.renderingId,
       });

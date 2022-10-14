@@ -1,4 +1,4 @@
-import { CollectionActionEvent, ForestAdminClient } from '@forestadmin/forestadmin-client';
+import { Chart, CollectionActionEvent, ForestAdminClient } from '@forestadmin/forestadmin-client';
 import ForbiddenError from '../utils/errors/forbidden-error';
 import BadRequestError from '../utils/errors/bad-request-error';
 
@@ -134,7 +134,7 @@ export default class AuthorizationService {
     chartRequest,
   }: {
     user: User,
-    chartRequest: unknown
+    chartRequest: Chart
   }): Promise<void> {
     const { renderingId, id: userId } = user;
 
