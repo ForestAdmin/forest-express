@@ -3,8 +3,6 @@ const serializeAttributes = require('../../../../src/integrations/intercom/seria
 describe('integrations > intercom > serializers > intercom-attributes', () => {
   describe('on an empty object', () => {
     it('should return a JSONAPI version of the empty object', () => {
-      expect.assertions(1);
-
       const serializedIntercomAttributes = serializeAttributes({}, 'x', {});
 
       expect(serializedIntercomAttributes).toStrictEqual({
@@ -18,8 +16,6 @@ describe('integrations > intercom > serializers > intercom-attributes', () => {
 
   describe('with a classic intercom payload', () => {
     it('should format the intercom response as JSONAPI', () => {
-      expect.assertions(1);
-
       // Most of theses fields are "useless", but this is the look of
       // a response sent by intercom/services/attributes-getter.js
       const intercomAttributes = {
@@ -102,8 +98,6 @@ describe('integrations > intercom > serializers > intercom-attributes', () => {
 
     describe('when there are dates in the response', () => {
       it('should correctly format the date from unix timestamp', () => {
-        expect.assertions(6);
-
         const intercomAttributes = {
           updated_at: null,
           created_at: 1586853350,

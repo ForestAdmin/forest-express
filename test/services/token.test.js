@@ -38,8 +38,6 @@ describe('token service', () => {
   }
 
   it("should sign a token with user's data", () => {
-    expect.assertions(2);
-
     const { jsonwebtoken, tokenService } = setup();
 
     jsonwebtoken.sign.mockReturnValue('THE TOKEN');
@@ -78,8 +76,6 @@ describe('token service', () => {
   });
 
   it('should update the expiration date of a token in the past', () => {
-    expect.assertions(1);
-
     const { tokenService } = setup();
     const result = tokenService.deleteToken();
 
@@ -92,8 +88,6 @@ describe('token service', () => {
   });
 
   it('should return null when there is no forest session cookie', () => {
-    expect.assertions(1);
-
     const { tokenService, cookiesWithoutForestSessionToken } = setup();
     const result = tokenService.extractForestSessionToken(cookiesWithoutForestSessionToken);
 
@@ -101,8 +95,6 @@ describe('token service', () => {
   });
 
   it('should return the forest session cookie', () => {
-    expect.assertions(1);
-
     const { tokenService, cookiesWithForestSessionToken } = setup();
     const result = tokenService.extractForestSessionToken(cookiesWithForestSessionToken);
 

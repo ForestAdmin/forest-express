@@ -50,15 +50,12 @@ function bodyDataAttributes(attributes) {
 describe('services › exposed › records-getter', () => {
   describe('getIdsFromRequest', () => {
     it('should return IDs as is if IDs provided', async () => {
-      expect.assertions(1);
-
       const request = bodyDataAttributes({ ids: ['1', '2'] });
       const ids = await getMockedRecordsGetter('users').getIdsFromRequest(request);
       expect(ids).toStrictEqual(['1', '2']);
     });
 
     it('should return all records if areAllRecordsSelected === true', async () => {
-      expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
 
       const request = bodyDataAttributes({ all_records: true });
@@ -67,7 +64,6 @@ describe('services › exposed › records-getter', () => {
     });
 
     it('should return all records but some if there are excluded IDs', async () => {
-      expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
 
       const request = bodyDataAttributes({ all_records_ids_excluded: ['1', '3'] });
@@ -76,7 +72,6 @@ describe('services › exposed › records-getter', () => {
     });
 
     it('should return all records if called from related data', async () => {
-      expect.assertions(1);
       Schemas.schemas = { users: usersSchema, addresses: addressesSchema };
 
       const request = bodyDataAttributes({
@@ -93,7 +88,6 @@ describe('services › exposed › records-getter', () => {
 
   describe('getAll', () => {
     it('should return all records', async () => {
-      expect.assertions(1);
       Schemas.schemas = { users: usersSchema };
       const expected = collection1;
       const users = await getMockedRecordsGetter('users').getAll({});

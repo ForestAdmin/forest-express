@@ -6,8 +6,6 @@ describe('services > smart-action-field-validator', () => {
   describe('validateField', () => {
     describe('when the field is valid', () => {
       it('should do nothing', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = {
           field: 'test',
@@ -23,8 +21,6 @@ describe('services > smart-action-field-validator', () => {
 
     describe('when the field is not an object', () => {
       it('should throw if field is null', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = null;
 
@@ -32,8 +28,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field is an array', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = [];
 
@@ -41,8 +35,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field is a function', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = () => {};
 
@@ -54,8 +46,6 @@ describe('services > smart-action-field-validator', () => {
       const generateField = () => ({ field: 'test' });
 
       it('should throw if field.field is not defined', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = {};
 
@@ -63,8 +53,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field.field is not a string', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = generateField();
         field.field = 1;
@@ -73,8 +61,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field.description is not a string', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = generateField();
         field.description = () => {};
@@ -84,8 +70,6 @@ describe('services > smart-action-field-validator', () => {
 
       describe('when field have enums property', () => {
         it('should throw if it is not an array', () => {
-          expect.assertions(1);
-
           const actionName = 'actionTest';
           const field = generateField();
           field.enums = () => {};
@@ -94,8 +78,6 @@ describe('services > smart-action-field-validator', () => {
         });
 
         it('should throw if contains null option', () => {
-          expect.assertions(1);
-
           const actionName = 'actionTest';
           const field = generateField();
           field.enums = ['valid', null, 'another valid'];
@@ -104,8 +86,6 @@ describe('services > smart-action-field-validator', () => {
         });
 
         it('should throw if contains undefined option', () => {
-          expect.assertions(1);
-
           const actionName = 'actionTest';
           const field = generateField();
           field.enums = ['valid', undefined, 'another valid'];
@@ -115,8 +95,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field.isRequired is not a boolean', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = generateField();
         field.isRequired = 1;
@@ -125,8 +103,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field.isReadOnly is not a boolean', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = generateField();
         field.isReadOnly = 1;
@@ -135,8 +111,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field.reference is not a string', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = generateField();
         field.reference = 1;
@@ -145,8 +119,6 @@ describe('services > smart-action-field-validator', () => {
       });
 
       it('should throw if field.type is not a valid type', () => {
-        expect.assertions(1);
-
         const actionName = 'actionTest';
         const field = generateField();
         field.type = 1;
@@ -159,8 +131,6 @@ describe('services > smart-action-field-validator', () => {
   describe('validateFieldChangeHook', () => {
     describe('when the field does not use the change hook feature', () => {
       it('should do nothing', () => {
-        expect.assertions(1);
-
         const field = { field: 'test' };
         const actionName = 'actionTest';
         const hooks = [];
@@ -173,8 +143,6 @@ describe('services > smart-action-field-validator', () => {
     describe('when the field uses the hook feature', () => {
       describe('when the hook is correctly defined', () => {
         it('should do nothing', () => {
-          expect.assertions(1);
-
           const field = { field: 'test', hook: 'onChange' };
           const actionName = 'actionTest';
           const hooks = {
@@ -188,8 +156,6 @@ describe('services > smart-action-field-validator', () => {
 
       describe('when the field hook does not exist', () => {
         it('should throw an error', () => {
-          expect.assertions(1);
-
           const field = { field: 'test', hook: 'onChange' };
           const actionName = 'actionTest';
           const hooks = {};
@@ -204,8 +170,6 @@ describe('services > smart-action-field-validator', () => {
   describe('validateSmartActionFields', () => {
     describe('when the action does not have any fields', () => {
       it('should do nothing', () => {
-        expect.assertions(3);
-
         jest.resetAllMocks();
 
         const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
@@ -223,8 +187,6 @@ describe('services > smart-action-field-validator', () => {
 
     describe('when the action uses incorrect parameters', () => {
       it('should throw an error for fields not being an array', () => {
-        expect.assertions(3);
-
         jest.resetAllMocks();
 
         const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');
@@ -241,8 +203,6 @@ describe('services > smart-action-field-validator', () => {
     });
 
     it('should call validateFieldSpy and validateFieldChangeHook on each fields', () => {
-      expect.assertions(3);
-
       jest.resetAllMocks();
 
       const validateFieldSpy = jest.spyOn(smartActionFieldValidator, 'validateField');

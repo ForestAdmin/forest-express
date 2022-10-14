@@ -30,7 +30,6 @@ describe('services > config-store', () => {
 
   describe('when the given configuration is invalid', () => {
     it('should log an error when no options are provided', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = null;
@@ -39,7 +38,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when no authSecret is provided', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {};
@@ -48,7 +46,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when no envSecret is provided', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = { authSecret };
@@ -57,7 +54,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when envSecret does not match 64 length requirement', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = { authSecret, envSecret: Array(10).join('1') };
@@ -66,7 +62,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when using secretKey and authKey', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -78,7 +73,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when no connections are provided', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -90,7 +84,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when connections option is not an object', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -103,7 +96,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when using includedModels as not an array', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -117,7 +109,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when using excludedModels as not an array', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -131,7 +122,6 @@ describe('services > config-store', () => {
     });
 
     it('should log an error when schemaDir does not exist', () => {
-      expect.assertions(1);
       jest.clearAllMocks();
 
       const schemaDir = new Date();
@@ -154,7 +144,6 @@ describe('services > config-store', () => {
     };
 
     it('should log a warning when onlyCrudModule is provided', () => {
-      expect.assertions(2);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -169,7 +158,6 @@ describe('services > config-store', () => {
     });
 
     it('should log a warning when modelsDir is provided', () => {
-      expect.assertions(2);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -184,7 +172,6 @@ describe('services > config-store', () => {
     });
 
     it('should log a warning when configDir does not exist', () => {
-      expect.assertions(2);
       jest.clearAllMocks();
 
       const configDir = new Date();
@@ -200,7 +187,6 @@ describe('services > config-store', () => {
     });
 
     it('should log a warning when includedModels and excludedModels at used in the same time', () => {
-      expect.assertions(2);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -216,7 +202,6 @@ describe('services > config-store', () => {
     });
 
     it('should log nothing when a valid configuration is provided', () => {
-      expect.assertions(2);
       jest.clearAllMocks();
 
       configStore.lianaOptions = {
@@ -234,7 +219,6 @@ describe('services > config-store', () => {
       describe('with a single database project', () => {
         describe('when connection does not have any models', () => {
           it('should log a warning message', () => {
-            expect.assertions(2);
             jest.clearAllMocks();
 
             configStore.lianaOptions = {
@@ -252,7 +236,6 @@ describe('services > config-store', () => {
       describe('with a multiple database project', () => {
         describe('when only the first connections have models', () => {
           it('should not log a warning message', () => {
-            expect.assertions(2);
             jest.clearAllMocks();
 
             configStore.lianaOptions = {
@@ -268,7 +251,6 @@ describe('services > config-store', () => {
 
         describe('when only the second connections have models', () => {
           it('should not log a warning message', () => {
-            expect.assertions(2);
             jest.clearAllMocks();
 
             configStore.lianaOptions = {
@@ -284,7 +266,6 @@ describe('services > config-store', () => {
 
         describe('when connections does not have any models', () => {
           it('should log a warning message', () => {
-            expect.assertions(2);
             jest.clearAllMocks();
 
             configStore.lianaOptions = {

@@ -43,7 +43,6 @@ describe('authorization-finder', () => {
   describe('authenticate', () => {
     describe('when the server returns an error', () => {
       it('should return a InconsistentSecretAndRenderingError if the server returned this error', async () => {
-        expect.assertions(1);
         const { authorizationFinder, forestServerRequester } = setup();
 
         forestServerRequester.perform.mockRejectedValue({
@@ -61,7 +60,6 @@ describe('authorization-finder', () => {
       });
 
       it('should return a SecretNotFoundError if the server returned this error', async () => {
-        expect.assertions(1);
         const { authorizationFinder, forestServerRequester } = setup();
 
         forestServerRequester.perform.mockRejectedValue({
@@ -76,7 +74,6 @@ describe('authorization-finder', () => {
       });
 
       it('should return a TwoFactorAuthenticationRequiredError if the server returned this kind of error', async () => {
-        expect.assertions(1);
         const { authorizationFinder, forestServerRequester } = setup();
 
         forestServerRequester.perform.mockRejectedValue({
@@ -99,7 +96,6 @@ describe('authorization-finder', () => {
       });
 
       it('should return an empty error if the server returned an unknown error', async () => {
-        expect.assertions(1);
         const { authorizationFinder, forestServerRequester } = setup();
 
         forestServerRequester.perform.mockRejectedValue({
@@ -114,7 +110,6 @@ describe('authorization-finder', () => {
       });
 
       it('should return an authentication error if the error returned an error with a status', async () => {
-        expect.assertions(3);
         const { authorizationFinder, forestServerRequester } = setup();
 
         forestServerRequester.perform.mockRejectedValue({
@@ -143,7 +138,6 @@ describe('authorization-finder', () => {
       });
 
       it('should return an authentication error with a the default message if detail is missing', async () => {
-        expect.assertions(3);
         const { authorizationFinder, forestServerRequester } = setup();
 
         forestServerRequester.perform.mockRejectedValue({

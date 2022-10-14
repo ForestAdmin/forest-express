@@ -38,8 +38,6 @@ describe('services > csv-exporter', () => {
 
     describe('when implementation supports flatten fields feature', () => {
       it('should flatten records', async () => {
-        expect.assertions(1);
-
         initialiseContext();
         const { configStore } = inject();
         configStore.Implementation = {
@@ -64,8 +62,6 @@ describe('services > csv-exporter', () => {
 
     describe('when implementation does not support flatten fields feature', () => {
       it('should not flatten records', async () => {
-        expect.assertions(1);
-
         initialiseContext();
 
         const csvExporter = new CSVExporter(

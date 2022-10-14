@@ -81,7 +81,6 @@ describe('routes > authentication', () => {
       });
     }
     it('should return a valid authentication url', async () => {
-      expect.assertions(2);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
@@ -101,7 +100,6 @@ describe('routes > authentication', () => {
     });
 
     it('should return a valid authentication url even with an invalid token in the query', async () => {
-      expect.assertions(1);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
@@ -178,7 +176,6 @@ describe('routes > authentication', () => {
       return { receivedResponse, issuer };
     }
     it('should return a new authentication token', async () => {
-      expect.assertions(7);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
@@ -234,7 +231,6 @@ describe('routes > authentication', () => {
     });
 
     it('should return a new authentication token even if the previously received token is invalid', async () => {
-      expect.assertions(1);
       const {
         forestApp: app, sandbox, injections, oidcConfig,
       } = await setupApp();
@@ -258,8 +254,6 @@ describe('routes > authentication', () => {
 
   describe('#POST /forest/authentication/logout', () => {
     it('should return 204', async () => {
-      expect.assertions(1);
-
       const {
         forestApp: app, sandbox,
       } = await setupApp();

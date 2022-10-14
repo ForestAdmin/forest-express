@@ -49,7 +49,6 @@ describe('authenticationService', () => {
 
   describe('startAuthentication', () => {
     it('should correctly generate the authorizationUrl', async () => {
-      expect.assertions(3);
       const {
         client, authenticationService, oidcClientManagerService,
       } = setup();
@@ -74,7 +73,6 @@ describe('authenticationService', () => {
 
   describe('verifyCodeAndGenerateToken', () => {
     it('should authenticate the user and create a token', async () => {
-      expect.assertions(5);
       const {
         authorizationFinder, client, tokenService, authenticationService,
         oidcClientManagerService,
@@ -133,7 +131,6 @@ describe('authenticationService', () => {
 
     describe('with an invalid state', () => {
       it('should throw an error if the state is missing', async () => {
-        expect.assertions(1);
         const { authenticationService } = setup();
 
         await expect(authenticationService.verifyCodeAndGenerateToken(
@@ -144,7 +141,6 @@ describe('authenticationService', () => {
       });
 
       it('should throw an error if the state is not parsable', async () => {
-        expect.assertions(1);
         const { authenticationService } = setup();
 
         await expect(authenticationService.verifyCodeAndGenerateToken(
@@ -155,7 +151,6 @@ describe('authenticationService', () => {
       });
 
       it('should throw an error if the state does not contain a renderingId', async () => {
-        expect.assertions(1);
         const { authenticationService } = setup();
 
         await expect(authenticationService.verifyCodeAndGenerateToken(

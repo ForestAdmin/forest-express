@@ -26,7 +26,6 @@ describe('services > schema-file-updater', () => {
 
   // NOTICE: Expecting `fs.writeFileSync` second parameter to be valid JSON.
   it('should call fs.writeFileSync with a valid JSON as data', () => {
-    expect.assertions(2);
     const { fs } = inject();
     buildSchema([], {});
     expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
@@ -35,7 +34,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format a collection', () => {
-    expect.assertions(1);
     const schema = buildSchema([{ name: 'collectionName' }], meta);
     expect(schema.collections[0]).toStrictEqual({
       name: 'collectionName',
@@ -54,7 +52,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format field', () => {
-    expect.assertions(2);
     const schema = buildSchema([{
       name: 'collectionName',
       fields: [{
@@ -92,7 +89,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should set field\'s properties', () => {
-    expect.assertions(1);
     const schema = buildSchema([{
       name: 'collectionName',
       fields: [{
@@ -124,7 +120,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format action', () => {
-    expect.assertions(3);
     const schema = buildSchema([{
       name: 'collectionName',
       actions: [
@@ -184,8 +179,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format action hooks', () => {
-    expect.assertions(6);
-
     const INVALID_HOOKS = 'Action With Invalid Hooks';
     const INVALID_LOAD_HOOK = 'Action With Invalid Load Hook';
     const INVALID_CHANGE_HOOK = 'Action With Invalid Change Hook';
@@ -263,7 +256,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should format segments', () => {
-    expect.assertions(1);
     const schema = buildSchema([{
       name: 'collectionName',
       segments: [{ name: 'segmentName' }],
@@ -272,7 +264,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should not override existing properties', () => {
-    expect.assertions(1);
     const schema = buildSchema([{ name: 'collectionName', isVirtual: true }]);
     expect(schema.collections[0]).toMatchObject({
       isVirtual: true,
@@ -280,20 +271,17 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should contains meta', () => {
-    expect.assertions(1);
     const schema = buildSchema([], meta);
     expect(schema.meta).toStrictEqual(meta);
   });
 
   it('should sort collections by name', () => {
-    expect.assertions(2);
     const schema = buildSchema([{ name: 'collectionZ' }, { name: 'collectionA' }]);
     expect(schema.collections[0].name).toBe('collectionA');
     expect(schema.collections[1].name).toBe('collectionZ');
   });
 
   it('should sort fields by field and type', () => {
-    expect.assertions(3);
     const schema = buildSchema([{
       name: 'collectionName',
       fields: [{ field: 'fieldZ' }, { field: 'fieldA', type: 'Z' }, { field: 'fieldA', type: 'A' }],
@@ -304,7 +292,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should sort actions by name', () => {
-    expect.assertions(2);
     const schema = buildSchema([{
       name: 'collectionName',
       actions: [{ name: 'actionZ' }, { name: 'actionA' }],
@@ -314,7 +301,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should set to null invalid action type', () => {
-    expect.assertions(2);
     const { logger } = inject();
     const schema = buildSchema([{
       name: 'collectionName',
@@ -329,7 +315,6 @@ describe('services > schema-file-updater', () => {
   });
 
   it('should log if action.global=true is still used', () => {
-    expect.assertions(1);
     const { logger } = inject();
     buildSchema([{
       name: 'collectionName',

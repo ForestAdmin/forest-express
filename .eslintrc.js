@@ -38,6 +38,10 @@ module.exports = {
     'jest/max-expects': 'off',
     'jest/max-nested-describe': 'off',
     'jest/require-hook': 'off',
+    "jest/prefer-expect-assertions": [
+      "error",
+      { "onlyFunctionsWithExpectInLoop": true, "onlyFunctionsWithExpectInCallback": true }
+    ],
     'no-param-reassign': 0,
     'no-underscore-dangle': 0,
     'sonarjs/cognitive-complexity': 1,

@@ -18,14 +18,12 @@ describe('deserializers > resource', () => {
     );
   }
   it('should return resource properties from request', async () => {
-    expect.assertions(3);
     await expect(getDeserializer({ id: '1' }).perform()).resolves.toStrictEqual({ id: '1' });
     await expect(getDeserializer({ name: 'jane' }).perform()).resolves.toStrictEqual({ name: 'jane', id: undefined });
     await expect(getDeserializer({ id: '1', name: 'john' }).perform()).resolves.toStrictEqual({ id: '1', name: 'john' });
   });
 
   it('should compute smart field setters and mutate entity', async () => {
-    expect.assertions(1);
     await expect(getDeserializer({ id: '1', name: 'jane', smart: 'doe' }).perform()).resolves
       .toStrictEqual({ id: '1', name: 'jane - doe', smart: 'doe' });
   });

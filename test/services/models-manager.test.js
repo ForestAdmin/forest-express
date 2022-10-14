@@ -25,8 +25,6 @@ describe('services > models-manager', () => {
     const modelsManager = new ModelsManager({ configStore });
 
     it('should return the model lists as an object using model name as a key', () => {
-      expect.assertions(1);
-
       const models = modelsManager.getModels();
       expect(models).toMatchObject({
         model1: {
@@ -39,8 +37,6 @@ describe('services > models-manager', () => {
     });
 
     it('should not recompute the model lists', () => {
-      expect.assertions(1);
-
       const spy = jest.spyOn(modelsManager, '_generateModelList');
 
       modelsManager.getModels();
@@ -50,7 +46,6 @@ describe('services > models-manager', () => {
 
   describe('when using includedModels', () => {
     it('should return only included models', () => {
-      expect.assertions(1);
       const configStore = {
         lianaOptions: {
           includedModels: ['model1'],
@@ -82,7 +77,6 @@ describe('services > models-manager', () => {
 
   describe('when using excludedModels', () => {
     it('should return models that were not excluded', () => {
-      expect.assertions(1);
       const configStore = {
         lianaOptions: {
           excludedModels: ['model1'],
@@ -114,7 +108,6 @@ describe('services > models-manager', () => {
 
   describe('when using includedModels and excludedModels', () => {
     it('should return only included models', () => {
-      expect.assertions(1);
       const configStore = {
         lianaOptions: {
           includedModels: ['model1'],

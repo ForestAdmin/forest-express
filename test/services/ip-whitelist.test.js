@@ -23,7 +23,6 @@ describe('utils › services', () => {
     },
   });
   it('should consider valid IP as valid', async () => {
-    expect.assertions(4);
     await retrieve();
     expect(isIpWhitelistRetrieved()).toBe(true);
     expect(isIpValid('1.0.0.0')).toBe(true);
@@ -31,7 +30,6 @@ describe('utils › services', () => {
     expect(isIpValid('1.2.0.0')).toBe(true);
   });
   it('should consider invalid IP as invalid', async () => {
-    expect.assertions(2);
     await retrieve();
     expect(isIpWhitelistRetrieved()).toBe(true);
     expect(isIpValid('1.3.0.0')).toBe(false);

@@ -4,7 +4,6 @@ const { pushIntoApimap } = require('../../src/utils/integrations');
 //         This behavior is a bit unexpected and should be fixed in a near future.
 describe('utils › integrations › pushIntoApimap', () => {
   it('should append new collections', () => {
-    expect.assertions(1);
     const apimap = [{ name: 'users' }];
     const collection = { name: 'projects' };
 
@@ -14,7 +13,6 @@ describe('utils › integrations › pushIntoApimap', () => {
   });
 
   it('should merge existing collections and actions', () => {
-    expect.assertions(1);
     const apimap = [
       { name: 'users', actions: ['send-invoice'] },
       { name: 'projects', actions: ['mark-as-live'] },

@@ -37,19 +37,14 @@ describe('services > ScopeManager', () => {
 
   describe('appendScopeForUser', () => {
     it('should work with neither scopes nor customer filter', async () => {
-      expect.assertions(1);
-
-      const context = makeContext();
-      const scopeManager = new ScopeManager(context);
-      context.forestAdminClient.getScope.mockResolvedValue(undefined);
+      const scopeManager = new ScopeManager({});
+      jest.spyOn(scopeManager, 'getScopeForUser').mockResolvedValue(undefined);
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
 
       expect(newFilter).toBeUndefined();
     });
 
     it('should work with scopes, but not customer filter', async () => {
-      expect.assertions(1);
-
       const context = makeContext();
       const scopeManager = new ScopeManager(context);
       context.forestAdminClient.getScope
@@ -60,8 +55,6 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with customer filter, but no scopes', async () => {
-      expect.assertions(1);
-
       const context = makeContext();
       const scopeManager = new ScopeManager(context);
       context.forestAdminClient.getScope.mockResolvedValue(undefined);
@@ -72,8 +65,6 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with both customer filter and scopes', async () => {
-      expect.assertions(1);
-
       const context = makeContext();
       const scopeManager = new ScopeManager(context);
       context.forestAdminClient.getScope
@@ -98,8 +89,6 @@ describe('services > ScopeManager', () => {
 
       describe('with a user having no renderingId', () => {
         it('should throw an error', async () => {
-          expect.assertions(1);
-
           await expect(
             scopeManager.getScopeForUser({}, 'myCollection'),
           ).rejects.toStrictEqual(new Error('Missing required renderingId'));
@@ -108,8 +97,6 @@ describe('services > ScopeManager', () => {
 
       describe('without providing a collectionName', () => {
         it('should throw an error', async () => {
-          expect.assertions(1);
-
           await expect(
             scopeManager.getScopeForUser(defaultUser),
           ).rejects.toStrictEqual(new Error('Missing required collectionName'));

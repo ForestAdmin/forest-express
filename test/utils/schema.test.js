@@ -10,7 +10,6 @@ const {
 describe('utils › data', () => {
   describe('getBelongsToAssociations', () => {
     it('should return belongs to associations', () => {
-      expect.assertions(1);
       const expected = [{ reference: 'users.id', type: 'String', isVirtual: false }];
       const unexpected = [
         { type: 'String', isVirtual: false },
@@ -30,7 +29,6 @@ describe('utils › data', () => {
 
   describe('getHasManyAssociations', () => {
     it('should return belongs to associations', () => {
-      expect.assertions(1);
       const expected = [{ reference: 'something.id', type: ['String'], isVirtual: false }];
       const unexpected = [
         { type: 'String', isVirtual: false },
@@ -51,8 +49,6 @@ describe('utils › data', () => {
   describe('getField', () => {
     describe('with a simple field', () => {
       it('should return the field', () => {
-        expect.assertions(1);
-
         const fieldToFind = {
           field: 'childs',
           type: 'String',
@@ -70,8 +66,6 @@ describe('utils › data', () => {
 
     describe('with a reference field', () => {
       it('should return the field', () => {
-        expect.assertions(1);
-
         const fieldToFind = {
           field: 'childs',
           type: 'String',
@@ -92,8 +86,6 @@ describe('utils › data', () => {
   describe('getSmartField', () => {
     describe('when field is not found', () => {
       it('should return null', () => {
-        expect.assertions(1);
-
         const schema = { fields: [] };
 
         expect(getSmartField(schema, 'notExisting')).toBeNull();
@@ -104,8 +96,6 @@ describe('utils › data', () => {
   describe('isSmartField', () => {
     describe('with a virtual field', () => {
       it('should return true', () => {
-        expect.assertions(1);
-
         const fieldToFind = {
           field: 'childs',
           type: 'String',
@@ -119,8 +109,6 @@ describe('utils › data', () => {
 
     describe('with a simple field', () => {
       it('should return false', () => {
-        expect.assertions(1);
-
         const fieldToFind = {
           field: 'childs',
           type: 'String',
@@ -135,8 +123,6 @@ describe('utils › data', () => {
 
   describe('getFieldType', () => {
     it('should return the type of the field', () => {
-      expect.assertions(2);
-
       const schemas = {
         fields: [{
           field: 'childs',
