@@ -7,7 +7,7 @@ module.exports = (context) =>
     .addUsingFunction('forestAdminClient', ({ env, logger }) => createForestAdminClient({
       forestServerUrl: env.FOREST_URL,
       envSecret: env.FOREST_ENV_SECRET,
-      logger: (level, ...args) => logger[level.toLowerCase()](...args),
+      logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
     }))
     .addUsingClass('authorizationService', () => require('../services/authorization').default)
     .addInstance('pathService', () => require('../services/path'))
