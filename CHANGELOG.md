@@ -1,3 +1,17 @@
+# [10.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v9.5.6...v10.0.0-beta.1) (2022-10-14)
+
+
+### Code Refactoring
+
+* use new permissions mechanism v4 ([#943](https://github.com/ForestAdmin/forest-express/issues/943)) ([ffcd051](https://github.com/ForestAdmin/forest-express/commit/ffcd0510fcd2dc8af4e7de6a3b1de4b66abea0f7))
+
+
+### BREAKING CHANGES
+
+* drop support of projects that are not using roles
+
+Co-authored-by: Guillaume Gautreau <guillaumeg@forestadmin.com>
+
 ## [9.5.6](https://github.com/ForestAdmin/forest-express/compare/v9.5.5...v9.5.6) (2022-08-31)
 
 
