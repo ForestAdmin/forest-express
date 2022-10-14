@@ -1,7 +1,6 @@
 const fs = require('fs');
 const moment = require('moment');
 const VError = require('verror');
-
 const superagentRequest = require('superagent');
 const path = require('path');
 const openIdClient = require('openid-client');
