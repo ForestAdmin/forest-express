@@ -14,12 +14,16 @@ function errorHandler({ logger } = {}) {
   return function handleError(error, request, response, next) {
     if (error) {
       // NOTICE: Send the first error if any.
-      if (error.errors && error.errors[0] && error.errors[0].message) {
-        error.message = error.errors[0].message;
-      }
-
-      if (error.errors && error.errors[0] && error.errors[0].name) {
-        error.name = error.errors[0].name;
+      if (error.errors && error.errors[0]) {
+        if (error.errors[0].message) {
+          error.message = error.errors[0].message;
+        }
+        if (error.errors[0].name) {
+          error.name = error.errors[0].name;
+        }
+        if (error.errors[0].data) {
+          error.data = error.errors[0].data;
+        }
       }
 
       if (!error.status && logger) {
@@ -32,6 +36,7 @@ function errorHandler({ logger } = {}) {
           status: error.status || 500,
           detail: error.message,
           name: error.name,
+          ...(error.data ? { data: error.data } : {}),
         }],
       });
     } else {

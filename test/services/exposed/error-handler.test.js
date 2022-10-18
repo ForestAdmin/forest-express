@@ -1,5 +1,17 @@
 const sinon = require('sinon');
 const errorHandler = require('../../../src/services/exposed/error-handler');
+const ForbiddenError = require('../../../src/utils/errors/forbidden-error').default;
+
+class FakePayloadError extends ForbiddenError {
+  constructor(...args) {
+    super(...args);
+
+    this.name = this.constructor.name;
+    this.data = {
+      property: 'value',
+    };
+  }
+}
 
 describe('services › exposed › error-handler', () => {
   function mockResponse() {
@@ -111,5 +123,34 @@ describe('services › exposed › error-handler', () => {
         name: 'SomethingWrongHappenedError',
       }],
     }]);
+  });
+
+  describe('with an error that supports data (payload)', () => {
+    it('should add data to the body JSON response', () => {
+      const response = mockResponse();
+      const error = new FakePayloadError('message');
+
+      const handleError = errorHandler();
+      const next = sinon.stub();
+
+      handleError(error, undefined, response, next);
+
+      expect(next.callCount).toBe(0);
+      expect(response.status.callCount).toBe(1);
+      expect(response.status.firstCall.args).toStrictEqual([
+        403,
+      ]);
+      expect(response.send.callCount).toBe(1);
+      expect(response.send.firstCall.args).toStrictEqual([{
+        errors: [{
+          detail: 'message',
+          status: 403,
+          name: 'FakePayloadError',
+          data: {
+            property: 'value',
+          },
+        }],
+      }]);
+    });
   });
 });
