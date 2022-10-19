@@ -34,6 +34,7 @@ describe('services › exposed › error-handler', () => {
     const error = {
       errors: [{
         message: 'First message',
+        name: 'FirstNameError',
       }, {
         message: 'Second message',
       }],
@@ -54,7 +55,7 @@ describe('services › exposed › error-handler', () => {
       errors: [{
         status: 500,
         detail: 'First message',
-        name: undefined,
+        name: 'FirstNameError',
       }],
     }]);
   });
@@ -66,9 +67,9 @@ describe('services › exposed › error-handler', () => {
         name: 'FirstNameError',
       }, {
         message: 'Second message',
-        name: 'FirstNameError',
+        name: 'SecondNameError',
       }],
-      message: 'Root message',
+      name: 'Root name',
     };
 
     const next = sinon.stub();
@@ -103,7 +104,6 @@ describe('services › exposed › error-handler', () => {
     const response = mockResponse();
     const error = new Error('Something bad happened');
     error.status = 666;
-    error.name = 'SomethingWrongHappenedError';
 
     const handleError = errorHandler();
     const next = sinon.stub();
@@ -120,7 +120,7 @@ describe('services › exposed › error-handler', () => {
       errors: [{
         detail: 'Something bad happened',
         status: 666,
-        name: 'SomethingWrongHappenedError',
+        name: 'Error',
       }],
     }]);
   });

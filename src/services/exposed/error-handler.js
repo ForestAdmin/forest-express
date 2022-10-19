@@ -23,7 +23,7 @@ function errorHandler({ logger } = {}) {
       // NOTICE: Send the first error if any.
       if (error.errors && error.errors[0]) {
         if (error.errors[0].message) {
-          responseError.message = error.errors[0].message;
+          responseError.detail = error.errors[0].message;
         }
         if (error.errors[0].name) {
           responseError.name = error.errors[0].name;
