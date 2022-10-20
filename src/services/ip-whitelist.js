@@ -1,6 +1,5 @@
 const P = require('bluebird');
 const _ = require('lodash');
-const VError = require('verror');
 const ipUtil = require('forest-ip-utils');
 const logger = require('./logger');
 const errorMessages = require('../utils/error-messages');
@@ -24,8 +23,8 @@ function retrieve(environmentSecret) {
       ipWhitelistRules = ipWhitelistData.rules;
     })
     .catch((error) => {
-      logger.error('An error occured while retrieving your IP whitelist. Your Forest envSecret seems to be missing or unknown. Can you check that you properly set your Forest envSecret in the Forest initializer?');
-      return P.reject(new VError('IP Whitelist error', error));
+      logger.error('An error occurred while retrieving your IP whitelist. Your Forest envSecret seems to be missing or unknown. Can you check that you properly set your Forest envSecret in the Forest initializer?');
+      return P.reject(new Error('IP Whitelist error', error));
     });
 }
 

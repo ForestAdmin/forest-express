@@ -1,7 +1,6 @@
 const { inject } = require('@forestadmin/context');
 const P = require('bluebird');
 const superagent = require('superagent');
-const VError = require('verror');
 const errorMessages = require('../utils/error-messages');
 
 function perform(route, environmentSecret, queryParameters, headers) {
@@ -41,7 +40,7 @@ function perform(route, environmentSecret, queryParameters, headers) {
       }
 
       if (error) {
-        return reject(new VError(error, 'Forest server request error'));
+        return reject(new Error(error, 'Forest server request error'));
       }
 
       return reject(new Error(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error));

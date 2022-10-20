@@ -1,6 +1,5 @@
 const fs = require('fs');
 const moment = require('moment');
-const VError = require('verror');
 
 const superagentRequest = require('superagent');
 const path = require('path');
@@ -13,5 +12,4 @@ module.exports = (context) =>
     .addInstance('path', path)
     .addInstance('openIdClient', () => openIdClient)
     .addInstance('jsonwebtoken', () => jsonwebtoken)
-    .addInstance('moment', () => moment)
-    .addInstance('VError', () => VError);
+    .addInstance('moment', () => moment);

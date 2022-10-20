@@ -53,7 +53,6 @@
     "semver": "6.3.0",
     "superagent": "5.2.2",
     "uuid": "3.3.3",
-    "verror": "1.10.0",
     "winston": "3.2.1"
   },
   "devDependencies": {

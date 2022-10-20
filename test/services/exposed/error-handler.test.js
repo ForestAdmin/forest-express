@@ -18,62 +18,6 @@ describe('services › exposed › error-handler', () => {
     expect(next.callCount).toBe(1);
   });
 
-  it('uses the first error\'s message as the message if the error contains multiple errors', () => {
-    const error = {
-      errors: [{
-        message: 'First message',
-      }, {
-        message: 'Second message',
-      }],
-      message: 'Root message',
-    };
-
-    const next = sinon.stub();
-    const response = mockResponse();
-    const handleError = errorHandler();
-
-    handleError(error, undefined, response, next);
-
-    expect(next.callCount).toBe(0);
-    expect(response.status.callCount).toBe(1);
-    expect(response.status.firstCall.args).toStrictEqual([500]);
-    expect(response.send.callCount).toBe(1);
-    expect(response.send.firstCall.args).toStrictEqual([{
-      errors: [{
-        status: 500,
-        detail: 'First message',
-        name: undefined,
-      }],
-    }]);
-  });
-
-  it('uses the first error\'s name as the name if the error contains multiple errors', () => {
-    const error = {
-      errors: [{
-        message: 'First message',
-        name: 'FirstNameError',
-      }, {
-        message: 'Second message',
-        name: 'FirstNameError',
-      }],
-      message: 'Root message',
-    };
-
-    const next = sinon.stub();
-    const response = mockResponse();
-    const handleError = errorHandler();
-
-    handleError(error, undefined, response, next);
-
-    expect(response.send.firstCall.args).toStrictEqual([{
-      errors: [{
-        status: 500,
-        detail: 'First message',
-        name: 'FirstNameError',
-      }],
-    }]);
-  });
-
   it('logs the unexpected error if the error does not have a status', () => {
     const error = new Error('The error');
     const logger = { error: sinon.stub() };
