@@ -6,7 +6,6 @@ class FakePayloadError extends ForbiddenError {
   constructor(...args) {
     super(...args);
 
-    this.name = this.constructor.name;
     this.data = {
       property: 'value',
     };
