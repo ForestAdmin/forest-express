@@ -18,7 +18,7 @@ describe('unit > services > AuthorizationService', () => {
         permissionService: {
           canOnCollection: jest.fn(),
           canExecuteCustomAction: jest.fn(),
-          canRetrieveChart: jest.fn(),
+          canExecuteChart: jest.fn(),
           canExecuteSegmentQuery: jest.fn(),
           canApproveCustomAction: jest.fn(),
           canTriggerCustomAction: jest.fn(),
@@ -320,7 +320,7 @@ describe('unit > services > AuthorizationService', () => {
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
       );
 
-      forestAdminClient.permissionService.canRetrieveChart.mockResolvedValue(true);
+      forestAdminClient.permissionService.canExecuteChart.mockResolvedValue(true);
 
       await expect(authorizationService.assertCanRetrieveChart({
         chartRequest: {
@@ -332,7 +332,7 @@ describe('unit > services > AuthorizationService', () => {
         user,
       })).toResolve();
 
-      expect(forestAdminClient.permissionService.canRetrieveChart).toHaveBeenCalledWith({
+      expect(forestAdminClient.permissionService.canExecuteChart).toHaveBeenCalledWith({
         renderingId: user.renderingId,
         userId: user.id,
         chartRequest: {
@@ -354,7 +354,7 @@ describe('unit > services > AuthorizationService', () => {
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
       );
 
-      forestAdminClient.permissionService.canRetrieveChart.mockResolvedValue(false);
+      forestAdminClient.permissionService.canExecuteChart.mockResolvedValue(false);
 
       await expect(authorizationService.assertCanRetrieveChart({
         user,
@@ -367,7 +367,7 @@ describe('unit > services > AuthorizationService', () => {
       }))
         .rejects.toThrow(ForbiddenError);
 
-      expect(forestAdminClient.permissionService.canRetrieveChart).toHaveBeenCalledWith({
+      expect(forestAdminClient.permissionService.canExecuteChart).toHaveBeenCalledWith({
         chartRequest: {
           type: ChartType.Value,
           sourceCollectionName: 'jedi',

@@ -138,7 +138,7 @@ export default class AuthorizationService {
   }): Promise<void> {
     const { renderingId, id: userId } = user;
 
-    const canRetrieveChart = await this.forestAdminClient.permissionService.canRetrieveChart({
+    const canRetrieveChart = await this.forestAdminClient.permissionService.canExecuteChart({
       renderingId,
       userId,
       chartRequest,

@@ -1380,10 +1380,10 @@
   resolved "https://registry.yarnpkg.com/@forestadmin/context/-/context-1.31.0.tgz#b4b5a3b589e52d337a1f45807db22c2860e640a7"
   integrity sha512-RQkDBkq+6ySMv+YNezz9VWSyCsqD7fj/+bXrXhQ6lJ62nbRUIUheH7ApvXwfnwFR1u55oT6Yhar11t6DaiE9Ig==
 
-"@forestadmin/forestadmin-client@1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.0.0-alpha.1.tgz#9845443ad86698ab16f2c302d0ee2cdd7060daf0"
-  integrity sha512-vmLOwZXkk5Ff50IeEaqir4cM6cZPXvNW/rMUH5CcTh7xlcpjjRjZVld6FGns/HDKWNlQBsrpMCBPTTdtW4LLLA==
+"@forestadmin/forestadmin-client@1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.0.0-alpha.2.tgz#84e9aabb5d5b8c0fd021d372c40c63991a9d20a7"
+  integrity sha512-Y4IE7Hyxo8z+LtM9zvRrN1K8jUI9ZlwFhbIP4P4phpnJ6hthU0NVxraYwvVWcM/Z0q3efGjC8ciG8yJnZ/RFVg==
   dependencies:
     jsonwebtoken "^8.5.1"
     lru-cache "^7.3.1"
