@@ -1,3 +1,10 @@
+# [10.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.1...v10.0.0-beta.2) (2022-10-27)
+
+
+### Bug Fixes
+
+* **chart:** improve security on chart and rename keys ([#949](https://github.com/ForestAdmin/forest-express/issues/949)) ([a45500f](https://github.com/ForestAdmin/forest-express/commit/a45500f4c3b83c85a121a342ed190b1811273d36))
+
 # [10.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v9.5.6...v10.0.0-beta.1) (2022-10-14)
 
 
