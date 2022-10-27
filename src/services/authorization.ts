@@ -1,4 +1,11 @@
-import { Chart, CollectionActionEvent, ForestAdminClient } from '@forestadmin/forestadmin-client';
+import {
+  ChainedSQLQueryError,
+  Chart,
+  CollectionActionEvent,
+  EmptySQLQueryError,
+  ForestAdminClient,
+  NonSelectSQLQueryError,
+} from '@forestadmin/forestadmin-client';
 import ForbiddenError from '../utils/errors/forbidden-error';
 import BadRequestError from '../utils/errors/bad-request-error';
 
@@ -138,14 +145,23 @@ export default class AuthorizationService {
   }): Promise<void> {
     const { renderingId, id: userId } = user;
 
-    const canRetrieveChart = await this.forestAdminClient.permissionService.canExecuteChart({
-      renderingId,
-      userId,
-      chartRequest,
-    });
+    try {
+      const canRetrieveChart = await this.forestAdminClient.permissionService.canExecuteChart({
+        renderingId,
+        userId,
+        chartRequest,
+      });
 
-    if (!canRetrieveChart) {
-      throw new ForbiddenError('User is not authorized to view this chart');
+      if (!canRetrieveChart) {
+        throw new ForbiddenError('User is not authorized to view this chart');
+      }
+    } catch (error) {
+      if (error instanceof EmptySQLQueryError
+        || error instanceof NonSelectSQLQueryError
+        || error instanceof ChainedSQLQueryError) {
+        throw new BadRequestError(error.message);
+      }
+      throw error;
     }
   }
 }
