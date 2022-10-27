@@ -1,6 +1,13 @@
 /* eslint-disable jest/prefer-expect-assertions */
-import { CollectionActionEvent } from '@forestadmin/forestadmin-client';
+import {
+  ChainedSQLQueryError,
+  ChartType,
+  CollectionActionEvent,
+  EmptySQLQueryError,
+  NonSelectSQLQueryError,
+} from '@forestadmin/forestadmin-client';
 import AuthorizationService from '../../src/services/authorization';
+import BadRequestError from '../../src/utils/errors/bad-request-error';
 import ForbiddenError from '../../src/utils/errors/forbidden-error';
 
 describe('unit > services > AuthorizationService', () => {
@@ -18,7 +25,7 @@ describe('unit > services > AuthorizationService', () => {
         permissionService: {
           canOnCollection: jest.fn(),
           canExecuteCustomAction: jest.fn(),
-          canRetrieveChart: jest.fn(),
+          canExecuteChart: jest.fn(),
           canExecuteSegmentQuery: jest.fn(),
           canApproveCustomAction: jest.fn(),
           canTriggerCustomAction: jest.fn(),
@@ -320,17 +327,27 @@ describe('unit > services > AuthorizationService', () => {
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
       );
 
-      forestAdminClient.permissionService.canRetrieveChart.mockResolvedValue(true);
+      forestAdminClient.permissionService.canExecuteChart.mockResolvedValue(true);
 
       await expect(authorizationService.assertCanRetrieveChart({
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
         user,
       })).toResolve();
 
-      expect(forestAdminClient.permissionService.canRetrieveChart).toHaveBeenCalledWith({
+      expect(forestAdminClient.permissionService.canExecuteChart).toHaveBeenCalledWith({
         renderingId: user.renderingId,
         userId: user.id,
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
       });
     });
 
@@ -344,19 +361,104 @@ describe('unit > services > AuthorizationService', () => {
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
       );
 
-      forestAdminClient.permissionService.canRetrieveChart.mockResolvedValue(false);
+      forestAdminClient.permissionService.canExecuteChart.mockResolvedValue(false);
 
       await expect(authorizationService.assertCanRetrieveChart({
         user,
-        chartRequest: { foo: 'bar' },
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
       }))
         .rejects.toThrow(ForbiddenError);
 
-      expect(forestAdminClient.permissionService.canRetrieveChart).toHaveBeenCalledWith({
-        chartRequest: { foo: 'bar' },
+      expect(forestAdminClient.permissionService.canExecuteChart).toHaveBeenCalledWith({
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
         userId: user.id,
         renderingId: user.renderingId,
       });
+    });
+
+    it('should throw an error if the query is empty', async () => {
+      const context = makeContext();
+      const { forestAdminClient } = context;
+
+      forestAdminClient.permissionService.canOnCollection.mockResolvedValue(true);
+
+      const authorizationService = new AuthorizationService(
+        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
+      );
+
+      forestAdminClient.permissionService.canExecuteChart
+        .mockRejectedValue(new EmptySQLQueryError());
+
+      await expect(authorizationService.assertCanRetrieveChart({
+        user,
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
+      }))
+        .rejects.toThrow(new BadRequestError('You cannot execute an empty SQL query.'));
+    });
+
+    it('should throw an error if the query is chained', async () => {
+      const context = makeContext();
+      const { forestAdminClient } = context;
+
+      forestAdminClient.permissionService.canOnCollection.mockResolvedValue(true);
+
+      const authorizationService = new AuthorizationService(
+        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
+      );
+
+      forestAdminClient.permissionService.canExecuteChart
+        .mockRejectedValue(new ChainedSQLQueryError());
+
+      await expect(authorizationService.assertCanRetrieveChart({
+        user,
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
+      }))
+        .rejects.toThrow(new BadRequestError('You cannot chain SQL queries.'));
+    });
+
+    it('should throw an error if the query is not a select', async () => {
+      const context = makeContext();
+      const { forestAdminClient } = context;
+
+      forestAdminClient.permissionService.canOnCollection.mockResolvedValue(true);
+
+      const authorizationService = new AuthorizationService(
+        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
+      );
+
+      forestAdminClient.permissionService.canExecuteChart
+        .mockRejectedValue(new NonSelectSQLQueryError());
+
+      await expect(authorizationService.assertCanRetrieveChart({
+        user,
+        chartRequest: {
+          type: ChartType.Value,
+          sourceCollectionName: 'jedi',
+          aggregateFieldName: 'strength',
+          aggregator: 'Sum',
+        },
+      }))
+        .rejects.toThrow(new BadRequestError('Only SELECT queries are allowed.'));
     });
   });
 

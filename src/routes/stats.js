@@ -41,7 +41,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
 
     if (type === CHART_TYPE_LEADERBOARD) {
       const schema = Schemas.schemas[model.name];
-      const modelRelationship = getAssociationModel(schema, request.body.relationship_field);
+      const modelRelationship = getAssociationModel(schema, request.body.relationshipFieldName);
 
       promise = new Implementation
         .LeaderboardStatGetter(model, modelRelationship, params, request.user).perform();
