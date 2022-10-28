@@ -2,7 +2,7 @@ const { init } = require('@forestadmin/context');
 const Stats = require('../../src/routes/stats');
 
 const chartHandler = {
-  getChart: jest.fn(),
+  getChartWithContextInjected: jest.fn(),
 };
 init((context) => context.addInstance('chartHandler', chartHandler));
 
@@ -21,7 +21,7 @@ describe('routes > stats', () => {
       };
 
       const chart = { type: 'Objective', objective: 1000 };
-      chartHandler.getChart.mockResolvedValue(chart);
+      chartHandler.getChartWithContextInjected.mockResolvedValue(chart);
 
       const next = jest.fn();
       const req = {
@@ -42,7 +42,7 @@ describe('routes > stats', () => {
       const subject = new Stats(app, model, Implementation);
       await subject.get(req, res, next);
 
-      expect(chartHandler.getChart).toHaveBeenCalledOnceWith({
+      expect(chartHandler.getChartWithContextInjected).toHaveBeenCalledOnceWith({
         userId: 10,
         renderingId: 1,
         chartRequest: req.body,

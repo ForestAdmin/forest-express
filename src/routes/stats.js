@@ -36,7 +36,7 @@ module.exports = function Stats(app, model, Implementation, opts) {
       );
     }
 
-    const chart = await chartHandler.getChart({
+    const chart = await chartHandler.getChartWithContextInjected({
       userId: request.user.id,
       renderingId: request.user.renderingId,
       chartRequest: request.body,
