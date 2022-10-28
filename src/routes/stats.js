@@ -15,11 +15,11 @@ const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
 module.exports = function Stats(app, model, Implementation, opts) {
-  const { modelsManager } = inject();
+  const { chartHandler, modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
 
-  this.get = (request, response, next) => {
+  this.get = async (request, response, next) => {
     let promise = null;
 
     function getAssociationModel(schema, associationName) {
@@ -36,7 +36,12 @@ module.exports = function Stats(app, model, Implementation, opts) {
       );
     }
 
-    const params = { timezone: request.query.timezone, ...request.body };
+    const chart = await chartHandler.getChart({
+      userId: request.user.id,
+      renderingId: request.user.renderingId,
+      chartRequest: request.body,
+    });
+    const params = { timezone: request.query.timezone, ...request.body, ...chart };
     const { type } = request.body;
 
     if (type === CHART_TYPE_LEADERBOARD) {
