@@ -82,71 +82,83 @@ module.exports = function Stats(app, model, Implementation, opts) {
     return new error.UnprocessableEntity(message);
   }
 
-  this.getWithLiveQuery = (request, response, next) =>
-    new Implementation.QueryStatGetter(request.body, opts)
-      .perform()
-      .then((result) => {
-        switch (request.body.type) {
-          case CHART_TYPE_VALUE:
-            if (result.length) {
-              const resultLine = result[0];
-              if (resultLine.value === undefined) {
-                throw getErrorQueryColumnsName(resultLine, '\'value\'');
-              } else {
-                result = {
-                  countCurrent: resultLine.value,
-                  countPrevious: resultLine.previous,
-                };
-              }
-            }
-            break;
-          case CHART_TYPE_PIE:
-          case CHART_TYPE_LEADERBOARD:
-            if (result.length) {
-              result.forEach((resultLine) => {
-                if (resultLine.value === undefined || resultLine.key === undefined) {
-                  throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
-                }
-              });
-            }
-            break;
-          case CHART_TYPE_LINE:
-            if (result.length) {
-              result.forEach((resultLine) => {
-                if (resultLine.value === undefined || resultLine.key === undefined) {
-                  throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
-                }
-              });
-            }
+  this.getWithLiveQuery = async (request, response, next) => {
+    try {
+      const { query, contextVariables } = await chartHandler.getQueryForChart({
+        userId: request.user.id,
+        renderingId: request.user.renderingId,
+        chartRequest: request.body,
+      });
 
-            result = result.map((resultLine) => ({
-              label: resultLine.key,
-              values: {
+      let result = await new Implementation.QueryStatGetter({
+        ...request.body,
+        query,
+        contextVariables,
+      }, opts).perform();
+
+      switch (request.body.type) {
+        case CHART_TYPE_VALUE:
+          if (result.length) {
+            const resultLine = result[0];
+            if (resultLine.value === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\'');
+            } else {
+              result = {
+                countCurrent: resultLine.value,
+                countPrevious: resultLine.previous,
+              };
+            }
+          }
+          break;
+        case CHART_TYPE_PIE:
+        case CHART_TYPE_LEADERBOARD:
+          if (result.length) {
+            result.forEach((resultLine) => {
+              if (resultLine.value === undefined || resultLine.key === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              }
+            });
+          }
+          break;
+        case CHART_TYPE_LINE:
+          if (result.length) {
+            result.forEach((resultLine) => {
+              if (resultLine.value === undefined || resultLine.key === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              }
+            });
+          }
+
+          result = result.map((resultLine) => ({
+            label: resultLine.key,
+            values: {
+              value: resultLine.value,
+            },
+          }));
+          break;
+        case CHART_TYPE_OBJECTIVE:
+          if (result.length) {
+            const resultLine = result[0];
+            if (resultLine.value === undefined || resultLine.objective === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
+            } else {
+              result = {
+                objective: resultLine.objective,
                 value: resultLine.value,
-              },
-            }));
-            break;
-          case CHART_TYPE_OBJECTIVE:
-            if (result.length) {
-              const resultLine = result[0];
-              if (resultLine.value === undefined || resultLine.objective === undefined) {
-                throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
-              } else {
-                result = {
-                  objective: resultLine.objective,
-                  value: resultLine.value,
-                };
-              }
+              };
             }
-            break;
-          default:
-            throw new Error('Unknown Chart type');
-        }
+          }
+          break;
+        default:
+          throw new Error('Unknown Chart type');
+      }
 
-        return new StatSerializer({ value: result }).perform();
-      })
-      .then((data) => { response.send(data); })
-      .catch(next);
+      const data = new StatSerializer({ value: result }).perform();
+      response.send(data);
+    } catch (catchedError) {
+      next(catchedError);
+    }
+  };
 
   this.perform = () => {
     app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.stats(), this.get);
