@@ -15,21 +15,23 @@ export type GenericPlainTreeBranch = { aggregator: string; conditions: Array<Gen
 export type GenericPlainTreeLeaf = { field: string; operator: string; value?: unknown };
 export type GenericPlainTree = GenericPlainTreeBranch | GenericPlainTreeLeaf;
 
-export type RecordsCounterParams = { model: never, user: User, timezone: string };
+export type RecordsCounterParams = {
+  model: never, user: User, timezone: string, excludesScope?: boolean
+};
 
 export async function intersectCount(
   recordsCounterParams: RecordsCounterParams,
-  requestConditionPlainTree: unknown,
-  conditionalRawCondition?: unknown,
+  requestFilterPlainTree: unknown,
+  conditionPlainTree?: unknown,
 ): Promise<number> {
   try {
-    // Perform intersection when conditionalRawCondition is defined
-    const rawFilter = conditionalRawCondition
+    // Perform intersection when conditionPlainTree is defined
+    const rawFilter = conditionPlainTree
       ? {
         aggregator: 'and',
-        conditions: [requestConditionPlainTree, conditionalRawCondition],
+        conditions: [requestFilterPlainTree, conditionPlainTree],
       }
-      : requestConditionPlainTree;
+      : requestFilterPlainTree;
 
     // Build filter with the right format
     const conditionalFilterFormatted = JSON.stringify(rawFilter);
@@ -40,6 +42,9 @@ export async function intersectCount(
       { filters: conditionalFilterFormatted, timezone: recordsCounterParams.timezone },
     );
 
+    // Support aggregate count without user scope (used by getRolesIdsAllowedToApprove)
+    recordsCounter.excludesScope = recordsCounterParams.excludesScope ?? false;
+
     return await recordsCounter.count();
   } catch (error) {
     throw new InvalidActionConditionError();
@@ -48,13 +53,13 @@ export async function intersectCount(
 
 export async function canPerformConditionalCustomAction(
   recordsCounterParams: RecordsCounterParams,
-  requestConditionPlainTree: unknown,
-  conditionalRawCondition: unknown | null,
+  requestFilterPlainTree: unknown,
+  conditionPlainTree: unknown | null,
 ) {
-  if (conditionalRawCondition) {
+  if (conditionPlainTree) {
     const [requestRecordsCount, matchingRecordsCount] = await Promise.all([
-      intersectCount(recordsCounterParams, requestConditionPlainTree),
-      intersectCount(recordsCounterParams, requestConditionPlainTree, conditionalRawCondition),
+      intersectCount(recordsCounterParams, requestFilterPlainTree),
+      intersectCount(recordsCounterParams, requestFilterPlainTree, conditionPlainTree),
     ]);
 
     // If some records don't match the condition then the user
@@ -79,7 +84,10 @@ export function transformToRolesIdsGroupByConditions(
       roleId,
       conditionGenericTree,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      conditionGenericTreeHash: hashObject(conditionGenericTree, { respectType: false }),
+      conditionGenericTreeHash: hashObject(
+        conditionGenericTree,
+        { respectType: false } as hashObject.NormalOption,
+      ),
     }),
   ).reduce((acc, current) => {
     const { roleId, conditionGenericTree, conditionGenericTreeHash } = current;

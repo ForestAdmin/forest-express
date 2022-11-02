@@ -167,7 +167,7 @@ class PermissionMiddlewareCreator {
 
           const ids = await getter.getIdsFromRequest(request);
 
-          const filters = JSON.stringify(primaryKeys.length === 1
+          const filters = primaryKeys.length === 1
             ? { field: primaryKeys[0], operator: 'in', value: ids }
             : {
               aggregator: 'or',
@@ -181,14 +181,13 @@ class PermissionMiddlewareCreator {
                   field: primaryKeys[index], operator: 'equal', value: id,
                 })),
               })),
-            });
+            };
 
           const canPerformCustomActionParams = {
             user: request.user,
             customActionName: actionName,
             collectionName: this.collectionName,
-            requestConditionPlainTreeForCaller: filters,
-            requestConditionPlainTreeForAllCaller: filters,
+            requestFilterPlainTree: filters,
             recordsCounterParams: {
               model,
               user: request.user,

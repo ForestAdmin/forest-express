@@ -24,8 +24,7 @@ type CanPerformCustomActionParams = {
   user: User;
   customActionName: string;
   collectionName: string;
-  requestConditionPlainTreeForCaller: GenericPlainTree;
-  requestConditionPlainTreeForAllCaller: GenericPlainTree;
+  requestFilterPlainTree: GenericPlainTree;
   recordsCounterParams: RecordsCounterParams;
 };
 
@@ -110,15 +109,14 @@ export default class AuthorizationService {
     user: { id: userId },
     collectionName,
     customActionName,
-    requestConditionPlainTreeForCaller,
-    requestConditionPlainTreeForAllCaller,
+    requestFilterPlainTree,
     recordsCounterParams,
   }: CanPerformCustomActionParams): Promise<void> {
     const canTrigger = await this.canTriggerCustomAction(
       userId,
       customActionName,
       collectionName,
-      requestConditionPlainTreeForCaller,
+      requestFilterPlainTree,
       recordsCounterParams,
     );
 
@@ -130,7 +128,7 @@ export default class AuthorizationService {
       userId,
       customActionName,
       collectionName,
-      requestConditionPlainTreeForCaller,
+      requestFilterPlainTree,
       recordsCounterParams,
     );
 
@@ -139,7 +137,7 @@ export default class AuthorizationService {
         recordsCounterParams,
         customActionName,
         collectionName,
-        requestConditionPlainTreeForAllCaller,
+        requestFilterPlainTree,
       );
 
       throw new CustomActionRequiresApprovalError(rolesIdsAllowedToApprove);
@@ -151,8 +149,7 @@ export default class AuthorizationService {
     collectionName,
     customActionName,
     recordsCounterParams,
-    requestConditionPlainTreeForCaller,
-    requestConditionPlainTreeForAllCaller,
+    requestFilterPlainTree,
     requesterId,
   }: CanPerformCustomActionParams & {
     requesterId: number,
@@ -161,7 +158,7 @@ export default class AuthorizationService {
       userId,
       customActionName,
       collectionName,
-      requestConditionPlainTreeForCaller,
+      requestFilterPlainTree,
       recordsCounterParams,
       requesterId,
     );
@@ -171,7 +168,7 @@ export default class AuthorizationService {
         recordsCounterParams,
         customActionName,
         collectionName,
-        requestConditionPlainTreeForAllCaller,
+        requestFilterPlainTree,
       );
 
       throw new ApprovalNotAllowedError(rolesIdsAllowedToApprove);
@@ -211,7 +208,7 @@ export default class AuthorizationService {
     userId: string | number,
     customActionName: string,
     collectionName: string,
-    requestConditionPlainTreeForCaller: GenericPlainTree,
+    requestFilterPlainTree: GenericPlainTree,
     recordsCounterParams: RecordsCounterParams,
   ): Promise<boolean> {
     const canTrigger = await this.forestAdminClient.permissionService.canTriggerCustomAction({
@@ -224,7 +221,7 @@ export default class AuthorizationService {
       return false;
     }
 
-    const conditionalTriggerRawCondition = await this.forestAdminClient.permissionService
+    const triggerConditionPlainTree = await this.forestAdminClient.permissionService
       .getConditionalTriggerCondition({
         userId,
         customActionName,
@@ -233,8 +230,8 @@ export default class AuthorizationService {
 
     return canPerformConditionalCustomAction(
       recordsCounterParams,
-      requestConditionPlainTreeForCaller,
-      conditionalTriggerRawCondition,
+      requestFilterPlainTree,
+      triggerConditionPlainTree,
     );
   }
 
@@ -242,7 +239,7 @@ export default class AuthorizationService {
     userId: string | number,
     customActionName: string,
     collectionName: string,
-    requestConditionPlainTreeForCaller: GenericPlainTree,
+    requestFilterPlainTree: GenericPlainTree,
     recordsCounterParams: RecordsCounterParams,
   ): Promise<boolean> {
     const doesTriggerRequiresApproval = await this.forestAdminClient.permissionService
@@ -256,18 +253,18 @@ export default class AuthorizationService {
       return false;
     }
 
-    const conditionalRequiresApprovalRawCondition = await this.forestAdminClient.permissionService
+    const requiresConditionApprovalPlainTree = await this.forestAdminClient.permissionService
       .getConditionalRequiresApprovalCondition({
         userId,
         customActionName,
         collectionName,
       });
 
-    if (conditionalRequiresApprovalRawCondition) {
+    if (requiresConditionApprovalPlainTree) {
       const matchingRecordsCount = await intersectCount(
         recordsCounterParams,
-        requestConditionPlainTreeForCaller,
-        conditionalRequiresApprovalRawCondition,
+        requestFilterPlainTree,
+        requiresConditionApprovalPlainTree,
       );
 
       // No records match the condition, trigger does not require approval
@@ -283,7 +280,7 @@ export default class AuthorizationService {
     userId: string | number,
     customActionName: string,
     collectionName: string,
-    requestConditionPlainTreeForCaller: GenericPlainTree,
+    requestFilterPlainTree: GenericPlainTree,
     recordsCounterParams: RecordsCounterParams,
     requesterId: number | string,
   ): Promise<boolean> {
@@ -298,7 +295,7 @@ export default class AuthorizationService {
       return false;
     }
 
-    const conditionalApproveRawCondition = await this.forestAdminClient.permissionService
+    const approveConditionPlainTree = await this.forestAdminClient.permissionService
       .getConditionalApproveCondition({
         userId,
         customActionName,
@@ -307,8 +304,8 @@ export default class AuthorizationService {
 
     return canPerformConditionalCustomAction(
       recordsCounterParams,
-      requestConditionPlainTreeForCaller,
-      conditionalApproveRawCondition,
+      requestFilterPlainTree,
+      approveConditionPlainTree,
     );
   }
 
@@ -316,7 +313,7 @@ export default class AuthorizationService {
     recordsCounterParams: RecordsCounterParams,
     customActionName: string,
     collectionName: string,
-    requestConditionPlainTreeForAllCaller: GenericPlainTree,
+    requestFilterPlainTree: GenericPlainTree,
   ) {
     const actionConditionsByRoleId = await this.forestAdminClient.permissionService
       .getConditionalApproveConditions({
@@ -329,9 +326,9 @@ export default class AuthorizationService {
     );
 
     const [requestRecordsCount, ...conditionRecordsCounts]: number[] = await Promise.all([
-      intersectCount(recordsCounterParams, requestConditionPlainTreeForAllCaller),
+      intersectCount({ ...recordsCounterParams, excludesScope: true }, requestFilterPlainTree),
       // eslint-disable-next-line max-len
-      ...rolesIdsGroupByConditions.map(({ condition }) => intersectCount(recordsCounterParams, requestConditionPlainTreeForAllCaller, condition)),
+      ...rolesIdsGroupByConditions.map(({ condition: conditionPlainTree }) => intersectCount({ ...recordsCounterParams, excludesScope: true }, requestFilterPlainTree, conditionPlainTree)),
     ]);
 
     return rolesIdsGroupByConditions.reduce<number[]>(
