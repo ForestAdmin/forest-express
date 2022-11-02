@@ -1,3 +1,10 @@
+# [10.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.2...v10.0.0-beta.3) (2022-11-02)
+
+
+### Features
+
+* **chart:** add support for context variables used by Workspaces ([#952](https://github.com/ForestAdmin/forest-express/issues/952)) ([07c2f94](https://github.com/ForestAdmin/forest-express/commit/07c2f94070a522208d1873babad49455b6885ae6))
+
 # [10.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.1...v10.0.0-beta.2) (2022-10-27)
 
 
