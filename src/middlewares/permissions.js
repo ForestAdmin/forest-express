@@ -2,7 +2,8 @@ const { inject } = require('@forestadmin/context');
 const { parameterize } = require('../utils/string');
 const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
-const RecordsCounter = require('../services/exposed/records-counter');
+const RecordsGetter = require('../services/exposed/records-getter');
+const RecordsCounter = require('../services/exposed/records-counter').default;
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
@@ -34,7 +35,7 @@ class PermissionMiddlewareCreator {
   }
 
   // generate a middleware that will check that ids provided by the request exist
-  // whithin the registered scope
+  // within the registered scope
   _ensureRecordIdsInScope() {
     return async (request, response, next) => {
       try {
@@ -157,26 +158,57 @@ class PermissionMiddlewareCreator {
     return [
       async (request, response, next) => {
         try {
+          const { primaryKeys } = Schemas.schemas[this.collectionName];
           const actionName = this._getSmartActionName(request);
           const requestBody = request.body;
+          const model = this.modelsManager.getModelByName(this.collectionName);
+
+          const getter = new RecordsGetter(model, request.user, request.query);
+
+          const ids = await getter.getIdsFromRequest(request);
+
+          const filters = JSON.stringify(primaryKeys.length === 1
+            ? { field: primaryKeys[0], operator: 'in', value: ids }
+            : {
+              aggregator: 'or',
+              conditions: ids.map((compositeId) => ({
+                aggregator: 'and',
+                /**
+                 * See line 108 src/services/exposed/records-getter.js
+                 * @fixme It could either be - or |
+                */
+                conditions: compositeId.split(/-|\|/).map((id, index) => ({
+                  field: primaryKeys[index], operator: 'equal', value: id,
+                })),
+              })),
+            });
+
+          const canPerformCustomActionParams = {
+            user: request.user,
+            customActionName: actionName,
+            collectionName: this.collectionName,
+            requestConditionPlainTreeForCaller: filters,
+            requestConditionPlainTreeForAllCaller: filters,
+            recordsCounterParams: {
+              model,
+              user: request.user,
+              timezone: request.query.timezone,
+            },
+          };
 
           if (requestBody?.data?.attributes?.signed_approval_request) {
             const signedParameters = this.authorizationService.verifySignedActionParameters(
               requestBody?.data?.attributes?.signed_approval_request,
             );
             await this.authorizationService.assertCanApproveCustomAction({
-              user: request.user,
-              customActionName: actionName,
-              collectionName: this.collectionName,
+              ...canPerformCustomActionParams,
               requesterId: signedParameters?.data?.attributes?.requester_id,
             });
             request.body = signedParameters;
           } else {
-            await this.authorizationService.assertCanTriggerCustomAction({
-              user: request.user,
-              customActionName: actionName,
-              collectionName: this.collectionName,
-            });
+            await this.authorizationService.assertCanTriggerCustomAction(
+              canPerformCustomActionParams,
+            );
           }
 
           next();

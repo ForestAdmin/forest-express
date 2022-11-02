@@ -6,7 +6,7 @@ import {
   EmptySQLQueryError,
   NonSelectSQLQueryError,
 } from '@forestadmin/forestadmin-client';
-import AuthorizationService from '../../src/services/authorization';
+import AuthorizationService from '../../src/services/authorization/authorization';
 import BadRequestError from '../../src/utils/errors/bad-request-error';
 import ForbiddenError from '../../src/utils/errors/forbidden-error';
 
