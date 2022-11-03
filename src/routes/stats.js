@@ -158,8 +158,8 @@ module.exports = function Stats(app, model, Implementation, opts) {
 
       const data = new StatSerializer({ value: result }).perform();
       response.send(data);
-    } catch (catchedError) {
-      next(catchedError);
+    } catch (caughtError) {
+      next(caughtError);
     }
   };
 
