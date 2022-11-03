@@ -93,7 +93,10 @@ module.exports = function Stats(app, model, Implementation, opts) {
       let result = await new Implementation.QueryStatGetter({
         ...request.body,
         query,
-        contextVariables,
+        contextVariables: {
+          ...(request.body.contextVariables || {}),
+          ...contextVariables,
+        },
       }, opts).perform();
 
       switch (request.body.type) {

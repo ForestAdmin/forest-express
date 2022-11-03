@@ -77,7 +77,7 @@ describe('routes > stats', () => {
         params: { recordId: '1' },
         query: { timezone: 'Europe/Paris' },
         user: { renderingId: 1, id: 10 },
-        body: { type: 'Objective', contextVariables: { test: 'me' } },
+        body: { type: 'Objective', contextVariables: { test: 'me', power: 'fake' } },
       };
       const res = {
         send: jest.fn(),
@@ -85,6 +85,10 @@ describe('routes > stats', () => {
       const expectedParams = {
         type: 'Objective',
         ...chart,
+        contextVariables: {
+          ...req.body.contextVariables,
+          ...chart.contextVariables,
+        },
       };
 
       const subject = new Stats(app, model, Implementation);
