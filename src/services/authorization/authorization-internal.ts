@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import hashObject from 'object-hash';
 
 import RecordsCounter from '../exposed/records-counter';
@@ -83,7 +85,8 @@ export function transformToRolesIdsGroupByConditions(
     ([roleId, conditionGenericTree]) => ({
       roleId,
       conditionGenericTree,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // eslint-disable-next-line max-len
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
       conditionGenericTreeHash: hashObject(
         conditionGenericTree,
         { respectType: false } as hashObject.NormalOption,
