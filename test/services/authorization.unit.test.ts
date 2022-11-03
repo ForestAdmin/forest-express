@@ -7,8 +7,23 @@ import {
   NonSelectSQLQueryError,
 } from '@forestadmin/forestadmin-client';
 import AuthorizationService from '../../src/services/authorization/authorization';
+import {
+  canPerformConditionalCustomAction,
+  GenericPlainTree,
+  intersectCount,
+  transformToRolesIdsGroupByConditions,
+} from '../../src/services/authorization/authorization-internal';
+import ApprovalNotAllowedError from '../../src/services/authorization/errors/approvalNotAllowedError';
+import CustomActionTriggerForbiddenError from '../../src/services/authorization/errors/customActionTriggerForbiddenError';
 import BadRequestError from '../../src/utils/errors/bad-request-error';
 import ForbiddenError from '../../src/utils/errors/forbidden-error';
+
+jest.mock('../../src/services/authorization/authorization-internal', () => ({
+  __esModule: true,
+  intersectCount: jest.fn(),
+  canPerformConditionalCustomAction: jest.fn(),
+  transformToRolesIdsGroupByConditions: jest.fn(),
+}));
 
 describe('unit > services > AuthorizationService', () => {
   const user = {
@@ -17,6 +32,8 @@ describe('unit > services > AuthorizationService', () => {
     email: 'user@email.com',
     tags: {},
   };
+  const recordsCounterParams = { user, model: Symbol('model') as never, timezone: 'Europe/Paris' };
+  const requestFilterPlainTree = { field: 'id', operator: 'in', value: [1, 2, 3] };
 
   function makeContext() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -29,6 +46,11 @@ describe('unit > services > AuthorizationService', () => {
           canExecuteSegmentQuery: jest.fn(),
           canApproveCustomAction: jest.fn(),
           canTriggerCustomAction: jest.fn(),
+          doesTriggerCustomActionRequiresApproval: jest.fn(),
+          getConditionalTriggerCondition: jest.fn(),
+          getConditionalRequiresApprovalCondition: jest.fn(),
+          getConditionalApproveCondition: jest.fn(),
+          getConditionalApproveConditions: jest.fn(),
         },
         verifySignedActionParameters: jest.fn(),
       },
@@ -490,6 +512,11 @@ describe('unit > services > AuthorizationService', () => {
 
       forestAdminClient.permissionService.canApproveCustomAction.mockResolvedValue(true);
 
+      forestAdminClient.permissionService.getConditionalApproveCondition
+        .mockResolvedValue(null);
+
+      (canPerformConditionalCustomAction as jest.Mock).mockResolvedValue(true);
+
       const authorizationService = new AuthorizationService(
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
       );
@@ -498,6 +525,8 @@ describe('unit > services > AuthorizationService', () => {
         user,
         collectionName: 'collectionName',
         customActionName: 'customActionName',
+        recordsCounterParams,
+        requestFilterPlainTree,
         requesterId: 42,
       })).toResolve();
 
@@ -508,6 +537,19 @@ describe('unit > services > AuthorizationService', () => {
         requesterId: 42,
         userId: user.id,
       });
+      expect(
+        forestAdminClient.permissionService.getConditionalApproveCondition,
+      ).toHaveBeenCalledWith({
+        userId: user.id,
+        customActionName: 'customActionName',
+        collectionName: 'collectionName',
+      });
+
+      expect(canPerformConditionalCustomAction).toHaveBeenCalledWith(
+        recordsCounterParams,
+        requestFilterPlainTree,
+        null,
+      );
     });
 
     it('should throw when the user cannot approve the custom action', async () => {
@@ -515,6 +557,38 @@ describe('unit > services > AuthorizationService', () => {
       const { forestAdminClient } = context;
 
       forestAdminClient.permissionService.canApproveCustomAction.mockResolvedValue(false);
+
+      const condition = {
+        value: 'some',
+        field: 'definition',
+        operator: 'equal',
+      } as GenericPlainTree;
+
+      const fakeActionConditionsByRoleId = new Map<number, GenericPlainTree>([[10, condition]]);
+
+      (transformToRolesIdsGroupByConditions as jest.Mock).mockReturnValue([
+        {
+          roleIds: [10],
+          condition,
+        },
+        {
+          roleIds: [11],
+          condition,
+        },
+        {
+          roleIds: [12, 13],
+          condition,
+        },
+      ]);
+
+      forestAdminClient.permissionService.getConditionalApproveConditions
+        .mockResolvedValue(fakeActionConditionsByRoleId);
+
+      (intersectCount as jest.Mock)
+        .mockResolvedValueOnce(3)
+        .mockResolvedValueOnce(3)
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(3);
 
       const authorizationService = new AuthorizationService(
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
@@ -524,8 +598,13 @@ describe('unit > services > AuthorizationService', () => {
         user,
         collectionName: 'collectionName',
         customActionName: 'customActionName',
+        recordsCounterParams,
+        requestFilterPlainTree,
         requesterId: 42,
-      })).rejects.toThrow(ForbiddenError);
+      })).rejects.toThrow(ApprovalNotAllowedError);
+
+      expect(transformToRolesIdsGroupByConditions as jest.Mock)
+        .toHaveBeenCalledWith(fakeActionConditionsByRoleId);
     });
   });
 
@@ -536,6 +615,8 @@ describe('unit > services > AuthorizationService', () => {
 
       forestAdminClient.permissionService.canTriggerCustomAction.mockResolvedValue(true);
 
+      (canPerformConditionalCustomAction as jest.Mock).mockResolvedValue(true);
+
       const authorizationService = new AuthorizationService(
         context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
       );
@@ -544,6 +625,8 @@ describe('unit > services > AuthorizationService', () => {
         user,
         collectionName: 'collectionName',
         customActionName: 'customActionName',
+        recordsCounterParams,
+        requestFilterPlainTree,
       })).toResolve();
 
       expect(forestAdminClient.permissionService.canTriggerCustomAction).toHaveBeenCalledTimes(1);
@@ -552,6 +635,12 @@ describe('unit > services > AuthorizationService', () => {
         customActionName: 'customActionName',
         userId: user.id,
       });
+
+      expect(canPerformConditionalCustomAction).toHaveBeenCalledWith(
+        recordsCounterParams,
+        requestFilterPlainTree,
+        null,
+      );
     });
 
     it('should throw when the user cannot trigger the custom action', async () => {
@@ -568,7 +657,9 @@ describe('unit > services > AuthorizationService', () => {
         user,
         collectionName: 'collectionName',
         customActionName: 'customActionName',
-      })).rejects.toThrow(ForbiddenError);
+        recordsCounterParams,
+        requestFilterPlainTree,
+      })).rejects.toThrow(CustomActionTriggerForbiddenError);
     });
   });
 });

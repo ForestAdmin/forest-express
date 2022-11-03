@@ -11,7 +11,7 @@ export default class RecordsCounter extends AbstractRecordService {
       this.lianaOptions,
       this.params,
       this.user,
-    ) as { count: (excludesScope: boolean) => Promise<number> };
-    return resourcesGetterImplementation.count(this.excludesScope);
+    ) as { count: (params: { excludesScope: boolean }) => Promise<number> };
+    return resourcesGetterImplementation.count({ excludesScope: this.excludesScope });
   }
 }

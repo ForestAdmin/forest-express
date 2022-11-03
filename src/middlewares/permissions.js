@@ -12,6 +12,7 @@ class PermissionMiddlewareCreator {
       authorizationService, modelsManager,
     } = inject();
 
+    /** @private @readonly @type {import('../services/models-manager')} */
     this.modelsManager = modelsManager;
 
     /** @private @readonly @type {import('../services/authorization').default} */
