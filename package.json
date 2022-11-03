@@ -1,7 +1,7 @@
 {
   "name": "forest-express",
   "description": "Official package for all Forest Express Lianas",
-  "version": "10.0.0-beta.2",
+  "version": "10.0.0-beta.3",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
     "Arnaud Besnier <arnaudibesnier@gmail.com>",
@@ -28,7 +28,7 @@
   "dependencies": {
     "@babel/runtime": "7.19.0",
     "@forestadmin/context": "1.31.0",
-    "@forestadmin/forestadmin-client": "1.0.0-alpha.2",
+    "@forestadmin/forestadmin-client": "1.0.0-alpha.3",
     "base32-encode": "1.1.1",
     "bitwise-xor": "0.0.0",
     "bluebird": "3.7.1",
