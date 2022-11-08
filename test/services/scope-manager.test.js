@@ -1,12 +1,13 @@
 import ScopeManager from '../../src/services/scope-manager';
 
 describe('services > ScopeManager', () => {
-  const defaultDependencies = {
-    configStore: {},
-    forestServerRequester: {},
-    moment: {},
-    logger: {},
-  };
+  function makeContext() {
+    return {
+      forestAdminClient: {
+        getScope: jest.fn(),
+      },
+    };
+  }
 
   const defaultUser = {
     id: '1',
@@ -16,7 +17,6 @@ describe('services > ScopeManager', () => {
     team: 'humanist',
     renderingId: 334,
   };
-  const lianaOptions = { envSecret: 'hush' };
   const defaultRenderingScopes = {
     myCollection: {
       scope: {
@@ -27,23 +27,6 @@ describe('services > ScopeManager', () => {
               field: 'name',
               operator: 'equal',
               value: 'Thisbe',
-            },
-          ],
-        },
-        dynamicScopesValues: { },
-      },
-    },
-  };
-  const newRenderingScopes = {
-    myCollection: {
-      scope: {
-        filter: {
-          aggregator: 'and',
-          conditions: [
-            {
-              field: 'name',
-              operator: 'equal',
-              value: 'Ockham',
             },
           ],
         },
@@ -62,17 +45,19 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with scopes, but not customer filter', async () => {
-      const scopeManager = new ScopeManager({});
-      jest.spyOn(scopeManager, 'getScopeForUser')
-        .mockResolvedValue('{"field":"id","operator":"equal","value":1}');
+      const context = makeContext();
+      const scopeManager = new ScopeManager(context);
+      context.forestAdminClient.getScope
+        .mockResolvedValue({ field: 'id', operator: 'equal', value: 1 });
       const newFilter = await scopeManager.appendScopeForUser(undefined, defaultUser, 'myCollection');
 
       expect(newFilter).toBe('{"field":"id","operator":"equal","value":1}');
     });
 
     it('should work with customer filter, but no scopes', async () => {
-      const scopeManager = new ScopeManager({});
-      jest.spyOn(scopeManager, 'getScopeForUser').mockResolvedValue(undefined);
+      const context = makeContext();
+      const scopeManager = new ScopeManager(context);
+      context.forestAdminClient.getScope.mockResolvedValue(undefined);
       const newFilter = await scopeManager
         .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
 
@@ -80,9 +65,10 @@ describe('services > ScopeManager', () => {
     });
 
     it('should work with both customer filter and scopes', async () => {
-      const scopeManager = new ScopeManager({});
-      jest.spyOn(scopeManager, 'getScopeForUser')
-        .mockResolvedValue('{"field":"book.id","operator":"equal","value":1}');
+      const context = makeContext();
+      const scopeManager = new ScopeManager(context);
+      context.forestAdminClient.getScope
+        .mockResolvedValue({ field: 'book.id', operator: 'equal', value: 1 });
       const newFilter = await scopeManager
         .appendScopeForUser('{"field":"id","operator":"equal","value":1}', defaultUser, 'myCollection');
 
@@ -98,7 +84,8 @@ describe('services > ScopeManager', () => {
 
   describe('getScopeForUser', () => {
     describe('with bad inputs', () => {
-      const scopeManager = new ScopeManager(defaultDependencies);
+      const context = makeContext();
+      const scopeManager = new ScopeManager(context);
 
       describe('with a user having no renderingId', () => {
         it('should throw an error', async () => {
@@ -119,216 +106,35 @@ describe('services > ScopeManager', () => {
 
     describe('when accessing the rendering scopes for the first time', () => {
       it('should retrieve and return the collection scope filters', async () => {
-        const configStore = { lianaOptions };
-        const forestServerRequester = {
-          perform: jest.fn().mockReturnValue(defaultRenderingScopes),
-        };
-        const moment = jest.fn();
+        expect.assertions(3);
 
-        const scopeManager = new ScopeManager({
-          ...defaultDependencies, configStore, forestServerRequester, moment,
-        });
+        const context = makeContext();
+        context.forestAdminClient.getScope.mockResolvedValue(
+          defaultRenderingScopes.myCollection.scope.filter,
+        );
+
+        const scopeManager = new ScopeManager(context);
 
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
 
-        expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
-        expect(forestServerRequester.perform).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
+        expect(context.forestAdminClient.getScope).toHaveBeenCalledTimes(1);
+        expect(context.forestAdminClient.getScope).toHaveBeenCalledWith({ renderingId: defaultUser.renderingId, userId: defaultUser.id, collectionName: 'myCollection' });
         expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-      });
-    });
-
-    describe('when calling twice the scopes from the same rendering', () => {
-      describe('before the cache expiration', () => {
-        const configStore = { lianaOptions };
-        const forestServerRequester = { perform: jest.fn() };
-        const forestServerRequesterPerformSpy = jest.spyOn(forestServerRequester, 'perform').mockReturnValue(defaultRenderingScopes);
-
-        // fake 1mn diff between the two calls
-        const momentInstance = { diff: jest.fn().mockReturnValue(60) };
-        const moment = jest.fn().mockReturnValue(momentInstance);
-
-        const scopeManager = new ScopeManager({
-          ...defaultDependencies, configStore, forestServerRequester, moment,
-        });
-
-        it('should retrieve and return the scopes on first call', async () => {
-          forestServerRequesterPerformSpy.mockClear();
-
-          const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
-          expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-        });
-
-        it('should not refetch the scopes and return the cached value on second call', async () => {
-          forestServerRequesterPerformSpy.mockClear();
-          forestServerRequesterPerformSpy.mockReturnValue(newRenderingScopes);
-
-          const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-          expect(forestServerRequesterPerformSpy).not.toHaveBeenCalled();
-          expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-        });
-      });
-
-      describe('after the cache expiration', () => {
-        const configStore = { lianaOptions };
-        const forestServerRequester = { perform: jest.fn() };
-
-        // fake 10mns diff between the two calls
-        const momentInstance = { diff: jest.fn().mockReturnValue(600) };
-        const moment = jest.fn().mockReturnValue(momentInstance);
-        const forestServerRequesterPerformSpy = jest.spyOn(forestServerRequester, 'perform').mockReturnValue(defaultRenderingScopes);
-
-        const scopeManager = new ScopeManager({
-          ...defaultDependencies, configStore, forestServerRequester, moment,
-        });
-
-        it('should retrieve and return the scopes on first call', async () => {
-          forestServerRequesterPerformSpy.mockClear();
-
-          const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
-          expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-        });
-
-        it('should refetch the scopes on second call but still return the cached value', async () => {
-          forestServerRequesterPerformSpy.mockClear();
-          forestServerRequesterPerformSpy.mockReturnValue(newRenderingScopes);
-
-          const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-          expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
-          expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-        });
-      });
-    });
-
-    describe('when calling three times the scopes after expiration', () => {
-      const configStore = { lianaOptions };
-      const forestServerRequester = { perform: jest.fn() };
-      const forestServerRequesterPerformSpy = jest.spyOn(forestServerRequester, 'perform').mockReturnValue(defaultRenderingScopes);
-
-      // fake 10mn diff between the two calls
-      const momentInstance = { diff: jest.fn() };
-      const momentInstanceSpy = jest.spyOn(momentInstance, 'diff').mockReturnValue(600);
-      const moment = jest.fn().mockReturnValue(momentInstance);
-
-      const scopeManager = new ScopeManager({
-        ...defaultDependencies, configStore, forestServerRequester, moment,
-      });
-
-      it('should retrieve and return the scopes on first call', async () => {
-        momentInstanceSpy.mockClear();
-        forestServerRequesterPerformSpy.mockClear();
-
-        const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-        expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-        expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
-        expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-      });
-
-      it('should refetch the scopes on second call but still return the cached value', async () => {
-        momentInstanceSpy.mockClear();
-        momentInstanceSpy.mockReturnValue(600);
-        forestServerRequesterPerformSpy.mockClear();
-        forestServerRequesterPerformSpy.mockReturnValue(newRenderingScopes);
-
-        const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-        expect(forestServerRequesterPerformSpy).toHaveBeenCalledTimes(1);
-        expect(forestServerRequesterPerformSpy).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
-        expect(scopes).toStrictEqual(defaultRenderingScopes.myCollection.scope.filter);
-      });
-
-      it('should not refetch the scopes on third call and return the cached value (which was changed during second call)', async () => {
-        momentInstanceSpy.mockClear();
-        // act as if the third call was close to the second one
-        momentInstanceSpy.mockReturnValue(60);
-        forestServerRequesterPerformSpy.mockClear();
-        forestServerRequesterPerformSpy.mockReturnValue(newRenderingScopes);
-
-        const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-        expect(forestServerRequesterPerformSpy).not.toHaveBeenCalled();
-        expect(scopes).toStrictEqual(newRenderingScopes.myCollection.scope.filter);
       });
     });
 
     describe('when no scopes on collection', () => {
       it('should return null', async () => {
-        const configStore = { lianaOptions };
-        const forestServerRequester = {
-          perform: jest.fn().mockReturnValue(defaultRenderingScopes),
-        };
-        const moment = jest.fn();
+        expect.assertions(1);
 
-        const scopeManager = new ScopeManager({
-          ...defaultDependencies, configStore, forestServerRequester, moment,
-        });
+        const context = makeContext();
+        context.forestAdminClient.getScope.mockResolvedValue(null);
+
+        const scopeManager = new ScopeManager(context);
 
         const scopes = await scopeManager.getScopeForUser(defaultUser, 'myOtherCollection');
 
-        expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
-        expect(forestServerRequester.perform).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
         expect(scopes).toBeNull();
-      });
-    });
-
-    describe('with dynamic values on scopes', () => {
-      it('should retrieve and return the collection scope filters with dynamic values replaced', async () => {
-        const renderingScopesWithDynamicValues = {
-          myCollection: {
-            scope: {
-              filter: {
-                aggregator: 'and',
-                conditions: [
-                  {
-                    field: 'type',
-                    operator: 'equal',
-                    value: '$currentUser.tags.title',
-                  },
-                ],
-              },
-              dynamicScopesValues: {
-                users: {
-                  1: {
-                    '$currentUser.tags.title': 'production',
-                  },
-                },
-              },
-            },
-          },
-        };
-        const configStore = { lianaOptions };
-        const forestServerRequester = {
-          perform: jest.fn().mockReturnValue(renderingScopesWithDynamicValues),
-        };
-        const moment = jest.fn();
-
-        const scopeManager = new ScopeManager({
-          ...defaultDependencies, configStore, forestServerRequester, moment,
-        });
-
-        const scopes = await scopeManager.getScopeForUser(defaultUser, 'myCollection');
-
-        expect(forestServerRequester.perform).toHaveBeenCalledTimes(1);
-        expect(forestServerRequester.perform).toHaveBeenCalledWith('/liana/scopes', lianaOptions.envSecret, { renderingId: defaultUser.renderingId });
-        expect(scopes).toStrictEqual({
-          aggregator: 'and',
-          conditions: [
-            {
-              field: 'type',
-              operator: 'equal',
-              value: 'production',
-            },
-          ],
-        });
       });
     });
   });

@@ -1,5 +1,4 @@
 const { inject } = require('@forestadmin/context');
-const httpError = require('http-errors');
 const { parameterize } = require('../utils/string');
 const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
@@ -9,15 +8,16 @@ class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      configStore, logger, permissionsChecker, modelsManager,
+      authorizationService, modelsManager,
     } = inject();
-    this.logger = logger;
-    this.permissionsChecker = permissionsChecker;
-    this.configStore = configStore;
+
     this.modelsManager = modelsManager;
+
+    /** @private @readonly @type {import('../services/authorization').default} */
+    this.authorizationService = authorizationService;
   }
 
-  _getSmartActionInfoFromRequest(request) {
+  _getSmartActionName(request) {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
@@ -30,77 +30,7 @@ class PermissionMiddlewareCreator {
       throw new Error(`Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`);
     }
 
-    return {
-      userId: request.user.id,
-      actionName: smartAction.name,
-    };
-  }
-
-  static _getCollectionListInfoFromRequest(request) {
-    return { userId: request.user.id, ...request.query };
-  }
-
-  static _getLiveQueriesInfoFromRequest(request) {
-    const { query } = request.body;
-    return query;
-  }
-
-  static _getStatWithParametersInfoFromRequest(request) {
-    const parameters = { ...request.body };
-    // NOTICE: Remove useless information
-    delete parameters.timezone;
-
-    // NOTICE: Remove the field information from group_by_field => collection:id
-    if (parameters.group_by_field) {
-      [parameters.group_by_field] = parameters.group_by_field.split(':');
-    }
-
-    return parameters;
-  }
-
-  _getPermissionsInfo(permissionName, request) {
-    switch (permissionName) {
-      case 'actions':
-        return this._getSmartActionInfoFromRequest(request);
-      case 'browseEnabled':
-        return PermissionMiddlewareCreator._getCollectionListInfoFromRequest(request);
-      case 'liveQueries':
-        return PermissionMiddlewareCreator._getLiveQueriesInfoFromRequest(request);
-      case 'statWithParameters':
-        return PermissionMiddlewareCreator._getStatWithParametersInfoFromRequest(request);
-
-      default:
-        return { userId: request.user.id };
-    }
-  }
-
-  _checkPermission(permissionName) {
-    return async (request, response, next) => {
-      const permissionInfos = this._getPermissionsInfo(permissionName, request);
-
-      const environmentId = this.configStore.lianaOptions.multiplePermissionsCache
-        ? this.configStore.lianaOptions.multiplePermissionsCache.getEnvironmentId(request)
-        : null;
-      try {
-        await this.permissionsChecker.checkPermissions(
-          request.user,
-          this.collectionName,
-          permissionName,
-          permissionInfos,
-          environmentId,
-        );
-        next();
-      } catch (error) {
-        this.logger.error(error.message);
-        next(httpError(403));
-      }
-    };
-  }
-
-  static _getRequestAttributes(request) {
-    const hasBodyAttributes = request.body && request.body.data && request.body.data.attributes;
-    return hasBodyAttributes
-      && new QueryDeserializer(request.body.data.attributes).perform();
+    return smartAction.name;
   }
 
   // generate a middleware that will check that ids provided by the request exist
@@ -116,7 +46,9 @@ class PermissionMiddlewareCreator {
         }
 
         // if performing a `selectAll` let the `getIdsFromRequest` handle the scopes
-        const attributes = PermissionMiddlewareCreator._getRequestAttributes(request);
+        const hasBodyAttributes = request.body && request.body.data && request.body.data.attributes;
+        const attributes = hasBodyAttributes
+      && new QueryDeserializer(request.body.data.attributes).perform();
         if (attributes.allRecords) {
           return next();
         }
@@ -134,6 +66,7 @@ class PermissionMiddlewareCreator {
             })),
           });
 
+        // The implementation of ResourcesGetter uses the scopes !
         const counter = new RecordsCounter(
           this.modelsManager.getModelByName(this.collectionName),
           request.user,
@@ -152,39 +85,120 @@ class PermissionMiddlewareCreator {
   }
 
   list() {
-    return this._checkPermission('browseEnabled');
+    return async (request, response, next) => {
+      try {
+        const { query: { segmentQuery = null } = {} } = request;
+        await this.authorizationService
+          .assertCanBrowse(request.user, this.collectionName, segmentQuery);
+
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 
   export() {
-    return this._checkPermission('exportEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.authorizationService.assertCanExport(request.user, this.collectionName);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 
   details() {
-    return this._checkPermission('readEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.authorizationService.assertCanRead(request.user, this.collectionName);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 
   create() {
-    return this._checkPermission('addEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.authorizationService.assertCanAdd(request.user, this.collectionName);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 
   update() {
-    return this._checkPermission('editEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.authorizationService.assertCanEdit(request.user, this.collectionName);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 
   delete() {
-    return this._checkPermission('deleteEnabled');
+    return async (request, response, next) => {
+      try {
+        await this.authorizationService.assertCanDelete(request.user, this.collectionName);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 
   smartAction() {
-    return [this._checkPermission('actions'), this._ensureRecordIdsInScope()];
+    return [
+      async (request, response, next) => {
+        try {
+          const actionName = this._getSmartActionName(request);
+          const requestBody = request.body;
+
+          if (requestBody?.data?.attributes?.signed_approval_request) {
+            const signedParameters = this.authorizationService.verifySignedActionParameters(
+              requestBody?.data?.attributes?.signed_approval_request,
+            );
+            await this.authorizationService.assertCanApproveCustomAction({
+              user: request.user,
+              customActionName: actionName,
+              collectionName: this.collectionName,
+              requesterId: signedParameters?.data?.attributes?.requester_id,
+            });
+            request.body = signedParameters;
+          } else {
+            await this.authorizationService.assertCanTriggerCustomAction({
+              user: request.user,
+              customActionName: actionName,
+              collectionName: this.collectionName,
+            });
+          }
+
+          next();
+        } catch (error) {
+          next(error);
+        }
+      }, this._ensureRecordIdsInScope()];
   }
 
-  liveQueries() {
-    return this._checkPermission('liveQueries');
-  }
-
-  statWithParameters() {
-    return this._checkPermission('statWithParameters');
+  stats() {
+    return async (request, response, next) => {
+      try {
+        await this.authorizationService
+          .assertCanRetrieveChart({
+            user: request.user,
+            chartRequest: request.body,
+          });
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
   }
 }
 

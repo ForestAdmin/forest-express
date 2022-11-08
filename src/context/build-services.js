@@ -1,18 +1,24 @@
 /* eslint-disable global-require */
+const createForestAdminClient = require('@forestadmin/forestadmin-client').default;
+
 module.exports = (context) =>
   context
     .addInstance('logger', () => require('../services/logger'))
+    .addUsingFunction('forestAdminClient', ({ env, logger }) => createForestAdminClient({
+      forestServerUrl: env.FOREST_URL,
+      envSecret: env.FOREST_ENV_SECRET,
+      logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
+    }))
+    .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
+    .addUsingClass('authorizationService', () => require('../services/authorization').default)
     .addInstance('pathService', () => require('../services/path'))
     .addInstance('errorHandler', () => require('../services/exposed/error-handler'))
     .addInstance('ipWhitelist', () => require('../services/ip-whitelist'))
     .addInstance('forestServerRequester', () => require('../services/forest-server-requester'))
     .addInstance('schemasGenerator', () => require('../generators/schemas'))
     .addInstance('baseFilterParser', () => require('../services/base-filters-parser'))
-    .addInstance('permissionsFormatter', () => require('../services/permissions-formatter'))
     .addUsingClass('projectDirectoryFinder', () => require('../services/project-directory-finder'))
     .addUsingClass('configStore', () => require('../services/config-store'))
-    .addUsingClass('permissionsGetter', () => require('../services/permissions-getter'))
-    .addUsingClass('permissionsChecker', () => require('../services/permissions-checker'))
     .addUsingClass('apimapFieldsFormater', () => require('../services/apimap-fields-formater'))
     .addUsingClass('authorizationFinder', () => require('../services/authorization-finder'))
     .addUsingClass('apimapSorter', () => require('../services/apimap-sorter'))

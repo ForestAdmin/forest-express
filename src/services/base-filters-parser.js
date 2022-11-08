@@ -4,6 +4,10 @@ const { getSmartField, isSmartField } = require('../utils/schema');
 
 // NOTICE: Parse the given filters into a valid JSON.
 const parseFiltersString = (filtersString) => {
+  if (typeof filtersString === 'object') {
+    return filtersString;
+  }
+
   try {
     return filtersString ? JSON.parse(filtersString) : null;
   } catch (error) {
