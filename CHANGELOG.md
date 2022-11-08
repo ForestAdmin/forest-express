@@ -1,3 +1,10 @@
+# [10.0.0-beta.4](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.3...v10.0.0-beta.4) (2022-11-08)
+
+
+### Features
+
+* **chart:** add support for context variables inside SQL query ([#953](https://github.com/ForestAdmin/forest-express/issues/953)) ([1d088ff](https://github.com/ForestAdmin/forest-express/commit/1d088ff981f8ebb2dfcecbf15f933918a9a6a07e))
+
 # [10.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.2...v10.0.0-beta.3) (2022-11-02)
 
 
