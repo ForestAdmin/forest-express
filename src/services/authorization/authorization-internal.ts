@@ -44,7 +44,7 @@ export async function intersectCount(
       { filters: conditionalFilterFormatted, timezone: recordsCounterParams.timezone },
     );
 
-    // Support aggregate count without user scope (used by getRolesIdsAllowedToApprove)
+    // Support aggregate count without user scope (used by getRoleIdsAllowedToApprove)
     recordsCounter.excludesScope = recordsCounterParams.excludesScope ?? false;
 
     return await recordsCounter.count();

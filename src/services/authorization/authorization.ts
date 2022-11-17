@@ -133,14 +133,14 @@ export default class AuthorizationService {
     );
 
     if (triggerRequiresApproval) {
-      const rolesIdsAllowedToApprove = await this.getRolesIdsAllowedToApprove(
+      const roleIdsAllowedToApprove = await this.getRoleIdsAllowedToApprove(
         recordsCounterParams,
         customActionName,
         collectionName,
         requestFilterPlainTree,
       );
 
-      throw new CustomActionRequiresApprovalError(rolesIdsAllowedToApprove);
+      throw new CustomActionRequiresApprovalError(roleIdsAllowedToApprove);
     }
   }
 
@@ -164,14 +164,14 @@ export default class AuthorizationService {
     );
 
     if (!canApprove) {
-      const rolesIdsAllowedToApprove = await this.getRolesIdsAllowedToApprove(
+      const roleIdsAllowedToApprove = await this.getRoleIdsAllowedToApprove(
         recordsCounterParams,
         customActionName,
         collectionName,
         requestFilterPlainTree,
       );
 
-      throw new ApprovalNotAllowedError(rolesIdsAllowedToApprove);
+      throw new ApprovalNotAllowedError(roleIdsAllowedToApprove);
     }
   }
 
@@ -309,7 +309,7 @@ export default class AuthorizationService {
     );
   }
 
-  private async getRolesIdsAllowedToApprove(
+  private async getRoleIdsAllowedToApprove(
     recordsCounterParams: RecordsCounterParams,
     customActionName: string,
     collectionName: string,
@@ -332,12 +332,12 @@ export default class AuthorizationService {
     ]);
 
     return rolesIdsGroupByConditions.reduce<number[]>(
-      (rolesIdsAllowedToApprove, { roleIds }, currentIndex) => {
+      (roleIdsAllowedToApprove, { roleIds }, currentIndex) => {
         if (requestRecordsCount === conditionRecordsCounts[currentIndex]) {
-          rolesIdsAllowedToApprove.push(...roleIds);
+          roleIdsAllowedToApprove.push(...roleIds);
         }
 
-        return rolesIdsAllowedToApprove;
+        return roleIdsAllowedToApprove;
       },
       [],
     );
