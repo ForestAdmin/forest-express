@@ -23,7 +23,7 @@ function ResourceSerializer(
   const needsDateOnlyFormating = Implementation.getLianaName() === 'forest-express-sequelize'
     && semver.lt(Implementation.getOrmVersion(), '4.0.0');
 
-  const reservedWords = ['meta'];
+  const reservedWords = ['meta', 'attributes'];
   const fieldInfoDateonly = [];
   const fieldInfoPoint = [];
 
