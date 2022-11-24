@@ -61,14 +61,14 @@ describe('serializers > resource', () => {
       });
     });
 
-    it('should serialize the flattened fields with a nested model named "attributes"', async () => {
+    it('should serialize the fields with a nested model named "attributes"', async () => {
       const records = [
         {
           _id: '5fbfb0ee67e7953f9b8414bf',
           name: 'Zoey',
           attributes: {
             color: 'red',
-            price: '1000$',
+            option: 'air conditioning',
           },
         }, {
           _id: '5f928f4f1eedcfbce937bbd0',
@@ -81,8 +81,7 @@ describe('serializers > resource', () => {
         data: [{
           attributes: {
             _id: '5fbfb0ee67e7953f9b8414bf',
-            [`attributes${FLATTEN_SEPARATOR}price`]: '1000$',
-            [`attributes${FLATTEN_SEPARATOR}color`]: 'red',
+            attributes: { color: 'red', option: 'air conditioning' },
             name: 'Zoey',
           },
           type: 'cars',
