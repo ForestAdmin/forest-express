@@ -9,7 +9,7 @@ module.exports = (context) =>
       envSecret: env.FOREST_ENV_SECRET,
       logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
     }))
-    .addUsingClass('authorizationService', () => require('../services/authorization').default)
+    .addUsingClass('authorizationService', () => require('../services/authorization/authorization').default)
     .addInstance('pathService', () => require('../services/path'))
     .addInstance('errorHandler', () => require('../services/exposed/error-handler'))
     .addInstance('ipWhitelist', () => require('../services/ip-whitelist'))

@@ -10,7 +10,7 @@ import AuthorizationService from '../../src/services/authorization/authorization
 import {
   canPerformConditionalCustomAction,
   GenericPlainTree,
-  intersectCount,
+  aggregateCountConditionIntersection,
   transformToRolesIdsGroupByConditions,
 } from '../../src/services/authorization/authorization-internal';
 import ApprovalNotAllowedError from '../../src/services/authorization/errors/approvalNotAllowedError';
@@ -20,7 +20,7 @@ import ForbiddenError from '../../src/utils/errors/forbidden-error';
 
 jest.mock('../../src/services/authorization/authorization-internal', () => ({
   __esModule: true,
-  intersectCount: jest.fn(),
+  aggregateCountConditionIntersection: jest.fn(),
   canPerformConditionalCustomAction: jest.fn(),
   transformToRolesIdsGroupByConditions: jest.fn(),
 }));
@@ -584,7 +584,7 @@ describe('unit > services > AuthorizationService', () => {
       forestAdminClient.permissionService.getConditionalApproveConditions
         .mockResolvedValue(fakeActionConditionsByRoleId);
 
-      (intersectCount as jest.Mock)
+      (aggregateCountConditionIntersection as jest.Mock)
         .mockResolvedValueOnce(3)
         .mockResolvedValueOnce(3)
         .mockResolvedValueOnce(1)

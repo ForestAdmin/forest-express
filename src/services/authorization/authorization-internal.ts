@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import hashObject from 'object-hash';
 
 import RecordsCounter from '../exposed/records-counter';
@@ -21,7 +19,7 @@ export type RecordsCounterParams = {
   model: never, user: User, timezone: string, excludesScope?: boolean
 };
 
-export async function intersectCount(
+export async function aggregateCountConditionIntersection(
   recordsCounterParams: RecordsCounterParams,
   requestFilterPlainTree: unknown,
   conditionPlainTree?: unknown,
@@ -60,8 +58,12 @@ export async function canPerformConditionalCustomAction(
 ) {
   if (conditionPlainTree) {
     const [requestRecordsCount, matchingRecordsCount] = await Promise.all([
-      intersectCount(recordsCounterParams, requestFilterPlainTree),
-      intersectCount(recordsCounterParams, requestFilterPlainTree, conditionPlainTree),
+      aggregateCountConditionIntersection(recordsCounterParams, requestFilterPlainTree),
+      aggregateCountConditionIntersection(
+        recordsCounterParams,
+        requestFilterPlainTree,
+        conditionPlainTree,
+      ),
     ]);
 
     // If some records don't match the condition then the user
@@ -74,36 +76,39 @@ export async function canPerformConditionalCustomAction(
   return true;
 }
 
-export function transformToRolesIdsGroupByConditions(
-  actionConditionsByRoleId: Map<number, GenericPlainTree>,
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function transformToRolesIdsGroupByConditions<T>(
+  actionConditionsByRoleId?: Map<number, T>,
 ): {
     roleIds: number[];
-    condition: GenericPlainTree;
+    condition: T;
   }[] {
+  if (!actionConditionsByRoleId) {
+    return [];
+  }
+
   const rolesIdsGroupByConditions = Array.from(
     actionConditionsByRoleId,
-    ([roleId, conditionGenericTree]) => ({
+    ([roleId, condition]) => ({
       roleId,
-      conditionGenericTree,
-      // eslint-disable-next-line max-len
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      conditionGenericTreeHash: hashObject(
-        conditionGenericTree,
+      condition,
+      conditionHash: hashObject(
+        condition as never,
         { respectType: false } as hashObject.NormalOption,
       ),
     }),
   ).reduce((acc, current) => {
-    const { roleId, conditionGenericTree, conditionGenericTreeHash } = current;
+    const { roleId, condition, conditionHash } = current;
 
-    if (acc.has(conditionGenericTreeHash)) {
-      // I don't need nullish operator but our TS config might be wrong since it's required
-      acc.get(conditionGenericTreeHash)?.roleIds.push(roleId);
+    if (acc.has(conditionHash)) {
+      // We don't need nullish operator but our TS config might be wrong since it's required
+      acc.get(conditionHash)?.roleIds.push(roleId);
     } else {
-      acc.set(conditionGenericTreeHash, { roleIds: [roleId], condition: conditionGenericTree });
+      acc.set(conditionHash, { roleIds: [roleId], condition });
     }
 
     return acc;
-  }, new Map<string, { roleIds: number[]; condition: GenericPlainTree }>());
+  }, new Map<string, { roleIds: number[]; condition: T }>());
 
   return Array.from(rolesIdsGroupByConditions.values());
 }

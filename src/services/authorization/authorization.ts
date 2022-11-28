@@ -12,7 +12,7 @@ import CustomActionTriggerForbiddenError from './errors/customActionTriggerForbi
 import {
   canPerformConditionalCustomAction,
   GenericPlainTree,
-  intersectCount,
+  aggregateCountConditionIntersection,
   RecordsCounterParams,
   transformToRolesIdsGroupByConditions,
   User,
@@ -261,7 +261,7 @@ export default class AuthorizationService {
       });
 
     if (requiresConditionApprovalPlainTree) {
-      const matchingRecordsCount = await intersectCount(
+      const matchingRecordsCount = await aggregateCountConditionIntersection(
         recordsCounterParams,
         requestFilterPlainTree,
         requiresConditionApprovalPlainTree,
@@ -321,15 +321,32 @@ export default class AuthorizationService {
         collectionName,
       });
 
+    const roleIdsAllowedToApproveWithoutConditions = await this.forestAdminClient.permissionService
+      .getRoleIdsAllowedToApproveWithoutConditions({
+        customActionName,
+        collectionName,
+      });
+
     const rolesIdsGroupByConditions = transformToRolesIdsGroupByConditions(
       actionConditionsByRoleId,
     );
 
-    const [requestRecordsCount, ...conditionRecordsCounts]: number[] = await Promise.all([
-      intersectCount({ ...recordsCounterParams, excludesScope: true }, requestFilterPlainTree),
-      // eslint-disable-next-line max-len
-      ...rolesIdsGroupByConditions.map(({ condition: conditionPlainTree }) => intersectCount({ ...recordsCounterParams, excludesScope: true }, requestFilterPlainTree, conditionPlainTree)),
-    ]);
+    let requestRecordsCount: number;
+    let conditionRecordsCounts: number[];
+
+    if (rolesIdsGroupByConditions.length > 0) {
+      [requestRecordsCount, ...conditionRecordsCounts] = await Promise.all([
+        aggregateCountConditionIntersection({
+          ...recordsCounterParams,
+          excludesScope: true,
+        }, requestFilterPlainTree),
+        // eslint-disable-next-line max-len
+        ...rolesIdsGroupByConditions.map(({ condition: conditionPlainTree }) => aggregateCountConditionIntersection({
+          ...recordsCounterParams,
+          excludesScope: true,
+        }, requestFilterPlainTree, conditionPlainTree)),
+      ]);
+    }
 
     return rolesIdsGroupByConditions.reduce<number[]>(
       (roleIdsAllowedToApprove, { roleIds }, currentIndex) => {
@@ -339,7 +356,7 @@ export default class AuthorizationService {
 
         return roleIdsAllowedToApprove;
       },
-      [],
+      roleIdsAllowedToApproveWithoutConditions,
     );
   }
 }
