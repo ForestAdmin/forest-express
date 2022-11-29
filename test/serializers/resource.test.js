@@ -61,6 +61,40 @@ describe('serializers > resource', () => {
       });
     });
 
+    it('should serialize the fields with a nested model named "attributes"', async () => {
+      const records = [
+        {
+          _id: '5fbfb0ee67e7953f9b8414bf',
+          name: 'Zoey',
+          attributes: {
+            color: 'red',
+            option: 'air conditioning',
+          },
+        }, {
+          _id: '5f928f4f1eedcfbce937bbd0',
+          name: 'Ibiza',
+        }];
+
+      const serialized = await getSerializer(records).perform();
+
+      expect(serialized).toStrictEqual({
+        data: [{
+          attributes: {
+            _id: '5fbfb0ee67e7953f9b8414bf',
+            attributes: { color: 'red', option: 'air conditioning' },
+            name: 'Zoey',
+          },
+          type: 'cars',
+        }, {
+          attributes: {
+            _id: '5f928f4f1eedcfbce937bbd0',
+            name: 'Ibiza',
+          },
+          type: 'cars',
+        }],
+      });
+    });
+
     it('should not add attribute when their are undefined', async () => {
       const records = [
         {
