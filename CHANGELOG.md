@@ -1,3 +1,10 @@
+## [10.0.1](https://github.com/ForestAdmin/forest-express/compare/v10.0.0...v10.0.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* add attributes to reservedWord list in ressource ([#961](https://github.com/ForestAdmin/forest-express/issues/961)) ([a11ee62](https://github.com/ForestAdmin/forest-express/commit/a11ee625c272f56e13c1ef43dbc788aa254d5cb2))
+
 # [10.0.0](https://github.com/ForestAdmin/forest-express/compare/v9.5.6...v10.0.0) (2022-11-08)
 
 
