@@ -1,3 +1,5 @@
+## [10.0.2](https://github.com/ForestAdmin/forest-express/compare/v10.0.1...v10.0.2) (2022-12-12)
+
 ## [10.0.1](https://github.com/ForestAdmin/forest-express/compare/v10.0.0...v10.0.1) (2022-11-29)
 
 
