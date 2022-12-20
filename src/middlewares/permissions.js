@@ -3,6 +3,7 @@ const { parameterize } = require('../utils/string');
 const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
 const RecordsGetter = require('../services/exposed/records-getter');
+const { default: UnprocessableError } = require('../utils/errors/unprocessable-error');
 const RecordsCounter = require('../services/exposed/records-counter').default;
 
 class PermissionMiddlewareCreator {
@@ -158,10 +159,28 @@ class PermissionMiddlewareCreator {
   smartAction() {
     return [
       async (request, response, next) => {
+        // We forbid requester_id from default request as it's only retrieved from
+        // signed_approval_request
+        if (request.body.data?.attributes?.requester_id) {
+          return next(new UnprocessableError());
+        }
+
+        if (request.body?.data?.attributes?.signed_approval_request) {
+          const signedParameters = this.authorizationService.verifySignedActionParameters(
+            request.body.data.attributes.signed_approval_request,
+          );
+
+          request.body = signedParameters;
+        }
+
+        return next();
+      },
+
+      async (request, response, next) => {
         try {
           const { primaryKeys } = Schemas.schemas[this.collectionName];
           const actionName = this._getSmartActionName(request);
-          const requestBody = request.body;
+
           const model = this.modelsManager.getModelByName(this.collectionName);
 
           const getter = new RecordsGetter(model, request.user, request.query);
@@ -197,15 +216,11 @@ class PermissionMiddlewareCreator {
           };
 
           // TODO: Move this upfront?
-          if (requestBody?.data?.attributes?.signed_approval_request) {
-            const signedParameters = this.authorizationService.verifySignedActionParameters(
-              requestBody?.data?.attributes?.signed_approval_request,
-            );
+          if (request.body?.data?.attributes?.signed_approval_request) {
             await this.authorizationService.assertCanApproveCustomAction({
               ...canPerformCustomActionParams,
-              requesterId: signedParameters?.data?.attributes?.requester_id,
+              requesterId: request.body?.data?.attributes?.requester_id,
             });
-            request.body = signedParameters;
           } else {
             await this.authorizationService.assertCanTriggerCustomAction(
               canPerformCustomActionParams,
