@@ -66,11 +66,10 @@ export async function canPerformConditionalCustomAction(
       ),
     ]);
 
-    // If some records don't match the condition then the user
+    // If all records condition the condition everything is ok
+    // Otherwise when some records don't match the condition then the user
     // is not allow to perform the conditional action
-    if (matchingRecordsCount !== requestRecordsCount) {
-      return false;
-    }
+    return matchingRecordsCount === requestRecordsCount;
   }
 
   return true;
@@ -78,15 +77,11 @@ export async function canPerformConditionalCustomAction(
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function transformToRolesIdsGroupByConditions<T>(
-  actionConditionsByRoleId?: Map<number, T>,
+  actionConditionsByRoleId: Map<number, T>,
 ): {
     roleIds: number[];
     condition: T;
   }[] {
-  if (!actionConditionsByRoleId) {
-    return [];
-  }
-
   const rolesIdsGroupByConditions = Array.from(
     actionConditionsByRoleId,
     ([roleId, condition]) => ({
@@ -94,7 +89,7 @@ export function transformToRolesIdsGroupByConditions<T>(
       condition,
       conditionHash: hashObject(
         condition as never,
-        { respectType: false } as hashObject.NormalOption,
+        { respectType: false },
       ),
     }),
   ).reduce((acc, current) => {

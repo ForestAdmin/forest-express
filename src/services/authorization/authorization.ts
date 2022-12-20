@@ -327,26 +327,26 @@ export default class AuthorizationService {
         collectionName,
       });
 
+    // Optimization - We groupBy conditions to only make the aggregate count once when possible
     const rolesIdsGroupByConditions = transformToRolesIdsGroupByConditions(
       actionConditionsByRoleId,
     );
 
-    let requestRecordsCount: number;
-    let conditionRecordsCounts: number[];
-
-    if (rolesIdsGroupByConditions.length > 0) {
-      [requestRecordsCount, ...conditionRecordsCounts] = await Promise.all([
-        aggregateCountConditionIntersection({
-          ...recordsCounterParams,
-          excludesScope: true,
-        }, requestFilterPlainTree),
-        // eslint-disable-next-line max-len
-        ...rolesIdsGroupByConditions.map(({ condition: conditionPlainTree }) => aggregateCountConditionIntersection({
-          ...recordsCounterParams,
-          excludesScope: true,
-        }, requestFilterPlainTree, conditionPlainTree)),
-      ]);
+    if (!rolesIdsGroupByConditions.length) {
+      return roleIdsAllowedToApproveWithoutConditions;
     }
+
+    const [requestRecordsCount, ...conditionRecordsCounts] = await Promise.all([
+      aggregateCountConditionIntersection({
+        ...recordsCounterParams,
+        excludesScope: true,
+      }, requestFilterPlainTree),
+      // eslint-disable-next-line max-len
+      ...rolesIdsGroupByConditions.map(({ condition: conditionPlainTree }) => aggregateCountConditionIntersection({
+        ...recordsCounterParams,
+        excludesScope: true,
+      }, requestFilterPlainTree, conditionPlainTree)),
+    ]);
 
     return rolesIdsGroupByConditions.reduce<number[]>(
       (roleIdsAllowedToApprove, { roleIds }, currentIndex) => {
@@ -356,6 +356,8 @@ export default class AuthorizationService {
 
         return roleIdsAllowedToApprove;
       },
+      // Roles  with userApprovalEnabled excluding the one with conditions
+      // are allowed to approve by default
       roleIdsAllowedToApproveWithoutConditions,
     );
   }
