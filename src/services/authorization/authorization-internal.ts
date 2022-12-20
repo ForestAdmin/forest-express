@@ -77,11 +77,15 @@ export async function canPerformConditionalCustomAction(
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function transformToRolesIdsGroupByConditions<T>(
-  actionConditionsByRoleId: Map<number, T>,
+  actionConditionsByRoleId?: Map<number, T>,
 ): {
     roleIds: number[];
     condition: T;
   }[] {
+  if (!actionConditionsByRoleId) {
+    return [];
+  }
+
   const rolesIdsGroupByConditions = Array.from(
     actionConditionsByRoleId,
     ([roleId, condition]) => ({

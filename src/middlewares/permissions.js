@@ -196,6 +196,7 @@ class PermissionMiddlewareCreator {
             },
           };
 
+          // TODO: Move this upfront?
           if (requestBody?.data?.attributes?.signed_approval_request) {
             const signedParameters = this.authorizationService.verifySignedActionParameters(
               requestBody?.data?.attributes?.signed_approval_request,

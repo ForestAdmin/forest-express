@@ -6,19 +6,19 @@ import {
   EmptySQLQueryError,
   NonSelectSQLQueryError,
 } from '@forestadmin/forestadmin-client';
-import AuthorizationService from '../../src/services/authorization/authorization';
+import AuthorizationService from '../../../src/services/authorization/authorization';
 import {
   canPerformConditionalCustomAction,
   GenericPlainTree,
   aggregateCountConditionIntersection,
   transformToRolesIdsGroupByConditions,
-} from '../../src/services/authorization/authorization-internal';
-import ApprovalNotAllowedError from '../../src/services/authorization/errors/approvalNotAllowedError';
-import CustomActionTriggerForbiddenError from '../../src/services/authorization/errors/customActionTriggerForbiddenError';
-import BadRequestError from '../../src/utils/errors/bad-request-error';
-import ForbiddenError from '../../src/utils/errors/forbidden-error';
+} from '../../../src/services/authorization/authorization-internal';
+import ApprovalNotAllowedError from '../../../src/services/authorization/errors/approvalNotAllowedError';
+import CustomActionTriggerForbiddenError from '../../../src/services/authorization/errors/customActionTriggerForbiddenError';
+import BadRequestError from '../../../src/utils/errors/bad-request-error';
+import ForbiddenError from '../../../src/utils/errors/forbidden-error';
 
-jest.mock('../../src/services/authorization/authorization-internal', () => ({
+jest.mock('../../../src/services/authorization/authorization-internal', () => ({
   __esModule: true,
   aggregateCountConditionIntersection: jest.fn(),
   canPerformConditionalCustomAction: jest.fn(),
@@ -47,10 +47,13 @@ describe('unit > services > AuthorizationService', () => {
           canApproveCustomAction: jest.fn(),
           canTriggerCustomAction: jest.fn(),
           doesTriggerCustomActionRequiresApproval: jest.fn(),
+
           getConditionalTriggerCondition: jest.fn(),
           getConditionalRequiresApprovalCondition: jest.fn(),
           getConditionalApproveCondition: jest.fn(),
+
           getConditionalApproveConditions: jest.fn(),
+          getRoleIdsAllowedToApproveWithoutConditions: jest.fn(),
         },
         verifySignedActionParameters: jest.fn(),
       },
@@ -583,6 +586,9 @@ describe('unit > services > AuthorizationService', () => {
 
       forestAdminClient.permissionService.getConditionalApproveConditions
         .mockResolvedValue(fakeActionConditionsByRoleId);
+
+      forestAdminClient.permissionService.getRoleIdsAllowedToApproveWithoutConditions
+        .mockResolvedValue([]);
 
       (aggregateCountConditionIntersection as jest.Mock)
         .mockResolvedValueOnce(3)
