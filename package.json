@@ -1,7 +1,7 @@
 {
   "name": "forest-express",
   "description": "Official package for all Forest Express Lianas",
-  "version": "10.0.0-beta.2",
+  "version": "10.0.3",
   "author": "Sandro Munda <sandro@munda.me>",
   "contributors": [
     "Arnaud Besnier <arnaudibesnier@gmail.com>",
@@ -28,15 +28,15 @@
   "dependencies": {
     "@babel/runtime": "7.19.0",
     "@forestadmin/context": "1.31.0",
-    "@forestadmin/forestadmin-client": "1.0.0-alpha.2",
+    "@forestadmin/forestadmin-client": "1.0.3",
     "base32-encode": "1.1.1",
     "bitwise-xor": "0.0.0",
     "bluebird": "3.7.1",
-    "body-parser": "1.19.0",
+    "body-parser": "^1.20.1",
     "compose-middleware": "5.0.1",
     "cors": "2.8.5",
     "csv-stringify": "1.0.4",
-    "express": "4.17.1",
+    "express": "^4.18.2",
     "express-jwt": "6.1.2",
     "forest-ip-utils": "1.0.1",
     "http-errors": "1.7.3",
@@ -53,7 +53,7 @@
     "otplib": "11.0.1",
     "require-all": "3.0.0",
     "semver": "6.3.0",
-    "superagent": "5.2.2",
+    "superagent": "^8.0.6",
     "uuid": "3.3.3",
     "verror": "1.10.0",
     "winston": "3.2.1"
