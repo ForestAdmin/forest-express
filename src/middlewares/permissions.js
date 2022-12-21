@@ -222,7 +222,7 @@ class PermissionMiddlewareCreator {
             },
           };
 
-          if (request.body?.data?.attributes?.signed_approval_request) {
+          if (request.body?.data?.attributes?.requester_id) {
             await this.actionAuthorizationService.assertCanApproveCustomAction({
               ...canPerformCustomActionParams,
               requesterId: request.body?.data?.attributes?.requester_id,

@@ -515,7 +515,7 @@ describe('middlewares > permissions', () => {
               ...defaultAttributes,
               ids: ['1', '2'],
               requester_id: 42,
-              signed_approval_request: 'signed',
+              // At this stage signed_approval_request is no more on the request body!
             },
           });
 
@@ -543,7 +543,7 @@ describe('middlewares > permissions', () => {
             requestAttributes: {
               ...defaultAttributes,
               requester_id: 42,
-              signed_approval_request: 'signed',
+              // At this stage signed_approval_request is no more on the request body!
             },
           });
 
