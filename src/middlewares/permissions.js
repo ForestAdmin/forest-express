@@ -28,9 +28,11 @@ class PermissionMiddlewareCreator {
   _getSmartActionName(request) {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
+
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
-      const endpoint = action.endpoint || `/forest/actions/${parameterize(action.name)}`;
+      const endpoint = action.endpoint && !action.endpoint.startsWith('/') ? `/${action.endpoint}` : action.endpoint || `/forest/actions/${parameterize(action.name)}`;
       const method = action.httpMethod || 'POST';
+
       return endpoint === smartActionEndpoint && method === smartActionHTTPMethod;
     });
 
