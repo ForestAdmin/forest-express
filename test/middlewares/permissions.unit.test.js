@@ -424,7 +424,6 @@ describe('middlewares > permissions', () => {
         const configStore = {
           Implementation: {
             getModelName: jest.fn().mockReturnValue('users'),
-            ResourcesGetter: jest.fn().mockImplementation(() => ({ getIdsFromRequest: () => ['1', '2'] })),
           },
         };
         const actionAuthorizationService = {
@@ -514,6 +513,7 @@ describe('middlewares > permissions', () => {
           const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
+              ids: ['1', '2'],
               requester_id: 42,
               signed_approval_request: 'signed',
             },
@@ -532,7 +532,7 @@ describe('middlewares > permissions', () => {
                 timezone: 'Europe/Paris',
                 user: { id: 30 },
               },
-              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              filterForCaller: { field: 'id', operator: 'in', value: ['1', '2'] },
               requesterId: 42,
               user: { id: 30 },
             });
@@ -560,7 +560,12 @@ describe('middlewares > permissions', () => {
 
       describe('when the request is a trigger', () => {
         it('should check that the user is authorized to trigger', async () => {
-          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction();
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              ids: ['1', '2'],
+            },
+          });
 
           await executeMiddleware(smartActionPermission, request, {});
 
@@ -573,7 +578,7 @@ describe('middlewares > permissions', () => {
                 timezone: 'Europe/Paris',
                 user: { id: 30 },
               },
-              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              filterForCaller: { field: 'id', operator: 'in', value: ['1', '2'] },
               user: { id: 30 },
             });
         });
@@ -589,6 +594,49 @@ describe('middlewares > permissions', () => {
           ).rejects.toBe(error);
 
           expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
+        });
+      });
+
+      describe('with a composite pk', () => {
+        it('should create the right filter', async () => {
+          Schemas.schemas = {
+            users: {
+              name: 'users',
+              idField: 'forestCompositePrimary',
+              primaryKeys: ['bookId', 'authorId'],
+              isCompositePrimary: true,
+              actions: [{
+                name: 'known-action',
+              }],
+            },
+          };
+
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              ids: ['1-1', '2|2'],
+            },
+          });
+
+          await executeMiddleware(smartActionPermission, request, {});
+
+          expect(actionAuthorizationService.assertCanTriggerCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: {
+                aggregator: 'or',
+                conditions: [
+                  { aggregator: 'and', conditions: [{ field: 'bookId', operator: 'equal', value: '1' }, { field: 'authorId', operator: 'equal', value: '1' }] },
+                  { aggregator: 'and', conditions: [{ field: 'bookId', operator: 'equal', value: '2' }, { field: 'authorId', operator: 'equal', value: '2' }] }],
+              },
+              user: { id: 30 },
+            });
         });
       });
     });
