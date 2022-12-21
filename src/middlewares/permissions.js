@@ -10,14 +10,19 @@ class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      authorizationService, modelsManager,
+      authorizationService, actionAuthorizationService, modelsManager,
     } = inject();
 
     /** @private @readonly @type {import('../services/models-manager')} */
     this.modelsManager = modelsManager;
 
-    /** @private @readonly @type {import('../services/authorization').default} */
+    /** @private @readonly @type {import('../services/authorization/authorization').default} */
     this.authorizationService = authorizationService;
+
+    /**
+     * @private @readonly @type {import('../services/authorization/action-authorization').default}
+     * */
+    this.actionAuthorizationService = actionAuthorizationService;
   }
 
   _getSmartActionName(request) {
@@ -166,7 +171,7 @@ class PermissionMiddlewareCreator {
         }
 
         if (request.body?.data?.attributes?.signed_approval_request) {
-          const signedParameters = this.authorizationService.verifySignedActionParameters(
+          const signedParameters = this.actionAuthorizationService.verifySignedActionParameters(
             request.body.data.attributes.signed_approval_request,
           );
 
@@ -207,7 +212,7 @@ class PermissionMiddlewareCreator {
             user: request.user,
             customActionName: actionName,
             collectionName: this.collectionName,
-            requestFilterPlainTree: filters,
+            filterForCaller: filters,
             recordsCounterParams: {
               model,
               user: request.user,
@@ -215,14 +220,13 @@ class PermissionMiddlewareCreator {
             },
           };
 
-          // TODO: Move this upfront?
           if (request.body?.data?.attributes?.signed_approval_request) {
-            await this.authorizationService.assertCanApproveCustomAction({
+            await this.actionAuthorizationService.assertCanApproveCustomAction({
               ...canPerformCustomActionParams,
               requesterId: request.body?.data?.attributes?.requester_id,
             });
           } else {
-            await this.authorizationService.assertCanTriggerCustomAction(
+            await this.actionAuthorizationService.assertCanTriggerCustomAction(
               canPerformCustomActionParams,
             );
           }

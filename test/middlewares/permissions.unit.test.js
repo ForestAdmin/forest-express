@@ -3,6 +3,7 @@ const { init } = require('@forestadmin/context');
 const PermissionMiddlewareCreator = require('../../src/middlewares/permissions');
 
 const Schemas = require('../../src/generators/schemas');
+const { default: UnprocessableError } = require('../../src/utils/errors/unprocessable-error');
 
 const buildRequest = (attributes) => ({
   query: { timezone: 'Europe/Paris' }, body: { data: { attributes } },
@@ -416,7 +417,17 @@ describe('middlewares > permissions', () => {
 
     describe('smart action permissions', () => {
       function setupSmartAction({ requestAttributes = defaultAttributes } = {}) {
-        const authorizationService = {
+        const modelsManager = {
+          getModelByName: jest.fn().mockReturnValue({ name: 'users' }),
+        };
+        // Used by RecordsGetter
+        const configStore = {
+          Implementation: {
+            getModelName: jest.fn().mockReturnValue('users'),
+            ResourcesGetter: jest.fn().mockImplementation(() => ({ getIdsFromRequest: () => ['1', '2'] })),
+          },
+        };
+        const actionAuthorizationService = {
           verifySignedActionParameters: jest.fn(),
           assertCanApproveCustomAction: jest.fn(),
           assertCanTriggerCustomAction: jest.fn(),
@@ -430,23 +441,51 @@ describe('middlewares > permissions', () => {
 
         const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
           ...defaultDependencies,
-          authorizationService,
+          actionAuthorizationService,
+          modelsManager,
+          configStore,
         });
 
         return {
-          smartActionPermission: permissionMiddlewareCreator.smartAction()[0],
-          smartActionRecordIds: permissionMiddlewareCreator.smartAction()[1],
+          smartActionActionApprovalRequestData: permissionMiddlewareCreator.smartAction()[0],
+          smartActionPermission: permissionMiddlewareCreator.smartAction()[1],
+          smartActionRecordIds: permissionMiddlewareCreator.smartAction()[2],
           request,
-          authorizationService,
+          actionAuthorizationService,
         };
       }
 
-      describe('when the request is an approval', () => {
-        it('should check if the user has the right to execute the approval and replace the body', async () => {
-          const { smartActionPermission, request, authorizationService } = setupSmartAction({
+      describe('when the request contains requester_id', () => {
+        it('should reject with UnprocessableError (prevent forged request)', async () => {
+          const {
+            smartActionActionApprovalRequestData,
+            request,
+            actionAuthorizationService,
+          } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
               requester_id: 666,
+              signed_approval_request: 'signed',
+            },
+          });
+
+          await expect(
+            executeMiddleware(smartActionActionApprovalRequestData, request, {}),
+          ).rejects.toThrow(UnprocessableError);
+
+          expect(actionAuthorizationService.verifySignedActionParameters).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when the request is an approval', () => {
+        it('should get the signed parameters and change body', async () => {
+          const {
+            smartActionActionApprovalRequestData,
+            request,
+            actionAuthorizationService,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
               signed_approval_request: 'signed',
             },
           });
@@ -460,90 +499,96 @@ describe('middlewares > permissions', () => {
             },
           };
 
-          authorizationService.verifySignedActionParameters.mockReturnValue(legitParams);
+          actionAuthorizationService.verifySignedActionParameters.mockReturnValue(legitParams);
 
-          await executeMiddleware(smartActionPermission, request, {});
+          await executeMiddleware(smartActionActionApprovalRequestData, request, {});
 
-          expect(authorizationService.verifySignedActionParameters).toHaveBeenCalledWith(
+          expect(actionAuthorizationService.verifySignedActionParameters).toHaveBeenCalledWith(
             'signed',
           );
-          expect(authorizationService.assertCanApproveCustomAction).toHaveBeenCalledWith({
-            user: request.user,
-            customActionName: 'known-action',
-            collectionName: 'users',
-            requesterId: 42,
-          });
+
           expect(request.body).toBe(legitParams);
         });
 
-        it('should throw an error if the user is not authorized', async () => {
-          const { smartActionPermission, request, authorizationService } = setupSmartAction({
+        it('should resolve when authorized to perform', async () => {
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
-              requester_id: 666,
+              requester_id: 42,
               signed_approval_request: 'signed',
             },
           });
 
-          const legitParams = {
-            data: {
-              attributes: {
-                ...defaultAttributes,
-                requester_id: 42,
-              },
-            },
-          };
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).resolves.toBeUndefined();
 
-          authorizationService.verifySignedActionParameters.mockReturnValue(legitParams);
+          expect(actionAuthorizationService.assertCanApproveCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              requesterId: 42,
+              user: { id: 30 },
+            });
+        });
+
+        it('should throw an error if the user is not authorized', async () => {
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              requester_id: 42,
+              signed_approval_request: 'signed',
+            },
+          });
 
           const error = new Error('Not authorized');
-          authorizationService.assertCanApproveCustomAction.mockRejectedValue(error);
+          actionAuthorizationService.assertCanApproveCustomAction.mockRejectedValue(error);
 
           await expect(
             executeMiddleware(smartActionPermission, request, {}),
           ).rejects.toBe(error);
 
-          expect(authorizationService.verifySignedActionParameters).toHaveBeenCalledWith(
-            'signed',
-          );
-          expect(authorizationService.assertCanApproveCustomAction).toHaveBeenCalledWith({
-            user: request.user,
-            customActionName: 'known-action',
-            collectionName: 'users',
-            requesterId: 42,
-          });
-          expect(request.body).not.toBe(legitParams);
+          expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
         });
       });
 
       describe('when the request is a trigger', () => {
         it('should check that the user is authorized to trigger', async () => {
-          const { smartActionPermission, request, authorizationService } = setupSmartAction();
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction();
 
           await executeMiddleware(smartActionPermission, request, {});
 
-          expect(authorizationService.assertCanTriggerCustomAction).toHaveBeenCalledWith({
-            user: request.user,
-            customActionName: 'known-action',
-            collectionName: 'users',
-          });
+          expect(actionAuthorizationService.assertCanTriggerCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              user: { id: 30 },
+            });
         });
 
         it('should handle the error if the user is not authorized', async () => {
-          const { smartActionPermission, request, authorizationService } = setupSmartAction();
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction();
 
           const error = new Error('Not authorized');
-          authorizationService.assertCanTriggerCustomAction.mockRejectedValue(error);
+          actionAuthorizationService.assertCanTriggerCustomAction.mockRejectedValue(error);
 
           await expect(
             executeMiddleware(smartActionPermission, request, {}),
           ).rejects.toBe(error);
 
-          expect(authorizationService.assertCanTriggerCustomAction).toHaveBeenCalledWith({
-            user: request.user,
-            customActionName: 'known-action',
-            collectionName: 'users',
-          });
+          expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
         });
       });
     });
@@ -738,8 +783,6 @@ describe('middlewares > permissions', () => {
     });
 
     it('should generate an array of middlewares', () => {
-      expect.assertions(3);
-
       const permissionMiddlewareCreator = createPermissionMiddlewareCreator(
         'users',
         { ...defaultDependencies },
@@ -748,9 +791,10 @@ describe('middlewares > permissions', () => {
       const smartActionPermissionMiddlewares = permissionMiddlewareCreator
         .smartAction({ name: 'users' });
 
-      expect(smartActionPermissionMiddlewares).toHaveLength(2);
+      expect(smartActionPermissionMiddlewares).toHaveLength(3);
       expect(typeof smartActionPermissionMiddlewares[0]).toBe('function');
       expect(typeof smartActionPermissionMiddlewares[1]).toBe('function');
+      expect(typeof smartActionPermissionMiddlewares[2]).toBe('function');
     });
   });
 

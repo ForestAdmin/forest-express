@@ -11,6 +11,7 @@ module.exports = (context) =>
     }))
     .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
     .addUsingClass('authorizationService', () => require('../services/authorization/authorization').default)
+    .addUsingClass('actionAuthorizationService', () => require('../services/authorization/action-authorization').default)
     .addInstance('pathService', () => require('../services/path'))
     .addInstance('errorHandler', () => require('../services/exposed/error-handler'))
     .addInstance('ipWhitelist', () => require('../services/ip-whitelist'))
