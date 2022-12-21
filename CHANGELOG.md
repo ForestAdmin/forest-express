@@ -1,3 +1,60 @@
+## [10.0.3](https://github.com/ForestAdmin/forest-express/compare/v10.0.2...v10.0.3) (2022-12-20)
+
+## [10.0.2](https://github.com/ForestAdmin/forest-express/compare/v10.0.1...v10.0.2) (2022-12-12)
+
+## [10.0.1](https://github.com/ForestAdmin/forest-express/compare/v10.0.0...v10.0.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* add attributes to reservedWord list in ressource ([#961](https://github.com/ForestAdmin/forest-express/issues/961)) ([a11ee62](https://github.com/ForestAdmin/forest-express/commit/a11ee625c272f56e13c1ef43dbc788aa254d5cb2))
+
+# [10.0.0](https://github.com/ForestAdmin/forest-express/compare/v9.5.6...v10.0.0) (2022-11-08)
+
+
+### Bug Fixes
+
+* **chart:** improve security on chart and rename keys ([#949](https://github.com/ForestAdmin/forest-express/issues/949)) ([a45500f](https://github.com/ForestAdmin/forest-express/commit/a45500f4c3b83c85a121a342ed190b1811273d36))
+
+
+### Code Refactoring
+
+* use new permissions mechanism v4 ([#943](https://github.com/ForestAdmin/forest-express/issues/943)) ([ffcd051](https://github.com/ForestAdmin/forest-express/commit/ffcd0510fcd2dc8af4e7de6a3b1de4b66abea0f7))
+
+
+### Features
+
+* **chart:** add support for context variables inside SQL query ([#953](https://github.com/ForestAdmin/forest-express/issues/953)) ([1d088ff](https://github.com/ForestAdmin/forest-express/commit/1d088ff981f8ebb2dfcecbf15f933918a9a6a07e))
+* **chart:** add support for context variables used by Workspaces ([#952](https://github.com/ForestAdmin/forest-express/issues/952)) ([07c2f94](https://github.com/ForestAdmin/forest-express/commit/07c2f94070a522208d1873babad49455b6885ae6))
+
+
+### BREAKING CHANGES
+
+* drop support of projects that are not using roles
+
+Co-authored-by: Guillaume Gautreau <guillaumeg@forestadmin.com>
+
+# [10.0.0-beta.4](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.3...v10.0.0-beta.4) (2022-11-08)
+
+
+### Features
+
+* **chart:** add support for context variables inside SQL query ([#953](https://github.com/ForestAdmin/forest-express/issues/953)) ([1d088ff](https://github.com/ForestAdmin/forest-express/commit/1d088ff981f8ebb2dfcecbf15f933918a9a6a07e))
+
+# [10.0.0-beta.3](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.2...v10.0.0-beta.3) (2022-11-02)
+
+
+### Features
+
+* **chart:** add support for context variables used by Workspaces ([#952](https://github.com/ForestAdmin/forest-express/issues/952)) ([07c2f94](https://github.com/ForestAdmin/forest-express/commit/07c2f94070a522208d1873babad49455b6885ae6))
+
+# [10.0.0-beta.2](https://github.com/ForestAdmin/forest-express/compare/v10.0.0-beta.1...v10.0.0-beta.2) (2022-10-27)
+
+
+### Bug Fixes
+
+* **chart:** improve security on chart and rename keys ([#949](https://github.com/ForestAdmin/forest-express/issues/949)) ([a45500f](https://github.com/ForestAdmin/forest-express/commit/a45500f4c3b83c85a121a342ed190b1811273d36))
+
 # [10.0.0-beta.1](https://github.com/ForestAdmin/forest-express/compare/v9.5.6...v10.0.0-beta.1) (2022-10-14)
 
 

@@ -15,11 +15,11 @@ const CHART_TYPE_LEADERBOARD = 'Leaderboard';
 const CHART_TYPE_OBJECTIVE = 'Objective';
 
 module.exports = function Stats(app, model, Implementation, opts) {
-  const { modelsManager } = inject();
+  const { chartHandler, modelsManager } = inject();
   const modelName = Implementation.getModelName(model);
   const permissionMiddlewareCreator = new PermissionMiddlewareCreator(modelName);
 
-  this.get = (request, response, next) => {
+  this.get = async (request, response, next) => {
     let promise = null;
 
     function getAssociationModel(schema, associationName) {
@@ -36,12 +36,17 @@ module.exports = function Stats(app, model, Implementation, opts) {
       );
     }
 
-    const params = { timezone: request.query.timezone, ...request.body };
+    const chart = await chartHandler.getChartWithContextInjected({
+      userId: request.user.id,
+      renderingId: request.user.renderingId,
+      chartRequest: request.body,
+    });
+    const params = { timezone: request.query.timezone, ...request.body, ...chart };
     const { type } = request.body;
 
     if (type === CHART_TYPE_LEADERBOARD) {
       const schema = Schemas.schemas[model.name];
-      const modelRelationship = getAssociationModel(schema, request.body.relationship_field);
+      const modelRelationship = getAssociationModel(schema, request.body.relationshipFieldName);
 
       promise = new Implementation
         .LeaderboardStatGetter(model, modelRelationship, params, request.user).perform();
@@ -77,71 +82,86 @@ module.exports = function Stats(app, model, Implementation, opts) {
     return new error.UnprocessableEntity(message);
   }
 
-  this.getWithLiveQuery = (request, response, next) =>
-    new Implementation.QueryStatGetter(request.body, opts)
-      .perform()
-      .then((result) => {
-        switch (request.body.type) {
-          case CHART_TYPE_VALUE:
-            if (result.length) {
-              const resultLine = result[0];
-              if (resultLine.value === undefined) {
-                throw getErrorQueryColumnsName(resultLine, '\'value\'');
-              } else {
-                result = {
-                  countCurrent: resultLine.value,
-                  countPrevious: resultLine.previous,
-                };
-              }
-            }
-            break;
-          case CHART_TYPE_PIE:
-          case CHART_TYPE_LEADERBOARD:
-            if (result.length) {
-              result.forEach((resultLine) => {
-                if (resultLine.value === undefined || resultLine.key === undefined) {
-                  throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
-                }
-              });
-            }
-            break;
-          case CHART_TYPE_LINE:
-            if (result.length) {
-              result.forEach((resultLine) => {
-                if (resultLine.value === undefined || resultLine.key === undefined) {
-                  throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
-                }
-              });
-            }
+  this.getWithLiveQuery = async (request, response, next) => {
+    try {
+      const { query, contextVariables } = await chartHandler.getQueryForChart({
+        userId: request.user.id,
+        renderingId: request.user.renderingId,
+        chartRequest: request.body,
+      });
 
-            result = result.map((resultLine) => ({
-              label: resultLine.key,
-              values: {
+      let result = await new Implementation.QueryStatGetter({
+        ...request.body,
+        query,
+        contextVariables: {
+          ...(request.body.contextVariables || {}),
+          ...contextVariables,
+        },
+      }, opts).perform();
+
+      switch (request.body.type) {
+        case CHART_TYPE_VALUE:
+          if (result.length) {
+            const resultLine = result[0];
+            if (resultLine.value === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\'');
+            } else {
+              result = {
+                countCurrent: resultLine.value,
+                countPrevious: resultLine.previous,
+              };
+            }
+          }
+          break;
+        case CHART_TYPE_PIE:
+        case CHART_TYPE_LEADERBOARD:
+          if (result.length) {
+            result.forEach((resultLine) => {
+              if (resultLine.value === undefined || resultLine.key === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              }
+            });
+          }
+          break;
+        case CHART_TYPE_LINE:
+          if (result.length) {
+            result.forEach((resultLine) => {
+              if (resultLine.value === undefined || resultLine.key === undefined) {
+                throw getErrorQueryColumnsName(resultLine, '\'key\', \'value\'');
+              }
+            });
+          }
+
+          result = result.map((resultLine) => ({
+            label: resultLine.key,
+            values: {
+              value: resultLine.value,
+            },
+          }));
+          break;
+        case CHART_TYPE_OBJECTIVE:
+          if (result.length) {
+            const resultLine = result[0];
+            if (resultLine.value === undefined || resultLine.objective === undefined) {
+              throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
+            } else {
+              result = {
+                objective: resultLine.objective,
                 value: resultLine.value,
-              },
-            }));
-            break;
-          case CHART_TYPE_OBJECTIVE:
-            if (result.length) {
-              const resultLine = result[0];
-              if (resultLine.value === undefined || resultLine.objective === undefined) {
-                throw getErrorQueryColumnsName(resultLine, '\'value\', \'objective\'');
-              } else {
-                result = {
-                  objective: resultLine.objective,
-                  value: resultLine.value,
-                };
-              }
+              };
             }
-            break;
-          default:
-            throw new Error('Unknown Chart type');
-        }
+          }
+          break;
+        default:
+          throw new Error('Unknown Chart type');
+      }
 
-        return new StatSerializer({ value: result }).perform();
-      })
-      .then((data) => { response.send(data); })
-      .catch(next);
+      const data = new StatSerializer({ value: result }).perform();
+      response.send(data);
+    } catch (caughtError) {
+      next(caughtError);
+    }
+  };
 
   this.perform = () => {
     app.post(path.generate(`stats/${modelName}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.stats(), this.get);

@@ -54,6 +54,29 @@ module.exports = {
     inverseOf: null,
     validations: [],
   }, {
+    field: 'attributes',
+    type: {
+      fields: [{
+        field: 'option',
+        type: 'String',
+      }, {
+        field: 'color',
+        type: 'String',
+      }],
+    },
+    defaultValue: null,
+    enums: null,
+    integration: null,
+    isFilterable: true,
+    isPrimaryKey: false,
+    isReadOnly: false,
+    isRequired: false,
+    isSortable: true,
+    isVirtual: false,
+    reference: null,
+    inverseOf: null,
+    validations: [],
+  }, {
     field: 'name',
     type: 'String',
     defaultValue: null,

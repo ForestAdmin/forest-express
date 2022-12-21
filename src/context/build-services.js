@@ -9,6 +9,7 @@ module.exports = (context) =>
       envSecret: env.FOREST_ENV_SECRET,
       logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
     }))
+    .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
     .addUsingClass('authorizationService', () => require('../services/authorization').default)
     .addInstance('pathService', () => require('../services/path'))
     .addInstance('errorHandler', () => require('../services/exposed/error-handler'))
