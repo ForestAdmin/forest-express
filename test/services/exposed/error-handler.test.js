@@ -1,5 +1,16 @@
 const sinon = require('sinon');
 const errorHandler = require('../../../src/services/exposed/error-handler');
+const ForbiddenError = require('../../../src/utils/errors/forbidden-error').default;
+
+class FakePayloadError extends ForbiddenError {
+  constructor(...args) {
+    super(...args);
+
+    this.data = {
+      property: 'value',
+    };
+  }
+}
 
 describe('services › exposed › error-handler', () => {
   function mockResponse() {
@@ -22,6 +33,7 @@ describe('services › exposed › error-handler', () => {
     const error = {
       errors: [{
         message: 'First message',
+        name: 'FirstNameError',
       }, {
         message: 'Second message',
       }],
@@ -42,7 +54,7 @@ describe('services › exposed › error-handler', () => {
       errors: [{
         status: 500,
         detail: 'First message',
-        name: undefined,
+        name: 'FirstNameError',
       }],
     }]);
   });
@@ -54,9 +66,9 @@ describe('services › exposed › error-handler', () => {
         name: 'FirstNameError',
       }, {
         message: 'Second message',
-        name: 'FirstNameError',
+        name: 'SecondNameError',
       }],
-      message: 'Root message',
+      name: 'Root name',
     };
 
     const next = sinon.stub();
@@ -91,7 +103,6 @@ describe('services › exposed › error-handler', () => {
     const response = mockResponse();
     const error = new Error('Something bad happened');
     error.status = 666;
-    error.name = 'SomethingWrongHappenedError';
 
     const handleError = errorHandler();
     const next = sinon.stub();
@@ -108,8 +119,37 @@ describe('services › exposed › error-handler', () => {
       errors: [{
         detail: 'Something bad happened',
         status: 666,
-        name: 'SomethingWrongHappenedError',
+        name: 'Error',
       }],
     }]);
+  });
+
+  describe('with an error that supports data (payload)', () => {
+    it('should add data to the body JSON response', () => {
+      const response = mockResponse();
+      const error = new FakePayloadError('message');
+
+      const handleError = errorHandler();
+      const next = sinon.stub();
+
+      handleError(error, undefined, response, next);
+
+      expect(next.callCount).toBe(0);
+      expect(response.status.callCount).toBe(1);
+      expect(response.status.firstCall.args).toStrictEqual([
+        403,
+      ]);
+      expect(response.send.callCount).toBe(1);
+      expect(response.send.firstCall.args).toStrictEqual([{
+        errors: [{
+          detail: 'message',
+          status: 403,
+          name: 'FakePayloadError',
+          data: {
+            property: 'value',
+          },
+        }],
+      }]);
+    });
   });
 });
