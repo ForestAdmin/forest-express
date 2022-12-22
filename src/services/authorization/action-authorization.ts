@@ -251,11 +251,12 @@ export default class ActionAuthorizationService {
         ...recordsCounterParams,
         excludesScope: true,
       }, filterForCaller),
-      // eslint-disable-next-line max-len
-      ...rolesIdsGroupByConditions.map(({ condition: conditionPlainTree }) => ActionAuthorizationService.aggregateCountConditionIntersection({
-        ...recordsCounterParams,
-        excludesScope: true,
-      }, filterForCaller, conditionPlainTree)),
+      ...rolesIdsGroupByConditions
+        .map(({ condition: conditionPlainTree }) => ActionAuthorizationService
+          .aggregateCountConditionIntersection({
+            ...recordsCounterParams,
+            excludesScope: true,
+          }, filterForCaller, conditionPlainTree)),
     ]);
 
     return rolesIdsGroupByConditions.reduce<number[]>(
