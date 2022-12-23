@@ -4,13 +4,14 @@ const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
 const RecordsGetter = require('../services/exposed/records-getter');
 const { default: UnprocessableError } = require('../utils/errors/unprocessable-error');
+const errorHandler = require('../services/exposed/error-handler');
 const RecordsCounter = require('../services/exposed/records-counter').default;
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      authorizationService, actionAuthorizationService, modelsManager,
+      authorizationService, actionAuthorizationService, modelsManager, logger,
     } = inject();
 
     /** @private @readonly @type {import('../services/models-manager')} */
@@ -23,6 +24,11 @@ class PermissionMiddlewareCreator {
      * @private @readonly @type {import('../services/authorization/action-authorization').default}
      * */
     this.actionAuthorizationService = actionAuthorizationService;
+
+    /**
+     * @private @readonly}
+     */
+    this.logger = logger;
   }
 
   _getSmartActionName(request) {
@@ -237,7 +243,15 @@ class PermissionMiddlewareCreator {
         } catch (error) {
           next(error);
         }
-      }, this._ensureRecordIdsInScope()];
+      },
+
+      this._ensureRecordIdsInScope(),
+
+      // Some old agents can have some code that is not correctly handling errors
+      // To prevent this, we make sure that errors related to smart action rights
+      // are correctly handled
+      errorHandler({ logger: this.logger }),
+    ];
   }
 
   stats() {
