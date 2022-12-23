@@ -839,10 +839,11 @@ describe('middlewares > permissions', () => {
       const smartActionPermissionMiddlewares = permissionMiddlewareCreator
         .smartAction({ name: 'users' });
 
-      expect(smartActionPermissionMiddlewares).toHaveLength(3);
+      expect(smartActionPermissionMiddlewares).toHaveLength(4);
       expect(typeof smartActionPermissionMiddlewares[0]).toBe('function');
       expect(typeof smartActionPermissionMiddlewares[1]).toBe('function');
       expect(typeof smartActionPermissionMiddlewares[2]).toBe('function');
+      expect(typeof smartActionPermissionMiddlewares[3]).toBe('function');
     });
   });
 
