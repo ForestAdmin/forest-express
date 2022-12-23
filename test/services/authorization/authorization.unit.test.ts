@@ -6,9 +6,10 @@ import {
   EmptySQLQueryError,
   NonSelectSQLQueryError,
 } from '@forestadmin/forestadmin-client';
-import AuthorizationService from '../../src/services/authorization';
-import BadRequestError from '../../src/utils/errors/bad-request-error';
-import ForbiddenError from '../../src/utils/errors/forbidden-error';
+import AuthorizationService from '../../../src/services/authorization/authorization';
+
+import BadRequestError from '../../../src/utils/errors/bad-request-error';
+import ForbiddenError from '../../../src/utils/errors/forbidden-error';
 
 describe('unit > services > AuthorizationService', () => {
   const user = {
@@ -27,10 +28,7 @@ describe('unit > services > AuthorizationService', () => {
           canExecuteCustomAction: jest.fn(),
           canExecuteChart: jest.fn(),
           canExecuteSegmentQuery: jest.fn(),
-          canApproveCustomAction: jest.fn(),
-          canTriggerCustomAction: jest.fn(),
         },
-        verifySignedActionParameters: jest.fn(),
       },
     };
   }
@@ -459,116 +457,6 @@ describe('unit > services > AuthorizationService', () => {
         },
       }))
         .rejects.toThrow(new BadRequestError('Only SELECT queries are allowed.'));
-    });
-  });
-
-  describe('verifySignedActionParameters', () => {
-    it('should return the signed parameters', () => {
-      const context = makeContext();
-      const { forestAdminClient } = context;
-
-      forestAdminClient.verifySignedActionParameters.mockReturnValue({
-        foo: 'bar',
-      });
-
-      const authorizationService = new AuthorizationService(
-        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
-      );
-
-      expect(authorizationService.verifySignedActionParameters('signed')).toStrictEqual({
-        foo: 'bar',
-      });
-
-      expect(forestAdminClient.verifySignedActionParameters).toHaveBeenCalledWith('signed');
-    });
-  });
-
-  describe('assertCanApproveCustomAction', () => {
-    it('should not throw when the user can approve the custom action', async () => {
-      const context = makeContext();
-      const { forestAdminClient } = context;
-
-      forestAdminClient.permissionService.canApproveCustomAction.mockResolvedValue(true);
-
-      const authorizationService = new AuthorizationService(
-        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
-      );
-
-      await expect(authorizationService.assertCanApproveCustomAction({
-        user,
-        collectionName: 'collectionName',
-        customActionName: 'customActionName',
-        requesterId: 42,
-      })).toResolve();
-
-      expect(forestAdminClient.permissionService.canApproveCustomAction).toHaveBeenCalledTimes(1);
-      expect(forestAdminClient.permissionService.canApproveCustomAction).toHaveBeenCalledWith({
-        collectionName: 'collectionName',
-        customActionName: 'customActionName',
-        requesterId: 42,
-        userId: user.id,
-      });
-    });
-
-    it('should throw when the user cannot approve the custom action', async () => {
-      const context = makeContext();
-      const { forestAdminClient } = context;
-
-      forestAdminClient.permissionService.canApproveCustomAction.mockResolvedValue(false);
-
-      const authorizationService = new AuthorizationService(
-        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
-      );
-
-      await expect(authorizationService.assertCanApproveCustomAction({
-        user,
-        collectionName: 'collectionName',
-        customActionName: 'customActionName',
-        requesterId: 42,
-      })).rejects.toThrow(ForbiddenError);
-    });
-  });
-
-  describe('assertCanTriggerCustomAction', () => {
-    it('should not throw when the user can trigger the custom action', async () => {
-      const context = makeContext();
-      const { forestAdminClient } = context;
-
-      forestAdminClient.permissionService.canTriggerCustomAction.mockResolvedValue(true);
-
-      const authorizationService = new AuthorizationService(
-        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
-      );
-
-      await expect(authorizationService.assertCanTriggerCustomAction({
-        user,
-        collectionName: 'collectionName',
-        customActionName: 'customActionName',
-      })).toResolve();
-
-      expect(forestAdminClient.permissionService.canTriggerCustomAction).toHaveBeenCalledTimes(1);
-      expect(forestAdminClient.permissionService.canTriggerCustomAction).toHaveBeenCalledWith({
-        collectionName: 'collectionName',
-        customActionName: 'customActionName',
-        userId: user.id,
-      });
-    });
-
-    it('should throw when the user cannot trigger the custom action', async () => {
-      const context = makeContext();
-      const { forestAdminClient } = context;
-
-      forestAdminClient.permissionService.canTriggerCustomAction.mockResolvedValue(false);
-
-      const authorizationService = new AuthorizationService(
-        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
-      );
-
-      await expect(authorizationService.assertCanTriggerCustomAction({
-        user,
-        collectionName: 'collectionName',
-        customActionName: 'customActionName',
-      })).rejects.toThrow(ForbiddenError);
     });
   });
 });

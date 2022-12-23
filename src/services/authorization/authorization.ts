@@ -6,15 +6,9 @@ import {
   ForestAdminClient,
   NonSelectSQLQueryError,
 } from '@forestadmin/forestadmin-client';
-import ForbiddenError from '../utils/errors/forbidden-error';
-import BadRequestError from '../utils/errors/bad-request-error';
-
-export type User = {
-  id: number;
-  renderingId: number;
-  email: string;
-  tags: Record<string, string>;
-};
+import BadRequestError from '../../utils/errors/bad-request-error';
+import ForbiddenError from '../../utils/errors/forbidden-error';
+import type { User } from './types';
 
 export default class AuthorizationService {
   private readonly forestAdminClient: ForestAdminClient;
@@ -85,58 +79,7 @@ export default class AuthorizationService {
     }
   }
 
-  public verifySignedActionParameters<TResult>(signedToken: string): TResult {
-    try {
-      return this.forestAdminClient.verifySignedActionParameters<TResult>(signedToken);
-    } catch (error) {
-      throw new BadRequestError('Invalid signed action parameters');
-    }
-  }
-
-  public async assertCanApproveCustomAction({
-    user,
-    collectionName,
-    customActionName,
-    requesterId,
-  }: {
-    user: User,
-    collectionName: string,
-    customActionName: string,
-    requesterId: number,
-  }): Promise<void> {
-    const canApprove = await this.forestAdminClient.permissionService.canApproveCustomAction({
-      collectionName,
-      customActionName,
-      userId: user.id,
-      requesterId,
-    });
-
-    if (!canApprove) {
-      throw new ForbiddenError(`User ${user.email} is not authorized to approve custom action ${customActionName} on collection ${collectionName}`);
-    }
-  }
-
-  public async assertCanTriggerCustomAction({
-    user,
-    collectionName,
-    customActionName,
-  }: {
-    user: User,
-    collectionName: string,
-    customActionName: string,
-  }): Promise<void> {
-    const canTrigger = await this.forestAdminClient.permissionService.canTriggerCustomAction({
-      collectionName,
-      customActionName,
-      userId: user.id,
-    });
-
-    if (!canTrigger) {
-      throw new ForbiddenError(`User ${user.email} is not authorized to trigger custom action ${customActionName} on collection ${collectionName}`);
-    }
-  }
-
-  async assertCanRetrieveChart({
+  public async assertCanRetrieveChart({
     user,
     chartRequest,
   }: {

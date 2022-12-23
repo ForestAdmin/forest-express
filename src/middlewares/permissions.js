@@ -2,27 +2,43 @@ const { inject } = require('@forestadmin/context');
 const { parameterize } = require('../utils/string');
 const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
-const RecordsCounter = require('../services/exposed/records-counter');
+const RecordsGetter = require('../services/exposed/records-getter');
+const { default: UnprocessableError } = require('../utils/errors/unprocessable-error');
+const errorHandler = require('../services/exposed/error-handler');
+const RecordsCounter = require('../services/exposed/records-counter').default;
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
     this.collectionName = collectionName;
     const {
-      authorizationService, modelsManager,
+      authorizationService, actionAuthorizationService, modelsManager, logger,
     } = inject();
 
+    /** @private @readonly @type {import('../services/models-manager')} */
     this.modelsManager = modelsManager;
 
-    /** @private @readonly @type {import('../services/authorization').default} */
+    /** @private @readonly @type {import('../services/authorization/authorization').default} */
     this.authorizationService = authorizationService;
+
+    /**
+     * @private @readonly @type {import('../services/authorization/action-authorization').default}
+     * */
+    this.actionAuthorizationService = actionAuthorizationService;
+
+    /**
+     * @private @readonly}
+     */
+    this.logger = logger;
   }
 
   _getSmartActionName(request) {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
+
     const smartAction = Schemas.schemas[this.collectionName].actions.find((action) => {
-      const endpoint = action.endpoint || `/forest/actions/${parameterize(action.name)}`;
+      const endpoint = action.endpoint && !action.endpoint.startsWith('/') ? `/${action.endpoint}` : action.endpoint || `/forest/actions/${parameterize(action.name)}`;
       const method = action.httpMethod || 'POST';
+
       return endpoint === smartActionEndpoint && method === smartActionHTTPMethod;
     });
 
@@ -34,7 +50,7 @@ class PermissionMiddlewareCreator {
   }
 
   // generate a middleware that will check that ids provided by the request exist
-  // whithin the registered scope
+  // within the registered scope
   _ensureRecordIdsInScope() {
     return async (request, response, next) => {
       try {
@@ -156,34 +172,86 @@ class PermissionMiddlewareCreator {
   smartAction() {
     return [
       async (request, response, next) => {
-        try {
-          const actionName = this._getSmartActionName(request);
-          const requestBody = request.body;
+        // We forbid requester_id from default request as it's only retrieved from
+        // signed_approval_request
+        if (request.body.data?.attributes?.requester_id) {
+          return next(new UnprocessableError());
+        }
 
-          if (requestBody?.data?.attributes?.signed_approval_request) {
-            const signedParameters = this.authorizationService.verifySignedActionParameters(
-              requestBody?.data?.attributes?.signed_approval_request,
-            );
-            await this.authorizationService.assertCanApproveCustomAction({
+        if (request.body?.data?.attributes?.signed_approval_request) {
+          const signedParameters = this.actionAuthorizationService.verifySignedActionParameters(
+            request.body.data.attributes.signed_approval_request,
+          );
+
+          request.body = signedParameters;
+        }
+
+        return next();
+      },
+
+      async (request, response, next) => {
+        try {
+          const { primaryKeys } = Schemas.schemas[this.collectionName];
+          const actionName = this._getSmartActionName(request);
+
+          const model = this.modelsManager.getModelByName(this.collectionName);
+
+          const getter = new RecordsGetter(model, request.user, request.query);
+
+          const ids = await getter.getIdsFromRequest(request);
+
+          const filters = primaryKeys.length === 1
+            ? { field: primaryKeys[0], operator: 'in', value: ids }
+            : {
+              aggregator: 'or',
+              conditions: ids.map((compositeId) => ({
+                aggregator: 'and',
+                /**
+                 * See line 108 src/services/exposed/records-getter.js
+                 * @fixme It could either be - or |
+                */
+                conditions: compositeId.split(/-|\|/).map((id, index) => ({
+                  field: primaryKeys[index], operator: 'equal', value: id,
+                })),
+              })),
+            };
+
+          const canPerformCustomActionParams = {
+            user: request.user,
+            customActionName: actionName,
+            collectionName: this.collectionName,
+            filterForCaller: filters,
+            recordsCounterParams: {
+              model,
               user: request.user,
-              customActionName: actionName,
-              collectionName: this.collectionName,
-              requesterId: signedParameters?.data?.attributes?.requester_id,
+              timezone: request.query.timezone,
+            },
+          };
+
+          if (request.body?.data?.attributes?.requester_id) {
+            await this.actionAuthorizationService.assertCanApproveCustomAction({
+              ...canPerformCustomActionParams,
+              requesterId: request.body?.data?.attributes?.requester_id,
             });
-            request.body = signedParameters;
           } else {
-            await this.authorizationService.assertCanTriggerCustomAction({
-              user: request.user,
-              customActionName: actionName,
-              collectionName: this.collectionName,
-            });
+            await this.actionAuthorizationService.assertCanTriggerCustomAction(
+              canPerformCustomActionParams,
+            );
           }
 
           next();
         } catch (error) {
           next(error);
         }
-      }, this._ensureRecordIdsInScope()];
+      },
+
+      this._ensureRecordIdsInScope(),
+
+      // Some old agents can have some code that is not correctly handling errors
+      // To prevent this, we make sure that errors related to smart action rights
+      // are correctly handled
+      errorHandler({ logger: this.logger }),
+    ];
   }
 
   stats() {

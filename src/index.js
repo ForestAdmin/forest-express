@@ -455,7 +455,7 @@ exports.BaseOperatorDateParser = require('./services/base-operator-date-parser')
 exports.SchemaUtils = require('./utils/schema');
 
 exports.RecordsGetter = require('./services/exposed/records-getter');
-exports.RecordsCounter = require('./services/exposed/records-counter');
+exports.RecordsCounter = require('./services/exposed/records-counter').default;
 exports.RecordsExporter = require('./services/exposed/records-exporter');
 exports.RecordGetter = require('./services/exposed/record-getter');
 exports.RecordUpdater = require('./services/exposed/record-updater');
