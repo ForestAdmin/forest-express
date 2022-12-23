@@ -1,3 +1,10 @@
+# [10.1.0](https://github.com/ForestAdmin/forest-express/compare/v10.0.3...v10.1.0) (2022-12-23)
+
+
+### Features
+
+* add support for data-based conditions on smart action trigger, approval requirement and authorization to approve ([#955](https://github.com/ForestAdmin/forest-express/issues/955)) ([82e396f](https://github.com/ForestAdmin/forest-express/commit/82e396f2609efc7a2b4bc98e77a417c6a6567b95))
+
 ## [10.0.3](https://github.com/ForestAdmin/forest-express/compare/v10.0.2...v10.0.3) (2022-12-20)
 
 ## [10.0.2](https://github.com/ForestAdmin/forest-express/compare/v10.0.1...v10.0.2) (2022-12-12)
