@@ -1,8 +1,8 @@
 /* eslint-disable jest/no-hooks */
 
 import ActionAuthorizationService from '../../../src/services/authorization/action-authorization';
-import CustomActionTriggerForbiddenError from '../../../src/services/authorization/errors/customActionTriggerForbiddenError';
-import InvalidActionConditionError from '../../../src/services/authorization/errors/invalidActionConditionError';
+import CustomActionTriggerForbiddenError from '../../../src/services/authorization/errors/custom-action-trigger-forbidden-error';
+import InvalidActionConditionError from '../../../src/services/authorization/errors/invalid-action-condition-error';
 
 const mockRecordsCounterCount = jest.fn();
 jest.mock('../../../src/services/exposed/records-counter', () => ({

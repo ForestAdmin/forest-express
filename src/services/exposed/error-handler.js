@@ -16,7 +16,7 @@ function errorHandler({ logger } = {}) {
       const responseError = {
         status: error.status || 500,
         detail: error.message,
-        name: error.constructor.name,
+        name: error.name,
         ...(error.data ? { data: error.data } : {}),
       };
 
