@@ -1,7 +1,8 @@
 class TwoFactorAuthenticationRequiredError extends Error {
   constructor() {
     super('Two factor authentication required');
-    this.name = this.constructor.name;
+
+    this.name = 'TwoFactorAuthenticationRequiredError';
     this.status = 403;
   }
 }

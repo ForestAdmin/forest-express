@@ -5,5 +5,7 @@ export default class InvalidActionConditionError extends UnprocessableError {
     super(
       'The conditions to trigger this action cannot be verified. Please contact an administrator.',
     );
+
+    this.name = 'InvalidActionConditionError';
   }
 }

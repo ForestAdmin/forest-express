@@ -6,6 +6,7 @@ export default class CustomActionRequiresApprovalError extends ForbiddenError {
   constructor(roleIdsAllowedToApprove: number[]) {
     super('This action requires to be approved.');
 
+    this.name = 'CustomActionRequiresApprovalError';
     this.data = {
       roleIdsAllowedToApprove,
     };
