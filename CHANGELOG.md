@@ -1,3 +1,10 @@
+## [10.1.2](https://github.com/ForestAdmin/forest-express/compare/v10.1.1...v10.1.2) (2022-12-28)
+
+
+### Bug Fixes
+
+* **requires-approval:** development environment should trigger without requiring an approval ([#971](https://github.com/ForestAdmin/forest-express/issues/971)) ([cd714d5](https://github.com/ForestAdmin/forest-express/commit/cd714d5efefa9636503acad104048849868e7944))
+
 ## [10.1.1](https://github.com/ForestAdmin/forest-express/compare/v10.1.0...v10.1.1) (2022-12-28)
 
 
