@@ -1380,10 +1380,10 @@
   resolved "https://registry.yarnpkg.com/@forestadmin/context/-/context-1.31.0.tgz#b4b5a3b589e52d337a1f45807db22c2860e640a7"
   integrity sha512-RQkDBkq+6ySMv+YNezz9VWSyCsqD7fj/+bXrXhQ6lJ62nbRUIUheH7ApvXwfnwFR1u55oT6Yhar11t6DaiE9Ig==
 
-"@forestadmin/forestadmin-client@1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.1.2.tgz#eef982fd8ea235611ebd7830c49654da13e35b28"
-  integrity sha512-102R+wjXPILwVWJ04su2a1W1/hCDuJNMFUJS/VAvxLVIL875GAhFUPYxSkZnBYECRWzDCRu5IdXtjs2NBUcSWQ==
+"@forestadmin/forestadmin-client@1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.1.4.tgz#757411c85d77706644ab86093096621080549e4f"
+  integrity sha512-68iA4uzOlumSBbe7b/QoigDCQH4zt6stBDblRucQJV0Bk09VGKyTD5I83GfQKmJ+EMYzK3WtLGFsBeMB96yfIw==
   dependencies:
     json-api-serializer "^2.6.6"
     jsonwebtoken "^8.5.1"
