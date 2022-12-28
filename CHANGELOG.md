@@ -1,3 +1,10 @@
+## [10.1.1](https://github.com/ForestAdmin/forest-express/compare/v10.1.0...v10.1.1) (2022-12-28)
+
+
+### Bug Fixes
+
+* **errors:** error name should always be the same ([#970](https://github.com/ForestAdmin/forest-express/issues/970)) ([2c12f3e](https://github.com/ForestAdmin/forest-express/commit/2c12f3ec0cefc9cf10991b3f287dd7c131d70ba0))
+
 # [10.1.0](https://github.com/ForestAdmin/forest-express/compare/v10.0.3...v10.1.0) (2022-12-23)
 
 
