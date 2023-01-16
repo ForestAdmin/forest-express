@@ -44,7 +44,7 @@
     "ip-regex": "4.3.0",
     "ipaddr.js": "2.0.0",
     "jsonapi-serializer": "3.6.5",
-    "jsonwebtoken": "8.5.1",
+    "jsonwebtoken": "9.0.0",
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "moment-timezone": "0.5.40",
