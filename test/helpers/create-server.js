@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const jwt = require('express-jwt');
+const { expressjwt: jwt } = require('express-jwt');
 const forestExpress = require('../../src');
 const { getJWTConfiguration } = require('../../src/config/jwt');
 const request = require('./request');
