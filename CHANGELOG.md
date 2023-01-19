@@ -1,3 +1,10 @@
+## [10.1.5](https://github.com/ForestAdmin/forest-express/compare/v10.1.4...v10.1.5) (2023-01-19)
+
+
+### Bug Fixes
+
+* **security:** patch jose dependency vulnerability ([#980](https://github.com/ForestAdmin/forest-express/issues/980)) ([337b91b](https://github.com/ForestAdmin/forest-express/commit/337b91b050b3da144602d312a1ca4d7ac07b64ac))
+
 ## [10.1.4](https://github.com/ForestAdmin/forest-express/compare/v10.1.3...v10.1.4) (2023-01-19)
 
 
