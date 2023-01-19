@@ -1,3 +1,10 @@
+## [10.1.6](https://github.com/ForestAdmin/forest-express/compare/v10.1.5...v10.1.6) (2023-01-19)
+
+
+### Bug Fixes
+
+* **security:** patch got dependency vulnerability ([#981](https://github.com/ForestAdmin/forest-express/issues/981)) ([0d55f86](https://github.com/ForestAdmin/forest-express/commit/0d55f8688e537fdcb589c6f8d254cb3e23a7885c))
+
 ## [10.1.5](https://github.com/ForestAdmin/forest-express/compare/v10.1.4...v10.1.5) (2023-01-19)
 
 
