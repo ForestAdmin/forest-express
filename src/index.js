@@ -284,6 +284,7 @@ exports.init = async (Implementation) => {
         }
         return null;
       },
+      requestProperty: 'user',
     }));
   }
 
