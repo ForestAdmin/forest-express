@@ -1,3 +1,10 @@
+## [10.1.8](https://github.com/ForestAdmin/forest-express/compare/v10.1.7...v10.1.8) (2023-01-24)
+
+
+### Bug Fixes
+
+* **security:** patch cookiejar dependency vulnerabilities ([#988](https://github.com/ForestAdmin/forest-express/issues/988)) ([c3c1ce6](https://github.com/ForestAdmin/forest-express/commit/c3c1ce60d4999d1d30c4f3588104d93a2db9a46c))
+
 ## [10.1.7](https://github.com/ForestAdmin/forest-express/compare/v10.1.6...v10.1.7) (2023-01-24)
 
 
