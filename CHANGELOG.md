@@ -1,3 +1,10 @@
+## [10.1.7](https://github.com/ForestAdmin/forest-express/compare/v10.1.6...v10.1.7) (2023-01-24)
+
+
+### Bug Fixes
+
+* fix express jwt configuration after dependencies upgrade ([#986](https://github.com/ForestAdmin/forest-express/issues/986)) ([fbab081](https://github.com/ForestAdmin/forest-express/commit/fbab0819f2668ba66a0582859fc77706db622ea3))
+
 ## [10.1.6](https://github.com/ForestAdmin/forest-express/compare/v10.1.5...v10.1.6) (2023-01-19)
 
 
