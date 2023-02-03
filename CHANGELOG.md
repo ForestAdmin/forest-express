@@ -1,3 +1,10 @@
+## [10.1.9](https://github.com/ForestAdmin/forest-express/compare/v10.1.8...v10.1.9) (2023-02-03)
+
+
+### Bug Fixes
+
+* **security:** patch http-cache-semantics dependencies vulnerabilities ([#991](https://github.com/ForestAdmin/forest-express/issues/991)) ([f408492](https://github.com/ForestAdmin/forest-express/commit/f408492e86d39e60d70b9c3112dccb1f53cc40e4))
+
 ## [10.1.8](https://github.com/ForestAdmin/forest-express/compare/v10.1.7...v10.1.8) (2023-01-24)
 
 
