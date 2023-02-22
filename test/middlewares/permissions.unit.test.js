@@ -451,6 +451,7 @@ describe('middlewares > permissions', () => {
           smartActionRecordIds: permissionMiddlewareCreator.smartAction()[2],
           request,
           actionAuthorizationService,
+          modelsManager,
         };
       }
 
@@ -611,7 +612,9 @@ describe('middlewares > permissions', () => {
             },
           };
 
-          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
+          const {
+            smartActionPermission, request, actionAuthorizationService, modelsManager,
+          } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
               ids: ['1-1', '2|2'],
@@ -619,6 +622,8 @@ describe('middlewares > permissions', () => {
           });
 
           await executeMiddleware(smartActionPermission, request, {});
+
+          expect(modelsManager.getModelByName).toHaveBeenCalledOnce();
 
           expect(actionAuthorizationService.assertCanTriggerCustomAction)
             .toHaveBeenCalledOnceWith({
@@ -635,6 +640,46 @@ describe('middlewares > permissions', () => {
                   { aggregator: 'and', conditions: [{ field: 'bookId', operator: 'equal', value: '1' }, { field: 'authorId', operator: 'equal', value: '1' }] },
                   { aggregator: 'and', conditions: [{ field: 'bookId', operator: 'equal', value: '2' }, { field: 'authorId', operator: 'equal', value: '2' }] }],
               },
+              user: { id: 30 },
+            });
+        });
+      });
+
+      describe('with a virtual collection (SmartCollection)', () => {
+        it('should not calculate filter nor retrieve model', async () => {
+          Schemas.schemas = {
+            users: {
+              name: 'users',
+              idField: 'id',
+              isVirtual: true,
+              actions: [{
+                name: 'known-action',
+              }],
+            },
+          };
+
+          const {
+            smartActionPermission, request, actionAuthorizationService, modelsManager,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+            },
+          });
+
+          await executeMiddleware(smartActionPermission, request, {});
+
+          expect(modelsManager.getModelByName).not.toHaveBeenCalledOnce();
+
+          expect(actionAuthorizationService.assertCanTriggerCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: undefined,
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: undefined,
               user: { id: 30 },
             });
         });
