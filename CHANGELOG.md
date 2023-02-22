@@ -1,3 +1,10 @@
+## [10.1.10](https://github.com/ForestAdmin/forest-express/compare/v10.1.9...v10.1.10) (2023-02-22)
+
+
+### Bug Fixes
+
+* **middlewares:** users should be able to execute a smart action on a smart collection ([#996](https://github.com/ForestAdmin/forest-express/issues/996)) ([d325bfd](https://github.com/ForestAdmin/forest-express/commit/d325bfd889fed6fb339687191944d58b65cd9f06))
+
 ## [10.1.9](https://github.com/ForestAdmin/forest-express/compare/v10.1.8...v10.1.9) (2023-02-03)
 
 
