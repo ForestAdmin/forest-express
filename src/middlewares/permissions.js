@@ -191,30 +191,35 @@ class PermissionMiddlewareCreator {
 
       async (request, response, next) => {
         try {
-          const { primaryKeys } = Schemas.schemas[this.collectionName];
+          const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
           const actionName = this._getSmartActionName(request);
 
-          const model = this.modelsManager.getModelByName(this.collectionName);
+          let filters;
+          let model;
+          // Smart collections does not support the conditional feature
+          if (!isVirtual) {
+            model = this.modelsManager.getModelByName(this.collectionName);
 
-          const getter = new RecordsGetter(model, request.user, request.query);
+            const getter = new RecordsGetter(model, request.user, request.query);
 
-          const ids = await getter.getIdsFromRequest(request);
+            const ids = await getter.getIdsFromRequest(request);
 
-          const filters = primaryKeys.length === 1
-            ? { field: primaryKeys[0], operator: 'in', value: ids }
-            : {
-              aggregator: 'or',
-              conditions: ids.map((compositeId) => ({
-                aggregator: 'and',
-                /**
+            filters = primaryKeys.length === 1
+              ? { field: primaryKeys[0], operator: 'in', value: ids }
+              : {
+                aggregator: 'or',
+                conditions: ids.map((compositeId) => ({
+                  aggregator: 'and',
+                  /**
                  * See line 108 src/services/exposed/records-getter.js
                  * @fixme It could either be - or |
                 */
-                conditions: compositeId.split(/-|\|/).map((id, index) => ({
-                  field: primaryKeys[index], operator: 'equal', value: id,
+                  conditions: compositeId.split(/-|\|/).map((id, index) => ({
+                    field: primaryKeys[index], operator: 'equal', value: id,
+                  })),
                 })),
-              })),
-            };
+              };
+          }
 
           const canPerformCustomActionParams = {
             user: request.user,

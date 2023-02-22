@@ -9,6 +9,7 @@ import ApprovalNotAllowedError from './errors/approval-not-allowed-error';
 import CustomActionRequiresApprovalError from './errors/custom-action-requires-approval-error';
 import CustomActionTriggerForbiddenError from './errors/custom-action-trigger-forbidden-error';
 import InvalidActionConditionError from './errors/invalid-action-condition-error';
+import UnsupportedConditionalsError from './errors/unsupported-conditional-error';
 import type { GenericPlainTree, User } from './types';
 
 type RecordsCounterParams = {
@@ -304,8 +305,10 @@ export default class ActionAuthorizationService {
     requestFilterPlainTree: unknown,
     conditionPlainTree?: unknown,
   ): Promise<number> {
+    if (!recordsCounterParams.model) throw new UnsupportedConditionalsError();
+
     try {
-    // Perform intersection when conditionPlainTree is defined
+      // Perform intersection when conditionPlainTree is defined
       const rawFilter = conditionPlainTree
         ? {
           aggregator: 'and',

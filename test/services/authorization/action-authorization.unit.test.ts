@@ -3,6 +3,7 @@
 import ActionAuthorizationService from '../../../src/services/authorization/action-authorization';
 import CustomActionTriggerForbiddenError from '../../../src/services/authorization/errors/custom-action-trigger-forbidden-error';
 import InvalidActionConditionError from '../../../src/services/authorization/errors/invalid-action-condition-error';
+import UnsupportedConditionalsError from '../../../src/services/authorization/errors/unsupported-conditional-error';
 
 const mockRecordsCounterCount = jest.fn();
 jest.mock('../../../src/services/exposed/records-counter', () => ({
@@ -167,6 +168,27 @@ describe('actionAuthorizationService', () => {
           ).rejects.toThrow(CustomActionTriggerForbiddenError);
 
           expect(mockRecordsCounterCount).toHaveBeenCalledTimes(2);
+        });
+
+        describe('when the collection does not support conditionals (smart collection use case)', () => {
+          it('should throw an error UnsupportedConditionalsError', async () => {
+            const authorization = makeActionAuthorizationService();
+
+            await expect(
+              authorization.assertCanTriggerCustomAction({
+                user,
+                collectionName,
+                customActionName,
+                // Basically executing a SmartAction on a SmartCollection use case
+                recordsCounterParams: {
+                  model: undefined,
+                } as never,
+                filterForCaller,
+              }),
+            ).rejects.toThrow(UnsupportedConditionalsError);
+
+            expect(mockRecordsCounterCount).not.toHaveBeenCalled();
+          });
         });
       });
     });
