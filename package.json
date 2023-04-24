@@ -49,7 +49,7 @@
     "moment": "2.29.4",
     "moment-timezone": "0.5.40",
     "object-hash": "^3.0.0",
-    "openid-client": "4.2.0",
+    "openid-client": "5.4.1",
     "otplib": "11.0.1",
     "require-all": "3.0.0",
     "semver": "6.3.0",
