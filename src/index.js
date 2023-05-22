@@ -199,7 +199,7 @@ async function generateAndSendSchema(envSecret) {
 }
 
 const reportSchemaComputeError = (error) => {
-  logger.error('An error occured while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
+  logger.error('An error occurred while computing the Forest schema. Your application schema cannot be synchronized with Forest. Your admin panel might not reflect your application models definition. ', error);
 };
 
 exports.init = async (Implementation) => {
@@ -207,6 +207,10 @@ exports.init = async (Implementation) => {
 
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
+  // Trick to update ForestAdminClient options at runtime
+  if (configStore.lianaOptions.envSecret) {
+    inject().forestAdminClient.options.envSecret = configStore.lianaOptions.envSecret;
+  }
 
   if (app) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
