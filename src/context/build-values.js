@@ -9,4 +9,4 @@ module.exports = (context) =>
         : 'production',
       APPLICATION_URL: process.env.APPLICATION_URL || `http://localhost:${process.env.APPLICATION_PORT || 3310}`,
     }))
-    .addValue('forestUrl', process.env.FOREST_URL || 'https://api.forestadmin.com');
+    .addValue('forestUrl', ({ env }) => env.FOREST_URL);
