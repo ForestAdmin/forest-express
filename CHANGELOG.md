@@ -1,3 +1,10 @@
+## [10.1.12](https://github.com/ForestAdmin/forest-express/compare/v10.1.11...v10.1.12) (2023-05-22)
+
+
+### Bug Fixes
+
+* **init-options:** mutate forest admin client options using liana options ([#1005](https://github.com/ForestAdmin/forest-express/issues/1005)) ([664ad42](https://github.com/ForestAdmin/forest-express/commit/664ad425c8e540f844329d7090d27f0e084c8db3))
+
 ## [10.1.11](https://github.com/ForestAdmin/forest-express/compare/v10.1.10...v10.1.11) (2023-03-01)
 
 ## [10.1.10](https://github.com/ForestAdmin/forest-express/compare/v10.1.9...v10.1.10) (2023-02-22)
