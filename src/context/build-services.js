@@ -4,15 +4,11 @@ const createForestAdminClient = require('@forestadmin/forestadmin-client').defau
 module.exports = (context) =>
   context
     .addInstance('logger', () => require('../services/logger'))
-    // Create the options for ForestAdminClient in order to pass them by reference
-    // allowing us to manipulate these options in the init function
-    .addInstance('forestAdminClientOptions', ({ env, forestUrl, logger }) => ({
+    .addUsingFunction('forestAdminClient', ({ env, forestUrl, logger }) => createForestAdminClient({
       envSecret: env.FOREST_ENV_SECRET,
       forestServerUrl: forestUrl,
       logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
     }))
-    // Does not work due to shallow copy inside createForestAdminClient
-    .addUsingFunction('forestAdminClient', ({ forestAdminClientOptions }) => createForestAdminClient(forestAdminClientOptions))
     .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
     .addUsingClass('authorizationService', () => require('../services/authorization/authorization').default)
     .addUsingClass('actionAuthorizationService', () => require('../services/authorization/action-authorization').default)
