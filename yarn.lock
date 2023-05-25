@@ -1246,11 +1246,12 @@
   resolved "https://registry.yarnpkg.com/@forestadmin/context/-/context-1.31.0.tgz#b4b5a3b589e52d337a1f45807db22c2860e640a7"
   integrity sha512-RQkDBkq+6ySMv+YNezz9VWSyCsqD7fj/+bXrXhQ6lJ62nbRUIUheH7ApvXwfnwFR1u55oT6Yhar11t6DaiE9Ig==
 
-"@forestadmin/forestadmin-client@1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.1.5.tgz#0b9e29df678a8ca65a4617b201290b0b48b74a10"
-  integrity sha512-YjBZMdy/4zwXXnllLd+NCKBc8/em56ovQWtrZZPldcgiP+RoLiDqqQBmtZW9ZZS+y1QZKCJ/4Jszm6+/zU4Kyw==
+"@forestadmin/forestadmin-client@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.2.0.tgz#39d80c25eebf155bf3bb0a05db110e31e512f966"
+  integrity sha512-I6TgfDUuTDOEYXE35eXLbXDOIj32ii0TbKBWXkkSFAE+pEKYU6q4O9XEupOk6iKvnS9D0O1RIdGjNuySf8qPRw==
   dependencies:
+    eventsource "2.0.2"
     json-api-serializer "^2.6.6"
     jsonwebtoken "^9.0.0"
     lru-cache "^7.14.1"
@@ -4183,6 +4184,11 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
+
+eventsource@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/eventsource/-/eventsource-2.0.2.tgz#76dfcc02930fb2ff339520b6d290da573a9e8508"
+  integrity sha512-IzUmBGPR3+oUG9dUeXynyNmf91/3zUSJg1lCktzKw47OXuhco54U3r9B7O4XX+Rb1Itm9OZ2b0RkTs10bICOxA==
 
 execa@^4.1.0:
   version "4.1.0"
