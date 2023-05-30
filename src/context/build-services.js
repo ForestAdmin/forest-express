@@ -8,6 +8,7 @@ module.exports = (context) =>
       envSecret: env.FOREST_ENV_SECRET,
       forestServerUrl: forestUrl,
       logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
+      instantCacheRefresh: true,
     }))
     .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
     .addUsingClass('authorizationService', () => require('../services/authorization/authorization').default)
