@@ -1,3 +1,10 @@
+# [10.2.0](https://github.com/ForestAdmin/forest-express/compare/v10.1.12...v10.2.0) (2023-05-30)
+
+
+### Features
+
+* **events-subscription:** allow to instantly refresh permissions when they change ([#1007](https://github.com/ForestAdmin/forest-express/issues/1007)) ([4afaa26](https://github.com/ForestAdmin/forest-express/commit/4afaa261e5fcf2c2f624640e48eda61c5b9aadfa))
+
 ## [10.1.12](https://github.com/ForestAdmin/forest-express/compare/v10.1.11...v10.1.12) (2023-05-22)
 
 
