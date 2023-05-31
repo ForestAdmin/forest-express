@@ -1,13 +1,26 @@
 /* eslint-disable global-require */
 const createForestAdminClient = require('@forestadmin/forestadmin-client').default;
 
+const loggerLevels = {
+  Error: 0,
+  Warn: 1,
+  Info: 2,
+  Debug: 3,
+};
+
 module.exports = (context) =>
   context
     .addInstance('logger', () => require('../services/logger'))
     .addUsingFunction('forestAdminClient', ({ env, forestUrl, logger }) => createForestAdminClient({
       envSecret: env.FOREST_ENV_SECRET,
       forestServerUrl: forestUrl,
-      logger: (level, ...args) => (env.DEBUG ? logger[level.toLowerCase()](...args) : {}),
+      logger: (level, ...args) => {
+        const loggerLevel = env.FOREST_LOGGER_LEVEL ?? 'Info';
+
+        if (loggerLevels[level] <= loggerLevels[loggerLevel]) {
+          logger[level.toLowerCase()](...args);
+        }
+      },
       instantCacheRefresh: true,
     }))
     .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
