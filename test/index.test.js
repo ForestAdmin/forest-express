@@ -6,16 +6,20 @@ const request = require('supertest');
 const express = require('express');
 
 const mockSubscribeToServerEvents = jest.fn().mockResolvedValue();
+const options = {};
+const mockForestAdminClient = jest.fn().mockReturnValue({
+  options,
+  subscribeToServerEvents: mockSubscribeToServerEvents,
+});
+
 jest.mock('require-all', () => jest.fn());
 jest.mock('@forestadmin/forestadmin-client', () => ({
-  default: jest.fn().mockReturnValue({
-    options: {},
-    subscribeToServerEvents: mockSubscribeToServerEvents,
-  }),
+  default: mockForestAdminClient,
 }));
 
 function resetRequireIndex(mockExtraModules) {
   jest.resetModules();
+  jest.clearAllMocks();
 
   let modules;
   if (mockExtraModules) {
@@ -106,11 +110,30 @@ describe('liana > index', () => {
         expect(response.status).not.toBe(404);
       });
 
-      it('should subscribe to server events', async () => {
+      it('should build forestAdminClient and change its options', async () => {
         const forestExpress = resetRequireIndex();
         const implementation = createFakeImplementation();
 
-        mockSubscribeToServerEvents.mockClear();
+        implementation.opts.envSecret = 'envSecret';
+        await forestExpress.init(implementation);
+
+        expect(mockForestAdminClient).toHaveBeenCalledOnce();
+        expect(mockForestAdminClient).toHaveBeenCalledWith({
+          // Take the value from the environment variable first
+          envSecret: undefined,
+          forestServerUrl: 'https://api.forestadmin.com',
+          logger: expect.any(Function),
+          instantCacheRefresh: true,
+        });
+        // Then updates ForestAdminClient options at runtime
+        expect(options).toStrictEqual({
+          envSecret: 'envSecret',
+        });
+      });
+
+      it('should subscribe to server events', async () => {
+        const forestExpress = resetRequireIndex();
+        const implementation = createFakeImplementation();
 
         await forestExpress.init(implementation);
 
