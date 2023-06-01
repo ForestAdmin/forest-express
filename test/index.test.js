@@ -5,7 +5,14 @@ const fs = require('fs');
 const request = require('supertest');
 const express = require('express');
 
+const mockSubscribeToServerEvents = jest.fn().mockResolvedValue();
 jest.mock('require-all', () => jest.fn());
+jest.mock('@forestadmin/forestadmin-client', () => ({
+  default: jest.fn().mockReturnValue({
+    options: {},
+    subscribeToServerEvents: mockSubscribeToServerEvents,
+  }),
+}));
 
 function resetRequireIndex(mockExtraModules) {
   jest.resetModules();
@@ -97,6 +104,17 @@ describe('liana > index', () => {
           .get('/forest/healthcheck');
 
         expect(response.status).not.toBe(404);
+      });
+
+      it('should subscribe to server events', async () => {
+        const forestExpress = resetRequireIndex();
+        const implementation = createFakeImplementation();
+
+        mockSubscribeToServerEvents.mockClear();
+
+        await forestExpress.init(implementation);
+
+        expect(mockSubscribeToServerEvents).toHaveBeenCalledOnce();
       });
 
       describe('when `Liana.init` is called twice', () => {
