@@ -8,19 +8,25 @@ const loggerLevels = {
   Debug: 3,
 };
 
-module.exports = (context) =>
+function makeLogger({ env, logger }) {
+  return (level, ...args) => {
+    const loggerLevel = env.FOREST_LOGGER_LEVEL ?? 'Info';
+
+    if (loggerLevels[level] <= loggerLevels[loggerLevel]) {
+      logger[level.toLowerCase()](...args);
+    }
+  };
+}
+
+module.exports.makeLogger = makeLogger;
+
+module.exports.default = (context) =>
   context
     .addInstance('logger', () => require('../services/logger'))
     .addUsingFunction('forestAdminClient', ({ env, forestUrl, logger }) => createForestAdminClient({
       envSecret: env.FOREST_ENV_SECRET,
       forestServerUrl: forestUrl,
-      logger: (level, ...args) => {
-        const loggerLevel = env.FOREST_LOGGER_LEVEL ?? 'Info';
-
-        if (loggerLevels[level] <= loggerLevels[loggerLevel]) {
-          logger[level.toLowerCase()](...args);
-        }
-      },
+      logger: makeLogger({ env, logger }),
       instantCacheRefresh: true,
     }))
     .addInstance('chartHandler', ({ forestAdminClient }) => forestAdminClient.chartHandler)
