@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { expressjwt: jwt } = require('express-jwt');
+const { inject } = require('@forestadmin/context');
+
 const forestExpress = require('../../src');
 const { getJWTConfiguration } = require('../../src/config/jwt');
 const request = require('./request');
@@ -36,6 +38,9 @@ module.exports = async function createServer(envSecret, authSecret) {
   implementation.getLianaVersion = () => {};
   implementation.getOrmVersion = () => {};
   implementation.getDatabaseType = () => {};
+
+  // We don't want to subscribe Server Events in tests
+  jest.spyOn(inject().forestAdminClient, 'subscribeToServerEvents').mockResolvedValue();
 
   const forestApp = await forestExpress.init(implementation);
   app.use(forestApp);
