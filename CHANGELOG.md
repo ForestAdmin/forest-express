@@ -1,3 +1,10 @@
+## [10.2.1](https://github.com/ForestAdmin/forest-express/compare/v10.2.0...v10.2.1) (2023-06-02)
+
+
+### Bug Fixes
+
+* allow to instantly refresh permissions when they change ([#1008](https://github.com/ForestAdmin/forest-express/issues/1008)) ([b5db483](https://github.com/ForestAdmin/forest-express/commit/b5db483116d574a7c2b168029d4d47103b77f887))
+
 # [10.2.0](https://github.com/ForestAdmin/forest-express/compare/v10.1.12...v10.2.0) (2023-05-30)
 
 
