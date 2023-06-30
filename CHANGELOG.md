@@ -1,3 +1,10 @@
+## [10.2.3](https://github.com/ForestAdmin/forest-express/compare/v10.2.2...v10.2.3) (2023-06-30)
+
+
+### Bug Fixes
+
+* **security:** patch word-wrap dependency vulnerabilities ([#1010](https://github.com/ForestAdmin/forest-express/issues/1010)) ([e4af67a](https://github.com/ForestAdmin/forest-express/commit/e4af67ab164fbeea71956430dcea2964ac605715))
+
 ## [10.2.2](https://github.com/ForestAdmin/forest-express/compare/v10.2.1...v10.2.2) (2023-06-23)
 
 
