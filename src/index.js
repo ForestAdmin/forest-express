@@ -208,9 +208,13 @@ exports.init = async (Implementation) => {
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
   // Trick to update ForestAdminClient options at runtime
+  const { options } = inject().forestAdminClient;
+
   if (configStore.lianaOptions.envSecret) {
-    inject().forestAdminClient.options.envSecret = configStore.lianaOptions.envSecret;
+    options.envSecret = configStore.lianaOptions.envSecret;
   }
+
+  options.instantCacheRefresh = configStore.lianaOptions.instantCacheRefresh ?? true;
 
   if (app) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
