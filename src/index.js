@@ -377,9 +377,6 @@ exports.init = async (Implementation) => {
       configStore.lianaOptions.expressParentApp.use('/forest', app);
     }
 
-    // Server events - Used to refresh permissions
-    await inject().forestAdminClient.subscribeToServerEvents();
-
     return app;
   } catch (error) {
     reportSchemaComputeError(error);
