@@ -208,8 +208,10 @@ exports.init = async (Implementation) => {
   configStore.Implementation = Implementation;
   configStore.lianaOptions = opts;
   // Trick to update ForestAdminClient options at runtime
+  const { options } = inject().forestAdminClient;
+
   if (configStore.lianaOptions.envSecret) {
-    inject().forestAdminClient.options.envSecret = configStore.lianaOptions.envSecret;
+    options.envSecret = configStore.lianaOptions.envSecret;
   }
 
   if (app) {
