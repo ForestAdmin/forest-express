@@ -131,13 +131,13 @@ describe('liana > index', () => {
         });
       });
 
-      it('should subscribe to server events', async () => {
+      it('should not subscribe to server events', async () => {
         const forestExpress = resetRequireIndex();
         const implementation = createFakeImplementation();
 
         await forestExpress.init(implementation);
 
-        expect(mockSubscribeToServerEvents).toHaveBeenCalledOnce();
+        expect(mockSubscribeToServerEvents).not.toHaveBeenCalledOnce();
       });
 
       describe('when `Liana.init` is called twice', () => {
