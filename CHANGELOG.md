@@ -1,3 +1,10 @@
+## [10.2.5](https://github.com/ForestAdmin/forest-express/compare/v10.2.4...v10.2.5) (2023-07-07)
+
+
+### Bug Fixes
+
+* **event-source:** gracefully close the app on exit by removing server events subscription ([#1013](https://github.com/ForestAdmin/forest-express/issues/1013)) ([417b9f8](https://github.com/ForestAdmin/forest-express/commit/417b9f8888b516654ed9bcd70d3be3480fd44c28))
+
 ## [10.2.4](https://github.com/ForestAdmin/forest-express/compare/v10.2.3...v10.2.4) (2023-07-07)
 
 
