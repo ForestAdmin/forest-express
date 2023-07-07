@@ -214,8 +214,6 @@ exports.init = async (Implementation) => {
     options.envSecret = configStore.lianaOptions.envSecret;
   }
 
-  options.instantCacheRefresh = configStore.lianaOptions.instantCacheRefresh ?? true;
-
   if (app) {
     logger.warn('Forest init function called more than once. Only the first call has been processed.');
     return app;

@@ -123,7 +123,7 @@ describe('liana > index', () => {
           envSecret: undefined,
           forestServerUrl: 'https://api.forestadmin.com',
           logger: expect.any(Function),
-          instantCacheRefresh: true,
+          instantCacheRefresh: false,
         });
         // Then updates ForestAdminClient options at runtime
         expect(options).toStrictEqual({
