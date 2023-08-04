@@ -1,3 +1,10 @@
+## [10.2.6](https://github.com/ForestAdmin/forest-express/compare/v10.2.5...v10.2.6) (2023-08-04)
+
+
+### Bug Fixes
+
+* **security:** patch semver dependency vulnerabilities ([#1014](https://github.com/ForestAdmin/forest-express/issues/1014)) ([760b88f](https://github.com/ForestAdmin/forest-express/commit/760b88fe4cd5ef549edfced1055b004f1cfc8b5e))
+
 ## [10.2.5](https://github.com/ForestAdmin/forest-express/compare/v10.2.4...v10.2.5) (2023-07-07)
 
 
