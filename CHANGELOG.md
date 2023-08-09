@@ -1,3 +1,10 @@
+## [10.2.7](https://github.com/ForestAdmin/forest-express/compare/v10.2.6...v10.2.7) (2023-08-09)
+
+
+### Bug Fixes
+
+* add warnings in the console when the schema is not updated because of NODE_ENV value ([#1015](https://github.com/ForestAdmin/forest-express/issues/1015)) ([b7bc1b5](https://github.com/ForestAdmin/forest-express/commit/b7bc1b57a91e373b71183e7ebb980535f5723192))
+
 ## [10.2.6](https://github.com/ForestAdmin/forest-express/compare/v10.2.5...v10.2.6) (2023-08-04)
 
 
