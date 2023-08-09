@@ -153,6 +153,9 @@ async function generateAndSendSchema(envSecret) {
     collectionsSent = content.collections;
     metaSent = content.meta;
   } else {
+    logger.warn('NODE_ENV is not set to "development", the schema file will not be updated.');
+    logger.info('Loading the current version of .forestadmin-schema.json file…');
+
     try {
       const content = fs.readFileSync(pathSchemaFile);
       if (!content) {
@@ -174,7 +177,10 @@ async function generateAndSendSchema(envSecret) {
     }
   }
 
-  if (DISABLE_AUTO_SCHEMA_APPLY) { return Promise.resolve(); }
+  if (DISABLE_AUTO_SCHEMA_APPLY) {
+    logger.warn('FOREST_DISABLE_AUTO_SCHEMA_APPLY is set to true, the schema file will not be sent to Forest.');
+    return Promise.resolve();
+  }
 
   const schemaSent = schemaSerializer.perform(collectionsSent, metaSent);
 
