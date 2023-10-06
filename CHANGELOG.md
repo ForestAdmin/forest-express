@@ -1,3 +1,10 @@
+## [10.2.8](https://github.com/ForestAdmin/forest-express/compare/v10.2.7...v10.2.8) (2023-10-06)
+
+
+### Bug Fixes
+
+* **security:** patch debug dependency vulnerabilities ([#1018](https://github.com/ForestAdmin/forest-express/issues/1018)) ([fb9edb9](https://github.com/ForestAdmin/forest-express/commit/fb9edb97a60d2ced020894c21633112dcdb860fb))
+
 ## [10.2.7](https://github.com/ForestAdmin/forest-express/compare/v10.2.6...v10.2.7) (2023-08-09)
 
 
