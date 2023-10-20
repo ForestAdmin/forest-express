@@ -1,3 +1,10 @@
+## [10.2.9](https://github.com/ForestAdmin/forest-express/compare/v10.2.8...v10.2.9) (2023-10-20)
+
+
+### Bug Fixes
+
+* **security:** patch @babel/traverse dependency vulnerabilities ([#1019](https://github.com/ForestAdmin/forest-express/issues/1019)) ([e253e9e](https://github.com/ForestAdmin/forest-express/commit/e253e9e5d41da25bb133a4ad82478a857b91490d))
+
 ## [10.2.8](https://github.com/ForestAdmin/forest-express/compare/v10.2.7...v10.2.8) (2023-10-06)
 
 
