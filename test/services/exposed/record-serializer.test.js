@@ -1,21 +1,29 @@
-const { init } = require('@forestadmin/context');
 const RecordSerializer = require('../../../src/services/exposed/record-serializer');
 const Schemas = require('../../../src/generators/schemas');
 const usersSchema = require('../../fixtures/users-schema');
 
-init((context) => context);
+const getMockedContext = () => ({
+  configStore: {
+    Implementation: {
+      getModelName: (model) => model.name,
+      getLianaName: () => 'name',
+      getOrmVersion: () => 'version',
+    },
+    integrator: {},
+  },
+});
 
 describe('services › exposed › record-serializer', () => {
   describe('when model is not provided', () => {
     it('should throw an error', () => {
-      expect(() => new RecordSerializer()).toThrow('RecordSerializer initialization error: missing first argument "model"');
+      expect(() => new RecordSerializer(null, null, null, getMockedContext())).toThrow('RecordSerializer initialization error: missing first argument "model"');
     });
   });
 
   describe('when model is provided', () => {
     describe('when model is incorrect', () => {
       it('should throw an error', () => {
-        expect(() => new RecordSerializer(1)).toThrow('RecordSerializer initialization error: "model" argument should be an object (ex: `{ name: "myModel" }`)');
+        expect(() => new RecordSerializer(1, null, null, getMockedContext())).toThrow('RecordSerializer initialization error: "model" argument should be an object (ex: `{ name: "myModel" }`)');
       });
     });
 
@@ -24,16 +32,7 @@ describe('services › exposed › record-serializer', () => {
         Schemas.schemas = { users: usersSchema };
         const modelMock = { name: 'users' };
 
-        const serializer = new RecordSerializer(modelMock, null, null, {
-          configStore: {
-            Implementation: {
-              getModelName: (model) => model.name,
-              getLianaName: () => 'forest-express-sequelize',
-              getOrmVersion: () => '9.5.0',
-            },
-            integrator: {},
-          },
-        });
+        const serializer = new RecordSerializer(modelMock, null, null, getMockedContext());
 
         const articlesSerialized = await serializer.serialize([{
           hasAddress: true,
@@ -80,16 +79,7 @@ describe('services › exposed › record-serializer', () => {
           const modelMock = { name: 'users' };
           const queryFields = { fields: { users: 'hasAddress,id,smart' } };
 
-          const serializer = new RecordSerializer(modelMock, null, queryFields, {
-            configStore: {
-              Implementation: {
-                getModelName: (model) => model.name,
-                getLianaName: () => 'forest-express-sequelize',
-                getOrmVersion: () => '9.5.0',
-              },
-              integrator: {},
-            },
-          });
+          const serializer = new RecordSerializer(modelMock, null, queryFields, getMockedContext());
 
           const articlesSerialized = await serializer.serialize([{
             hasAddress: true,
