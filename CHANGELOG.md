@@ -1,3 +1,10 @@
+## [10.2.10](https://github.com/ForestAdmin/forest-express/compare/v10.2.9...v10.2.10) (2023-11-03)
+
+
+### Bug Fixes
+
+* **serialiser:** serialiser does not compute hidden smart fields anymore ([#1020](https://github.com/ForestAdmin/forest-express/issues/1020)) ([12bd547](https://github.com/ForestAdmin/forest-express/commit/12bd547b91177bb0833ea884888f538ec2617dec))
+
 ## [10.2.9](https://github.com/ForestAdmin/forest-express/compare/v10.2.8...v10.2.9) (2023-10-20)
 
 
