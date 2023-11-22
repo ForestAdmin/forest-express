@@ -1,3 +1,10 @@
+## [10.2.11](https://github.com/ForestAdmin/forest-express/compare/v10.2.10...v10.2.11) (2023-11-22)
+
+
+### Bug Fixes
+
+* user receives 403 on newly created segment query ([#1021](https://github.com/ForestAdmin/forest-express/issues/1021)) ([fe14d42](https://github.com/ForestAdmin/forest-express/commit/fe14d42422d126866e06c5c1d3e12c15d06972ce))
+
 ## [10.2.10](https://github.com/ForestAdmin/forest-express/compare/v10.2.9...v10.2.10) (2023-11-03)
 
 
