@@ -40,7 +40,7 @@
     "express-jwt": "8.3.0",
     "forest-ip-utils": "1.0.1",
     "http-errors": "1.7.3",
-    "inflected": "2.0.4",
+    "inflected": "2.1.0",
     "ip-regex": "4.3.0",
     "ipaddr.js": "2.0.0",
     "jsonapi-serializer": "3.6.5",
