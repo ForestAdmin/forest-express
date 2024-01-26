@@ -1,3 +1,10 @@
+## [10.2.12](https://github.com/ForestAdmin/forest-express/compare/v10.2.11...v10.2.12) (2024-01-26)
+
+
+### Bug Fixes
+
+* **security:** patch lodash.set dependency vulnerabilities ([#1022](https://github.com/ForestAdmin/forest-express/issues/1022)) ([fc145d7](https://github.com/ForestAdmin/forest-express/commit/fc145d745ec558ebbed73324bd2e8048a7142f36))
+
 ## [10.2.11](https://github.com/ForestAdmin/forest-express/compare/v10.2.10...v10.2.11) (2023-11-22)
 
 
