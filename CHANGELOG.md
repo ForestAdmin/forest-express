@@ -1,3 +1,10 @@
+## [10.2.13](https://github.com/ForestAdmin/forest-express/compare/v10.2.12...v10.2.13) (2024-02-22)
+
+
+### Bug Fixes
+
+* **security:** patch ip dependency vulnerabilities ([#1023](https://github.com/ForestAdmin/forest-express/issues/1023)) ([29d4bec](https://github.com/ForestAdmin/forest-express/commit/29d4beca6b55068e7d9683f78ca895c1984e7592))
+
 ## [10.2.12](https://github.com/ForestAdmin/forest-express/compare/v10.2.11...v10.2.12) (2024-01-26)
 
 
