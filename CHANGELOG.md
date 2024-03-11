@@ -1,3 +1,10 @@
+## [10.2.14](https://github.com/ForestAdmin/forest-express/compare/v10.2.13...v10.2.14) (2024-03-11)
+
+
+### Bug Fixes
+
+* **security:** patch jose dependency vulnerabilities ([#1024](https://github.com/ForestAdmin/forest-express/issues/1024)) ([8c30b10](https://github.com/ForestAdmin/forest-express/commit/8c30b10d91d05be670fe5e62a5d3948bad459512))
+
 ## [10.2.13](https://github.com/ForestAdmin/forest-express/compare/v10.2.12...v10.2.13) (2024-02-22)
 
 
