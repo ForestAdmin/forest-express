@@ -1,3 +1,10 @@
+## [10.2.15](https://github.com/ForestAdmin/forest-express/compare/v10.2.14...v10.2.15) (2024-04-04)
+
+
+### Bug Fixes
+
+* **security:** patch express dependency vulnerabilities ([#1025](https://github.com/ForestAdmin/forest-express/issues/1025)) ([ab64739](https://github.com/ForestAdmin/forest-express/commit/ab64739ff97dcdb43849174520e4182f85392a01))
+
 ## [10.2.14](https://github.com/ForestAdmin/forest-express/compare/v10.2.13...v10.2.14) (2024-03-11)
 
 
