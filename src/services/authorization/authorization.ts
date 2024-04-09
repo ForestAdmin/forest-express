@@ -75,7 +75,7 @@ export default class AuthorizationService {
     });
 
     if (!canOnCollection) {
-      throw new ForbiddenError(`User ${email} is not authorize to ${event} on collection ${collectionName}`);
+      throw new ForbiddenError(`User ${email} is not authorized to ${event} on collection ${collectionName}`);
     }
   }
 
