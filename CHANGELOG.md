@@ -1,3 +1,10 @@
+## [10.2.16](https://github.com/ForestAdmin/forest-express/compare/v10.2.15...v10.2.16) (2024-04-09)
+
+
+### Bug Fixes
+
+* typo in error message when a user is not authorized to perform an action ([#1026](https://github.com/ForestAdmin/forest-express/issues/1026)) ([fa74ecf](https://github.com/ForestAdmin/forest-express/commit/fa74ecf0afeb2cb46a3a178cf514bf259ec8cbd8))
+
 ## [10.2.15](https://github.com/ForestAdmin/forest-express/compare/v10.2.14...v10.2.15) (2024-04-04)
 
 
