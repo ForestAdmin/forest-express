@@ -1,3 +1,10 @@
+## [10.2.17](https://github.com/ForestAdmin/forest-express/compare/v10.2.16...v10.2.17) (2024-04-11)
+
+
+### Bug Fixes
+
+* typo in error messages ([#1027](https://github.com/ForestAdmin/forest-express/issues/1027)) ([cc9ce61](https://github.com/ForestAdmin/forest-express/commit/cc9ce614a104ea9d057dd54c39f21a19b2e07ce2))
+
 ## [10.2.16](https://github.com/ForestAdmin/forest-express/compare/v10.2.15...v10.2.16) (2024-04-09)
 
 
