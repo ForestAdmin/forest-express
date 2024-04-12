@@ -1,3 +1,10 @@
+## [10.2.18](https://github.com/ForestAdmin/forest-express/compare/v10.2.17...v10.2.18) (2024-04-12)
+
+
+### Bug Fixes
+
+* **security:** patch tar dependency vulnerabilities ([#1028](https://github.com/ForestAdmin/forest-express/issues/1028)) ([3928d08](https://github.com/ForestAdmin/forest-express/commit/3928d08ce45452eecc41c63a01a974fe42b3a3a1))
+
 ## [10.2.17](https://github.com/ForestAdmin/forest-express/compare/v10.2.16...v10.2.17) (2024-04-11)
 
 
