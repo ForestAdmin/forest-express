@@ -48,7 +48,7 @@ module.exports = function Resources(app, model, { configStore } = inject()) {
       .catch(next);
   };
 
-  this.exportCSV = (request, response, next) => {
+  this.exportCSV = async (request, response, next) => {
     const params = request.query;
     const recordsExporter = new Implementation.ResourcesExporter(
       model,
