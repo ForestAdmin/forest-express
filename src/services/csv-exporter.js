@@ -1,6 +1,5 @@
 const moment = require('moment');
-// eslint-disable-next-line import/no-unresolved
-const { stringify } = require('csv-stringify/sync');
+const stringify = require('csv-stringify/lib/sync');
 const { inject } = require('@forestadmin/context');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const SmartFieldsValuesInjector = require('./smart-fields-values-injector');
