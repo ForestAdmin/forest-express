@@ -1,3 +1,10 @@
+## [10.2.20](https://github.com/ForestAdmin/forest-express/compare/v10.2.19...v10.2.20) (2024-05-17)
+
+
+### Bug Fixes
+
+* csv stringify import breaks build ([#1030](https://github.com/ForestAdmin/forest-express/issues/1030)) ([3aae728](https://github.com/ForestAdmin/forest-express/commit/3aae728702f3cc56a9136c90de4e8b40cad40a25))
+
 ## [10.2.19](https://github.com/ForestAdmin/forest-express/compare/v10.2.18...v10.2.19) (2024-05-17)
 
 
