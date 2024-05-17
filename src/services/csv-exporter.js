@@ -1,13 +1,13 @@
-const P = require('bluebird');
 const moment = require('moment');
-const stringify = require('csv-stringify');
+// eslint-disable-next-line import/no-unresolved
+const { stringify } = require('csv-stringify/sync');
 const { inject } = require('@forestadmin/context');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const SmartFieldsValuesInjector = require('./smart-fields-values-injector');
 
 // NOTICE: Prevent bad date formatting into timestamps.
 const CSV_OPTIONS = {
-  formatters: {
+  cast: {
     date: (value) => moment(value).format(),
   },
 };
@@ -15,7 +15,26 @@ const CSV_OPTIONS = {
 function CSVExporter(params, response, modelName, recordsExporter) {
   const { configStore } = inject();
 
-  this.perform = () => {
+  function getValueForAttribute(record, attribute) {
+    let value;
+    if (params.fields[attribute]) {
+      if (record[attribute]) {
+        if (params.fields[attribute] && record[attribute][params.fields[attribute]]) {
+          value = record[attribute][params.fields[attribute]];
+        } else {
+          // eslint-disable-next-line
+              value = record[attribute].id || record[attribute]._id;
+        }
+      }
+    } else {
+      value = record[attribute];
+    }
+
+    return value || '';
+  }
+
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+  this.perform = async () => {
     const filename = `${params.filename}.csv`;
     response.setHeader('Content-Type', 'text/csv; charset=utf-8');
     response.setHeader('Content-disposition', `attachment; filename=${filename}`);
@@ -32,47 +51,24 @@ function CSVExporter(params, response, modelName, recordsExporter) {
 
     const fieldsPerModel = new ParamsFieldsDeserializer(params.fields).perform();
 
-    return recordsExporter
-      .perform((records) => P
-        .map(records, (record) =>
-          new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform())
-        .then((recordsWithSmartFieldsValues) =>
-          new P((resolve) => {
-            if (configStore.Implementation.Flattener) {
-              recordsWithSmartFieldsValues = configStore.Implementation.Flattener
-                .flattenRecordsForExport(modelName, recordsWithSmartFieldsValues);
-            }
+    await recordsExporter
+      .perform(async (records) => {
+        await Promise.all(
+          // eslint-disable-next-line max-len
+          records.map((record) => new SmartFieldsValuesInjector(record, modelName, fieldsPerModel).perform()),
+        );
 
-            const CSVLines = [];
-            recordsWithSmartFieldsValues.forEach((record) => {
-              const CSVLine = [];
-              CSVAttributes.forEach((attribute) => {
-                let value;
-                if (params.fields[attribute]) {
-                  if (record[attribute]) {
-                    if (params.fields[attribute] && record[attribute][params.fields[attribute]]) {
-                      value = record[attribute][params.fields[attribute]];
-                    } else {
-                      // eslint-disable-next-line
-                      value = record[attribute].id || record[attribute]._id;
-                    }
-                  }
-                } else {
-                  value = record[attribute];
-                }
-                CSVLine.push(value || '');
-              });
-              CSVLines.push(CSVLine);
-            });
+        if (configStore.Implementation.Flattener) {
+          records = configStore.Implementation.Flattener
+            .flattenRecordsForExport(modelName, records);
+        }
 
-            stringify(CSVLines, CSV_OPTIONS, (error, csv) => {
-              response.write(csv);
-              resolve();
-            });
-          })))
-      .then(() => {
-        response.end();
+        records.forEach((record) => {
+          // eslint-disable-next-line max-len
+          response.write(stringify([CSVAttributes.map((attribute) => getValueForAttribute(record, attribute, params))], CSV_OPTIONS));
+        });
       });
+    response.end();
   };
 }
 

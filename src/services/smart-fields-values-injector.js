@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const P = require('bluebird');
 const logger = require('./logger');
 const Schemas = require('../generators/schemas');
 
@@ -74,60 +73,63 @@ function SmartFieldsValuesInjector(
       && fieldsPerModel[modelNameToCheck].indexOf(fieldName) !== -1;
   }
 
-  this.perform = () =>
-    P.each(schema.fields, (field) => {
-      const fieldWasRequested = isRequestedField(requestedField || modelName, field.field);
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+  function injectSmartFieldValue(field) {
+    const fieldWasRequested = isRequestedField(requestedField || modelName, field.field);
 
-      if (record && field.isVirtual && (field.get || field.value)) {
-        if (fieldsPerModel && !fieldWasRequested) {
-          return null;
-        }
-
-        return setSmartFieldValue(record, field, modelName);
+    if (record && field.isVirtual && (field.get || field.value)) {
+      if (fieldsPerModel && !fieldWasRequested) {
+        return null;
       }
 
-      if (
-        !record[field.field]
+      return setSmartFieldValue(record, field, modelName);
+    }
+
+    if (
+      !record[field.field]
         && _.isArray(field.type)
         && (field.relationship || field.isVirtual)) {
-        // Add empty arrays on relation fields so that JsonApiSerializer add the relevant
-        // `data.x.relationships` section in the response.
-        //
-        // The field must match the following condition
-        // - field is a real or a smart HasMany / BelongsToMany relation
-        // - field is NOT an 'embedded' relationship (@see mongoose)
+      // Add empty arrays on relation fields so that JsonApiSerializer add the relevant
+      // `data.x.relationships` section in the response.
+      //
+      // The field must match the following condition
+      // - field is a real or a smart HasMany / BelongsToMany relation
+      // - field is NOT an 'embedded' relationship (@see mongoose)
 
-        record[field.field] = [];
-      } else if (field.reference && !_.isArray(field.type)) {
-        // NOTICE: Set Smart Fields values to "belongsTo" associated records.
-        const modelNameAssociation = getReferencedModelName(field);
-        const schemaAssociation = Schemas.schemas[modelNameAssociation];
+      record[field.field] = [];
+    } else if (field.reference && !_.isArray(field.type)) {
+      // NOTICE: Set Smart Fields values to "belongsTo" associated records.
+      const modelNameAssociation = getReferencedModelName(field);
+      const schemaAssociation = Schemas.schemas[modelNameAssociation];
 
-        if (schemaAssociation && !_.isArray(field.type)) {
-          return P.each(schemaAssociation.fields, (fieldAssociation) => {
-            if (record
+      if (schemaAssociation && !_.isArray(field.type)) {
+        return Promise.all(schemaAssociation.fields.map((fieldAssociation) => {
+          if (record
                 && record[field.field]
                 && fieldAssociation.isVirtual
                 && (fieldAssociation.get || fieldAssociation.value)) {
-              if (fieldsPerModel && !isRequestedField(field.field, fieldAssociation.field)) {
-                return null;
-              }
-
-              return setSmartFieldValue(
-                record[field.field],
-                fieldAssociation,
-                modelNameAssociation,
-              );
+            if (fieldsPerModel && !isRequestedField(field.field, fieldAssociation.field)) {
+              return null;
             }
 
-            return null;
-          });
-        }
-      }
+            return setSmartFieldValue(
+              record[field.field],
+              fieldAssociation,
+              modelNameAssociation,
+            );
+          }
 
-      return null;
-    })
-      .thenReturn(record);
+          return null;
+        }));
+      }
+    }
+
+    return null;
+  }
+
+  this.perform = async () => Promise.all(
+    schema.fields.map((field) => injectSmartFieldValue(field)),
+  );
 }
 
 module.exports = SmartFieldsValuesInjector;
