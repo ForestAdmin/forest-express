@@ -1,3 +1,10 @@
+## [10.2.19](https://github.com/ForestAdmin/forest-express/compare/v10.2.18...v10.2.19) (2024-05-17)
+
+
+### Performance Improvements
+
+* **export:** improve memory usage when exporting data ([#1029](https://github.com/ForestAdmin/forest-express/issues/1029)) ([ed6af03](https://github.com/ForestAdmin/forest-express/commit/ed6af03b1add7cca1e8fb070d569e0973c789074))
+
 ## [10.2.18](https://github.com/ForestAdmin/forest-express/compare/v10.2.17...v10.2.18) (2024-04-12)
 
 
