@@ -1,3 +1,10 @@
+## [10.2.21](https://github.com/ForestAdmin/forest-express/compare/v10.2.20...v10.2.21) (2024-06-14)
+
+
+### Bug Fixes
+
+* **security:** patch braces dependency vulnerabilities ([#1031](https://github.com/ForestAdmin/forest-express/issues/1031)) ([5102c40](https://github.com/ForestAdmin/forest-express/commit/5102c406b0af61ec10aaedfdf9c124d257be4423))
+
 ## [10.2.20](https://github.com/ForestAdmin/forest-express/compare/v10.2.19...v10.2.20) (2024-05-17)
 
 
