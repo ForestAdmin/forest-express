@@ -1,3 +1,10 @@
+## [10.2.22](https://github.com/ForestAdmin/forest-express/compare/v10.2.21...v10.2.22) (2024-09-05)
+
+
+### Bug Fixes
+
+* **security:** patch micromatch dependency vulnerabilities ([#1032](https://github.com/ForestAdmin/forest-express/issues/1032)) ([0760b44](https://github.com/ForestAdmin/forest-express/commit/0760b44d5cab59e66fd647ff018bdb79ff66b765))
+
 ## [10.2.21](https://github.com/ForestAdmin/forest-express/compare/v10.2.20...v10.2.21) (2024-06-14)
 
 
