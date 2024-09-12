@@ -1,3 +1,10 @@
+## [10.2.24](https://github.com/ForestAdmin/forest-express/compare/v10.2.23...v10.2.24) (2024-09-12)
+
+
+### Bug Fixes
+
+* **security:** patch body-parser dependency vulnerabilities ([#1034](https://github.com/ForestAdmin/forest-express/issues/1034)) ([550166a](https://github.com/ForestAdmin/forest-express/commit/550166a6a8349b89d250a57289d0073f710f24df))
+
 ## [10.2.23](https://github.com/ForestAdmin/forest-express/compare/v10.2.22...v10.2.23) (2024-09-12)
 
 
