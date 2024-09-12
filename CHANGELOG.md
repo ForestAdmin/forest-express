@@ -1,3 +1,10 @@
+## [10.2.23](https://github.com/ForestAdmin/forest-express/compare/v10.2.22...v10.2.23) (2024-09-12)
+
+
+### Bug Fixes
+
+* **security:** patch path-to-regexp dependency vulnerabilities ([#1033](https://github.com/ForestAdmin/forest-express/issues/1033)) ([a066c51](https://github.com/ForestAdmin/forest-express/commit/a066c518b30a6e81d032eae7e514de9ff170be95))
+
 ## [10.2.22](https://github.com/ForestAdmin/forest-express/compare/v10.2.21...v10.2.22) (2024-09-05)
 
 
