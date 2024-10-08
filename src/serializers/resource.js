@@ -135,7 +135,7 @@ function ResourceSerializer(
           record[fieldInfo.association][fieldInfo.name] = record[fieldInfo
             .association][fieldInfo.name].coordinates;
         }
-        if (fieldInfo.name && record[fieldInfo.name]) {
+        if (!fieldInfo.association && fieldInfo.name && record[fieldInfo.name]) {
           record[fieldInfo.name] = record[fieldInfo.name].coordinates;
         }
       });
