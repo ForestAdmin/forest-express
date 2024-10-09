@@ -1,3 +1,10 @@
+## [10.2.25](https://github.com/ForestAdmin/forest-express/compare/v10.2.24...v10.2.25) (2024-10-09)
+
+
+### Bug Fixes
+
+* related geometry point with same column name fails to display ([#1035](https://github.com/ForestAdmin/forest-express/issues/1035)) ([6add1c1](https://github.com/ForestAdmin/forest-express/commit/6add1c10240ffba271b213745e055ba8f373ecd6))
+
 ## [10.2.24](https://github.com/ForestAdmin/forest-express/compare/v10.2.23...v10.2.24) (2024-09-12)
 
 
