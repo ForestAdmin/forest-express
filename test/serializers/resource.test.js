@@ -113,5 +113,28 @@ describe('serializers > resource', () => {
       expect(carAttributes[`engine${FLATTEN_SEPARATOR}identification${FLATTEN_SEPARATOR}manufacturer`]).toBeNull();
       expect(carAttributes).not.toContainKey(`engine${FLATTEN_SEPARATOR}horsePower`);
     });
+    it('should serialize points', async () => {
+      const records = [
+        {
+          _id: '5fbfb0ee67e7953f9b8414bf',
+          name: 'Zoey',
+          coordinate: {
+            type: 'Point',
+            coordinates: [
+              -71.060316,
+              48.432044,
+            ],
+          },
+        },
+      ];
+
+      const serialized = await getSerializer(records).perform();
+
+      expect(serialized.data[0].attributes).toMatchObject({
+        _id: expect.any(String),
+        coordinate: [-71.060316, 48.432044],
+        name: 'Zoey',
+      });
+    });
   });
 });
