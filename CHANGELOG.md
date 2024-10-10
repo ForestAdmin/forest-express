@@ -1,3 +1,10 @@
+## [10.2.26](https://github.com/ForestAdmin/forest-express/compare/v10.2.25...v10.2.26) (2024-10-10)
+
+
+### Bug Fixes
+
+* **security:** patch cookie dependency vulnerabilities ([#1036](https://github.com/ForestAdmin/forest-express/issues/1036)) ([1158f3a](https://github.com/ForestAdmin/forest-express/commit/1158f3a48722ff6c562f2feb2f6759fad38a91a9))
+
 ## [10.2.25](https://github.com/ForestAdmin/forest-express/compare/v10.2.24...v10.2.25) (2024-10-09)
 
 
