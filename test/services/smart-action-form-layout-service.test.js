@@ -18,6 +18,9 @@ describe('services > smart-action-form-layout', () => {
       it('should throw with message when Page does not contain elements', async () => {
         expect(() => SmartActionFormLayoutService.validateLayoutElement({ component: 'Page' })).toThrow('Page components must contain an array of fields or layout elements in property \'elements\'');
       });
+      it('should throw with message when Page contains pages', async () => {
+        expect(() => SmartActionFormLayoutService.validateLayoutElement({ component: 'Page', elements: [{ type: 'Layout', component: 'Page', elements: [] }] })).toThrow('Pages cannot contain other pages');
+      });
 
       it('should throw with message when Row does not contain fields', async () => {
         expect(() => SmartActionFormLayoutService.validateLayoutElement({ component: 'Row' })).toThrow('Row components must contain an array of fields in property \'fields\'');
