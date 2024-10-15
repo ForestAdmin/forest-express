@@ -1,9 +1,11 @@
 function lowerCaseFirstLetter(string) {
   return string.charAt(0).toLowerCase() + string.slice(1);
 }
+
+const subElementsKey = { Row: 'fields', Page: 'elements' };
+const validLayoutComponents = ['Row', 'Page', 'Separator', 'HtmlBlock'];
 class SmartActionFormLayoutService {
   static validateLayoutElement(element) {
-    const validLayoutComponents = ['Row', 'Page', 'Separator', 'HtmlBlock'];
     if (!validLayoutComponents.includes(element.component)) throw new Error(`${element.component} is not a valid component. Valid components are ${validLayoutComponents.join(' or ')}`);
     if (element.component === 'Page' && !Array.isArray(element.elements)) {
       throw new Error('Page components must contain an array of fields or layout elements in property \'elements\'');
@@ -24,7 +26,6 @@ class SmartActionFormLayoutService {
   ) {
     if (element.type === 'Layout') {
       SmartActionFormLayoutService.validateLayoutElement(element);
-      const subElementsKey = { Row: 'fields', Page: 'elements' };
 
       if (['Row', 'Page'].includes(element.component)) {
         const key = subElementsKey[element.component];
