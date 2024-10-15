@@ -1,7 +1,8 @@
 class SmartActionHookService {
-  constructor({ setFieldWidget, smartActionFieldValidator }) {
+  constructor({ setFieldWidget, smartActionFieldValidator, smartActionFormLayoutService }) {
     this.setFieldWidget = setFieldWidget;
     this.smartActionFieldValidator = smartActionFieldValidator;
+    this.smartActionFormLayoutService = smartActionFormLayoutService;
   }
 
   /**
@@ -32,13 +33,16 @@ class SmartActionHookService {
     if (typeof hook !== 'function') throw new Error('hook must be a function');
 
     // Call the user-defined load hook.
-    const result = await hook({ request, fields: fieldsForUser, changedField });
+    const hookResult = await hook({ request, fields: fieldsForUser, changedField });
 
-    if (!(result && Array.isArray(result))) {
+    const { fields: fieldHookResult, layout } = this.smartActionFormLayoutService
+      .extractFieldsAndLayout(hookResult);
+
+    if (!(fieldHookResult && Array.isArray(fieldHookResult))) {
       throw new Error('hook must return an array');
     }
 
-    return result.map((field) => {
+    const validFields = fieldHookResult.map((field) => {
       this.smartActionFieldValidator.validateField(field, action.name);
       this.smartActionFieldValidator
         .validateFieldChangeHook(field, action.name, action.hooks?.change);
@@ -59,9 +63,9 @@ class SmartActionHookService {
           return { ...field, value: null };
         }
       }
-
-      return field;
+      return { ...field };
     });
+    return { fields: validFields, layout };
   }
 }
 

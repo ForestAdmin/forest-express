@@ -52,5 +52,6 @@ module.exports.default = (context) =>
     .addUsingClass('oidcClientManagerService', () => require('../services/oidc-client-manager'))
     .addUsingClass('authenticationService', () => require('../services/authentication'))
     .addUsingClass('smartActionFieldValidator', () => require('../services/smart-action-field-validator'))
+    .addUsingClass('smartActionFormLayoutService', () => require('../services/smart-action-form-layout-service'))
     .addUsingClass('smartActionHookService', () => require('../services/smart-action-hook-service'))
     .addUsingClass('smartActionHookDeserializer', () => require('../deserializers/smart-action-hook'));
