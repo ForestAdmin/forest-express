@@ -35,12 +35,12 @@ class SmartActionHookService {
     // Call the user-defined load hook.
     const hookResult = await hook({ request, fields: fieldsForUser, changedField });
 
-    const { fields: fieldHookResult, layout } = this.smartActionFormLayoutService
-      .extractFieldsAndLayout(hookResult);
-
-    if (!(fieldHookResult && Array.isArray(fieldHookResult))) {
+    if (!(hookResult && Array.isArray(hookResult))) {
       throw new Error('hook must return an array');
     }
+
+    const { fields: fieldHookResult, layout } = this.smartActionFormLayoutService
+      .extractFieldsAndLayout(hookResult);
 
     const validFields = fieldHookResult.map((field) => {
       this.smartActionFieldValidator.validateField(field, action.name);
