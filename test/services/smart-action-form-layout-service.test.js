@@ -41,6 +41,132 @@ describe('services > smart-action-form-layout', () => {
   });
 
   describe('extractFieldsAndLayout', () => {
+    it('should throw an an error when mixing pages and other types at the same level', async () => {
+      const { smartActionFormLayoutService } = setup();
+
+      const form = [
+        {
+          type: 'Layout',
+          component: 'Page',
+          elements: [
+            {
+              type: 'String',
+              field: 'Credit card plan',
+              id: 'Plan',
+            },
+            {
+              type: 'Layout',
+              component: 'HtmlBlock',
+              content: `
+                  <p>You will be asked to provide them in the next pages</p>`,
+            }],
+        },
+        {
+          type: 'String',
+          field: 'Credit card plan',
+          isRequired: true,
+        },
+
+        {
+          type: 'String',
+          field: 'Credit card number',
+          isRequired: true,
+        },
+      ];
+
+      await expect(() => smartActionFormLayoutService.extractFieldsAndLayout(form)).toThrow('You cannot use pages and other elements at the same level');
+    });
+
+    it('should return fields only if no layout is specified', async () => {
+      const { smartActionFormLayoutService } = setup();
+
+      const form = [
+
+        {
+          type: 'String',
+          field: 'Credit card plan',
+          id: 'Plan',
+          widget: 'Dropdown',
+          options: [
+            'Base',
+            'Gold',
+            'Black',
+          ],
+          isRequired: true,
+        },
+        {
+          type: 'Number',
+          field: 'price',
+          defaultValue: 40,
+        },
+        {
+          type: 'Number',
+          field: 'Max withdraw',
+        },
+        {
+          type: 'Number',
+          field: 'Max payment',
+        },
+        {
+          type: 'Boolean',
+          field: 'Systematic check',
+        },
+        {
+          type: 'Number',
+          field: 'Discount',
+        },
+        {
+          type: 'Number',
+          widget: 'NumberInput',
+          field: 'Discount duration',
+        },
+
+      ];
+
+      const { fields, layout } = smartActionFormLayoutService.extractFieldsAndLayout(form);
+
+      expect(fields).toStrictEqual([
+        {
+          type: 'String',
+          field: 'Credit card plan',
+          id: 'Plan',
+          widget: 'Dropdown',
+          options: [
+            'Base',
+            'Gold',
+            'Black',
+          ],
+          isRequired: true,
+        },
+        {
+          type: 'Number',
+          field: 'price',
+          defaultValue: 40,
+        },
+        {
+          type: 'Number',
+          field: 'Max withdraw',
+        },
+        {
+          type: 'Number',
+          field: 'Max payment',
+        },
+        {
+          type: 'Boolean',
+          field: 'Systematic check',
+        },
+        {
+          type: 'Number',
+          field: 'Discount',
+        },
+        {
+          type: 'Number',
+          widget: 'NumberInput',
+          field: 'Discount duration',
+        },
+      ]);
+      expect(layout).toStrictEqual([]);
+    });
     it('should extract out the layout and fields from the hook result', async () => {
       const { smartActionFormLayoutService } = setup();
 

@@ -67,11 +67,15 @@ class SmartActionFormLayoutService {
 
     if (!formElements) return { fields: [], layout: [] };
 
+    const isFirstElementPage = formElements[0].component === 'Page';
+
     formElements.forEach((element) => {
       if (element.type === 'Layout') {
         hasLayout = true;
       }
-
+      if (isFirstElementPage && element.component !== 'Page') {
+        throw new Error('You cannot use pages and other elements at the same level');
+      }
       layout.push(SmartActionFormLayoutService.parseLayout(element, fields));
     });
 
