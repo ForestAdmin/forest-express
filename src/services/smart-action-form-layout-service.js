@@ -44,6 +44,7 @@ class SmartActionFormLayoutService {
           [key]: subElements,
         };
       }
+
       return {
         ...element,
         component: lowerCaseFirstLetter(element.component),
