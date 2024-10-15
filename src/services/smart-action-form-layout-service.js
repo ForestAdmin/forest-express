@@ -5,12 +5,17 @@ class SmartActionFormLayoutService {
 
   static validateLayoutElement(element) {
     const validLayoutComponents = ['Row', 'Page', 'Separator', 'HtmlBlock'];
-    if (validLayoutComponents.includes(element.component)) throw new Error(`${element.component} is not a valid component. Use ${validLayoutComponents.join(' or ')}`);
+    if (!validLayoutComponents.includes(element.component)) throw new Error(`${element.component} is not a valid component. Use ${validLayoutComponents.join(' or ')}`);
     if (element.component === 'Page' && !Array.isArray(element.elements)) {
       throw new Error('Page components must contain an array of fields or layout elements in property \'elements\'');
     }
-    if (element.component === 'Row' && (!Array.isArray(element.fields))) {
-      throw new Error('Row components must contain an array of fields in property \'fields\'');
+    if (element.component === 'Row') {
+      if (!Array.isArray(element.fields)) {
+        throw new Error('Row components must contain an array of fields in property \'fields\'');
+      }
+      if (element.fields.some((field) => field.type === 'Layout')) {
+        throw new Error('Row components can only contain fields');
+      }
     }
   }
 
