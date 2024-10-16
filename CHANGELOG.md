@@ -1,3 +1,10 @@
+# [10.3.0](https://github.com/ForestAdmin/forest-express/compare/v10.2.26...v10.3.0) (2024-10-16)
+
+
+### Features
+
+* support layout elements in smart action form hooks ([#1037](https://github.com/ForestAdmin/forest-express/issues/1037)) ([20635ab](https://github.com/ForestAdmin/forest-express/commit/20635ab2fe8498cb50e4b2324cd8840c8ff1aa9e))
+
 ## [10.2.26](https://github.com/ForestAdmin/forest-express/compare/v10.2.25...v10.2.26) (2024-10-10)
 
 
