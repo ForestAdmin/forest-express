@@ -62,6 +62,8 @@ class SmartActionFormLayoutService {
 
   // eslint-disable-next-line class-methods-use-this
   extractFieldsAndLayout(formElements) {
+    // same logic as in v2 agent
+    // https://github.com/ForestAdmin/agent-nodejs/blob/chore/demo-form-customization/packages/agent/src/utils/forest-schema/generator-actions.ts#L188
     let hasLayout = false;
     const fields = [];
     let layout = [];
