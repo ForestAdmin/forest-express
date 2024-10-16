@@ -29,14 +29,13 @@ class Actions {
   getHookLoadController(action) {
     return async (request, response) => {
       try {
-        const loadedFields = await this.smartActionHookService.getResponse(
+        const hookResponse = await this.smartActionHookService.getResponse(
           action,
           action.hooks.load,
           action.fields,
           request,
         );
-
-        return response.status(200).send({ fields: loadedFields });
+        return response.status(200).send(hookResponse);
       } catch (error) {
         this.logger.error('Error in smart load action hook: ', error);
         return response.status(500).send({ message: error.message });
@@ -58,7 +57,7 @@ class Actions {
         const { fields, changedField } = data;
         const fieldChanged = fields.find((field) => field.field === changedField);
 
-        const updatedFields = await this.smartActionHookService.getResponse(
+        const hookResponse = await this.smartActionHookService.getResponse(
           action,
           action.hooks.change[fieldChanged?.hook],
           fields,
@@ -66,7 +65,7 @@ class Actions {
           fieldChanged,
         );
 
-        return response.status(200).send({ fields: updatedFields });
+        return response.status(200).send(hookResponse);
       } catch (error) {
         this.logger.error('Error in smart action change hook: ', error);
         return response.status(500).send({ message: error.message });

@@ -1,11 +1,13 @@
 const { init, inject } = require('@forestadmin/context');
 const SmartActionHookService = require('../../src/services/smart-action-hook-service');
 const SmartActionFieldValidator = require('../../src/services/smart-action-field-validator');
+const SmartActionFormLayoutService = require('../../src/services/smart-action-form-layout-service');
 
 const setup = () => {
   init((context) => context
     .addInstance('setFieldWidget', () => jest.fn())
     .addUsingClass('smartActionFieldValidator', () => SmartActionFieldValidator)
+    .addUsingClass('smartActionFormLayoutService', () => SmartActionFormLayoutService)
     .addUsingClass('smartActionHookService', () => SmartActionHookService));
 
   return inject();
@@ -26,7 +28,7 @@ describe('services > smart-action-hook', () => {
         .rejects.toThrow('hook must return an array');
     });
 
-    it('should return an array of fields', async () => {
+    it('should return an object containing an array of fields and a layout', async () => {
       const { smartActionHookService } = setup();
       const field = {
         field: 'myField',
@@ -46,7 +48,7 @@ describe('services > smart-action-hook', () => {
       }]));
 
       const response = await smartActionHookService.getResponse({}, hook, fields, {});
-      await expect(response).toStrictEqual([expected]);
+      await expect(response).toStrictEqual({ fields: [expected], layout: [] });
       expect(hook).toHaveBeenNthCalledWith(
         1,
         {
@@ -78,7 +80,7 @@ describe('services > smart-action-hook', () => {
           const hook = jest.fn(() => (expected));
 
           const response = await smartActionHookService.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual(expected);
+          await expect(response).toStrictEqual({ fields: expected, layout: [] });
           expect(hook).toHaveBeenNthCalledWith(
             1,
             {
@@ -111,7 +113,7 @@ describe('services > smart-action-hook', () => {
             const hook = jest.fn(() => ([field, addedField]));
 
             const response = await smartActionHookService.getResponse({}, hook, fields, {});
-            await expect(response).toStrictEqual(expected);
+            await expect(response).toStrictEqual({ fields: expected, layout: [] });
             expect(hook).toHaveBeenNthCalledWith(
               1,
               {
@@ -190,7 +192,7 @@ describe('services > smart-action-hook', () => {
           const hook = jest.fn(() => (expected));
 
           const response = await smartActionHookService.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual(expected);
+          await expect(response).toStrictEqual({ fields: expected, layout: [] });
           expect(hook).toHaveBeenNthCalledWith(
             1,
             {
@@ -225,7 +227,7 @@ describe('services > smart-action-hook', () => {
           ]));
 
           const response = await smartActionHookService.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual([expected]);
+          await expect(response).toStrictEqual({ fields: [expected], layout: [] });
         });
 
         it('should keep value when it is still present in enums', async () => {
@@ -248,7 +250,7 @@ describe('services > smart-action-hook', () => {
           ]));
 
           const response = await smartActionHookService.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual([expected]);
+          await expect(response).toStrictEqual({ fields: [expected], layout: [] });
         });
       });
 
@@ -273,7 +275,7 @@ describe('services > smart-action-hook', () => {
           ]));
 
           const response = await smartActionHookService.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual([expected]);
+          await expect(response).toStrictEqual({ fields: [expected], layout: [] });
         });
 
         it('should keep value when it is still present in enums', async () => {
@@ -296,7 +298,7 @@ describe('services > smart-action-hook', () => {
           ]));
 
           const response = await smartActionHookService.getResponse({}, hook, fields, {});
-          await expect(response).toStrictEqual([expected]);
+          await expect(response).toStrictEqual({ fields: [expected], layout: [] });
         });
       });
     });
