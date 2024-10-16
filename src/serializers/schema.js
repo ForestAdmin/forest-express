@@ -61,6 +61,8 @@ function SchemaSerializer() {
         'baseUrl',
         'endpoint',
         'httpMethod',
+        'description',
+        'submitButtonLabel',
         'redirect',
         'download',
         'fields',
