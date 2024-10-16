@@ -136,7 +136,7 @@ describe('routes > actions', () => {
           const newFields = [{ field: 'invoice number', type: 'String', value: 'hello from load' }];
 
           const load = jest.fn();
-          const smartActionHookGetResponse = jest.fn(() => newFields);
+          const smartActionHookGetResponse = jest.fn(() => ({ fields: newFields }));
           const { send, response } = await callHook({ load }, smartActionHookGetResponse);
 
           expect(response.status).toHaveBeenNthCalledWith(1, 200);
@@ -234,7 +234,7 @@ describe('routes > actions', () => {
             previousValue: 'a',
           }];
 
-          const smartActionHookGetResponse = jest.fn(() => newFields);
+          const smartActionHookGetResponse = jest.fn(() => ({ fields: newFields }));
           const field = {
             field: 'foo',
             type: 'String',
