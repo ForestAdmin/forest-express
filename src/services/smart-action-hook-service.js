@@ -63,7 +63,7 @@ class SmartActionHookService {
           return { ...field, value: null };
         }
       }
-      return { ...field };
+      return field;
     });
     return { fields: validFields, layout };
   }
