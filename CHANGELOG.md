@@ -1,3 +1,10 @@
+# [10.4.0](https://github.com/ForestAdmin/forest-express/compare/v10.3.0...v10.4.0) (2024-10-16)
+
+
+### Features
+
+* action forms can define a submit button label and a description ([#1038](https://github.com/ForestAdmin/forest-express/issues/1038)) ([63feaa2](https://github.com/ForestAdmin/forest-express/commit/63feaa26c0c70cfcc3fc719f29f900d078f1fc87))
+
 # [10.3.0](https://github.com/ForestAdmin/forest-express/compare/v10.2.26...v10.3.0) (2024-10-16)
 
 
