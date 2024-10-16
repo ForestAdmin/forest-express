@@ -31,11 +31,11 @@ describe('services > smart-action-form-layout', () => {
     });
     describe('success', () => {
       it('should do nothing with a correct Page', async () => {
-        expect(() => SmartActionFormLayoutService.validateLayoutElement({ component: 'Page', elements: [{ type: 'Layout', component: 'Separator' }] })).not.toThrow('');
+        expect(SmartActionFormLayoutService.validateLayoutElement({ component: 'Page', elements: [{ type: 'Layout', component: 'Separator' }] })).toBeUndefined();
       });
 
       it('should do nothing with a correct Separator', async () => {
-        expect(() => SmartActionFormLayoutService.validateLayoutElement({ component: 'Separator' })).not.toThrow('');
+        expect(SmartActionFormLayoutService.validateLayoutElement({ component: 'Separator' })).toBeUndefined();
       });
     });
   });
