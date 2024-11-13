@@ -1,3 +1,5 @@
+const timeoutError = require('../utils/timeout-error');
+
 class ApimapSender {
   constructor({ forestUrl, logger, superagentRequest }) {
     this.forestUrl = forestUrl;
@@ -24,10 +26,19 @@ class ApimapSender {
   }
 
   _send(envSecret, data, path) {
+    const url = `${this.forestUrl}/${path}`;
     return this.superagentRequest
-      .post(`${this.forestUrl}/${path}`)
+      .post(url)
       .set('forest-secret-key', envSecret)
       .send(data)
+      .catch((error) => {
+        const message = timeoutError(url, error);
+        if (message) {
+          throw new Error(message);
+        } else {
+          throw error;
+        }
+      })
       .then((result) => {
         this.handleResult(result);
         return result;

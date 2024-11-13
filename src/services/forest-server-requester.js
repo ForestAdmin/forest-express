@@ -2,14 +2,17 @@ const { inject } = require('@forestadmin/context');
 const P = require('bluebird');
 const superagent = require('superagent');
 const VError = require('verror');
+const timeoutError = require('../utils/timeout-error');
 const errorMessages = require('../utils/error-messages');
 
 function perform(route, environmentSecret, queryParameters, headers) {
   const { forestUrl } = inject();
 
+  const url = forestUrl + route;
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   return new P((resolve, reject) => {
     const request = superagent
-      .get(forestUrl + route);
+      .get(url).timeout(10_000);
 
     if (environmentSecret) {
       request.set('forest-secret-key', environmentSecret);
@@ -41,7 +44,8 @@ function perform(route, environmentSecret, queryParameters, headers) {
       }
 
       if (error) {
-        return reject(new VError(error, 'Forest server request error'));
+        const message = timeoutError(url, error) || 'Forest server request error';
+        return reject(new VError(error, message));
       }
 
       return reject(new Error(errorMessages.SERVER_TRANSACTION.UNEXPECTED, error));

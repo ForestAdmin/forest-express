@@ -13,7 +13,9 @@ describe('services > apimap-sender', () => {
         post: () => ({
           set: () => ({
             send: () => ({
-              then: superagentRequestThenFunction,
+              catch: () => ({
+                then: superagentRequestThenFunction,
+              }),
             }),
           }),
         }),
