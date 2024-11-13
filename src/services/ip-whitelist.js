@@ -24,7 +24,7 @@ function retrieve(environmentSecret) {
       ipWhitelistRules = ipWhitelistData.rules;
     })
     .catch((error) => {
-      logger.error('An error occured while retrieving your IP whitelist. Your Forest envSecret seems to be missing or unknown. Can you check that you properly set your Forest envSecret in the Forest initializer?');
+      logger.error(`An error occured while retrieving your IP whitelist. Your Forest envSecret may be missing or unknown. Can you check that you properly set your Forest envSecret in the Forest initializer? ${error.message}`);
       return P.reject(new VError('IP Whitelist error', error));
     });
 }

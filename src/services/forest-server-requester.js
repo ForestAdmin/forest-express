@@ -8,11 +8,11 @@ const errorMessages = require('../utils/error-messages');
 function perform(route, environmentSecret, queryParameters, headers) {
   const { forestUrl } = inject();
 
+  const url = forestUrl + route;
   // eslint-disable-next-line sonarjs/cognitive-complexity
   return new P((resolve, reject) => {
-    const url = forestUrl + route;
     const request = superagent
-      .get(url);
+      .get(url).timeout(10_000);
 
     if (environmentSecret) {
       request.set('forest-secret-key', environmentSecret);
