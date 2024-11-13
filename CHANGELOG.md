@@ -1,3 +1,10 @@
+# [10.5.0](https://github.com/ForestAdmin/forest-express/compare/v10.4.0...v10.5.0) (2024-11-13)
+
+
+### Features
+
+* better logs during timeout ([#1039](https://github.com/ForestAdmin/forest-express/issues/1039)) ([199c830](https://github.com/ForestAdmin/forest-express/commit/199c8301f710e980b1db59316a31ce8045a79f0e))
+
 # [10.4.0](https://github.com/ForestAdmin/forest-express/compare/v10.3.0...v10.4.0) (2024-10-16)
 
 
