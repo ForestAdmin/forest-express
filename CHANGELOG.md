@@ -1,3 +1,10 @@
+# [10.6.0](https://github.com/ForestAdmin/forest-express/compare/v10.5.0...v10.6.0) (2024-11-15)
+
+
+### Features
+
+* bump forestadmin-client version from 1.26.2 to 1.35.0 ([#1040](https://github.com/ForestAdmin/forest-express/issues/1040)) ([4108e1c](https://github.com/ForestAdmin/forest-express/commit/4108e1cc6f03ec280673716fa01959be4a7ab1d1))
+
 # [10.5.0](https://github.com/ForestAdmin/forest-express/compare/v10.4.0...v10.5.0) (2024-11-13)
 
 
