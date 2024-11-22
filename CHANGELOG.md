@@ -1,3 +1,10 @@
+## [10.6.1](https://github.com/ForestAdmin/forest-express/compare/v10.6.0...v10.6.1) (2024-11-22)
+
+
+### Bug Fixes
+
+* **security:** patch cross-spawn dependency vulnerabilities ([#1041](https://github.com/ForestAdmin/forest-express/issues/1041)) ([e27bc5d](https://github.com/ForestAdmin/forest-express/commit/e27bc5d8b4ec891ed22212fa44bfe2e0e8fdfc0a))
+
 # [10.6.0](https://github.com/ForestAdmin/forest-express/compare/v10.5.0...v10.6.0) (2024-11-15)
 
 
