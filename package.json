@@ -109,5 +109,8 @@
     "semantic-release": "semantic-release",
     "test": "jest",
     "test:coverage": "jest --coverage"
+  },
+  "resolutions": {
+    "semantic-release-slack-bot/**/micromatch": "^4.0.8"
   }
 }
