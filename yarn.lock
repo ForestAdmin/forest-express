@@ -1358,15 +1358,15 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@forestadmin/context@1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@forestadmin/context/-/context-1.31.0.tgz#b4b5a3b589e52d337a1f45807db22c2860e640a7"
-  integrity sha512-RQkDBkq+6ySMv+YNezz9VWSyCsqD7fj/+bXrXhQ6lJ62nbRUIUheH7ApvXwfnwFR1u55oT6Yhar11t6DaiE9Ig==
+"@forestadmin/context@1.42.11":
+  version "1.42.11"
+  resolved "https://registry.yarnpkg.com/@forestadmin/context/-/context-1.42.11.tgz#50b7ad703ab8010d32dc30a6719d395890a2407a"
+  integrity sha512-y6lRxvjpjBjlCfJDCA4dd3RRtDKHT2RNvaMhB+MXLrvKSi/OEF403ADTcuCMku2M2X67cFkLWoWS+WHLOnlgvg==
 
-"@forestadmin/forestadmin-client@1.35.0":
-  version "1.35.0"
-  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.35.0.tgz#0cc7279f95b07f2c01b9b67cc21f1fc0b04e161a"
-  integrity sha512-ND3u2iFw1CLCcBEMNVCWAGJIG8P9voxcw9nJAX60IxnIdnlhk950HMB4R9YQ8Yj4mxN5nlw1MVMwzwy/dc3K1Q==
+"@forestadmin/forestadmin-client@1.36.3":
+  version "1.36.3"
+  resolved "https://registry.yarnpkg.com/@forestadmin/forestadmin-client/-/forestadmin-client-1.36.3.tgz#1c0c87a0ee54ac6956ce3b1b6e0253ab16e8d50a"
+  integrity sha512-uwzkXy69NRWdPSwg5crStirgEQSCABh+uxRbEGi6YgYDGTM9pcgUIIvwDsh7eNoLOM4oxo6oU6WHWCl5RInokQ==
   dependencies:
     eventsource "2.0.2"
     json-api-serializer "^2.6.6"
