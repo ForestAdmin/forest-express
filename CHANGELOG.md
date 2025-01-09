@@ -1,3 +1,10 @@
+## [10.6.4](https://github.com/ForestAdmin/forest-express/compare/v10.6.3...v10.6.4) (2025-01-09)
+
+
+### Bug Fixes
+
+* update forestadmin libraries ([#1045](https://github.com/ForestAdmin/forest-express/issues/1045)) ([de2c5ad](https://github.com/ForestAdmin/forest-express/commit/de2c5ad09dfb38b08a8b1fd9c8bc06ae3d1f6289))
+
 ## [10.6.3](https://github.com/ForestAdmin/forest-express/compare/v10.6.2...v10.6.3) (2024-12-12)
 
 
