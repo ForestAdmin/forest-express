@@ -1,3 +1,10 @@
+## [10.6.5](https://github.com/ForestAdmin/forest-express/compare/v10.6.4...v10.6.5) (2025-01-29)
+
+
+### Bug Fixes
+
+* upgrade @forestadmin/client to fix user perm cache issue ([#1047](https://github.com/ForestAdmin/forest-express/issues/1047)) ([b77f2e7](https://github.com/ForestAdmin/forest-express/commit/b77f2e7de2ce1798645d7489dacbbef435034fbd))
+
 ## [10.6.4](https://github.com/ForestAdmin/forest-express/compare/v10.6.3...v10.6.4) (2025-01-09)
 
 
