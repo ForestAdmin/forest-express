@@ -89,7 +89,6 @@ async function startAuthentication(context, request, response, next) {
     const renderingId = getAndCheckRenderingId(request, context);
     const applicationUrl = context.configStore.lianaOptions.applicationUrl
       || context.env.APPLICATION_URL;
-    console.log(applicationUrl);
 
     const result = await context.authenticationService.startAuthentication(
       getCallbackUrl(context, applicationUrl),
@@ -111,8 +110,11 @@ async function startAuthentication(context, request, response, next) {
  */
 async function authenticationCallback(context, options, request, response, next) {
   try {
+    const applicationUrl = context.configStore.lianaOptions.applicationUrl
+      || context.env.APPLICATION_URL;
+
     const token = await context.authenticationService.verifyCodeAndGenerateToken(
-      getCallbackUrl(context, context.env.APPLICATION_URL),
+      getCallbackUrl(context, applicationUrl),
       request.query,
       options,
     );
