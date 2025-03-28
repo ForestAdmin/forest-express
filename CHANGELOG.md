@@ -1,3 +1,10 @@
+## [10.6.6](https://github.com/ForestAdmin/forest-express/compare/v10.6.5...v10.6.6) (2025-03-28)
+
+
+### Bug Fixes
+
+* **vulnerability:** bump openid-client ([#1049](https://github.com/ForestAdmin/forest-express/issues/1049)) ([c41f57b](https://github.com/ForestAdmin/forest-express/commit/c41f57b7efa24fffcdadbe7e2277eda62b9af935))
+
 ## [10.6.5](https://github.com/ForestAdmin/forest-express/compare/v10.6.4...v10.6.5) (2025-01-29)
 
 
