@@ -1,3 +1,10 @@
+## [10.6.7](https://github.com/ForestAdmin/forest-express/compare/v10.6.6...v10.6.7) (2025-09-04)
+
+
+### Bug Fixes
+
+* increase default forest timeout to 30sec ([#1050](https://github.com/ForestAdmin/forest-express/issues/1050)) ([353720b](https://github.com/ForestAdmin/forest-express/commit/353720be8eec0269ef3647509496fd4c020ccc07))
+
 ## [10.6.6](https://github.com/ForestAdmin/forest-express/compare/v10.6.5...v10.6.6) (2025-03-28)
 
 
