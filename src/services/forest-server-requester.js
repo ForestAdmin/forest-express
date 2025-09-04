@@ -12,7 +12,7 @@ function perform(route, environmentSecret, queryParameters, headers) {
   // eslint-disable-next-line sonarjs/cognitive-complexity
   return new P((resolve, reject) => {
     const request = superagent
-      .get(url).timeout(10_000);
+      .get(url).timeout(process.env.FOREST_REQUEST_TIMEOUT || 30_000);
 
     if (environmentSecret) {
       request.set('forest-secret-key', environmentSecret);
