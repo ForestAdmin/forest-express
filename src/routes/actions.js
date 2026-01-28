@@ -32,7 +32,7 @@ class Actions {
         const hookResponse = await this.smartActionHookService.getResponse(
           action,
           action.hooks.load,
-          action.fields,
+          structuredClone(action.fields),
           request,
         );
         return response.status(200).send(hookResponse);
