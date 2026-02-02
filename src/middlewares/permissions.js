@@ -204,6 +204,12 @@ class PermissionMiddlewareCreator {
 
             const ids = await getter.getIdsFromRequest(request);
 
+            // Attach resolved IDs to request so smart action handlers can access all records
+            // when all_records is true (not just the first page)
+            if (request.body?.data?.attributes?.all_records === true) {
+              request.body.data.attributes.ids = ids;
+            }
+
             filters = primaryKeys.length === 1
               ? { field: primaryKeys[0], operator: 'in', value: ids }
               : {
