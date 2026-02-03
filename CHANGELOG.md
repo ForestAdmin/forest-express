@@ -1,3 +1,10 @@
+## [10.6.8](https://github.com/ForestAdmin/forest-express/compare/v10.6.7...v10.6.8) (2026-02-03)
+
+
+### Bug Fixes
+
+* sa load hook fields transmition ([#1051](https://github.com/ForestAdmin/forest-express/issues/1051)) ([0620d72](https://github.com/ForestAdmin/forest-express/commit/0620d72b5a8e610719a16fb584a29f544db67457))
+
 ## [10.6.7](https://github.com/ForestAdmin/forest-express/compare/v10.6.6...v10.6.7) (2025-09-04)
 
 
