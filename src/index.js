@@ -20,6 +20,7 @@ const StatRoutes = require('./routes/stats');
 const ForestRoutes = require('./routes/forest');
 const HealthCheckRoute = require('./routes/healthcheck');
 const initScopeRoutes = require('./routes/scopes');
+const initWorkflowExecutorRoutes = require('./routes/workflow-executor');
 const Schemas = require('./generators/schemas');
 const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
@@ -307,6 +308,7 @@ exports.init = async (Implementation) => {
 
   new HealthCheckRoute(app, configStore.lianaOptions).perform();
   initScopeRoutes(app, inject());
+  initWorkflowExecutorRoutes(app, configStore.lianaOptions, inject());
   initAuthenticationRoutes(app, configStore.lianaOptions, inject());
 
   // Init
