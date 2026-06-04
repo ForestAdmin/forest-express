@@ -13,12 +13,15 @@ function mockEnsureAuthenticated() {
   jest.spyOn(auth, 'ensureAuthenticated').mockImplementation((req, res, next) => next());
 }
 
-function teardown() {
-  jest.clearAllMocks();
-  nock.cleanAll();
-}
-
 describe('routes > workflow executor proxy', () => {
+  // NOTICE: Run teardown unconditionally so a failed assertion cannot leak a nock
+  //         interceptor or a mock into the next test.
+  // eslint-disable-next-line jest/no-hooks
+  afterEach(() => {
+    jest.clearAllMocks();
+    nock.cleanAll();
+  });
+
   describe('get /forest/_internal/workflow-executions/:runId', () => {
     it('forwards GET to executor /runs/:runId with query params', async () => {
       mockEnsureAuthenticated();
@@ -34,7 +37,6 @@ describe('routes > workflow executor proxy', () => {
       expect(response.status).toBe(200);
       expect(response.body).toStrictEqual({ id: 'run-123', state: 'pending' });
       expect(scope.isDone()).toBe(true);
-      teardown();
     });
 
     it('forwards a 4xx executor response verbatim', async () => {
@@ -47,7 +49,6 @@ describe('routes > workflow executor proxy', () => {
 
       expect(response.status).toBe(422);
       expect(response.body).toStrictEqual({ error: 'invalid_step' });
-      teardown();
     });
 
     it('returns 503 when the executor is unreachable', async () => {
@@ -62,7 +63,6 @@ describe('routes > workflow executor proxy', () => {
 
       expect(response.status).toBe(503);
       expect(response.body).toStrictEqual({ error: 'workflow_executor_unreachable' });
-      teardown();
     });
   });
 
@@ -81,7 +81,6 @@ describe('routes > workflow executor proxy', () => {
       expect(response.status).toBe(200);
       expect(response.body).toStrictEqual({ ok: true });
       expect(scope.isDone()).toBe(true);
-      teardown();
     });
   });
 
@@ -143,7 +142,6 @@ describe('routes > workflow executor proxy', () => {
       expect(scope.isDone()).toBe(true);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ ok: true });
-      teardown();
     });
   });
 

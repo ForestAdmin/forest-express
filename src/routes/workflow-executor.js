@@ -5,6 +5,11 @@ const auth = require('../services/auth');
 
 const FORWARDED_REQUEST_HEADERS = ['authorization', 'cookie'];
 
+// NOTICE: Bound the proxied request so a hanging executor cannot tie up the
+//         connection indefinitely. A timeout raises an error without `.response`,
+//         so it falls through to the 503 branch.
+const REQUEST_TIMEOUT = { response: 30000, deadline: 60000 };
+
 function pickForwardedHeaders(requestHeaders) {
   const headers = {};
   FORWARDED_REQUEST_HEADERS.forEach((name) => {
@@ -24,7 +29,9 @@ function buildHandler({ baseUrl, suffix, logger }) {
     const method = request.method.toLowerCase();
 
     try {
-      let outgoing = superagent[method](url).set(pickForwardedHeaders(request.headers));
+      let outgoing = superagent[method](url)
+        .timeout(REQUEST_TIMEOUT)
+        .set(pickForwardedHeaders(request.headers));
       if (request.query) outgoing = outgoing.query(request.query);
       if (method !== 'get' && request.body !== undefined) {
         outgoing = outgoing.send(request.body);
