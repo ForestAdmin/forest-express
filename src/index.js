@@ -25,6 +25,7 @@ const SchemaSerializer = require('./serializers/schema');
 const Integrator = require('./integrations');
 const { getJWTConfiguration } = require('./config/jwt');
 const initAuthenticationRoutes = require('./routes/authentication');
+const normalizeQueryFields = require('./middlewares/query-fields-normalizer');
 
 const {
   logger,
@@ -274,6 +275,10 @@ exports.init = async (Implementation) => {
 
   // Mime type
   app.use(pathMounted, bodyParser.json());
+
+  // NOTICE: Normalize `fields[collection]` query params (array -> comma-separated string)
+  //         before any route handler or ORM adapter consumes request.query.
+  app.use(pathMounted, normalizeQueryFields);
 
   // Authentication
   if (configStore.lianaOptions.authSecret) {
