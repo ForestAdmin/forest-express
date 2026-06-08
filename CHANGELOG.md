@@ -1,3 +1,10 @@
+## [10.6.9](https://github.com/ForestAdmin/forest-express/compare/v10.6.8...v10.6.9) (2026-06-05)
+
+
+### Bug Fixes
+
+* **composite-pk:** normalize fields[] query param to comma-separated string [PRD-462] ([#1059](https://github.com/ForestAdmin/forest-express/issues/1059)) ([7820cc5](https://github.com/ForestAdmin/forest-express/commit/7820cc5a14d646b2f06b207201feab8ff03c9b56))
+
 ## [10.6.8](https://github.com/ForestAdmin/forest-express/compare/v10.6.7...v10.6.8) (2026-02-03)
 
 
