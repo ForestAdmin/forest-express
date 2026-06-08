@@ -1,3 +1,10 @@
+# [10.7.0](https://github.com/ForestAdmin/forest-express/compare/v10.6.9...v10.7.0) (2026-06-08)
+
+
+### Features
+
+* **agent:** add workflow executor proxy routes ([#1058](https://github.com/ForestAdmin/forest-express/issues/1058)) ([54596ec](https://github.com/ForestAdmin/forest-express/commit/54596ecc58555112f1eb16b798f7df23e46c98b4))
+
 ## [10.6.9](https://github.com/ForestAdmin/forest-express/compare/v10.6.8...v10.6.9) (2026-06-05)
 
 
