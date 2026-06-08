@@ -9,7 +9,7 @@ const request = require('./request');
 
 let app;
 
-module.exports = async function createServer(envSecret, authSecret) {
+module.exports = async function createServer(envSecret, authSecret, extraOpts = {}) {
   if (app) {
     return app;
   }
@@ -30,6 +30,7 @@ module.exports = async function createServer(envSecret, authSecret) {
           models: {},
         },
       },
+      ...extraOpts,
     },
   };
 
