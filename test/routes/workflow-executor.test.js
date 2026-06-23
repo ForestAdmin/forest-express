@@ -1,5 +1,6 @@
 const nock = require('nock');
 const request = require('supertest');
+const zlib = require('zlib');
 
 const createServer = require('../helpers/create-server');
 const auth = require('../../src/services/auth');
@@ -151,13 +152,17 @@ describe('routes > workflow executor proxy', () => {
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
-    it('forwards executor response headers except hop-by-hop ones', async () => {
+    it('forwards executor response headers except hop-by-hop / encoding ones', async () => {
       const handler = captureHandler();
+      // gzipped body + content-type so superagent actually decompresses it. The proxy then
+      // re-emits plain JSON via res.json(), so it must NOT relay the upstream content-encoding.
+      const gzipped = zlib.gzipSync(JSON.stringify({ ok: true }));
       nock(executorBase)
         .get('/runs/run-1')
-        .reply(200, { ok: true }, {
+        .reply(200, gzipped, {
+          'content-type': 'application/json',
+          'content-encoding': 'gzip',
           'x-executor-custom': 'passthrough-value',
-          'transfer-encoding': 'chunked',
         });
 
       const req = {
@@ -167,8 +172,29 @@ describe('routes > workflow executor proxy', () => {
 
       await handler(req, res);
 
+      // Body was decoded and re-emitted as plain JSON...
+      expect(res.json).toHaveBeenCalledWith({ ok: true });
       expect(res.set).toHaveBeenCalledWith('x-executor-custom', 'passthrough-value');
-      expect(res.set).not.toHaveBeenCalledWith('transfer-encoding', expect.anything());
+      // ...so the upstream content-encoding must not be relayed onto plain bytes.
+      expect(res.set).not.toHaveBeenCalledWith('content-encoding', expect.anything());
+    });
+
+    it('does not forward the client accept-encoding (superagent manages its own)', async () => {
+      const handler = captureHandler();
+      // A forwarded client value would override superagent's own header; assert it doesn't.
+      const scope = nock(executorBase)
+        .matchHeader('accept-encoding', (value) => value !== 'identity')
+        .get('/runs/run-1')
+        .reply(200, { ok: true });
+
+      const req = {
+        method: 'GET', params: { 0: 'run-1' }, query: {}, headers: { 'accept-encoding': 'identity' },
+      };
+      const res = fakeRes();
+
+      await handler(req, res);
+
+      expect(scope.isDone()).toBe(true);
     });
   });
 

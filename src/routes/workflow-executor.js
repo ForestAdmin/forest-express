@@ -4,10 +4,13 @@ const path = require('../services/path');
 const auth = require('../services/auth');
 
 const EXECUTOR_PREFIX = '/runs';
-// Hop-by-hop / client-recomputed headers — never forwarded (request or response side).
+// Never forwarded (request or response): hop-by-hop, Host, and body-framing headers.
+// res.json() re-serializes the body, so upstream length/encoding no longer match — and
+// forwarding accept-encoding would relay an encoding the re-emitted body doesn't use.
 const SKIPPED_HEADERS = new Set([
   'connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'te', 'trailer',
-  'proxy-authenticate', 'proxy-authorization', 'host', 'content-length',
+  'proxy-authenticate', 'proxy-authorization', 'host',
+  'content-length', 'content-encoding', 'accept-encoding',
 ]);
 const UNSAFE_PATH_FRAGMENTS = ['..', '%2e', '%2E', '\\', '\0'];
 
