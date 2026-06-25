@@ -3,7 +3,6 @@ const superagent = require('superagent');
 const path = require('../services/path');
 const auth = require('../services/auth');
 
-const EXECUTOR_PREFIX = '/runs';
 // Never forwarded (request or response): hop-by-hop, Host, and body-framing headers.
 // res.json() re-serializes the body, so upstream length/encoding no longer match — and
 // forwarding accept-encoding would relay an encoding the re-emitted body doesn't use.
@@ -37,29 +36,37 @@ function copyResponseHeaders(upstream, response) {
   });
 }
 
-// Security boundary: the wildcard can only map into EXECUTOR_PREFIX; reject anything that could
-// escape it, so non-/runs executor routes stay unreachable through the proxy.
+// First-pass rejection of escape attempts; returns null for anything that could leave the
+// executor origin (the authoritative origin check is in buildHandler).
 function executorPath(wildcard) {
   if (!wildcard
     || wildcard.startsWith('/')
     || UNSAFE_PATH_FRAGMENTS.some((fragment) => wildcard.includes(fragment))) {
     return null;
   }
-  return `${EXECUTOR_PREFIX}/${wildcard}`;
+  return `/${wildcard}`;
 }
 
 function buildHandler({ baseUrl, logger }) {
   const normalizedBase = baseUrl.replace(/\/+$/, '');
+  const baseOrigin = new URL(normalizedBase).origin;
 
   return async (request, response) => {
     const suffix = executorPath(request.params[0]);
     if (suffix === null) return response.status(404).json({ error: 'not_found' });
 
     const url = `${normalizedBase}${suffix}`;
+    // Authoritative SSRF check: the forwarded request must never leave the executor origin.
+    if (new URL(url).origin !== baseOrigin) {
+      return response.status(404).json({ error: 'not_found' });
+    }
     const method = request.method.toLowerCase();
 
     try {
       let outgoing = superagent[method](url)
+        // Don't follow redirects: a 3xx to an off-origin Location would bypass the origin guard
+        // (and matches the Node agent, whose raw http client never follows redirects).
+        .redirects(0)
         .timeout(REQUEST_TIMEOUT)
         .set(forwardedRequestHeaders(request.headers));
       if (request.query) outgoing = outgoing.query(request.query);
@@ -80,13 +87,13 @@ function buildHandler({ baseUrl, logger }) {
   };
 }
 
-// Catch-all: forward any verb/sub-path to EXECUTOR_PREFIX so a new executor route needs no change
-// here (PRD-567).
+// Catch-all: forward any verb/sub-path verbatim to the executor, so a new executor route needs
+// no change here.
 function initWorkflowExecutorRoutes(app, opts, { logger }) {
   if (!opts.workflowExecutorUrl) return;
 
   app.all(
-    path.generate('_internal/workflow-executions/*', opts),
+    path.generate('_internal/executor/*', opts),
     auth.ensureAuthenticated,
     buildHandler({ baseUrl: opts.workflowExecutorUrl, logger }),
   );
