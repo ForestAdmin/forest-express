@@ -24,7 +24,7 @@ describe('routes > workflow executor proxy', () => {
   });
 
   describe('generic forwarding', () => {
-    it('forwards GET under /runs with query params, returning the executor response', async () => {
+    it('forwards a run GET (caller includes runs/) with query params, returning the response', async () => {
       mockEnsureAuthenticated();
       const app = await createServer(envSecret, authSecret, { workflowExecutorUrl: executorBase });
       const scope = nock(executorBase)
@@ -33,14 +33,14 @@ describe('routes > workflow executor proxy', () => {
         .reply(200, { id: 'run-123', state: 'pending' });
 
       const response = await request(app)
-        .get('/forest/_internal/workflow-executions/run-123?foo=bar');
+        .get('/forest/_internal/executor/runs/run-123?foo=bar');
 
       expect(response.status).toBe(200);
       expect(response.body).toStrictEqual({ id: 'run-123', state: 'pending' });
       expect(scope.isDone()).toBe(true);
     });
 
-    it('forwards POST trigger with the JSON body to /runs/:runId/trigger', async () => {
+    it('forwards a POST trigger with the JSON body to /runs/:runId/trigger', async () => {
       mockEnsureAuthenticated();
       const app = await createServer(envSecret, authSecret, { workflowExecutorUrl: executorBase });
       const scope = nock(executorBase)
@@ -48,7 +48,7 @@ describe('routes > workflow executor proxy', () => {
         .reply(200, { ok: true });
 
       const response = await request(app)
-        .post('/forest/_internal/workflow-executions/run-42/trigger')
+        .post('/forest/_internal/executor/runs/run-42/trigger')
         .send({ step: 'approve', value: 42 });
 
       expect(response.status).toBe(200);
@@ -56,16 +56,18 @@ describe('routes > workflow executor proxy', () => {
       expect(scope.isDone()).toBe(true);
     });
 
-    it('forwards any verb and any future sub-path without a dedicated route', async () => {
+    it('forwards a non-runs route verbatim (no /runs prefix injected)', async () => {
       mockEnsureAuthenticated();
       const app = await createServer(envSecret, authSecret, { workflowExecutorUrl: executorBase });
-      const scope = nock(executorBase).delete('/runs/run-123/cancel').reply(200, { cancelled: true });
+      const scope = nock(executorBase)
+        .delete('/mcp-oauth-credentials')
+        .reply(200, { deleted: true });
 
       const response = await request(app)
-        .delete('/forest/_internal/workflow-executions/run-123/cancel');
+        .delete('/forest/_internal/executor/mcp-oauth-credentials');
 
       expect(response.status).toBe(200);
-      expect(response.body).toStrictEqual({ cancelled: true });
+      expect(response.body).toStrictEqual({ deleted: true });
       expect(scope.isDone()).toBe(true);
     });
 
@@ -75,7 +77,7 @@ describe('routes > workflow executor proxy', () => {
       nock(executorBase).get('/runs/run-456').reply(422, { error: 'invalid_step' });
 
       const response = await request(app)
-        .get('/forest/_internal/workflow-executions/run-456');
+        .get('/forest/_internal/executor/runs/run-456');
 
       expect(response.status).toBe(422);
       expect(response.body).toStrictEqual({ error: 'invalid_step' });
@@ -89,7 +91,7 @@ describe('routes > workflow executor proxy', () => {
         .replyWithError({ code: 'ECONNREFUSED', message: 'refused' });
 
       const response = await request(app)
-        .get('/forest/_internal/workflow-executions/run-789');
+        .get('/forest/_internal/executor/runs/run-789');
 
       expect(response.status).toBe(503);
       expect(response.body).toStrictEqual({ error: 'workflow_executor_unreachable' });
@@ -134,7 +136,7 @@ describe('routes > workflow executor proxy', () => {
 
       const req = {
         method: 'GET',
-        params: { 0: 'run-1' },
+        params: { 0: 'runs/run-1' },
         query: {},
         headers: {
           authorization: 'Bearer abc',
@@ -166,7 +168,7 @@ describe('routes > workflow executor proxy', () => {
         });
 
       const req = {
-        method: 'GET', params: { 0: 'run-1' }, query: {}, headers: {},
+        method: 'GET', params: { 0: 'runs/run-1' }, query: {}, headers: {},
       };
       const res = fakeRes();
 
@@ -188,7 +190,7 @@ describe('routes > workflow executor proxy', () => {
         .reply(200, { ok: true });
 
       const req = {
-        method: 'GET', params: { 0: 'run-1' }, query: {}, headers: { 'accept-encoding': 'identity' },
+        method: 'GET', params: { 0: 'runs/run-1' }, query: {}, headers: { 'accept-encoding': 'identity' },
       };
       const res = fakeRes();
 
@@ -198,7 +200,7 @@ describe('routes > workflow executor proxy', () => {
     });
   });
 
-  describe('path traversal protection (the namespace security boundary)', () => {
+  describe('guards against escaping the executor origin (SSRF)', () => {
     function captureHandler() {
       let handler;
       const fakeApp = { all: jest.fn((_path, _auth, fn) => { handler = fn; }) };
@@ -232,6 +234,29 @@ describe('routes > workflow executor proxy', () => {
       expect(scope.isDone()).toBe(false);
       nock.cleanAll();
     });
+
+    it('does not follow an executor redirect to an off-origin host', async () => {
+      const handler = captureHandler();
+      // Executor replies 3xx pointing off-origin; the proxy must NOT chase it.
+      nock(executorBase)
+        .get('/runs/run-1')
+        .reply(302, '', { Location: 'http://evil.com/stolen' });
+      const evil = nock('http://evil.com').get('/stolen').reply(200, { hacked: true });
+
+      const req = {
+        method: 'GET', params: { 0: 'runs/run-1' }, query: {}, headers: {},
+      };
+      const res = { status: jest.fn(), json: jest.fn(), set: jest.fn() };
+      res.status.mockReturnValue(res);
+      res.json.mockReturnValue(res);
+      res.set.mockReturnValue(res);
+
+      await handler(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(302); // 3xx returned to the client, not followed
+      expect(evil.isDone()).toBe(false); // never reached the off-origin host
+      nock.cleanAll();
+    });
   });
 
   describe('lazy mount', () => {
@@ -251,7 +276,7 @@ describe('routes > workflow executor proxy', () => {
         { logger: fakeLogger },
       );
       expect(fakeApp.all).toHaveBeenCalledTimes(1);
-      expect(fakeApp.all.mock.calls[0][0]).toBe('/forest/_internal/workflow-executions/*');
+      expect(fakeApp.all.mock.calls[0][0]).toBe('/forest/_internal/executor/*');
     });
   });
 });
