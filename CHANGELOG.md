@@ -1,3 +1,10 @@
+# [10.9.0](https://github.com/ForestAdmin/forest-express/compare/v10.8.0...v10.9.0) (2026-06-26)
+
+
+### Features
+
+* **agent:** forward any executor route generically [PRD-567] ([#1061](https://github.com/ForestAdmin/forest-express/issues/1061)) ([bf36b5b](https://github.com/ForestAdmin/forest-express/commit/bf36b5b508be17deb9d7b93fb0837c318aa6294e))
+
 # [10.8.0](https://github.com/ForestAdmin/forest-express/compare/v10.7.0...v10.8.0) (2026-06-24)
 
 
