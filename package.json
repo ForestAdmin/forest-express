@@ -38,7 +38,6 @@
     "csv-stringify": "5.6.5",
     "express": "^4.18.2",
     "express-jwt": "8.4.1",
-    "forest-ip-utils": "1.0.1",
     "http-errors": "1.7.3",
     "inflected": "2.0.4",
     "ip-regex": "4.3.0",
@@ -54,7 +53,7 @@
     "require-all": "3.0.0",
     "semver": "6.3.1",
     "superagent": "^8.0.6",
-    "uuid": "3.3.3",
+    "uuid": "11.1.1",
     "verror": "1.10.0",
     "winston": "3.2.1"
   },

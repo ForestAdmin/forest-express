@@ -1,5 +1,5 @@
 const moment = require('moment');
-const uuidV1 = require('uuid/v1');
+const { v1: uuidV1 } = require('uuid');
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
 
 function serializeMixpanelEvents(events, collectionName, meta, options) {
