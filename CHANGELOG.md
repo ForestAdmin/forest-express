@@ -1,3 +1,10 @@
+## [10.9.1](https://github.com/ForestAdmin/forest-express/compare/v10.9.0...v10.9.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* uuid & ip-adress vulnerabilities ([#1062](https://github.com/ForestAdmin/forest-express/issues/1062)) ([dab745d](https://github.com/ForestAdmin/forest-express/commit/dab745d7205ac7cde8299ba374e7e3caeae347f7))
+
 # [10.9.0](https://github.com/ForestAdmin/forest-express/compare/v10.8.0...v10.9.0) (2026-06-26)
 
 
