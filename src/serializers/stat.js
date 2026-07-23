@@ -1,5 +1,5 @@
 const JSONAPISerializer = require('jsonapi-serializer').Serializer;
-const uuidV1 = require('uuid/v1');
+const { v1: uuidV1 } = require('uuid');
 
 function StatSerializer(stat) {
   stat.id = uuidV1();
