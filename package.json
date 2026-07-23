@@ -25,6 +25,9 @@
     "url": "https://github.com/ForestAdmin/forest-express.git"
   },
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
     "@babel/runtime": "7.19.0",
     "@forestadmin/context": "1.42.11",

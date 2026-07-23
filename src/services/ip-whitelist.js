@@ -21,24 +21,29 @@ function familyOf(ip) {
 function isIpMatchesRule(ip, rule) {
   if (!net.isIP(ip)) return false;
 
-  const blockList = new net.BlockList();
-  switch (rule.type) {
-    case RULE_TYPE_IP:
-      blockList.addAddress(rule.ip, familyOf(rule.ip));
-      break;
-    case RULE_TYPE_RANGE:
-      blockList.addRange(rule.ipMinimum, rule.ipMaximum, familyOf(rule.ipMinimum));
-      break;
-    case RULE_TYPE_SUBNET: {
-      const [address, prefix] = rule.range.split('/');
-      blockList.addSubnet(address, parseInt(prefix, 10), familyOf(address));
-      break;
+  try {
+    const blockList = new net.BlockList();
+    switch (rule.type) {
+      case RULE_TYPE_IP:
+        blockList.addAddress(rule.ip, familyOf(rule.ip));
+        break;
+      case RULE_TYPE_RANGE:
+        blockList.addRange(rule.ipMinimum, rule.ipMaximum, familyOf(rule.ipMinimum));
+        break;
+      case RULE_TYPE_SUBNET: {
+        const [address, prefix] = rule.range.split('/');
+        blockList.addSubnet(address, parseInt(prefix, 10), familyOf(address));
+        break;
+      }
+      default:
+        return false;
     }
-    default:
-      throw new Error('Invalid rule type');
-  }
 
-  return blockList.check(ip, familyOf(ip));
+    return blockList.check(ip, familyOf(ip));
+  } catch (error) {
+    logger.warn(`IP Whitelist: ignoring an invalid rule. ${error.message}`);
+    return false;
+  }
 }
 
 function retrieve(environmentSecret) {
