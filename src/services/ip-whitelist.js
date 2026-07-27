@@ -1,6 +1,5 @@
 const net = require('net');
 const P = require('bluebird');
-const _ = require('lodash');
 const VError = require('verror');
 const logger = require('./logger');
 const errorMessages = require('../utils/error-messages');
@@ -12,38 +11,43 @@ const RULE_TYPE_RANGE = 1;
 const RULE_TYPE_SUBNET = 2;
 
 let ipWhitelistRules = null;
+let ipWhitelistBlockList = null;
 let useIpWhitelist = true;
 
 function familyOf(ip) {
   return net.isIP(ip) === 6 ? 'ipv6' : 'ipv4';
 }
 
-function isIpMatchesRule(ip, rule) {
-  if (!net.isIP(ip)) return false;
-
-  try {
-    const blockList = new net.BlockList();
-    switch (rule.type) {
-      case RULE_TYPE_IP:
-        blockList.addAddress(rule.ip, familyOf(rule.ip));
-        break;
-      case RULE_TYPE_RANGE:
-        blockList.addRange(rule.ipMinimum, rule.ipMaximum, familyOf(rule.ipMinimum));
-        break;
-      case RULE_TYPE_SUBNET: {
-        const [address, prefix] = rule.range.split('/');
-        blockList.addSubnet(address, parseInt(prefix, 10), familyOf(address));
-        break;
-      }
-      default:
-        return false;
+function addRuleTo(blockList, rule) {
+  switch (rule.type) {
+    case RULE_TYPE_IP:
+      blockList.addAddress(rule.ip, familyOf(rule.ip));
+      break;
+    case RULE_TYPE_RANGE:
+      blockList.addRange(rule.ipMinimum, rule.ipMaximum, familyOf(rule.ipMinimum));
+      break;
+    case RULE_TYPE_SUBNET: {
+      const [address, prefix] = rule.range.split('/');
+      blockList.addSubnet(address, parseInt(prefix, 10), familyOf(address));
+      break;
     }
-
-    return blockList.check(ip, familyOf(ip));
-  } catch (error) {
-    logger.warn(`IP Whitelist: ignoring an invalid rule. ${error.message}`);
-    return false;
+    default:
+      break;
   }
+}
+
+function buildBlockList(rules) {
+  const blockList = new net.BlockList();
+
+  (rules || []).forEach((rule) => {
+    try {
+      addRuleTo(blockList, rule);
+    } catch (error) {
+      logger.warn(`IP Whitelist: ignoring an invalid rule. ${error.message}`);
+    }
+  });
+
+  return blockList;
 }
 
 function retrieve(environmentSecret) {
@@ -58,6 +62,7 @@ function retrieve(environmentSecret) {
     .then((ipWhitelistData) => {
       useIpWhitelist = ipWhitelistData.useIpWhitelist;
       ipWhitelistRules = ipWhitelistData.rules;
+      ipWhitelistBlockList = buildBlockList(ipWhitelistRules);
     })
     .catch((error) => {
       logger.error(`An error occured while retrieving your IP whitelist. Your Forest envSecret may be missing or unknown. Can you check that you properly set your Forest envSecret in the Forest initializer? ${error.message}`);
@@ -70,11 +75,10 @@ function isIpWhitelistRetrieved() {
 }
 
 function isIpValid(ip) {
-  if (useIpWhitelist) {
-    return _.some(ipWhitelistRules, (rule) => isIpMatchesRule(ip, rule));
-  }
+  if (!useIpWhitelist) return true;
+  if (!ipWhitelistBlockList || !net.isIP(ip)) return false;
 
-  return true;
+  return ipWhitelistBlockList.check(ip, familyOf(ip));
 }
 
 module.exports = {
