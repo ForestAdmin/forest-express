@@ -4,8 +4,10 @@ const {
   isIpWhitelistRetrieved,
 } = require('../../src/services/ip-whitelist');
 const forestServerRequester = require('../../src/services/forest-server-requester');
+const logger = require('../../src/services/logger');
 
 jest.mock('../../src/services/forest-server-requester');
+jest.mock('../../src/services/logger');
 
 describe('utils › services', () => {
   forestServerRequester.perform.mockResolvedValue({
@@ -121,6 +123,22 @@ describe('utils › services', () => {
       });
       await retrieve();
       expect(isIpValid('1.1.0.0')).toBe(true);
+    });
+
+    it('should report it once when the rules are refreshed, not on every check', async () => {
+      forestServerRequester.perform.mockResolvedValueOnce({
+        data: { attributes: { use_ip_whitelist: true, rules: [{ type: 2, range: '1.0.0.0' }] } },
+      });
+      logger.warn.mockClear();
+
+      await retrieve();
+
+      expect(logger.warn).toHaveBeenCalledTimes(1);
+
+      isIpValid('1.0.0.0');
+      isIpValid('1.0.0.1');
+
+      expect(logger.warn).toHaveBeenCalledTimes(1);
     });
   });
 });
