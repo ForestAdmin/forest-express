@@ -1,3 +1,10 @@
+## [10.9.2](https://github.com/ForestAdmin/forest-express/compare/v10.9.1...v10.9.2) (2026-07-28)
+
+
+### Performance Improvements
+
+* **ip-whitelist:** build the BlockList once per refresh instead of per request [PRD-798] ([#1063](https://github.com/ForestAdmin/forest-express/issues/1063)) ([3dc739d](https://github.com/ForestAdmin/forest-express/commit/3dc739d7cef55db482c0fbc66fd2a716a15e1f2d))
+
 ## [10.9.1](https://github.com/ForestAdmin/forest-express/compare/v10.9.0...v10.9.1) (2026-07-23)
 
 
