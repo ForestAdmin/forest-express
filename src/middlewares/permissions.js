@@ -4,8 +4,13 @@ const Schemas = require('../generators/schemas');
 const QueryDeserializer = require('../deserializers/query');
 const RecordsGetter = require('../services/exposed/records-getter');
 const { default: UnprocessableError } = require('../utils/errors/unprocessable-error');
+const { default: ApprovalSelectionTooLargeError } = require('../services/authorization/errors/approval-selection-too-large-error');
 const errorHandler = require('../services/exposed/error-handler');
 const RecordsCounter = require('../services/exposed/records-counter').default;
+
+// Max number of records a "select all" approval request may target. Matches the Forest server's
+// hard cap on approval record ids — keep in sync.
+const MAX_RECORDS_FOR_APPROVAL = 500;
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
@@ -196,13 +201,14 @@ class PermissionMiddlewareCreator {
 
           let filters;
           let model;
+          let ids;
           // Smart collections does not support the conditional feature
           if (!isVirtual) {
             model = this.modelsManager.getModelByName(this.collectionName);
 
             const getter = new RecordsGetter(model, request.user, request.query);
 
-            const ids = await getter.getIdsFromRequest(request);
+            ids = await getter.getIdsFromRequest(request);
 
             filters = primaryKeys.length === 1
               ? { field: primaryKeys[0], operator: 'in', value: ids }
@@ -239,9 +245,21 @@ class PermissionMiddlewareCreator {
               requesterId: request.body?.data?.attributes?.requester_id,
             });
           } else {
-            await this.actionAuthorizationService.assertCanTriggerCustomAction(
-              canPerformCustomActionParams,
-            );
+            await this.actionAuthorizationService.assertCanTriggerCustomAction({
+              ...canPerformCustomActionParams,
+              // On a "select all" trigger the frontend has no explicit id list to store in the
+              // approval request: hand the resolved ids (already gathered above) back through the
+              // approval-required error, refusing unbounded snapshots.
+              resolveSelectAllRecordIds: request.body?.data?.attributes?.all_records && ids
+                ? async () => {
+                  if (ids.length > MAX_RECORDS_FOR_APPROVAL) {
+                    throw new ApprovalSelectionTooLargeError(MAX_RECORDS_FOR_APPROVAL);
+                  }
+
+                  return ids;
+                }
+                : undefined,
+            });
           }
 
           next();

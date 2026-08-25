@@ -416,7 +416,9 @@ describe('middlewares > permissions', () => {
     });
 
     describe('smart action permissions', () => {
-      function setupSmartAction({ requestAttributes = defaultAttributes } = {}) {
+      function setupSmartAction({
+        requestAttributes = defaultAttributes, implementation = {},
+      } = {}) {
         const modelsManager = {
           getModelByName: jest.fn().mockReturnValue({ name: 'users' }),
         };
@@ -424,6 +426,7 @@ describe('middlewares > permissions', () => {
         const configStore = {
           Implementation: {
             getModelName: jest.fn().mockReturnValue('users'),
+            ...implementation,
           },
         };
         const actionAuthorizationService = {
@@ -595,6 +598,67 @@ describe('middlewares > permissions', () => {
           ).rejects.toBe(error);
 
           expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
+        });
+
+        describe('on a "select all" trigger', () => {
+          const selectAllAttributes = {
+            ...defaultAttributes,
+            ids: [],
+            all_records: true,
+            all_records_subset_query: { timezone: 'Europe/Paris' },
+          };
+
+          it('should hand the resolved record ids to the authorization service', async () => {
+            const perform = jest.fn().mockResolvedValue([[{ id: '1' }, { id: '2' }]]);
+            const {
+              smartActionPermission, request, actionAuthorizationService,
+            } = setupSmartAction({
+              requestAttributes: selectAllAttributes,
+              implementation: {
+                ResourcesGetter: jest.fn().mockImplementation(() => ({ perform })),
+              },
+            });
+
+            await executeMiddleware(smartActionPermission, request, {});
+
+            const [params] = actionAuthorizationService.assertCanTriggerCustomAction.mock.calls[0];
+            await expect(params.resolveSelectAllRecordIds()).resolves.toStrictEqual(['1', '2']);
+          });
+
+          it('should refuse to resolve more than 500 record ids', async () => {
+            const records = Array.from({ length: 501 }, (_, index) => ({ id: String(index) }));
+            const perform = jest.fn().mockResolvedValue([records]);
+            const {
+              smartActionPermission, request, actionAuthorizationService,
+            } = setupSmartAction({
+              requestAttributes: selectAllAttributes,
+              implementation: {
+                ResourcesGetter: jest.fn().mockImplementation(() => ({ perform })),
+              },
+            });
+
+            await executeMiddleware(smartActionPermission, request, {});
+
+            const [params] = actionAuthorizationService.assertCanTriggerCustomAction.mock.calls[0];
+            await expect(params.resolveSelectAllRecordIds()).rejects.toMatchObject({
+              name: 'ApprovalSelectionTooLargeError',
+              status: 422,
+              message: expect.stringContaining('more than 500 records'),
+            });
+          });
+
+          it('should not provide a resolver on an explicit selection', async () => {
+            const {
+              smartActionPermission, request, actionAuthorizationService,
+            } = setupSmartAction({
+              requestAttributes: { ...defaultAttributes, ids: ['1', '2'] },
+            });
+
+            await executeMiddleware(smartActionPermission, request, {});
+
+            const [params] = actionAuthorizationService.assertCanTriggerCustomAction.mock.calls[0];
+            expect(params.resolveSelectAllRecordIds).toBeUndefined();
+          });
         });
       });
 

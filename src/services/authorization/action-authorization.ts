@@ -49,7 +49,13 @@ export default class ActionAuthorizationService {
     customActionName,
     filterForCaller,
     recordsCounterParams,
-  }: CanPerformCustomActionParams): Promise<void> {
+    resolveSelectAllRecordIds,
+  }: CanPerformCustomActionParams & {
+    // Set on a "select all" trigger: the frontend has no explicit id list to store in the approval
+    // request, so when approval turns out to be required, the resolved (capped) ids are handed
+    // back through the error.
+    resolveSelectAllRecordIds?: () => Promise<Array<string | number>>;
+  }): Promise<void> {
     const canTrigger = await this.canTriggerCustomAction(
       userId,
       customActionName,
@@ -78,7 +84,10 @@ export default class ActionAuthorizationService {
         filterForCaller,
       );
 
-      throw new CustomActionRequiresApprovalError(roleIdsAllowedToApprove);
+      throw new CustomActionRequiresApprovalError(
+        roleIdsAllowedToApprove,
+        await resolveSelectAllRecordIds?.(),
+      );
     }
   }
 
