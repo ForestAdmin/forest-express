@@ -1,3 +1,10 @@
+## [10.9.3](https://github.com/ForestAdmin/forest-express/compare/v10.9.2...v10.9.3) (2026-08-28)
+
+
+### Bug Fixes
+
+* lodash template code injection vulnerability (CVE-2026-4800) ([#1065](https://github.com/ForestAdmin/forest-express/issues/1065)) ([ff77a3f](https://github.com/ForestAdmin/forest-express/commit/ff77a3f851d7b817e47fde44a5e87e0acd0c821b))
+
 ## [10.9.2](https://github.com/ForestAdmin/forest-express/compare/v10.9.1...v10.9.2) (2026-07-28)
 
 
