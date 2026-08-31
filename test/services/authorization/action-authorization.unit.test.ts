@@ -1,6 +1,7 @@
 /* eslint-disable jest/no-hooks */
 
 import ActionAuthorizationService from '../../../src/services/authorization/action-authorization';
+import ApprovalSelectionTooLargeError from '../../../src/services/authorization/errors/approval-selection-too-large-error';
 import CustomActionTriggerForbiddenError from '../../../src/services/authorization/errors/custom-action-trigger-forbidden-error';
 import InvalidActionConditionError from '../../../src/services/authorization/errors/invalid-action-condition-error';
 import UnsupportedConditionalsError from '../../../src/services/authorization/errors/unsupported-conditional-error';
@@ -239,6 +240,64 @@ describe('actionAuthorizationService', () => {
             data: {
               roleIdsAllowedToApprove: [1, 16],
             },
+          });
+        },
+      );
+
+      it(
+        'should include the resolved record ids in the error on a "select all" trigger',
+        async () => {
+          (
+            forestAdminClient.permissionService.getConditionalRequiresApprovalCondition
+          ).mockResolvedValue(null);
+
+          const authorization = makeActionAuthorizationService();
+          const resolveSelectAllRecordIds = jest.fn().mockResolvedValue(['1', '2', '3']);
+
+          await expect(
+            authorization.assertCanTriggerCustomAction({
+              user,
+              collectionName,
+              customActionName,
+              recordsCounterParams,
+              filterForCaller,
+              resolveSelectAllRecordIds,
+            }),
+          ).rejects.toMatchObject({
+            name: 'CustomActionRequiresApprovalError',
+            data: {
+              roleIdsAllowedToApprove: [1, 16],
+              recordIds: ['1', '2', '3'],
+            },
+          });
+        },
+      );
+
+      it(
+        'should propagate the resolver error when the selection is over the approval cap',
+        async () => {
+          (
+            forestAdminClient.permissionService.getConditionalRequiresApprovalCondition
+          ).mockResolvedValue(null);
+
+          const authorization = makeActionAuthorizationService();
+          const resolveSelectAllRecordIds: jest.Mock = jest.fn().mockRejectedValue(
+            new ApprovalSelectionTooLargeError(500),
+          );
+
+          await expect(
+            authorization.assertCanTriggerCustomAction({
+              user,
+              collectionName,
+              customActionName,
+              recordsCounterParams,
+              filterForCaller,
+              resolveSelectAllRecordIds,
+            }),
+          ).rejects.toMatchObject({
+            name: 'ApprovalSelectionTooLargeError',
+            status: 422,
+            message: expect.stringContaining('more than 500 records') as string,
           });
         },
       );
