@@ -12,7 +12,7 @@
     "Raphaël Huchet <raphaelht@gmail.com>",
     "Guillaume Gautreau <guillaume@ghusse.com>"
   ],
-  "license": "GPL-3.0",
+  "license": "Apache-2.0",
   "homepage": "http://www.forestadmin.com",
   "keywords": [
     "forest",
