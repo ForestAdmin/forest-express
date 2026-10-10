@@ -1,3 +1,10 @@
+## [10.9.4](https://github.com/ForestAdmin/forest-express/compare/v10.9.3...v10.9.4) (2026-10-10)
+
+
+### Bug Fixes
+
+* **license:** relicense from GPL-3.0 to Apache-2.0 ([#1066](https://github.com/ForestAdmin/forest-express/issues/1066)) ([f18ee80](https://github.com/ForestAdmin/forest-express/commit/f18ee80aa891ed768807f1754fdf2d27d7d18876))
+
 ## [10.9.3](https://github.com/ForestAdmin/forest-express/compare/v10.9.2...v10.9.3) (2026-08-28)
 
 
