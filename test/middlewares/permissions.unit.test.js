@@ -598,6 +598,55 @@ describe('middlewares > permissions', () => {
         });
       });
 
+      describe('with a single-record action', () => {
+        // eslint-disable-next-line jest/no-hooks
+        beforeEach(() => {
+          Schemas.schemas.users.actions = [{ name: 'known-action', type: 'single' }];
+        });
+
+        it.each([
+          ['two ids', { ids: ['1', '2'] }],
+          ['no id', { ids: [] }],
+          ['a select-all', { ids: ['1'], all_records: true }],
+        ])('should refuse %s before checking permissions', async (_, selection) => {
+          const {
+            smartActionPermission, request, actionAuthorizationService, modelsManager,
+          } = setupSmartAction({ requestAttributes: { ...defaultAttributes, ...selection } });
+
+          await expect(executeMiddleware(smartActionPermission, request, {}))
+            .rejects.toThrow(new UnprocessableError('This action can only be triggered on one record at a time.'));
+
+          expect(modelsManager.getModelByName).not.toHaveBeenCalled();
+          expect(actionAuthorizationService.assertCanTriggerCustomAction).not.toHaveBeenCalled();
+        });
+
+        it('should refuse to approve a request naming several ids', async () => {
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
+            requestAttributes: { ...defaultAttributes, ids: ['1', '2'], requester_id: 42 },
+          });
+
+          await expect(executeMiddleware(smartActionPermission, request, {}))
+            .rejects.toThrow(UnprocessableError);
+
+          expect(actionAuthorizationService.assertCanApproveCustomAction).not.toHaveBeenCalled();
+        });
+
+        it('should check permissions on exactly one id', async () => {
+          const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
+            requestAttributes: { ...defaultAttributes, ids: ['1'] },
+          });
+
+          await expect(executeMiddleware(smartActionPermission, request, {}))
+            .resolves.toBeUndefined();
+
+          expect(actionAuthorizationService.assertCanTriggerCustomAction)
+            .toHaveBeenCalledOnceWith(expect.objectContaining({
+              customActionName: 'known-action',
+              filterForCaller: { field: 'id', operator: 'in', value: ['1'] },
+            }));
+        });
+      });
+
       describe('with a composite pk', () => {
         it('should create the right filter', async () => {
           Schemas.schemas = {

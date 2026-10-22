@@ -31,7 +31,7 @@ class PermissionMiddlewareCreator {
     this.logger = logger;
   }
 
-  _getSmartActionName(request) {
+  _getSmartAction(request) {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
 
@@ -46,7 +46,15 @@ class PermissionMiddlewareCreator {
       throw new Error(`Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`);
     }
 
-    return smartAction.name;
+    return smartAction;
+  }
+
+  static _ensureSingleRecordSelection(smartAction, attributes) {
+    if (smartAction.type !== 'single') return;
+
+    if (attributes?.all_records || attributes?.ids?.length !== 1) {
+      throw new UnprocessableError('This action can only be triggered on one record at a time.');
+    }
   }
 
   // generate a middleware that will check that ids provided by the request exist
@@ -192,7 +200,12 @@ class PermissionMiddlewareCreator {
       async (request, response, next) => {
         try {
           const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
-          const actionName = this._getSmartActionName(request);
+          const smartAction = this._getSmartAction(request);
+          PermissionMiddlewareCreator._ensureSingleRecordSelection(
+            smartAction,
+            request.body?.data?.attributes,
+          );
+          const actionName = smartAction.name;
 
           let filters;
           let model;
