@@ -640,10 +640,17 @@ describe('middlewares > permissions', () => {
             .resolves.toBeUndefined();
 
           expect(actionAuthorizationService.assertCanTriggerCustomAction)
-            .toHaveBeenCalledOnceWith(expect.objectContaining({
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
               customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
               filterForCaller: { field: 'id', operator: 'in', value: ['1'] },
-            }));
+              user: { id: 30 },
+            });
         });
       });
 
