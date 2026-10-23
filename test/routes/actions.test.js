@@ -22,11 +22,12 @@ function initContext(schemas, smartActionHookGetResponse) {
   return inject();
 }
 
-async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttributes) {
+async function callHook(hooks, smartActionHookGetResponse, requestBodyDataAttributes, type) {
   const schemas = {
     users: {
       actions: [{
         name: 'send invoice',
+        type,
         hooks,
         fields: [{ field: 'invoice number', type: 'String' }],
       }],
@@ -255,6 +256,36 @@ describe('routes > actions', () => {
           expect(send).toHaveBeenNthCalledWith(1, { fields: newFields });
         });
       });
+    });
+  });
+  describe('when the action is a single-record action', () => {
+    const message = 'This action can only be triggered on one record at a time.';
+
+    it.each([
+      ['load', 'two ids', { load: jest.fn() }, { ids: ['1', '2'] }],
+      ['load', 'no id', { load: jest.fn() }, { ids: [] }],
+      ['load', 'a select-all', { load: jest.fn() }, { ids: ['1'], all_records: true }],
+      ['change', 'two ids', { change: { onChange: jest.fn() } }, { ids: ['1', '2'], fields: [] }],
+    ])('should refuse the %s hook given %s without calling it', async (_, __, hooks, attributes) => {
+      const smartActionHookGetResponse = jest.fn();
+
+      const { send, response } = await callHook(hooks, smartActionHookGetResponse, attributes, 'single');
+
+      expect(response.status).toHaveBeenCalledWith(422);
+      expect(send).toHaveBeenCalledWith({ message });
+      expect(smartActionHookGetResponse).not.toHaveBeenCalled();
+    });
+
+    it('should call the load hook on exactly one id', async () => {
+      const smartActionHookGetResponse = jest.fn(() => ({ fields: [] }));
+
+      const { send, response } = await callHook({ load: jest.fn() }, smartActionHookGetResponse, {
+        ids: ['1'],
+      }, 'single');
+
+      expect(response.status).toHaveBeenCalledWith(200);
+      expect(send).toHaveBeenCalledWith({ fields: [] });
+      expect(smartActionHookGetResponse).toHaveBeenCalledOnce();
     });
   });
 });

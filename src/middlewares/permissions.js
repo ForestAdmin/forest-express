@@ -6,6 +6,7 @@ const RecordsGetter = require('../services/exposed/records-getter');
 const { default: UnprocessableError } = require('../utils/errors/unprocessable-error');
 const errorHandler = require('../services/exposed/error-handler');
 const RecordsCounter = require('../services/exposed/records-counter').default;
+const { SINGLE_RECORD_ONLY, isSelectionAllowed } = require('../utils/single-record-selection');
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
@@ -31,7 +32,7 @@ class PermissionMiddlewareCreator {
     this.logger = logger;
   }
 
-  _getSmartActionName(request) {
+  _getSmartAction(request) {
     const smartActionEndpoint = `${request.baseUrl}${request.path}`;
     const smartActionHTTPMethod = request.method;
 
@@ -46,7 +47,7 @@ class PermissionMiddlewareCreator {
       throw new Error(`Impossible to retrieve the smart action at endpoint ${smartActionEndpoint} and method ${smartActionHTTPMethod}`);
     }
 
-    return smartAction.name;
+    return smartAction;
   }
 
   // generate a middleware that will check that ids provided by the request exist
@@ -192,7 +193,11 @@ class PermissionMiddlewareCreator {
       async (request, response, next) => {
         try {
           const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
-          const actionName = this._getSmartActionName(request);
+          const smartAction = this._getSmartAction(request);
+          if (!isSelectionAllowed(smartAction, request.body?.data?.attributes)) {
+            throw new UnprocessableError(SINGLE_RECORD_ONLY);
+          }
+          const actionName = smartAction.name;
 
           let filters;
           let model;
