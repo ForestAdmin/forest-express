@@ -6,6 +6,7 @@ const RecordsGetter = require('../services/exposed/records-getter');
 const { default: UnprocessableError } = require('../utils/errors/unprocessable-error');
 const errorHandler = require('../services/exposed/error-handler');
 const RecordsCounter = require('../services/exposed/records-counter').default;
+const { SINGLE_RECORD_ONLY, isSelectionAllowed } = require('../utils/single-record-selection');
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
@@ -47,14 +48,6 @@ class PermissionMiddlewareCreator {
     }
 
     return smartAction;
-  }
-
-  static _ensureSingleRecordSelection(smartAction, attributes) {
-    if (smartAction.type !== 'single') return;
-
-    if (attributes?.all_records || attributes?.ids?.length !== 1) {
-      throw new UnprocessableError('This action can only be triggered on one record at a time.');
-    }
   }
 
   // generate a middleware that will check that ids provided by the request exist
@@ -201,10 +194,9 @@ class PermissionMiddlewareCreator {
         try {
           const { primaryKeys, isVirtual } = Schemas.schemas[this.collectionName];
           const smartAction = this._getSmartAction(request);
-          PermissionMiddlewareCreator._ensureSingleRecordSelection(
-            smartAction,
-            request.body?.data?.attributes,
-          );
+          if (!isSelectionAllowed(smartAction, request.body?.data?.attributes)) {
+            throw new UnprocessableError(SINGLE_RECORD_ONLY);
+          }
           const actionName = smartAction.name;
 
           let filters;

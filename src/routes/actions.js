@@ -1,4 +1,5 @@
 const { inject } = require('@forestadmin/context');
+const { SINGLE_RECORD_ONLY, isSelectionAllowed } = require('../utils/single-record-selection');
 
 /**
  * This class generates routes for handling smart actions' form hooks and legacy routes.
@@ -28,6 +29,10 @@ class Actions {
    */
   getHookLoadController(action) {
     return async (request, response) => {
+      if (!isSelectionAllowed(action, request.body?.data?.attributes)) {
+        return response.status(422).send({ message: SINGLE_RECORD_ONLY });
+      }
+
       try {
         const hookResponse = await this.smartActionHookService.getResponse(
           action,
@@ -51,6 +56,10 @@ class Actions {
    */
   getHookChangeController(action) {
     return async (request, response) => {
+      if (!isSelectionAllowed(action, request.body?.data?.attributes)) {
+        return response.status(422).send({ message: SINGLE_RECORD_ONLY });
+      }
+
       try {
         const data = this.smartActionHookDeserializer.deserialize(request.body);
 
