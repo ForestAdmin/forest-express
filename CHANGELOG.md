@@ -1,3 +1,10 @@
+## [10.9.5](https://github.com/ForestAdmin/forest-express/compare/v10.9.4...v10.9.5) (2026-10-23)
+
+
+### Bug Fixes
+
+* **smart-action:** refuse a single-record action given several records [PRD-1704] ([#1067](https://github.com/ForestAdmin/forest-express/issues/1067)) ([6ff025a](https://github.com/ForestAdmin/forest-express/commit/6ff025adfb28e0bc391e38615b452f6f4bcdc5f7))
+
 ## [10.9.4](https://github.com/ForestAdmin/forest-express/compare/v10.9.3...v10.9.4) (2026-10-10)
 
 
