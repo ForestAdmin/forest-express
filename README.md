@@ -1,30 +1,55 @@
-# Forest Express Lianas dependency
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/header-forest-express-dark.svg">
+    <img alt="Forest v1: shared core of the Express agents." src="./assets/header-forest-express-light.svg" width="100%">
+  </picture>
+</p>
 
-[![npm package](https://badge.fury.io/js/forest-express.svg)](https://badge.fury.io/js/forest-express)
-[![CI status](https://github.com/ForestAdmin/forest-express/workflows/Build,%20Test%20and%20Deploy/badge.svg?branch=main)](https://github.com/ForestAdmin/forest-express/actions)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/760886d5e81ea4095e90/test_coverage)](https://codeclimate.com/github/ForestAdmin/forest-express/test_coverage)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+<p align="center">
+  <a href="https://www.npmjs.com/package/forest-express"><img alt="npm" src="https://img.shields.io/npm/v/forest-express?color=3f5b1e&labelColor=262d1e"></a>
+  <a href="https://github.com/ForestAdmin/forest-express/actions/workflows/build.yml"><img alt="CI" src="https://github.com/ForestAdmin/forest-express/actions/workflows/build.yml/badge.svg?branch=main"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/ForestAdmin/forest-express?color=3f5b1e&labelColor=262d1e"></a>
+</p>
 
-## Build
+> [!IMPORTANT]
+> **This is the shared core of the Forest v1 Express agents, in maintenance mode.** It receives fixes but no new features.
+> **Starting a new project?** Use [agent-nodejs](https://github.com/ForestAdmin/agent-nodejs), the current Node.js agent.
+> **Already on a v1 Express agent?** Follow the [v1 to v2 migration guide](https://docs.forest.app/guides/migration/from-v1/overview).
 
-To transpile from `src` to `build` using babel:
+## You probably don't need to install this package
 
-`yarn build`
+`forest-express` is not used on its own. It holds the routes, authentication, permissions and serialization shared by the two v1 Express agents, which depend on it:
 
-To do it at every js file change in the `src` folder:
+| Your ORM | Install |
+|---|---|
+| Sequelize (SQL) | [forest-express-sequelize](https://github.com/ForestAdmin/forest-express-sequelize) |
+| Mongoose (MongoDB) | [forest-express-mongoose](https://github.com/ForestAdmin/forest-express-mongoose) |
 
-`yarn build:watch`
+Setup instructions are in the README of each one.
 
-## Lint
+## Requirements
 
-`yarn lint`
+| | |
+|---|---|
+| Node.js | `>= 16` (CI runs on 24) |
 
-## Test
+## Documentation
 
-`yarn test`
+| | |
+|---|---|
+| Install a v1 Express agent | https://docs.forest.app/legacy/javascript-agents/how-tos/setup/install |
+| v1 reference guide | https://docs.forest.app/legacy/javascript-agents/reference-guide/models/overview |
+| Agents overview | https://docs.forest.app/legacy/agents-overview |
+| Migrating to v2 | https://docs.forest.app/guides/migration/from-v1/overview |
 
-## Community
+## Contributing
 
-👇 Join our Developers community for support and more
+Bug fixes are welcome; new features go to [agent-nodejs](https://github.com/ForestAdmin/agent-nodejs). See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, tests and commit conventions.
 
-[![Discourse developers community](https://img.shields.io/discourse/posts?label=discourse&server=https%3A%2F%2Fcommunity.forestadmin.com)](https://community.forestadmin.com)
+```bash
+yarn install --frozen-lockfile && yarn build && yarn test
+```
+
+## License
+
+Apache 2.0. See [LICENSE](./LICENSE).
