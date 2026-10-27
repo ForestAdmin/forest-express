@@ -104,10 +104,7 @@ class PermissionMiddlewareCreator {
   async _assertSegmentQueryAllowed(request) {
     const { query: { segmentQuery = null } = {} } = request;
     const attributes = new QueryDeserializer(request.body?.data?.attributes ?? {}).perform();
-    const targetsExplicitIds = attributes.allRecords !== true && attributes.ids;
-    const bodySegmentQuery = targetsExplicitIds
-      ? null
-      : attributes.allRecordsSubsetQuery?.segmentQuery || null;
+    const bodySegmentQuery = RecordsGetter.getSelectionSegmentQuery(attributes);
 
     await Promise.all([...new Set([segmentQuery, bodySegmentQuery])].filter(Boolean).map(
       (segment) => this.authorizationService.assertCanExecuteSegmentQuery(
