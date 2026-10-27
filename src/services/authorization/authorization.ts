@@ -41,6 +41,30 @@ export default class AuthorizationService {
     }
   }
 
+  public async assertCanExecuteSegmentQuery(
+    user: User,
+    collectionName: string,
+    segmentQuery?: string,
+  ) {
+    if (!segmentQuery) {
+      return;
+    }
+
+    const canExecuteSegmentQuery = await this.forestAdminClient.permissionService
+      .canExecuteSegmentQuery({
+        userId: user.id,
+        collectionName,
+        renderingId: user.renderingId,
+        segmentQuery,
+      });
+
+    if (!canExecuteSegmentQuery) {
+      throw new ForbiddenError(
+        `User ${user.email} is not authorized to execute a segment query on collection ${collectionName}`,
+      );
+    }
+  }
+
   public async assertCanRead(user: User, collectionName: string) {
     await this.canOnCollection(user, CollectionActionEvent.Read, collectionName);
   }
