@@ -17,9 +17,45 @@ const serializeSubscriptions = require('./serializers/subscriptions');
 const serializeBankAccounts = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
+const { default: UnprocessableError } = require('../../utils/errors/unprocessable-error');
+
+function createRefundPermissionMiddleware(actionAuthorizationService, collectionName) {
+  return async (request, response, next) => {
+    try {
+      if (request.body?.data?.attributes?.requester_id) {
+        throw new UnprocessableError();
+      }
+
+      const signedApprovalRequest = request.body?.data?.attributes?.signed_approval_request;
+      if (signedApprovalRequest) {
+        request.body = actionAuthorizationService
+          .verifySignedActionParameters(signedApprovalRequest);
+      }
+
+      const refundParams = {
+        user: request.user,
+        customActionName: 'Refund',
+        collectionName,
+        recordsCounterParams: { user: request.user, timezone: request.query.timezone },
+      };
+      const requesterId = request.body?.data?.attributes?.requester_id;
+
+      if (requesterId) {
+        await actionAuthorizationService
+          .assertCanApproveCustomAction({ ...refundParams, requesterId });
+      } else {
+        await actionAuthorizationService.assertCanTriggerCustomAction(refundParams);
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
 
 module.exports = function Routes(app, model, Implementation, opts) {
-  const { modelsManager } = inject();
+  const { modelsManager, actionAuthorizationService } = inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -71,6 +107,11 @@ module.exports = function Routes(app, model, Implementation, opts) {
       .then((payment) => { response.send(payment); })
       .catch(next);
   };
+
+  const ensureCanRefund = createRefundPermissionMiddleware(
+    actionAuthorizationService,
+    `${modelName}_stripe_payments`,
+  );
 
   const refund = (request, response, next) => {
     new PaymentRefunder(request.body, opts)
@@ -229,6 +270,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       app.post(
         path.generate(`${modelName}_stripe_payments/refunds`, opts),
         auth.ensureAuthenticated,
+        ensureCanRefund,
         refund,
       );
 
