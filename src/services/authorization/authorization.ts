@@ -28,13 +28,11 @@ export default class AuthorizationService {
       event: CollectionActionEvent.Browse,
     });
 
-    const canExecuteSegmentQuery: boolean = !segmentQuery
-      || await this.forestAdminClient.permissionService.canExecuteSegmentQuery({
-        userId: user.id,
-        collectionName,
-        renderingId: user.renderingId,
-        segmentQuery,
-      });
+    const canExecuteSegmentQuery = await this.canExecuteSegmentQuery(
+      user,
+      collectionName,
+      segmentQuery,
+    );
 
     if (!canBrowse || !canExecuteSegmentQuery) {
       throw new ForbiddenError(`User ${user.email} is not authorized to browse on collection ${collectionName}`);
@@ -46,23 +44,25 @@ export default class AuthorizationService {
     collectionName: string,
     segmentQuery?: string,
   ) {
-    if (!segmentQuery) {
-      return;
+    if (!await this.canExecuteSegmentQuery(user, collectionName, segmentQuery)) {
+      throw new ForbiddenError(
+        `User ${user.email} is not authorized to execute a segment query on collection ${collectionName}`,
+      );
     }
+  }
 
-    const canExecuteSegmentQuery = await this.forestAdminClient.permissionService
-      .canExecuteSegmentQuery({
+  private async canExecuteSegmentQuery(
+    user: User,
+    collectionName: string,
+    segmentQuery?: string,
+  ): Promise<boolean> {
+    return !segmentQuery
+      || this.forestAdminClient.permissionService.canExecuteSegmentQuery({
         userId: user.id,
         collectionName,
         renderingId: user.renderingId,
         segmentQuery,
       });
-
-    if (!canExecuteSegmentQuery) {
-      throw new ForbiddenError(
-        `User ${user.email} is not authorized to execute a segment query on collection ${collectionName}`,
-      );
-    }
   }
 
   public async assertCanRead(user: User, collectionName: string) {
