@@ -903,6 +903,7 @@ describe('middlewares > permissions', () => {
 
           expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
         });
+
         it('should check the segment query permission with the approver on the signed body segment', async () => {
           const {
             smartActionPermission, request, actionAuthorizationService, authorizationService,
@@ -921,7 +922,19 @@ describe('middlewares > permissions', () => {
 
           expect(authorizationService.assertCanExecuteSegmentQuery)
             .toHaveBeenCalledOnceWith(request.user, 'users', 'select id from users');
-          expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
+          expect(actionAuthorizationService.assertCanApproveCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              requesterId: 42,
+              user: { id: 30 },
+            });
         });
 
         it('should refuse the approval when the approver cannot execute the signed body segment', async () => {
@@ -965,7 +978,18 @@ describe('middlewares > permissions', () => {
 
           expect(authorizationService.assertCanExecuteSegmentQuery)
             .toHaveBeenCalledOnceWith(request.user, 'users', 'select id from users');
-          expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
+          expect(actionAuthorizationService.assertCanTriggerCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              user: { id: 30 },
+            });
         });
 
         it('should not check the body segment when the trigger targets explicit ids', async () => {
@@ -984,7 +1008,18 @@ describe('middlewares > permissions', () => {
           ).resolves.toBeUndefined();
 
           expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
-          expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
+          expect(actionAuthorizationService.assertCanTriggerCustomAction)
+            .toHaveBeenCalledOnceWith({
+              collectionName: 'users',
+              customActionName: 'known-action',
+              recordsCounterParams: {
+                model: { name: 'users' },
+                timezone: 'Europe/Paris',
+                user: { id: 30 },
+              },
+              filterForCaller: { field: 'id', operator: 'in', value: ['1'] },
+              user: { id: 30 },
+            });
         });
 
         it('should refuse the trigger before loading records when the user cannot execute the body segment', async () => {
