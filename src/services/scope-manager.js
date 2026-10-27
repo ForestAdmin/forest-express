@@ -1,4 +1,5 @@
 const { inject } = require('@forestadmin/context');
+const { parseFiltersString } = require('./base-filters-parser');
 
 class ScopeManager {
   constructor({
@@ -9,17 +10,15 @@ class ScopeManager {
   }
 
   async appendScopeForUser(existingFilter, user, collectionName) {
-    const scopeFilter = await this.getScopeForUser(user, collectionName, true);
-    const filters = [existingFilter, scopeFilter].filter(Boolean);
+    const scopeFilter = await this.getScopeForUser(user, collectionName);
 
-    switch (filters.length) {
-      case 0:
-        return undefined;
-      case 1:
-        return filters[0];
-      default:
-        return `{"aggregator":"and","conditions":[${existingFilter},${scopeFilter}]}`;
-    }
+    if (!scopeFilter) return existingFilter || undefined;
+    if (!existingFilter) return JSON.stringify(scopeFilter);
+
+    return JSON.stringify({
+      aggregator: 'and',
+      conditions: [parseFiltersString(existingFilter), scopeFilter],
+    });
   }
 
   async getScopeForUser(user, collectionName, asString = false) {
