@@ -562,6 +562,45 @@ describe('middlewares > permissions', () => {
       expect(next).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledWith();
     });
+
+    it('should not check the body segment when the delete targets explicit ids', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanDelete: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: {},
+        body: {
+          data: {
+            attributes: {
+              ids: ['1'],
+              all_records: false,
+              all_records_subset_query: { segmentQuery: 'select id from sith' },
+            },
+          },
+        },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .delete()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
   });
 
   describe('segmentQuery', () => {
@@ -722,7 +761,9 @@ describe('middlewares > permissions', () => {
         const configStore = {
           Implementation: {
             getModelName: jest.fn().mockReturnValue('users'),
-            ResourcesGetter: jest.fn(),
+            ResourcesGetter: jest.fn().mockImplementation(() => ({
+              perform: jest.fn().mockResolvedValue([[]]),
+            })),
           },
         };
         const actionAuthorizationService = {
@@ -869,7 +910,7 @@ describe('middlewares > permissions', () => {
             requestAttributes: {
               ...defaultAttributes,
               requester_id: 42,
-              ids: ['1'],
+              all_records: true,
               all_records_subset_query: { segmentQuery: 'select id from users' },
             },
           });
@@ -913,7 +954,7 @@ describe('middlewares > permissions', () => {
           } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
-              ids: ['1'],
+              all_records: true,
               all_records_subset_query: { segmentQuery: 'select id from users' },
             },
           });
@@ -924,6 +965,25 @@ describe('middlewares > permissions', () => {
 
           expect(authorizationService.assertCanExecuteSegmentQuery)
             .toHaveBeenCalledOnceWith(request.user, 'users', 'select id from users');
+          expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
+        });
+
+        it('should not check the body segment when the trigger targets explicit ids', async () => {
+          const {
+            smartActionPermission, request, actionAuthorizationService, authorizationService,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              ids: ['1'],
+              all_records_subset_query: { segmentQuery: 'select id from users' },
+            },
+          });
+
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).resolves.toBeUndefined();
+
+          expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
           expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
         });
 
