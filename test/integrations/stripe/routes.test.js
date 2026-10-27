@@ -7,6 +7,8 @@ const auth = require('../../../src/services/auth');
 const errorHandler = require('../../../src/services/exposed/error-handler');
 const { default: CustomActionTriggerForbiddenError } = require('../../../src/services/authorization/errors/custom-action-trigger-forbidden-error');
 const { default: CustomActionRequiresApprovalError } = require('../../../src/services/authorization/errors/custom-action-requires-approval-error');
+const { default: ApprovalNotAllowedError } = require('../../../src/services/authorization/errors/approval-not-allowed-error');
+const { default: BadRequestError } = require('../../../src/utils/errors/bad-request-error');
 
 jest.mock('../../../src/middlewares/ip-whitelist', () => () => (req, res, next) => next());
 
@@ -124,6 +126,43 @@ describe('integrations > stripe > routes > POST refunds', () => {
       .toHaveBeenCalledWith({ ...refundRequestParams, requesterId: 42 });
     expect(actionAuthorizationService.assertCanTriggerCustomAction).not.toHaveBeenCalled();
     expect(refundsCreate).toHaveBeenCalledWith({ charge: 'ch_9' }, expect.any(Function));
+  });
+
+  it('answers 403 and refunds nothing when the approver is not allowed to approve the Refund action', async () => {
+    expect.assertions(4);
+    const { app, refundsCreate, actionAuthorizationService } = setup();
+    actionAuthorizationService.verifySignedActionParameters.mockReturnValue({
+      data: { attributes: { ids: ['ch_9'], requester_id: 42 } },
+    });
+    actionAuthorizationService.assertCanApproveCustomAction
+      .mockRejectedValue(new ApprovalNotAllowedError([3]));
+
+    const response = await request(app)
+      .post('/forest/users_stripe_payments/refunds?timezone=Europe/Paris')
+      .send({ data: { attributes: { signed_approval_request: 'signed-token' } } });
+
+    expect(response.status).toBe(403);
+    expect(response.body.errors[0].name).toBe('ApprovalNotAllowedError');
+    expect(actionAuthorizationService.assertCanApproveCustomAction)
+      .toHaveBeenCalledWith({ ...refundRequestParams, requesterId: 42 });
+    expect(refundsCreate).not.toHaveBeenCalled();
+  });
+
+  it('answers 400 and refunds nothing when the signed approval request does not verify', async () => {
+    expect.assertions(4);
+    const { app, refundsCreate, actionAuthorizationService } = setup();
+    actionAuthorizationService.verifySignedActionParameters.mockImplementation(() => {
+      throw new BadRequestError('Invalid signed action parameters');
+    });
+
+    const response = await request(app)
+      .post('/forest/users_stripe_payments/refunds?timezone=Europe/Paris')
+      .send({ data: { attributes: { signed_approval_request: 'tampered-token' } } });
+
+    expect(response.status).toBe(400);
+    expect(actionAuthorizationService.assertCanApproveCustomAction).not.toHaveBeenCalled();
+    expect(actionAuthorizationService.assertCanTriggerCustomAction).not.toHaveBeenCalled();
+    expect(refundsCreate).not.toHaveBeenCalled();
   });
 
   it('answers 422 and refunds nothing when the body carries a requester id outside a signed approval request', async () => {

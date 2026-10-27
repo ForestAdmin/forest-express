@@ -18,34 +18,27 @@ const serializeBankAccounts = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
 const { default: UnprocessableError } = require('../../utils/errors/unprocessable-error');
+const {
+  hasForgedRequesterId,
+  unwrapSignedApprovalRequest,
+  assertCanTriggerOrApproveCustomAction,
+} = require('../../middlewares/custom-action-request');
 
 function createRefundPermissionMiddleware(actionAuthorizationService, collectionName) {
   return async (request, response, next) => {
     try {
-      if (request.body?.data?.attributes?.requester_id) {
+      if (hasForgedRequesterId(request)) {
         throw new UnprocessableError();
       }
 
-      const signedApprovalRequest = request.body?.data?.attributes?.signed_approval_request;
-      if (signedApprovalRequest) {
-        request.body = actionAuthorizationService
-          .verifySignedActionParameters(signedApprovalRequest);
-      }
+      unwrapSignedApprovalRequest(actionAuthorizationService, request);
 
-      const refundParams = {
+      await assertCanTriggerOrApproveCustomAction(actionAuthorizationService, request, {
         user: request.user,
         customActionName: 'Refund',
         collectionName,
         recordsCounterParams: { user: request.user, timezone: request.query.timezone },
-      };
-      const requesterId = request.body?.data?.attributes?.requester_id;
-
-      if (requesterId) {
-        await actionAuthorizationService
-          .assertCanApproveCustomAction({ ...refundParams, requesterId });
-      } else {
-        await actionAuthorizationService.assertCanTriggerCustomAction(refundParams);
-      }
+      });
 
       next();
     } catch (error) {
