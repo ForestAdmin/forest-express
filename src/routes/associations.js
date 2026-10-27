@@ -10,6 +10,7 @@ const CSVExporter = require('../services/csv-exporter');
 const ResourceDeserializer = require('../deserializers/resource');
 const ParamsFieldsDeserializer = require('../deserializers/params-fields');
 const RecordsGetter = require('../services/exposed/records-getter');
+const PermissionMiddlewareCreator = require('../middlewares/permissions');
 
 module.exports = function Associations(app, model, Implementation, integrator, opts) {
   const { modelsManager } = inject();
@@ -189,13 +190,17 @@ module.exports = function Associations(app, model, Implementation, integrator, o
   this.perform = () => {
     // NOTICE: HasMany associations routes
     _.each(SchemaUtil.getHasManyAssociations(schema), (association) => {
+      const relatedModelName = getAssociationField(association.field) || modelName;
+      const permissionMiddlewareCreator = new PermissionMiddlewareCreator(relatedModelName);
+
       app.get(path.generate(`${modelName}/:recordId/relationships/${
-        association.field}.csv`, opts), auth.ensureAuthenticated, exportCSV);
+        association.field}.csv`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.segmentQuery(), exportCSV);
       app.get(path.generate(`${modelName}/:recordId/relationships/${
-        association.field}`, opts), auth.ensureAuthenticated, list);
+        association.field}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.segmentQuery(), list);
       app.get(
         path.generate(`${modelName}/:recordId/relationships/${association.field}/count`, opts),
         auth.ensureAuthenticated,
+        permissionMiddlewareCreator.segmentQuery(),
         count,
       );
       app.post(path.generate(`${modelName}/:recordId/relationships/${
@@ -207,7 +212,7 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         updateEmbeddedDocument(association.field),
       );
       app.delete(path.generate(`${modelName}/:recordId/relationships/${
-        association.field}`, opts), auth.ensureAuthenticated, remove);
+        association.field}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.segmentQuery(), remove);
     });
 
     // NOTICE: belongsTo associations routes
