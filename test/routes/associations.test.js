@@ -10,6 +10,7 @@ const ResourceSerializer = require('../../src/serializers/resource');
 
 const user = { id: 1, renderingId: 2, email: 'user@forestadmin.com' };
 const segmentQuery = 'select id from cars';
+const relatedPath = '/forest/owners/:recordId/relationships/cars';
 
 const buildRequest = ({ query = {}, body } = {}) => ({
   route: { path: '/forest/owners/:recordId/relationships/cars' },
@@ -23,6 +24,10 @@ function executeMiddleware(middleware, request) {
   return new Promise((resolve) => {
     middleware(request, {}, (error) => resolve(error));
   });
+}
+
+function findRoute(routeRegistrar, routePath) {
+  return routeRegistrar.mock.calls.find(([registeredPath]) => registeredPath === routePath);
 }
 
 function setupAssociations({ canExecuteSegmentQuery = true } = {}) {
@@ -40,6 +45,7 @@ function setupAssociations({ canExecuteSegmentQuery = true } = {}) {
 
   const carsModel = { name: 'cars' };
   const ownersModel = { name: 'owners' };
+  const serializedRecords = { data: [{ id: '7', type: 'cars' }] };
 
   const Implementation = {
     getModelName: jest.fn((model) => model.name),
@@ -61,42 +67,41 @@ function setupAssociations({ canExecuteSegmentQuery = true } = {}) {
     .addInstance('logger', { warn: jest.fn(), error: jest.fn() }));
 
   ResourceSerializer.mockImplementation(function Serializer() {
-    this.perform = () => Promise.resolve([]);
+    this.perform = () => Promise.resolve(serializedRecords);
   });
 
   jest.spyOn(auth, 'ensureAuthenticated').mockImplementation((request, response, next) => next());
 
   new Associations(app, ownersModel, Implementation, {}, {}).perform();
 
-  return { app, assertCanExecuteSegmentQuery, Implementation };
+  return {
+    app, assertCanExecuteSegmentQuery, Implementation, carsModel, ownersModel, serializedRecords,
+  };
 }
 
 describe('routes > associations', () => {
   describe('has-many related routes', () => {
     it('registers the segment query middleware on the csv, list, count and delete routes', () => {
-      expect.assertions(12);
+      expect.assertions(9);
 
       const { app } = setupAssociations();
 
       expect(app.get).toHaveBeenCalledTimes(3);
-      expect(app.get.mock.calls[0]).toHaveLength(4);
-      expect(typeof app.get.mock.calls[0][2]).toBe('function');
-      expect(app.get.mock.calls[1]).toHaveLength(4);
-      expect(typeof app.get.mock.calls[1][2]).toBe('function');
-      expect(app.get.mock.calls[2]).toHaveLength(4);
-      expect(typeof app.get.mock.calls[2][2]).toBe('function');
-      expect(app.post.mock.calls[0]).toHaveLength(3);
-      expect(app.put.mock.calls[0]).toHaveLength(3);
+      expect(findRoute(app.get, `${relatedPath}.csv`)).toHaveLength(4);
+      expect(findRoute(app.get, relatedPath)).toHaveLength(4);
+      expect(findRoute(app.get, `${relatedPath}/count`)).toHaveLength(4);
+      expect(findRoute(app.delete, relatedPath)).toHaveLength(4);
       expect(app.delete).toHaveBeenCalledTimes(1);
-      expect(app.delete.mock.calls[0]).toHaveLength(4);
-      expect(typeof app.delete.mock.calls[0][2]).toBe('function');
+      expect(findRoute(app.post, relatedPath)).toHaveLength(3);
+      expect(findRoute(app.put, `${relatedPath}/:recordIndex`)).toHaveLength(3);
+      expect(typeof findRoute(app.get, relatedPath)[2]).toBe('function');
     });
 
     it('checks the segment query permission of the related collection on the list route', async () => {
       expect.assertions(2);
 
       const { app, assertCanExecuteSegmentQuery } = setupAssociations();
-      const segmentQueryMiddleware = app.get.mock.calls[1][2];
+      const segmentQueryMiddleware = findRoute(app.get, relatedPath)[2];
 
       const error = await executeMiddleware(
         segmentQueryMiddleware,
@@ -111,7 +116,7 @@ describe('routes > associations', () => {
       expect.assertions(3);
 
       const { app, Implementation } = setupAssociations({ canExecuteSegmentQuery: false });
-      const segmentQueryMiddleware = app.get.mock.calls[1][2];
+      const segmentQueryMiddleware = findRoute(app.get, relatedPath)[2];
 
       const error = await executeMiddleware(
         segmentQueryMiddleware,
@@ -127,7 +132,7 @@ describe('routes > associations', () => {
       expect.assertions(2);
 
       const { app, assertCanExecuteSegmentQuery } = setupAssociations();
-      const segmentQueryMiddleware = app.get.mock.calls[2][2];
+      const segmentQueryMiddleware = findRoute(app.get, `${relatedPath}/count`)[2];
 
       const error = await executeMiddleware(
         segmentQueryMiddleware,
@@ -144,7 +149,7 @@ describe('routes > associations', () => {
       const { app, assertCanExecuteSegmentQuery } = setupAssociations(
         { canExecuteSegmentQuery: false },
       );
-      const segmentQueryMiddleware = app.get.mock.calls[0][2];
+      const segmentQueryMiddleware = findRoute(app.get, `${relatedPath}.csv`)[2];
 
       const error = await executeMiddleware(
         segmentQueryMiddleware,
@@ -159,7 +164,7 @@ describe('routes > associations', () => {
       expect.assertions(2);
 
       const { app, assertCanExecuteSegmentQuery } = setupAssociations();
-      const segmentQueryMiddleware = app.delete.mock.calls[0][2];
+      const segmentQueryMiddleware = findRoute(app.delete, relatedPath)[2];
 
       const error = await executeMiddleware(
         segmentQueryMiddleware,
@@ -183,7 +188,7 @@ describe('routes > associations', () => {
       expect.assertions(3);
 
       const { app, Implementation } = setupAssociations({ canExecuteSegmentQuery: false });
-      const segmentQueryMiddleware = app.delete.mock.calls[0][2];
+      const segmentQueryMiddleware = findRoute(app.delete, relatedPath)[2];
 
       const error = await executeMiddleware(
         segmentQueryMiddleware,
@@ -205,10 +210,15 @@ describe('routes > associations', () => {
     });
 
     it('reaches the list handler when the segment is allowed', async () => {
-      expect.assertions(2);
+      expect.assertions(3);
 
-      const { app, Implementation } = setupAssociations();
-      const [, authMiddleware, segmentQueryMiddleware, listHandler] = app.get.mock.calls[1];
+      const {
+        app, Implementation, carsModel, ownersModel, serializedRecords,
+      } = setupAssociations();
+      const [, authMiddleware, segmentQueryMiddleware, listHandler] = findRoute(
+        app.get,
+        relatedPath,
+      );
       const request = buildRequest({ query: { segmentQuery } });
       const response = { send: jest.fn() };
 
@@ -217,7 +227,14 @@ describe('routes > associations', () => {
       await listHandler(request, response, jest.fn());
 
       expect(Implementation.HasManyGetter).toHaveBeenCalledOnce();
-      expect(response.send).toHaveBeenCalledTimes(1);
+      expect(Implementation.HasManyGetter).toHaveBeenCalledWith(
+        ownersModel,
+        carsModel,
+        {},
+        expect.objectContaining({ recordId: '42', associationName: 'cars', segmentQuery }),
+        user,
+      );
+      expect(response.send).toHaveBeenCalledOnceWith(serializedRecords);
     });
   });
 });
