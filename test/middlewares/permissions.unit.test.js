@@ -153,6 +153,69 @@ describe('middlewares > permissions', () => {
       expect(next).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledWith(error);
     });
+
+    it('should check the segment query permission when the query string carries one', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanExport: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: { segmentQuery: 'select id from sith' },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .export()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should refuse the export when the user cannot execute the segment query', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const error = new Error('Forbidden');
+      const authorizationService = {
+        assertCanExport: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockRejectedValue(error),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: { segmentQuery: 'select id from sith' },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .export()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith(error);
+    });
   });
 
   describe('details', () => {
@@ -389,6 +452,241 @@ describe('middlewares > permissions', () => {
       expect(next).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledWith(error);
     });
+
+    it('should check the segment query permission when the body carries one', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanDelete: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: {},
+        body: {
+          data: {
+            attributes: {
+              all_records: true,
+              all_records_subset_query: { segmentQuery: 'select id from sith' },
+            },
+          },
+        },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .delete()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should refuse the delete when the user cannot execute the body segment query', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const error = new Error('Forbidden');
+      const authorizationService = {
+        assertCanDelete: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockRejectedValue(error),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: {},
+        body: {
+          data: {
+            attributes: {
+              all_records: true,
+              all_records_subset_query: { segmentQuery: 'select id from sith' },
+            },
+          },
+        },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .delete()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('should not check the segment query permission when the body carries no segment', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanDelete: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: {},
+        body: { data: { attributes: { ids: ['1'] } } },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .delete()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+  });
+
+  describe('segmentQuery', () => {
+    const buildSegmentRequest = ({ query = {}, body } = {}) => ({
+      user: { renderingId: 20 },
+      query,
+      body,
+    });
+
+    it('should check the permission for a segment from the query string', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = buildSegmentRequest({ query: { segmentQuery: 'select id from sith' } });
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .segmentQuery()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should check the permission for a segment from the request body', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = buildSegmentRequest({
+        body: {
+          data: {
+            attributes: {
+              all_records: true,
+              all_records_subset_query: { segmentQuery: 'select id from sith' },
+            },
+          },
+        },
+      });
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .segmentQuery()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should forward the error when the user cannot execute the segment query', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const error = new Error('Forbidden');
+      const authorizationService = {
+        assertCanExecuteSegmentQuery: jest.fn().mockRejectedValue(error),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = buildSegmentRequest({ query: { segmentQuery: 'select id from sith' } });
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .segmentQuery()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('should not check the permission when neither the query string nor the body carries a segment', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = buildSegmentRequest({ body: { data: [{ id: 1 }] } });
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .segmentQuery()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
   });
 
   describe('smartAction', () => {
@@ -424,12 +722,16 @@ describe('middlewares > permissions', () => {
         const configStore = {
           Implementation: {
             getModelName: jest.fn().mockReturnValue('users'),
+            ResourcesGetter: jest.fn(),
           },
         };
         const actionAuthorizationService = {
           verifySignedActionParameters: jest.fn(),
           assertCanApproveCustomAction: jest.fn(),
           assertCanTriggerCustomAction: jest.fn(),
+        };
+        const authorizationService = {
+          assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
         };
 
         const request = buildRequest(requestAttributes);
@@ -441,6 +743,7 @@ describe('middlewares > permissions', () => {
         const permissionMiddlewareCreator = createPermissionMiddlewareCreator('users', {
           ...defaultDependencies,
           actionAuthorizationService,
+          authorizationService,
           modelsManager,
           configStore,
         });
@@ -451,6 +754,8 @@ describe('middlewares > permissions', () => {
           smartActionRecordIds: permissionMiddlewareCreator.smartAction()[2],
           request,
           actionAuthorizationService,
+          authorizationService,
+          configStore,
           modelsManager,
         };
       }
@@ -557,9 +862,93 @@ describe('middlewares > permissions', () => {
 
           expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
         });
+        it('should check the segment query permission with the approver on the signed body segment', async () => {
+          const {
+            smartActionPermission, request, actionAuthorizationService, authorizationService,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              requester_id: 42,
+              ids: ['1'],
+              all_records_subset_query: { segmentQuery: 'select id from users' },
+            },
+          });
+
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).resolves.toBeUndefined();
+
+          expect(authorizationService.assertCanExecuteSegmentQuery)
+            .toHaveBeenCalledOnceWith(request.user, 'users', 'select id from users');
+          expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
+        });
+
+        it('should refuse the approval when the approver cannot execute the signed body segment', async () => {
+          const {
+            smartActionPermission, request, actionAuthorizationService, authorizationService,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              requester_id: 42,
+              all_records: true,
+              all_records_subset_query: { segmentQuery: 'select id from users' },
+            },
+          });
+
+          const error = new Error('Forbidden');
+          authorizationService.assertCanExecuteSegmentQuery.mockRejectedValue(error);
+
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).rejects.toBe(error);
+
+          expect(actionAuthorizationService.assertCanApproveCustomAction).not.toHaveBeenCalled();
+        });
       });
 
       describe('when the request is a trigger', () => {
+        it('should check the segment query permission on the body segment', async () => {
+          const {
+            smartActionPermission, request, actionAuthorizationService, authorizationService,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              ids: ['1'],
+              all_records_subset_query: { segmentQuery: 'select id from users' },
+            },
+          });
+
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).resolves.toBeUndefined();
+
+          expect(authorizationService.assertCanExecuteSegmentQuery)
+            .toHaveBeenCalledOnceWith(request.user, 'users', 'select id from users');
+          expect(actionAuthorizationService.assertCanTriggerCustomAction).toHaveBeenCalledOnce();
+        });
+
+        it('should refuse the trigger before loading records when the user cannot execute the body segment', async () => {
+          const {
+            smartActionPermission, request, actionAuthorizationService, authorizationService,
+            configStore,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              all_records: true,
+              all_records_subset_query: { segmentQuery: 'select id from users' },
+            },
+          });
+
+          const error = new Error('Forbidden');
+          authorizationService.assertCanExecuteSegmentQuery.mockRejectedValue(error);
+
+          await expect(
+            executeMiddleware(smartActionPermission, request, {}),
+          ).rejects.toBe(error);
+
+          expect(configStore.Implementation.ResourcesGetter).not.toHaveBeenCalled();
+          expect(actionAuthorizationService.assertCanTriggerCustomAction).not.toHaveBeenCalled();
+        });
         it('should check that the user is authorized to trigger', async () => {
           const { smartActionPermission, request, actionAuthorizationService } = setupSmartAction({
             requestAttributes: {
