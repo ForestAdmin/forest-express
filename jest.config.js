@@ -141,6 +141,7 @@ module.exports = {
   // testing framework before each test
   setupFilesAfterEnv: [
     'jest-extended/all',
+    '<rootDir>/test/helpers/block-network',
     // '<rootDir>/test/helpers/jest-extend',
     // '<rootDir>/test/helpers/jest-setup',
     // '<rootDir>/test/helpers/jest-conditional-runners',
