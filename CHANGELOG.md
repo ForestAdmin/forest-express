@@ -1,3 +1,10 @@
+## [10.9.7](https://github.com/ForestAdmin/forest-express/compare/v10.9.6...v10.9.7) (2026-10-30)
+
+
+### Bug Fixes
+
+* **stripe:** check the Refund action permission before refunding payments [PRD-1763] ([#1070](https://github.com/ForestAdmin/forest-express/issues/1070)) ([7ac1152](https://github.com/ForestAdmin/forest-express/commit/7ac1152e8aa0e066dc2a2c775cb54de94e3d6448))
+
 ## [10.9.6](https://github.com/ForestAdmin/forest-express/compare/v10.9.5...v10.9.6) (2026-10-30)
 
 
