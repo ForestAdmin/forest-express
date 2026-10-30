@@ -4,6 +4,7 @@ const PermissionMiddlewareCreator = require('../../src/middlewares/permissions')
 
 const Schemas = require('../../src/generators/schemas');
 const { default: UnprocessableError } = require('../../src/utils/errors/unprocessable-error');
+const { default: BadRequestError } = require('../../src/utils/errors/bad-request-error');
 
 const buildRequest = (attributes) => ({
   query: { timezone: 'Europe/Paris' }, body: { data: { attributes } },
@@ -508,6 +509,30 @@ describe('middlewares > permissions', () => {
           );
 
           expect(request.body).toBe(legitParams);
+        });
+
+        it('should hand the error to next when the signed parameters do not verify', async () => {
+          const {
+            smartActionActionApprovalRequestData,
+            request,
+            actionAuthorizationService,
+          } = setupSmartAction({
+            requestAttributes: {
+              ...defaultAttributes,
+              signed_approval_request: 'tampered',
+            },
+          });
+          const originalBody = request.body;
+          const verificationError = new BadRequestError('Invalid signed action parameters');
+          actionAuthorizationService.verifySignedActionParameters.mockImplementation(() => {
+            throw verificationError;
+          });
+          const next = jest.fn();
+
+          await smartActionActionApprovalRequestData(request, {}, next);
+
+          expect(next).toHaveBeenCalledWith(verificationError);
+          expect(request.body).toBe(originalBody);
         });
 
         it('should resolve when authorized to perform', async () => {

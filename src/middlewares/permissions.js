@@ -7,6 +7,11 @@ const { default: UnprocessableError } = require('../utils/errors/unprocessable-e
 const errorHandler = require('../services/exposed/error-handler');
 const RecordsCounter = require('../services/exposed/records-counter').default;
 const { SINGLE_RECORD_ONLY, isSelectionAllowed } = require('../utils/single-record-selection');
+const {
+  hasForgedRequesterId,
+  unwrapSignedApprovalRequest,
+  assertCanTriggerOrApproveCustomAction,
+} = require('./custom-action-request');
 
 class PermissionMiddlewareCreator {
   constructor(collectionName) {
@@ -175,16 +180,14 @@ class PermissionMiddlewareCreator {
       async (request, response, next) => {
         // We forbid requester_id from default request as it's only retrieved from
         // signed_approval_request
-        if (request.body.data?.attributes?.requester_id) {
+        if (hasForgedRequesterId(request)) {
           return next(new UnprocessableError());
         }
 
-        if (request.body?.data?.attributes?.signed_approval_request) {
-          const signedParameters = this.actionAuthorizationService.verifySignedActionParameters(
-            request.body.data.attributes.signed_approval_request,
-          );
-
-          request.body = signedParameters;
+        try {
+          unwrapSignedApprovalRequest(this.actionAuthorizationService, request);
+        } catch (error) {
+          return next(error);
         }
 
         return next();
@@ -238,16 +241,11 @@ class PermissionMiddlewareCreator {
             },
           };
 
-          if (request.body?.data?.attributes?.requester_id) {
-            await this.actionAuthorizationService.assertCanApproveCustomAction({
-              ...canPerformCustomActionParams,
-              requesterId: request.body?.data?.attributes?.requester_id,
-            });
-          } else {
-            await this.actionAuthorizationService.assertCanTriggerCustomAction(
-              canPerformCustomActionParams,
-            );
-          }
+          await assertCanTriggerOrApproveCustomAction(
+            this.actionAuthorizationService,
+            request,
+            canPerformCustomActionParams,
+          );
 
           next();
         } catch (error) {

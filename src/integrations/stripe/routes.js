@@ -17,9 +17,38 @@ const serializeSubscriptions = require('./serializers/subscriptions');
 const serializeBankAccounts = require('./serializers/bank-accounts');
 const auth = require('../../services/auth');
 const path = require('../../services/path');
+const { default: UnprocessableError } = require('../../utils/errors/unprocessable-error');
+const {
+  hasForgedRequesterId,
+  unwrapSignedApprovalRequest,
+  assertCanTriggerOrApproveCustomAction,
+} = require('../../middlewares/custom-action-request');
+
+function createRefundPermissionMiddleware(actionAuthorizationService, collectionName) {
+  return async (request, response, next) => {
+    try {
+      if (hasForgedRequesterId(request)) {
+        throw new UnprocessableError();
+      }
+
+      unwrapSignedApprovalRequest(actionAuthorizationService, request);
+
+      await assertCanTriggerOrApproveCustomAction(actionAuthorizationService, request, {
+        user: request.user,
+        customActionName: 'Refund',
+        collectionName,
+        recordsCounterParams: { user: request.user, timezone: request.query.timezone },
+      });
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
 
 module.exports = function Routes(app, model, Implementation, opts) {
-  const { modelsManager } = inject();
+  const { modelsManager, actionAuthorizationService } = inject();
   const modelName = Implementation.getModelName(model);
   let integrationInfo;
 
@@ -71,6 +100,11 @@ module.exports = function Routes(app, model, Implementation, opts) {
       .then((payment) => { response.send(payment); })
       .catch(next);
   };
+
+  const ensureCanRefund = createRefundPermissionMiddleware(
+    actionAuthorizationService,
+    `${modelName}_stripe_payments`,
+  );
 
   const refund = (request, response, next) => {
     new PaymentRefunder(request.body, opts)
@@ -229,6 +263,7 @@ module.exports = function Routes(app, model, Implementation, opts) {
       app.post(
         path.generate(`${modelName}_stripe_payments/refunds`, opts),
         auth.ensureAuthenticated,
+        ensureCanRefund,
         refund,
       );
 
