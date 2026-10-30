@@ -184,7 +184,11 @@ class PermissionMiddlewareCreator {
           return next(new UnprocessableError());
         }
 
-        unwrapSignedApprovalRequest(this.actionAuthorizationService, request);
+        try {
+          unwrapSignedApprovalRequest(this.actionAuthorizationService, request);
+        } catch (error) {
+          return next(error);
+        }
 
         return next();
       },
