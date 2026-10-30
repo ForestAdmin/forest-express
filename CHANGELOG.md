@@ -1,3 +1,10 @@
+## [10.9.6](https://github.com/ForestAdmin/forest-express/compare/v10.9.5...v10.9.6) (2026-10-30)
+
+
+### Bug Fixes
+
+* **scope:** build the scoped filter tree as an object [PRD-1762] ([#1069](https://github.com/ForestAdmin/forest-express/issues/1069)) ([09f34c3](https://github.com/ForestAdmin/forest-express/commit/09f34c37d5f03d65ababde56311a43700c45d13a))
+
 ## [10.9.5](https://github.com/ForestAdmin/forest-express/compare/v10.9.4...v10.9.5) (2026-10-23)
 
 
