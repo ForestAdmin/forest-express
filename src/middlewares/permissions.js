@@ -106,6 +106,20 @@ class PermissionMiddlewareCreator {
     };
   }
 
+  async _assertSegmentQueryAllowed(request) {
+    const { query: { segmentQuery = null } = {} } = request;
+    const attributes = new QueryDeserializer(request.body?.data?.attributes ?? {}).perform();
+    const bodySegmentQuery = RecordsGetter.getSelectionSegmentQuery(attributes);
+
+    await Promise.all([...new Set([segmentQuery, bodySegmentQuery])].filter(Boolean).map(
+      (segment) => this.authorizationService.assertCanExecuteSegmentQuery(
+        request.user,
+        this.collectionName,
+        segment,
+      ),
+    ));
+  }
+
   list() {
     return async (request, response, next) => {
       try {
@@ -124,6 +138,18 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.assertCanExport(request.user, this.collectionName);
+        await this._assertSegmentQueryAllowed(request);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
+  }
+
+  segmentQuery() {
+    return async (request, _response, next) => {
+      try {
+        await this._assertSegmentQueryAllowed(request);
         next();
       } catch (error) {
         next(error);
@@ -168,6 +194,7 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.assertCanDelete(request.user, this.collectionName);
+        await this._assertSegmentQueryAllowed(request);
         next();
       } catch (error) {
         next(error);
@@ -200,6 +227,7 @@ class PermissionMiddlewareCreator {
           if (!isSelectionAllowed(smartAction, request.body?.data?.attributes)) {
             throw new UnprocessableError(SINGLE_RECORD_ONLY);
           }
+          await this._assertSegmentQueryAllowed(request);
           const actionName = smartAction.name;
 
           let filters;
