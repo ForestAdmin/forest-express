@@ -564,6 +564,37 @@ describe('middlewares > permissions', () => {
       expect(next).toHaveBeenCalledWith();
     });
 
+    it('should not check the querystring segment when the delete targets explicit ids', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanDelete: jest.fn().mockResolvedValue(),
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = {
+        user: { renderingId: 20 },
+        query: { segmentQuery: 'select id from sith' },
+        body: { data: { attributes: { ids: ['1'], all_records: false } } },
+      };
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .delete()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
     it('should not check the body segment when the delete targets explicit ids', async () => {
       expect.assertions(4);
 
@@ -700,6 +731,73 @@ describe('middlewares > permissions', () => {
         .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
       expect(next).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('should skip both sources on an explicit id selection when the route resolves one', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = buildSegmentRequest({
+        query: { segmentQuery: 'select id from sith' },
+        body: {
+          data: {
+            attributes: {
+              ids: ['1'],
+              all_records: false,
+              all_records_subset_query: { segmentQuery: 'select id from sith' },
+            },
+          },
+        },
+      });
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .segmentQuery({ honorsSelection: true })(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
+    });
+
+    it('should still check the querystring segment on an explicit selection when the route filters on it', async () => {
+      expect.assertions(4);
+
+      const collectionName = 'Sith';
+
+      const authorizationService = {
+        assertCanExecuteSegmentQuery: jest.fn().mockResolvedValue(),
+      };
+
+      const permissionMiddlewareCreator = createPermissionMiddlewareCreator(collectionName, {
+        ...defaultDependencies,
+        authorizationService,
+      });
+
+      const request = buildSegmentRequest({
+        query: { segmentQuery: 'select id from sith' },
+        body: { data: { attributes: { ids: ['1'], all_records: false } } },
+      });
+      const next = jest.fn();
+
+      await expect(permissionMiddlewareCreator
+        .segmentQuery()(request, null, next))
+        .toResolve();
+
+      expect(authorizationService.assertCanExecuteSegmentQuery)
+        .toHaveBeenCalledOnceWith(request.user, collectionName, 'select id from sith');
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledWith();
     });
 
     it('should not check the permission when neither the query string nor the body carries a segment', async () => {
@@ -929,15 +1027,19 @@ describe('middlewares > permissions', () => {
           expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
         });
 
-        it('should check the segment query permission with the approver on the signed body segment', async () => {
+        // The shape forestadmin-server signs: the selection was frozen into explicit record ids
+        // when the request was created, and all_records_subset_query is always null, so an
+        // approval carries no segment of its own.
+        it('should not check any segment on the approval payload the server signs', async () => {
           const {
             smartActionPermission, request, actionAuthorizationService, authorizationService,
           } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
               requester_id: 42,
-              all_records: true,
-              all_records_subset_query: { segmentQuery: 'select id from users' },
+              ids: ['1'],
+              all_records: false,
+              all_records_subset_query: null,
             },
           });
 
@@ -945,8 +1047,7 @@ describe('middlewares > permissions', () => {
             executeMiddleware(smartActionPermission, request, {}),
           ).resolves.toBeUndefined();
 
-          expect(authorizationService.assertCanExecuteSegmentQuery)
-            .toHaveBeenCalledOnceWith(request.user, 'users', 'select id from users');
+          expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
           expect(actionAuthorizationService.assertCanApproveCustomAction)
             .toHaveBeenCalledOnceWith({
               collectionName: 'users',
@@ -956,32 +1057,34 @@ describe('middlewares > permissions', () => {
                 timezone: 'Europe/Paris',
                 user: { id: 30 },
               },
-              filterForCaller: { field: 'id', operator: 'in', value: [] },
+              filterForCaller: { field: 'id', operator: 'in', value: ['1'] },
               requesterId: 42,
               user: { id: 30 },
             });
         });
 
-        it('should refuse the approval when the approver cannot execute the signed body segment', async () => {
+        // The signed payload replaces the body, never the querystring, so this is the one segment
+        // an approver still controls. The frozen selection drops it before it can be run.
+        it('should ignore a segment an approver appends to the querystring', async () => {
           const {
             smartActionPermission, request, actionAuthorizationService, authorizationService,
           } = setupSmartAction({
             requestAttributes: {
               ...defaultAttributes,
               requester_id: 42,
-              all_records: true,
-              all_records_subset_query: { segmentQuery: 'select id from users' },
+              ids: ['1'],
+              all_records: false,
+              all_records_subset_query: null,
             },
           });
-
-          const error = new Error('Forbidden');
-          authorizationService.assertCanExecuteSegmentQuery.mockRejectedValue(error);
+          request.query.segmentQuery = 'select id from users';
 
           await expect(
             executeMiddleware(smartActionPermission, request, {}),
-          ).rejects.toBe(error);
+          ).resolves.toBeUndefined();
 
-          expect(actionAuthorizationService.assertCanApproveCustomAction).not.toHaveBeenCalled();
+          expect(authorizationService.assertCanExecuteSegmentQuery).not.toHaveBeenCalled();
+          expect(actionAuthorizationService.assertCanApproveCustomAction).toHaveBeenCalledOnce();
         });
       });
 

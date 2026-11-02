@@ -211,8 +211,12 @@ module.exports = function Associations(app, model, Implementation, integrator, o
         auth.ensureAuthenticated,
         updateEmbeddedDocument(association.field),
       );
-      app.delete(path.generate(`${modelName}/:recordId/relationships/${
-        association.field}`, opts), auth.ensureAuthenticated, permissionMiddlewareCreator.segmentQuery(), remove);
+      app.delete(
+        path.generate(`${modelName}/:recordId/relationships/${association.field}`, opts),
+        auth.ensureAuthenticated,
+        permissionMiddlewareCreator.segmentQuery({ honorsSelection: true }),
+        remove,
+      );
     });
 
     // NOTICE: belongsTo associations routes
