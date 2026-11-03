@@ -109,6 +109,83 @@ describe('unit > services > AuthorizationService', () => {
     });
   });
 
+  describe('assertCanExecuteSegmentQuery', () => {
+    it('should not check the permission when no segment query is provided', async () => {
+      const context = makeContext();
+      const { forestAdminClient } = context;
+
+      const authorizationService = new AuthorizationService(
+        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
+      );
+
+      await expect(authorizationService.assertCanExecuteSegmentQuery(
+        user,
+        'collectionName',
+        undefined,
+      )).toResolve();
+
+      expect(forestAdminClient.permissionService.canExecuteSegmentQuery).not.toHaveBeenCalled();
+    });
+
+    it('should not throw when the user can execute the segment query', async () => {
+      const context = makeContext();
+      const { forestAdminClient } = context;
+
+      forestAdminClient.permissionService.canExecuteSegmentQuery.mockResolvedValue(true);
+
+      const authorizationService = new AuthorizationService(
+        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
+      );
+
+      await expect(authorizationService.assertCanExecuteSegmentQuery(
+        user,
+        'collectionName',
+        'segmentQuery',
+      )).toResolve();
+
+      expect(forestAdminClient.permissionService.canExecuteSegmentQuery).toHaveBeenCalledTimes(1);
+      expect(forestAdminClient.permissionService.canExecuteSegmentQuery).toHaveBeenCalledWith({
+        userId: user.id,
+        collectionName: 'collectionName',
+        renderingId: user.renderingId,
+        segmentQuery: 'segmentQuery',
+      });
+    });
+
+    it('should throw a 403 ForbiddenError when the user cannot execute the segment query', async () => {
+      const context = makeContext();
+      const { forestAdminClient } = context;
+
+      forestAdminClient.permissionService.canExecuteSegmentQuery.mockResolvedValue(false);
+
+      const authorizationService = new AuthorizationService(
+        context as unknown as ConstructorParameters<typeof AuthorizationService>[0],
+      );
+
+      let caught: unknown;
+      try {
+        await authorizationService.assertCanExecuteSegmentQuery(
+          user,
+          'collectionName',
+          'segmentQuery',
+        );
+      } catch (e) {
+        caught = e;
+      }
+
+      expect(caught).toBeInstanceOf(ForbiddenError);
+      expect((caught as ForbiddenError).status).toBe(403);
+
+      expect(forestAdminClient.permissionService.canExecuteSegmentQuery).toHaveBeenCalledTimes(1);
+      expect(forestAdminClient.permissionService.canExecuteSegmentQuery).toHaveBeenCalledWith({
+        userId: user.id,
+        collectionName: 'collectionName',
+        renderingId: user.renderingId,
+        segmentQuery: 'segmentQuery',
+      });
+    });
+  });
+
   describe('assertCanRead', () => {
     it('should not throw when the user can browse a collection', async () => {
       const context = makeContext();

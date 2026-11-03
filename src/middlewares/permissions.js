@@ -106,6 +106,30 @@ class PermissionMiddlewareCreator {
     };
   }
 
+  /**
+   * @param honorsSelection the route resolves a record selection (bulk delete, dissociate, smart
+   *        action) rather than filtering on the querystring. An explicit id selection pins the
+   *        records, so neither `ResourcesRemover`, `HasManyDissociator` nor the action filter ever
+   *        applies the segment — refusing it would refuse a query that does not run. Iso
+   *        agent-nodejs and forest-rails, which both leave the segment out of such a selection.
+   */
+  async _assertSegmentQueryAllowed(request, { honorsSelection = false } = {}) {
+    const attributes = new QueryDeserializer(request.body?.data?.attributes ?? {}).perform();
+
+    if (honorsSelection && RecordsGetter.isExplicitIdSelection(attributes)) return;
+
+    const { query: { segmentQuery = null } = {} } = request;
+    const bodySegmentQuery = RecordsGetter.getSelectionSegmentQuery(attributes);
+
+    await Promise.all([...new Set([segmentQuery, bodySegmentQuery])].filter(Boolean).map(
+      (segment) => this.authorizationService.assertCanExecuteSegmentQuery(
+        request.user,
+        this.collectionName,
+        segment,
+      ),
+    ));
+  }
+
   list() {
     return async (request, response, next) => {
       try {
@@ -124,6 +148,18 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.assertCanExport(request.user, this.collectionName);
+        await this._assertSegmentQueryAllowed(request);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
+  }
+
+  segmentQuery({ honorsSelection = false } = {}) {
+    return async (request, _response, next) => {
+      try {
+        await this._assertSegmentQueryAllowed(request, { honorsSelection });
         next();
       } catch (error) {
         next(error);
@@ -168,6 +204,7 @@ class PermissionMiddlewareCreator {
     return async (request, response, next) => {
       try {
         await this.authorizationService.assertCanDelete(request.user, this.collectionName);
+        await this._assertSegmentQueryAllowed(request, { honorsSelection: true });
         next();
       } catch (error) {
         next(error);
@@ -200,6 +237,7 @@ class PermissionMiddlewareCreator {
           if (!isSelectionAllowed(smartAction, request.body?.data?.attributes)) {
             throw new UnprocessableError(SINGLE_RECORD_ONLY);
           }
+          await this._assertSegmentQueryAllowed(request, { honorsSelection: true });
           const actionName = smartAction.name;
 
           let filters;

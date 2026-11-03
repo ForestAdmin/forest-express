@@ -6,6 +6,15 @@ const Schemas = require('../../generators/schemas');
 const AbstractRecordService = require('./abstract-records-service');
 
 class RecordsGetter extends AbstractRecordService {
+  static isExplicitIdSelection(attrs) {
+    return Boolean(attrs?.allRecords !== true && attrs?.ids);
+  }
+
+  static getSelectionSegmentQuery(attrs) {
+    if (RecordsGetter.isExplicitIdSelection(attrs)) return null;
+    return attrs?.allRecordsSubsetQuery?.segmentQuery || null;
+  }
+
   /**
    * @param extraParams Deprecated. Should be removed for forest-express@10
    */
@@ -44,7 +53,7 @@ class RecordsGetter extends AbstractRecordService {
     const idsExcludedAsString = attrs?.allRecordsIdsExcluded?.map?.(String) ?? [];
 
     // "select all records" is not selected
-    if (attrs?.allRecords !== true && attrs.ids) {
+    if (RecordsGetter.isExplicitIdSelection(attrs)) {
       return attrs.ids;
     }
 
