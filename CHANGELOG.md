@@ -1,3 +1,10 @@
+## [10.9.8](https://github.com/ForestAdmin/forest-express/compare/v10.9.7...v10.9.8) (2026-11-03)
+
+
+### Bug Fixes
+
+* **permissions:** harden live query segment handling [PRD-1820] ([#1071](https://github.com/ForestAdmin/forest-express/issues/1071)) ([72367e7](https://github.com/ForestAdmin/forest-express/commit/72367e7bf2b5bd6c239d2cf426b8410b15ae6db1))
+
 ## [10.9.7](https://github.com/ForestAdmin/forest-express/compare/v10.9.6...v10.9.7) (2026-10-30)
 
 
