@@ -35,6 +35,17 @@ class ScopeManager {
     return asString && !!scopeFilters ? JSON.stringify(scopeFilters) : scopeFilters;
   }
 
+  // Whether the collection's scope also hides its records reached through a relation.
+  // A client that does not read the flag yet reads as not flagged.
+  async scopeAppliesToRelatedRecords(user, collectionName) {
+    if (!this.forestAdminClient.scopeAppliesToRelatedRecords) return false;
+
+    return this.forestAdminClient.scopeAppliesToRelatedRecords({
+      renderingId: user.renderingId,
+      collectionName,
+    });
+  }
+
   invalidateScopeCache(renderingId) {
     this.forestAdminClient.markScopesAsUpdated(renderingId);
   }

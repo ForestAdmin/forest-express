@@ -278,6 +278,31 @@ describe('services > ScopeManager', () => {
     });
   });
 
+  describe('scopeAppliesToRelatedRecords', () => {
+    it('returns the flag the client reads for the user\'s rendering', async () => {
+      const context = {
+        forestAdminClient: { scopeAppliesToRelatedRecords: jest.fn().mockResolvedValue(true) },
+      };
+      const scopeManager = new ScopeManager(context);
+
+      const applies = await scopeManager.scopeAppliesToRelatedRecords(defaultUser, 'myCollection');
+
+      expect(applies).toBe(true);
+      expect(context.forestAdminClient.scopeAppliesToRelatedRecords).toHaveBeenCalledWith({
+        renderingId: defaultUser.renderingId,
+        collectionName: 'myCollection',
+      });
+    });
+
+    it('returns false when the client does not read the flag', async () => {
+      const scopeManager = new ScopeManager(makeContext());
+
+      const applies = await scopeManager.scopeAppliesToRelatedRecords(defaultUser, 'myCollection');
+
+      expect(applies).toBe(false);
+    });
+  });
+
   describe('getScopeForUser', () => {
     describe('with bad inputs', () => {
       const context = makeContext();
