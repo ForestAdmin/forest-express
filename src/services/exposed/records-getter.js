@@ -23,7 +23,14 @@ class RecordsGetter extends AbstractRecordService {
 
     // Load records
     const params = { ...this.params, ...extraParams };
-    const getter = new ResourcesGetter(this.model, this.lianaOptions, params, this.user);
+    // Customer code reads related records as stored; only what the agent serves is emptied.
+    const getter = new ResourcesGetter(
+      this.model,
+      this.lianaOptions,
+      params,
+      this.user,
+      { redactRelatedRecords: false },
+    );
     const [records, fieldsSearched] = await getter.perform();
 
     // Save search value and searched fields for 'meta' generation on serialization

@@ -8,6 +8,7 @@ class RecordUpdater extends AbstractRecordService {
       { ...this.params, recordId },
       record,
       this.user,
+      { redactRelatedRecords: false },
     )
       .perform();
   }
