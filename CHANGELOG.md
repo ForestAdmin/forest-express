@@ -1,3 +1,10 @@
+# [10.10.0](https://github.com/ForestAdmin/forest-express/compare/v10.9.8...v10.10.0) (2026-11-26)
+
+
+### Features
+
+* **scopes:** expose whether a collection's scope applies to related records ([#1072](https://github.com/ForestAdmin/forest-express/issues/1072)) ([bd0fbed](https://github.com/ForestAdmin/forest-express/commit/bd0fbed1628c62f3ab3466edc0ca6cde4c58a4df))
+
 ## [10.9.8](https://github.com/ForestAdmin/forest-express/compare/v10.9.7...v10.9.8) (2026-11-03)
 
 
