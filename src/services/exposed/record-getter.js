@@ -6,6 +6,8 @@ class RecordGetter extends AbstractRecordService {
       this.model,
       { ...this.params, recordId },
       this.user,
+      // Customer code reads related records as stored; only what the agent serves is emptied.
+      { redactRelatedRecords: false },
     )
       .perform();
   }
